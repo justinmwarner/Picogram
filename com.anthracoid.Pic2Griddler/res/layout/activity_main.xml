@@ -1,23 +1,141 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/LinearLayout1"
     android:layout_width="match_parent"
-    android:layout_height="match_parent" >
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+    <TableLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top|left|right|center"
+        android:layout_marginBottom="34dp"
+        android:layout_marginLeft="299dp"
+        android:layout_weight="1" >
+
+        <TableRow
+            android:id="@+id/tableRow1"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" >
+
+            <Button
+                android:id="@+id/buttonCamera"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="100"
+                android:height="10dp"
+                android:text="Camera" />
+        </TableRow>
+
+        <TableRow
+            android:id="@+id/tableRow2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" >
+
+            <Button
+                android:id="@+id/buttonFile"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="100"
+                android:height="10dp"
+                android:text="File Explorer" />
+        </TableRow>
+
+        <TableRow
+            android:id="@+id/tableRow3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" >
+
+            <Button
+                android:id="@+id/buttonURL"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="10"
+                android:height="10dp"
+                android:text="URL" />
+
+            <EditText
+                android:id="@+id/etURL"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="80"
+                android:ems="10"
+                android:height="10dp"
+                android:text="http://4.bp.blogspot.com/-7OB5POudOVY/UCveD7FnHrI/AAAAAAAACBI/Zh0nE2cpFWc/s1600/blogheader.png" />
+        </TableRow>
+
+        <TableRow
+            android:id="@+id/tableRow4"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" >
+
+            <TextView
+                android:id="@+id/tvX"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="X Blocks" />
+
+            <Spinner
+                android:id="@+id/spinX"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:prompt="@string/xBlocks" />
+
+            <TextView
+                android:id="@+id/tvY"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Y Blocks" />
+
+            <Spinner
+                android:id="@+id/spinY"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:prompt="@string/yBlock" />
+
+            <TextView
+                android:id="@+id/tvY"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Number of Colors" />
+
+            <Spinner
+                android:id="@+id/spinColor"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:prompt="@string/colorNumber" />
+        </TableRow>
+    </TableLayout>
+
+    <ImageView
+        android:id="@+id/preImage"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_weight="50"
+        android:contentDescription="This is the image before alteration (That the user took!)."
+        android:src="@drawable/ic_launcher" />
 
     <TextView
-        android:id="@+id/textView1"
-        android:layout_width="wrap_content"
+        android:id="@+id/tvInfo"
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true"
-        android:text="@string/hello_world"
-        tools:context=".MainActivity" />
+        android:layout_weight="50"
+        android:text="Some Text Here" />
 
-    <Button
-        android:id="@+id/button1"
-        android:layout_width="wrap_content"
+    <ImageView
+        android:id="@+id/finalImage"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/textView1"
-        android:layout_centerHorizontal="true"
-        android:text="Button" />
+        android:layout_gravity="center"
+        android:layout_weight="1"
+        android:contentDescription="This is the image after alteration!"
+        android:src="@drawable/ic_launcher" />
 
-</RelativeLayout>
+</LinearLayout>

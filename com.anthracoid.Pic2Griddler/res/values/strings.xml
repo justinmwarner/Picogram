@@ -4,5 +4,9 @@
     <string name="hello_world">Hello world!</string>
     <string name="menu_settings">Settings</string>
     <string name="title_activity_main">MainActivity</string>
+    <string name="testPrompt">This my prompt</string>
+    <string name="xBlocks">X Block</string>
+    <string name="yBlock">Y Blocks</string>
+    <string name="colorNumber">Number of Colors</string>
 
 </resources>
