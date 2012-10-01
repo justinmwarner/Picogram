@@ -6,12 +6,11 @@
     android:orientation="vertical" >
 
     <TableLayout
-        android:layout_width="fill_parent"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="top|left|right|center"
+        android:layout_gravity="center|fill"
         android:layout_marginBottom="34dp"
-        android:layout_marginLeft="299dp"
-        android:layout_weight="1" >
+        android:layout_marginLeft="299dp" >
 
         <TableRow
             android:id="@+id/tableRow1"
@@ -62,6 +61,13 @@
                 android:ems="10"
                 android:height="10dp"
                 android:text="http://4.bp.blogspot.com/-7OB5POudOVY/UCveD7FnHrI/AAAAAAAACBI/Zh0nE2cpFWc/s1600/blogheader.png" />
+            <Button
+                android:id="@+id/buttonSubmit"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="100"
+                android:height="10dp"
+                android:text="Submit" />
         </TableRow>
 
         <TableRow
@@ -110,32 +116,36 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:prompt="@string/colorNumber" />
+
+            <Button
+                android:id="@+id/buttonSubmit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Submit" />
+
         </TableRow>
     </TableLayout>
 
-    <ImageView
-        android:id="@+id/preImage"
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_weight="50"
-        android:contentDescription="This is the image before alteration (That the user took!)."
-        android:src="@drawable/ic_launcher" />
+        android:layout_weight="50" >
 
-    <TextView
-        android:id="@+id/tvInfo"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_weight="50"
-        android:text="Some Text Here" />
+        <ImageView
+            android:id="@+id/preImage"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="50"
+            android:contentDescription="This is the image before alteration (That the user took!)."
+            android:src="@drawable/ic_launcher" />
+        
+        <GridView
+            android:id="@+id/gvPreview"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@+id/preImage" />
 
-    <ImageView
-        android:id="@+id/finalImage"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_weight="1"
-        android:contentDescription="This is the image after alteration!"
-        android:src="@drawable/ic_launcher" />
+    </RelativeLayout>
 
 </LinearLayout>

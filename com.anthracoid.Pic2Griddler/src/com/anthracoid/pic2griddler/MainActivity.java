@@ -1,10 +1,12 @@
-package com.example.com.anthracoid.pic2griddler;
+package com.anthracoid.pic2griddler;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+
+import com.example.com.anthracoid.pic2griddler.R;
 
 import android.net.Uri;
 import android.os.Bundle;
@@ -22,17 +24,20 @@ import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+
 public class MainActivity extends Activity implements OnClickListener {
 
 	private static final int CAMERA_REQUEST_CODE = 1888, FILE_SELECT_CODE = 1337;	//Look this up a bit later.
-	private ImageView preImageView, finalImageView;
+	private ImageView preImageView;
 	private EditText etURL;
-	private TextView tvInfo;
+	private Bitmap orig;
+	private GridView gv;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -41,14 +46,39 @@ public class MainActivity extends Activity implements OnClickListener {
         Button photoButton = (Button) findViewById(R.id.buttonCamera);
         Button fileButton = (Button) findViewById(R.id.buttonFile);
         Button urlButton = (Button) findViewById(R.id.buttonURL);
+        Button submitButton = (Button) findViewById(R.id.buttonURL);
         preImageView = (ImageView) findViewById(R.id.preImage);
-        finalImageView = (ImageView) findViewById(R.id.finalImage);
+        gv = (GridView) findViewById(R.id.gvPreview);
         photoButton.setOnClickListener(this);
         fileButton.setOnClickListener(this);
         urlButton.setOnClickListener(this);
-		tvInfo = (TextView) findViewById(R.id.tvInfo);
-
+        submitButton.setOnClickListener(this);
         
+        
+        
+        //Check if we're getting data from a share.
+        Intent intent = getIntent();
+        String action = intent.getAction();
+        String type = intent.getType();
+        if(Intent.ACTION_SEND.equals(action) && type != null)
+    	{
+        	if(type.startsWith("image/"))
+        	{
+				try {
+	        		Uri uri = (Uri) intent.getParcelableExtra(Intent.EXTRA_STREAM);
+					Bitmap bi;
+					bi = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
+					preImageView.setImageBitmap(bi);
+					orig = bi;
+				} catch (FileNotFoundException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+        	}
+    	}
     }
 
     @Override
@@ -59,7 +89,6 @@ public class MainActivity extends Activity implements OnClickListener {
 
 	public void onClick(View v) {
 		// TODO Auto-generated method stub
-		tvInfo.setText("Changing");
 		
 		if(v.getId() == R.id.buttonCamera)
 		{
@@ -93,6 +122,7 @@ public class MainActivity extends Activity implements OnClickListener {
 							public void run() 
 							{ 
 								preImageView.setImageBitmap(bm); 
+								orig = bm;
 							} 
 						});
 					} catch (IOException e) {
@@ -104,17 +134,22 @@ public class MainActivity extends Activity implements OnClickListener {
 				
 			}).start();
 		}
+		else if(v.getId() == R.id.buttonSubmit)
+		{
+			alterPhoto();
+		}
+
 	}
 	
 	protected void onActivityResult(int request, int result, Intent data)
 	{
-		print("On Result");
 		if(request == CAMERA_REQUEST_CODE)
 		{
 			if(result == Activity.RESULT_OK)
 			{
 				Bitmap photo = (Bitmap) data.getExtras().get("data");
 				preImageView.setImageBitmap(photo);
+				orig = photo;
 			}
 			else
 			{
@@ -129,6 +164,7 @@ public class MainActivity extends Activity implements OnClickListener {
 					Uri uri = data.getData();
 					Bitmap bi = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
 					preImageView.setImageBitmap(bi);
+					orig = bi;
 				} catch (FileNotFoundException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -143,28 +179,45 @@ public class MainActivity extends Activity implements OnClickListener {
 	}
 
 	private void alterPhoto() {
-		Bitmap result = null;
-		while(result == null)
+		if(orig != null)
 		{
-			preImageView.buildDrawingCache();
-			result = preImageView.getDrawingCache();
-		}
-		String temp = "";
-		tvInfo.setText(temp);
-		//Do stuff.
-		int[][] theColorsToDraw = new int[result.getWidth()][result.getHeight()];
-		for(int i = 0; i < result.getWidth(); i++)
-		{
-			for(int j = 0; j < result.getHeight(); j++)
+			
+			int cellWidth = 10;
+			int cellHeight = 10;
+			gv.setNumColumns(cellWidth);
+			int h = orig.getHeight() + (orig.getHeight() % cellHeight);
+			int w = orig.getWidth() + (orig.getWidth() % cellWidth);
+			orig = Bitmap.createScaledBitmap(orig, w, h, true);
+			int cellColors[][] = new int[cellWidth][cellHeight];
+			for(int i = 0; i < cellColors.length; i++)
 			{
-				int colorNum = result.getPixel(i, j);
-				temp += colorNum + " ";
-				theColorsToDraw[i][j] = colorNum;
+				for(int j = 0; j < cellColors[i].length; j++)
+				{
+					int norm = 0;
+					for(int x = i * (orig.getWidth()/cellWidth); x < (i+1) *(orig.getWidth()/cellWidth); x++)
+					{
+						for(int y = j * (orig.getHeight()/cellHeight); y < (j+1) *(orig.getHeight()/cellHeight); y++)
+						{
+							int color = orig.getPixel(x, y);
+							int r = color%256;	
+							int g =	 (color/256 ) % 256 ;
+							int b =	 (color/256/256 ) %256	;
+							norm += ((r+g+b)/3);
+						}
+					}
+					cellColors[i][j] = (norm/ ((orig.getWidth()/cellWidth) * (orig.getHeight()/cellHeight)));	//Gonna be 50 shades of grey XD.  Joke.
+				}
 			}
-			temp += "\n";
+			//Now find the color to make each cell and color it!
+			int num = 0;
+			for(int i = 0; i < gv.getCount(); i++){
+				//gv.getChildAt(i).setBackgroundColor(Color.rgb(red, green, blue))
+			}
 		}
-		tvInfo.setText(temp);
-		finalImageView.setImageBitmap(result);
+		else
+		{
+			print("We need a valid photo first.");
+		}
 	}
 	
 	private void print(String t )

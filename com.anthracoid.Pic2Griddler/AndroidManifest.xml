@@ -17,11 +17,11 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
-            android:name=".MainActivity"
+            android:name="com.anthracoid.pic2griddler.MainActivity"
             android:label="@string/title_activity_main" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
+				<data android:mimeType="image/*"/>
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
