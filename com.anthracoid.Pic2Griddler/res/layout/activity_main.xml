@@ -6,14 +6,13 @@
     android:orientation="vertical" >
 
     <TableLayout
-        android:layout_width="match_parent"
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center|fill"
-        android:layout_marginBottom="34dp"
-        android:layout_marginLeft="299dp" >
+        android:layout_marginBottom="34dp" >
 
         <TableRow
-            android:id="@+id/tableRow1"
+            android:id="@+id/trSelectors"
             android:layout_width="match_parent"
             android:layout_height="match_parent" >
 
@@ -21,35 +20,23 @@
                 android:id="@+id/buttonCamera"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="100"
+                android:layout_weight="5"
                 android:height="10dp"
                 android:text="Camera" />
-        </TableRow>
-
-        <TableRow
-            android:id="@+id/tableRow2"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" >
 
             <Button
                 android:id="@+id/buttonFile"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="100"
+                android:layout_weight="5"
                 android:height="10dp"
                 android:text="File Explorer" />
-        </TableRow>
-
-        <TableRow
-            android:id="@+id/tableRow3"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" >
 
             <Button
                 android:id="@+id/buttonURL"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="10"
+                android:layout_weight="5"
                 android:height="10dp"
                 android:text="URL" />
 
@@ -57,21 +44,18 @@
                 android:id="@+id/etURL"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="80"
+                android:layout_weight="85"
                 android:ems="10"
                 android:height="10dp"
-                android:text="http://4.bp.blogspot.com/-7OB5POudOVY/UCveD7FnHrI/AAAAAAAACBI/Zh0nE2cpFWc/s1600/blogheader.png" />
-            <Button
-                android:id="@+id/buttonSubmit"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="100"
-                android:height="10dp"
-                android:text="Submit" />
+                android:text="http://www.pepperdesign.it/pepper/rainbow.jpg" >
+
+                <requestFocus />
+            </EditText>
+
         </TableRow>
 
         <TableRow
-            android:id="@+id/tableRow4"
+            android:id="@+id/trSubmiters"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" >
 
@@ -86,7 +70,7 @@
                 android:id="@+id/spinX"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
+                android:layout_weight="3"
                 android:prompt="@string/xBlocks" />
 
             <TextView
@@ -133,18 +117,28 @@
         android:layout_weight="50" >
 
         <ImageView
-            android:id="@+id/preImage"
-            android:layout_width="match_parent"
+            android:id="@+id/ivPreview"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentTop="true"
+            android:src="@drawable/ic_launcher" />
+        <ImageView
+            android:id="@+id/preImage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toLeftOf="@id/ivPreview"
             android:layout_weight="50"
             android:contentDescription="This is the image before alteration (That the user took!)."
             android:src="@drawable/ic_launcher" />
-        
-        <GridView
-            android:id="@+id/gvPreview"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_below="@+id/preImage" />
+
+        <TextView
+            android:id="@+id/tvFinalCode"
+            android:layout_width="wrap_content"
+            android:layout_height="fill_parent"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentTop="true"
+            android:text="TextView" />
 
     </RelativeLayout>
 
