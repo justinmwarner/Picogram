@@ -21,10 +21,12 @@ import android.graphics.Color;
 import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -35,6 +37,7 @@ public class MainActivity extends Activity implements OnClickListener
 	private ImageView			preImageView, ivPreview;
 	private EditText			etURL;
 	private Bitmap				orig;
+	private Spinner				sX, sY, sColor;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState)
@@ -52,8 +55,22 @@ public class MainActivity extends Activity implements OnClickListener
 		fileButton.setOnClickListener(this);
 		urlButton.setOnClickListener(this);
 		submitButton.setOnClickListener(this);
-		
+
 		//Add items to spinners... Might be a better way to do this, seriously, this is idiotic.
+		sX = (Spinner) findViewById(R.id.spinX);
+		sY = (Spinner) findViewById(R.id.spinY);
+		sColor = (Spinner) findViewById(R.id.spinColor);
+		String colorNumbers[] = new String[9];
+		String xyNumbers[] = new String[20];	//Support more than 20 for multi-griddlers in future.
+		for (int i = 1; i < 21; i++)
+			xyNumbers[i - 1] = "" + i;
+		for (int i = 2; i < 11; i++)
+			colorNumbers[i - 2] = "" + i;
+		ArrayAdapter xy = new ArrayAdapter(this, android.R.layout.simple_spinner_item, xyNumbers);
+		ArrayAdapter cols = new ArrayAdapter(this, android.R.layout.simple_spinner_item, colorNumbers);
+		sX.setAdapter(xy);
+		sY.setAdapter(xy);
+		sColor.setAdapter(cols);
 
 		// Check if we're getting data from a share.
 		Intent intent = getIntent();
@@ -200,40 +217,24 @@ public class MainActivity extends Activity implements OnClickListener
 	{
 		if (orig != null)
 		{
-			int numColors = 3, yNum = 5, xNum = 5;
+
+			int numColors = Integer.parseInt(sColor.getSelectedItem().toString()), yNum = Integer.parseInt(sY.getSelectedItem().toString()), xNum = Integer.parseInt(sX.getSelectedItem().toString());
 			int newHeight = orig.getHeight() + (yNum - (orig.getHeight() % yNum));
 			int newWidth = orig.getWidth() + (xNum - (orig.getWidth() % xNum));
 			Bitmap alter = orig.createScaledBitmap(orig, newWidth, newHeight, true);
 			Bitmap tttt = orig.createScaledBitmap(orig, yNum, xNum, true);
-			tttt = tttt.createScaledBitmap(tttt, yNum*10, xNum*10, true);
+			tttt = tttt.createScaledBitmap(tttt, yNum * 10, xNum * 10, true);
 			this.preImageView.setImageBitmap(tttt);
 			tttt = orig.createScaledBitmap(orig, yNum, xNum, false);
-			tttt = tttt.createScaledBitmap(tttt, yNum*10, xNum*10, false);
+			tttt = tttt.createScaledBitmap(tttt, yNum * 10, xNum * 10, false);
 			this.ivPreview.setImageBitmap(tttt);
-			
+
 			//For future ideas.  May not be implemented.
 			/*
-			int finalMatrix[][] = new int[alter.getHeight()][alter.getWidth()];
-			String temp = "Height: " + alter.getHeight() + " Width: " + alter.getWidth() + "\n\n";
-			for(int i = 0; i < alter.getHeight(); i++)
-			{
-				for(int j = 0; j < alter.getWidth(); j++)
-				{
-					int color = alter.getPixel(i, j);
-					int r = color % 256;
-					int g = (color / 256) % 256;
-					int b = (color / 256 / 256) % 256;
-					int norm = (r+b+g)/3;
-					finalMatrix[i][j] = colorNumber(norm, numColors);
-					temp += finalMatrix[i][j];
-				}
-				temp+="\n";
-			}
-			//Final matrix is the color pattern.  Now draw that.
-			TextView tv = (TextView) findViewById(R.id.tvFinalCode);
-			tv.setText(temp);
-			*/
-			
+			 * int finalMatrix[][] = new int[alter.getHeight()][alter.getWidth()]; String temp = "Height: " + alter.getHeight() + " Width: " + alter.getWidth() + "\n\n"; for(int i = 0; i < alter.getHeight(); i++) { for(int j = 0; j < alter.getWidth(); j++) { int color = alter.getPixel(i, j); int r = color % 256; int g = (color / 256) % 256; int b = (color / 256 / 256) % 256; int norm = (r+b+g)/3; finalMatrix[i][j] = colorNumber(norm, numColors); temp += finalMatrix[i][j]; } temp+="\n"; } //Final
+			 * matrix is the color pattern. Now draw that. TextView tv = (TextView) findViewById(R.id.tvFinalCode); tv.setText(temp);
+			 */
+
 		}
 		else
 		{
@@ -244,19 +245,35 @@ public class MainActivity extends Activity implements OnClickListener
 	/*
 	 * For past ideas, and for future ideas.
 	 */
-	private int colorNumber(int norm, int numColors )
+	private int colorNumber(int norm, int numColors)
 	{
 		//255 split by numColors.
-		int split = 255/numColors;
-		for(int i = numColors-1; i > 0; i--)
+		int split = 255 / numColors;
+		for (int i = numColors - 1; i > 0; i--)
 		{
-			if(norm >= split*i)
+			if (norm >= split * i)
+			{
+				return i * split;
+			}
+		}
+		return 0;	//Return 0.
+	}
+	
+	private int colorCode(int norm, int numColors)
+	{
+		//255 split by numColors.
+		int split = 255 / numColors;
+		for (int i = numColors - 1; i > 0; i--)
+		{
+			if (norm >= split * i)
 			{
 				return i;
 			}
 		}
 		return 0;	//Return 0.
 	}
+	
+	
 
 	private void print(String t)
 	{
