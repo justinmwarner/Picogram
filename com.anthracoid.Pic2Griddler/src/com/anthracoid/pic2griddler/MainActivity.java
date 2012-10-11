@@ -258,7 +258,7 @@ public class MainActivity extends Activity implements OnClickListener
 		}
 		return 0;	//Return 0.
 	}
-	
+
 	private int colorCode(int norm, int numColors)
 	{
 		//255 split by numColors.
@@ -272,8 +272,6 @@ public class MainActivity extends Activity implements OnClickListener
 		}
 		return 0;	//Return 0.
 	}
-	
-	
 
 	private void print(String t)
 	{
