@@ -8,8 +8,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import com.example.com.anthracoid.pic2griddler.R;
-
 import android.net.Uri;
 import android.os.Bundle;
 import android.app.Activity;
@@ -30,7 +28,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class MainActivity extends Activity implements OnClickListener
+public class CreateGriddlerActivity extends Activity implements OnClickListener
 {
 
 	private static final int	CAMERA_REQUEST_CODE	= 1888, FILE_SELECT_CODE = 1337;

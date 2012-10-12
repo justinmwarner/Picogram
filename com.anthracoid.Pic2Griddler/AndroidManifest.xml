@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.com.anthracoid.pic2griddler"
+    package="com.anthracoid.pic2griddler"
     android:versionCode="1"
     android:versionName="1.0" >
 
@@ -17,12 +17,20 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
-            android:name="com.anthracoid.pic2griddler.MainActivity"
-            android:label="@string/title_activity_main" >
+            android:name="com.anthracoid.pic2griddler.MenuActivity"
+            android:label="@string/title_activity_menu" >
             <intent-filter>
-                <action android:name="android.intent.action.SEND" />
                 <action android:name="android.intent.action.MAIN" />
 
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="com.anthracoid.pic2griddler.CreateGriddlerActivity"
+            android:label="@string/create_griddler" >
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
                 <category android:name="android.intent.category.LAUNCHER" />
 
                 <data android:mimeType="image/*" />
