@@ -32,8 +32,8 @@ public class MenuActivity extends Activity implements OnClickListener {
 	{
 		if(v.getId() == R.id.bPlay)
 		{
-	        //Intent startGame = new Intent(MenuActivity.this,GameActivity.class);
-	        //startActivity(startGame);
+	        Intent startGame = new Intent(MenuActivity.this,GameActivity.class);
+	        startActivity(startGame);
 		}
 		else if(v.getId() == R.id.bCreate)
 		{
