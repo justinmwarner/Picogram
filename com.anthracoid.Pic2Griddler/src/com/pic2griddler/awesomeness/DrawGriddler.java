@@ -1,4 +1,4 @@
-package com.anthracoid.pic2griddler;
+package com.pic2griddler.awesomeness;
 
 import android.content.Context;
 import android.graphics.Canvas;
@@ -9,8 +9,6 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
-import android.view.SurfaceHolder.Callback;
-import android.widget.Toast;
 
 public class DrawGriddler extends SurfaceView implements SurfaceHolder.Callback, Runnable
 {

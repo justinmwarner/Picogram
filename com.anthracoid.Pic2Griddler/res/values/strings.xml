@@ -10,5 +10,6 @@
     <string name="colorNumber">Number of Colors</string>
     <string name="title_activity_menu">MenuActivity</string>
     <string name="title_activity_game">GameActivity</string>
+    <string name="title_activity_level_select">Pic2Griddler</string>
 
 </resources>

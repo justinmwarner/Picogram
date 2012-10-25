@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.anthracoid.pic2griddler"
+    package="com.pic2griddler.awesomeness"
     android:versionCode="1"
     android:versionName="1.0" >
 
@@ -17,8 +17,8 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
-            android:name="com.anthracoid.pic2griddler.MenuActivity"
-            android:label="@string/title_activity_menu" >
+            android:name="com.pic2griddler.awesomeness.MenuActivity"
+            android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -27,23 +27,26 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.anthracoid.pic2griddler.CreateGriddlerActivity"
-            android:label="@string/create_griddler" >
+            android:name="com.pic2griddler.awesomeness.CreateGriddlerActivity"
+            android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
 
                 <data android:mimeType="image/*" />
             </intent-filter>
         </activity>
         <activity
-            android:name=".GameActivity"
-            android:label="@string/title_activity_game" >
+            android:name="com.pic2griddler.awesomeness.GameActivity"
+            android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="com.pic2griddler.awesomeness.LevelSelectActivity"
+            android:label="@string/app_name" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
             </intent-filter>
         </activity>
     </application>

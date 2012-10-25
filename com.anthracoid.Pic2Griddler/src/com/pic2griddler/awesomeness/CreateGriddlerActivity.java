@@ -1,12 +1,10 @@
-package com.anthracoid.pic2griddler;
+package com.pic2griddler.awesomeness;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
 
 import android.net.Uri;
 import android.os.Bundle;
@@ -15,17 +13,14 @@ import android.content.Intent;
 import android.content.res.AssetFileDescriptor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
 import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Spinner;
-import android.widget.TextView;
 import android.widget.Toast;
 
 public class CreateGriddlerActivity extends Activity implements OnClickListener
@@ -219,12 +214,12 @@ public class CreateGriddlerActivity extends Activity implements OnClickListener
 			int numColors = Integer.parseInt(sColor.getSelectedItem().toString()), yNum = Integer.parseInt(sY.getSelectedItem().toString()), xNum = Integer.parseInt(sX.getSelectedItem().toString());
 			int newHeight = orig.getHeight() + (yNum - (orig.getHeight() % yNum));
 			int newWidth = orig.getWidth() + (xNum - (orig.getWidth() % xNum));
-			Bitmap alter = orig.createScaledBitmap(orig, newWidth, newHeight, true);
-			Bitmap tttt = orig.createScaledBitmap(orig, yNum, xNum, true);
-			tttt = tttt.createScaledBitmap(tttt, yNum * 10, xNum * 10, true);
+			Bitmap alter = Bitmap.createScaledBitmap(orig, newWidth, newHeight, true);
+			Bitmap tttt = Bitmap.createScaledBitmap(orig, yNum, xNum, true);
+			tttt = Bitmap.createScaledBitmap(tttt, yNum * 10, xNum * 10, true);
 			this.preImageView.setImageBitmap(tttt);
-			tttt = orig.createScaledBitmap(orig, yNum, xNum, false);
-			tttt = tttt.createScaledBitmap(tttt, yNum * 10, xNum * 10, false);
+			tttt = Bitmap.createScaledBitmap(orig, yNum, xNum, false);
+			tttt = Bitmap.createScaledBitmap(tttt, yNum * 10, xNum * 10, false);
 			this.ivPreview.setImageBitmap(tttt);
 
 			//For future ideas.  May not be implemented.

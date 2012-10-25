@@ -23,13 +23,16 @@
         android:text="Button" >
     </Button>
 
-    <com.anthracoid.pic2griddler.DrawGriddler
-        android:id="@+id/svGame"
+    <GridView
+        android:id="@+id/gvGame"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentRight="true"
-        android:layout_below="@+id/bColorOne" />
+        android:layout_below="@+id/bColorOne"
+        android:columnWidth="50dp"
+        android:numColumns="5"
+        android:stretchMode="none" >
+
+    </GridView>
 
 </RelativeLayout>
