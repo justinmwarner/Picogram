@@ -27,12 +27,29 @@
         android:id="@+id/gvGame"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_below="@+id/bColorOne"
+        android:layout_below="@+id/tvHorizontal"
+        android:layout_toRightOf="@+id/tvVertical"
         android:columnWidth="50dp"
         android:numColumns="5"
         android:stretchMode="none" >
 
     </GridView>
+
+    <TextView
+        android:id="@+id/tvHorizontal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/bColorOne"
+        android:text="101010101010101010" />
+
+    <TextView
+        android:id="@+id/tvVertical"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@id/tvHorizontal"
+        android:layout_marginTop="30dp"
+        android:text="1\n11\n4\n" />
 
 </RelativeLayout>

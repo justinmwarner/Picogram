@@ -11,6 +11,7 @@ import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
 import android.widget.Button;
 import android.widget.GridView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 public class GameActivity extends Activity implements OnClickListener, OnTouchListener
@@ -40,9 +41,9 @@ public class GameActivity extends Activity implements OnClickListener, OnTouchLi
 
 	}
 
-	private void processInfo(String temp)
+	private void processInfo(String info)
 	{
-		String[] split = temp.split(" ");
+		String[] split = info.split(" ");
 		int height = Integer.parseInt(split[0]);
 		int width = Integer.parseInt(split[1]);
 		current = new int[width][height];
@@ -62,6 +63,44 @@ public class GameActivity extends Activity implements OnClickListener, OnTouchLi
 				++runner;
 			}
 		}
+		String hor = "  ", vert = "\n\n";
+		boolean isOrder = false;
+		for (int i = 0; i < current.length; i++)
+		{
+			int sum = 0;
+			for (int pos = i; pos < current.length * current[0].length; pos += current.length)
+			{
+				//Log.d("Check", "Checking: " + current[pos % current.length][pos / current.length]);
+				if (current[pos % current.length][pos / current.length] == 1)
+				{
+					sum++;
+					isOrder = false;
+				}
+				else
+				{
+					if(!isOrder)
+					{
+						hor += sum + "  ";
+						sum = 0;
+						isOrder = true;
+					}
+				}
+			}
+			if(sum >0)
+			{
+				String temp = "";
+				for(int pad = 0; pad < i; pad++)
+				{
+					temp += "\t";
+				}
+				hor = "\n" + temp + hor;
+				hor += sum + "  ";				
+			}
+		}
+		TextView h = (TextView) findViewById(R.id.tvHorizontal);
+		h.setText(hor);
+		TextView v = (TextView) findViewById(R.id.tvVertical);
+		v.setText("");
 	}
 
 	@Override
@@ -81,7 +120,7 @@ public class GameActivity extends Activity implements OnClickListener, OnTouchLi
 			int pos = grid.pointToPosition((int) event.getX(), (int) event.getY());
 			if (pos >= 0)
 			{
-				if(!wasChanged[pos % wasChanged.length][pos / wasChanged.length])
+				if (!wasChanged[pos % wasChanged.length][pos / wasChanged.length])
 				{
 					if (current[pos % current.length][pos / current.length] == 0)
 					{
@@ -103,7 +142,7 @@ public class GameActivity extends Activity implements OnClickListener, OnTouchLi
 				wasChanged[pos % wasChanged.length][pos / wasChanged.length] = true;
 			}
 		}
-		if(event.getActionMasked() == MotionEvent.ACTION_UP)
+		if (event.getActionMasked() == MotionEvent.ACTION_UP)
 		{
 			resetWasChanged();
 		}
@@ -112,9 +151,9 @@ public class GameActivity extends Activity implements OnClickListener, OnTouchLi
 
 	private void resetWasChanged()
 	{
-		for(int i = 0; i < wasChanged.length; i++)
+		for (int i = 0; i < wasChanged.length; i++)
 		{
-			for(int j = 0; j < wasChanged[i].length; j++)
+			for (int j = 0; j < wasChanged[i].length; j++)
 			{
 				wasChanged[i][j] = false;
 			}
