@@ -37,7 +37,6 @@ public class CreateGriddlerActivity extends Activity implements OnClickListener
 	{
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-
 		Button photoButton = (Button) findViewById(R.id.buttonCamera);
 		Button fileButton = (Button) findViewById(R.id.buttonFile);
 		Button urlButton = (Button) findViewById(R.id.buttonURL);
