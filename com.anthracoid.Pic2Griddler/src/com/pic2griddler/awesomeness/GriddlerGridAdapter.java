@@ -8,13 +8,13 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
-public class GridAdapter extends BaseAdapter
+public class GriddlerGridAdapter extends BaseAdapter
 {
 
 	private int[][] colors, current;
 	private Context context;
 	
-	public GridAdapter(Context context, int[][] colors, int[][] current) {
+	public GriddlerGridAdapter(Context context, int[][] colors, int[][] current) {
 		this.context = context;
 		this.colors = colors;
 		this.current = current;
@@ -38,7 +38,7 @@ public class GridAdapter extends BaseAdapter
 		LayoutInflater inflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		if (convertView == null)
 		{
-			text = (TextView)inflater.inflate(R.layout.griditem, parent, false);
+			text = (TextView)inflater.inflate(R.layout.griddler_grid_item, parent, false);
 		}
 		else
 		{

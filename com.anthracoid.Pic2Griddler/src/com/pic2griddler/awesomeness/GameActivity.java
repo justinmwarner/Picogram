@@ -9,12 +9,11 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
-import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.GridView;
 import android.widget.LinearLayout;
-import android.widget.LinearLayout.LayoutParams;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -30,6 +29,8 @@ public class GameActivity extends Activity implements OnClickListener,
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);	//Full screen.
 		setContentView(R.layout.activity_game);
 		processInfo(this.getIntent().getExtras().getString("info"));
 		Button b1 = (Button) findViewById(R.id.bColorOne);
@@ -38,9 +39,10 @@ public class GameActivity extends Activity implements OnClickListener,
 		grid.setNumColumns(current.length);
 		grid.setVerticalSpacing(1);
 		grid.setHorizontalSpacing(1);
-		GridAdapter adapter = new GridAdapter(this, solution, current);
+		GriddlerGridAdapter adapter = new GriddlerGridAdapter(this, solution, current);
 		grid.setAdapter(adapter);
 		grid.setOnTouchListener(this);
+		
 
 	}
 
@@ -94,8 +96,8 @@ public class GameActivity extends Activity implements OnClickListener,
 			// Give some space between entries so it coordinates well.
 			tv[i].setOnTouchListener(this);
 			LinearLayout.LayoutParams llp = new LinearLayout.LayoutParams(
-					LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-			llp.setMargins(23, 0, 23, 0); // llp.setMargins(left, top, right,
+					android.view.ViewGroup.LayoutParams.WRAP_CONTENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
+			llp.setMargins(5, 0, 5, 0); // llp.setMargins(left, top, right,
 											// bottom);
 			tv[i].setLayoutParams(llp);
 			tv[i].setText(temp);
@@ -128,14 +130,14 @@ public class GameActivity extends Activity implements OnClickListener,
 			}
 
 			if (hasMore) {
-				temp += sum + "\n\n\n";
+				temp += sum + "\n";
 				hasPrinted = true;
 			}
 			if (!hasPrinted) {
-				temp += "0\n\n\n";
+				temp += "0\n\n";
 			}
 			if (!hasMore) {
-				temp += "\n\n\n";
+				temp += "\n";
 			}
 			hasPrinted = false;
 			hasMore = false;
@@ -153,8 +155,8 @@ public class GameActivity extends Activity implements OnClickListener,
 	}
 
 	public boolean onTouch(View v, MotionEvent event) {
-		if (event.getActionMasked() == MotionEvent.ACTION_MOVE
-				|| event.getActionMasked() == MotionEvent.ACTION_DOWN) {
+		if (event.getActionMasked() == MotionEvent.ACTION_MOVE){
+			//	|| event.getActionMasked() == MotionEvent.ACTION_DOWN) {
 			int pos = grid.pointToPosition((int) event.getX(),
 					(int) event.getY());
 			if (pos >= 0) {

@@ -11,5 +11,8 @@
     <string name="title_activity_menu">MenuActivity</string>
     <string name="title_activity_game">GameActivity</string>
     <string name="title_activity_level_select">Pic2Griddler</string>
+    <string name="title_activity_user_griddlers">UserGriddlers</string>
+    <string name="title_activity_world_griddlers">WorldGriddlers</string>
+    <string name="title_activity_settings">SettingsActivity</string>
 
 </resources>

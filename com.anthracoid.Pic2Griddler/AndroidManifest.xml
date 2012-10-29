@@ -43,11 +43,16 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.pic2griddler.awesomeness.LevelSelectActivity"
-            android:label="@string/app_name" >
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-            </intent-filter>
+            android:name=".UserGriddlers"
+            android:label="@string/title_activity_user_griddlers" >
+        </activity>
+        <activity
+            android:name=".WorldGriddlers"
+            android:label="@string/title_activity_world_griddlers" >
+        </activity>
+        <activity
+            android:name=".SettingsActivity"
+            android:label="@string/title_activity_settings" >
         </activity>
     </application>
 

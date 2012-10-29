@@ -29,8 +29,9 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/llHorizontalHolder"
         android:layout_toRightOf="@+id/tvVertical"
-        android:columnWidth="50dp"
+        android:columnWidth="20dp"
         android:numColumns="5"
+        android:scrollbars="vertical|horizontal"
         android:stretchMode="none" >
 
     </GridView>
@@ -50,6 +51,6 @@
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_below="@+id/llHorizontalHolder"
-        android:text="1\n11\n4\n" />
+        android:lineSpacingExtra="5dp" />
 
 </RelativeLayout>
