@@ -5,6 +5,8 @@ import android.app.TabActivity;
 import android.content.Intent;
 import android.view.Menu;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.view.View.OnClickListener;
 import android.widget.TabHost;
 import android.widget.TabHost.TabSpec;
@@ -15,8 +17,10 @@ public class MenuActivity extends TabActivity implements OnClickListener {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		requestWindowFeature(Window.FEATURE_NO_TITLE);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);	//Full screen.
 		setContentView(R.layout.activity_menu);
-		TabHost th = getTabHost();
+        TabHost th = getTabHost();
 		
 		TabSpec userSpec = th.newTabSpec("User");
 		userSpec.setIndicator("User", getResources().getDrawable(R.drawable.icon_user_tab));

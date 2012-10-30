@@ -29,21 +29,24 @@ public class GameActivity extends Activity implements OnClickListener,
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-        requestWindowFeature(Window.FEATURE_NO_TITLE);
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);	//Full screen.
+		requestWindowFeature(Window.FEATURE_NO_TITLE);
+		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+				WindowManager.LayoutParams.FLAG_FULLSCREEN); // Full screen.
 		setContentView(R.layout.activity_game);
 		processInfo(this.getIntent().getExtras().getString("info"));
-		Button b1 = (Button) findViewById(R.id.bColorOne);
-		Button b2 = (Button) findViewById(R.id.bColorTwo);
 		grid = (GridView) findViewById(R.id.gvGame);
 		grid.setNumColumns(current.length);
 		grid.setVerticalSpacing(1);
 		grid.setHorizontalSpacing(1);
-		GriddlerGridAdapter adapter = new GriddlerGridAdapter(this, solution, current);
+		GriddlerGridAdapter adapter = new GriddlerGridAdapter(this, solution,
+				current);
 		grid.setAdapter(adapter);
 		grid.setOnTouchListener(this);
-		
 
+		Button up = (Button) findViewById(R.id.bUp);
+		Button down = (Button) findViewById(R.id.bDown);
+		up.setOnClickListener(this);
+		down.setOnClickListener(this);
 	}
 
 	private void processInfo(String info) {
@@ -96,14 +99,16 @@ public class GameActivity extends Activity implements OnClickListener,
 			// Give some space between entries so it coordinates well.
 			tv[i].setOnTouchListener(this);
 			LinearLayout.LayoutParams llp = new LinearLayout.LayoutParams(
-					android.view.ViewGroup.LayoutParams.WRAP_CONTENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
+					android.view.ViewGroup.LayoutParams.WRAP_CONTENT,
+					android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
 			llp.setMargins(5, 0, 5, 0); // llp.setMargins(left, top, right,
-											// bottom);
+										// bottom);
 			tv[i].setLayoutParams(llp);
 			tv[i].setText(temp);
 			ll.addView(tv[i]); // Add like a baowse.
 		}
-		// Now do the vertical, or the rows, has its own perks of using one string and TextView.
+		// Now do the vertical, or the rows, has its own perks of using one
+		// string and TextView.
 		TextView vert = (TextView) findViewById(R.id.tvVertical);
 		String temp = "\n";
 		boolean hasMore = false, hasPrinted = false;
@@ -152,11 +157,16 @@ public class GameActivity extends Activity implements OnClickListener,
 	}
 
 	public void onClick(View v) {
+		if (v.getId() == R.id.bUp) {
+			// Up vote.
+		} else if (v.getId() == R.id.bDown) {
+			// Down vote.
+		}
 	}
 
 	public boolean onTouch(View v, MotionEvent event) {
-		if (event.getActionMasked() == MotionEvent.ACTION_MOVE){
-			//	|| event.getActionMasked() == MotionEvent.ACTION_DOWN) {
+		if (event.getActionMasked() == MotionEvent.ACTION_MOVE) {
+			// || event.getActionMasked() == MotionEvent.ACTION_DOWN) {
 			int pos = grid.pointToPosition((int) event.getX(),
 					(int) event.getY());
 			if (pos >= 0) {

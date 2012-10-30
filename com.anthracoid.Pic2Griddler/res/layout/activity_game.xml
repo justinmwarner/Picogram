@@ -5,22 +5,22 @@
     android:layout_height="match_parent" >
 
     <Button
-        android:id="@+id/bColorOne"
+        android:id="@+id/bUp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
-        android:text="Button" >
+        android:text="=)" >
     </Button>
 
     <Button
-        android:id="@+id/bColorTwo"
+        android:id="@+id/bDown"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignBaseline="@+id/bColorOne"
+        android:layout_alignBaseline="@+id/bUp"
         android:layout_alignParentTop="true"
-        android:layout_toRightOf="@+id/bColorOne"
-        android:text="Button" >
+        android:layout_toRightOf="@+id/bUp"
+        android:text="=(" >
     </Button>
 
     <GridView
@@ -40,7 +40,7 @@
         android:id="@+id/llHorizontalHolder"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/bColorTwo"
+        android:layout_below="@+id/bDown"
         android:layout_toRightOf="@id/tvVertical" >
 
     </LinearLayout>
