@@ -1,14 +1,70 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent" >
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
  
-    <TextView
-        android:layout_width="fill_parent"
+    
+    <CheckBox
+        android:id="@+id/checkBox1"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:padding="15dip"
-        android:text="Settings Here"
-        android:textSize="18dip" />
+        android:checked="true"
+        android:text="Use internal storage." />
+
+    <CheckBox
+        android:id="@+id/checkBox2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Did you want to hear sounds?" />
+
+    <CheckBox
+        android:id="@+id/checkBox3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Other options here." />
+
+    <SlidingDrawer
+        android:id="@+id/slidingDrawer1"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:content="@+id/content"
+        android:handle="@+id/handle" >
+
+        <Button
+            android:id="@+id/handle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="About The App" />
+
+        <LinearLayout
+            android:id="@+id/content"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical" >
+
+            <TextView
+                android:id="@+id/textView1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="This app was done mostly because current Griddler apps aren't up to par.\nI want puzzles, many of them, that I can easily find.  I don't want to pay for expanision packs, nor do I want to pay for an app.  I did not make this app with the intention of making money, however, it does use some web services that cost about 15 dollars a month.  I'm still a student, so if you can give a dollar or two, that'll let me eat for the week I'm missing to pay for you.  Further, not many open sourced Android apps exist. So this is one." />
+
+            <Button
+                android:id="@+id/bContribute"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Contribute Code" />
+
+            <Button
+                android:id="@+id/bMoney"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Donate" />
+
+        </LinearLayout>
+    </SlidingDrawer>
+
  
 
 </LinearLayout>

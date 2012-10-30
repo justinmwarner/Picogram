@@ -1,15 +1,18 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/LinearLayout1"
+    android:id="@+id/RelativeLayout1"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical" >
 
     <TableLayout
+        android:id="@+id/TableLayout1"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center|fill"
-        android:layout_marginBottom="34dp" >
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        android:layout_gravity="center|fill" >
 
         <TableRow
             android:id="@+id/trSelectors"
@@ -47,9 +50,10 @@
                 android:layout_weight="85"
                 android:ems="10"
                 android:height="10dp"
-                android:text="http://www.pepperdesign.it/pepper/rainbow.jpg" >
+                android:maxLines="1"
+                android:text="http://heartoftheschool.edublogs.org/files/2010/09/beating_heart.gif" >
 
-                <requestFocus />
+                <requestFocus android:layout_width="match_parent" />
             </EditText>
         </TableRow>
 
@@ -62,22 +66,21 @@
                 android:id="@+id/tvX"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="X Blocks" />
+                android:lines="2"
+                android:minLines="2"
+                android:text="X \nBlocks" />
 
             <Spinner
                 android:id="@+id/spinX"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="3"
                 android:prompt="@string/xBlocks" />
 
             <TextView
                 android:id="@+id/tvY"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Y Blocks" />
+                android:text="Y \nBlocks" />
 
             <Spinner
                 android:id="@+id/spinY"
@@ -90,54 +93,66 @@
                 android:id="@+id/tvY"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Number of Colors" />
+                android:text="Number \nof \nColors" />
 
             <Spinner
                 android:id="@+id/spinColor"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
                 android:prompt="@string/colorNumber" />
 
             <Button
                 android:id="@+id/buttonSubmit"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
                 android:text="Submit" />
+        </TableRow>
+
+        <TableRow
+            android:id="@+id/trDone"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" >
+
+            <Button
+                android:id="@+id/buttonDone"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Button" />
         </TableRow>
     </TableLayout>
 
-    <RelativeLayout
-        android:layout_width="match_parent"
+    <ImageView
+        android:id="@+id/preImage"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_weight="50" >
+        android:layout_below="@+id/TableLayout1"
+        android:layout_weight="50"
+        android:contentDescription="This is the image before alteration (That the user took!)." />
 
-        <ImageView
-            android:id="@+id/ivPreview"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentTop="true"
-            android:src="@drawable/ic_launcher" />
+    <ImageView
+        android:id="@+id/ivPreview"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignTop="@+id/preImage" />
 
-        <ImageView
-            android:id="@+id/preImage"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_toLeftOf="@id/ivPreview"
-            android:layout_weight="50"
-            android:contentDescription="This is the image before alteration (That the user took!)."
-            android:src="@drawable/ic_launcher" />
+    <TextView
+        android:id="@+id/tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/preImage"
+        android:layout_marginTop="81dp"
+        android:text="TextView" />
 
-        <TextView
-            android:id="@+id/tvFinalCode"
-            android:layout_width="wrap_content"
-            android:layout_height="fill_parent"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentTop="true"
-            android:text="TextView" />
-    </RelativeLayout>
+    <!-- Prevent the EditText from having focus, removing the keyboard on activity start. -->
 
-</LinearLayout>
+    <LinearLayout
+        android:id="@+id/llTrash"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:focusable="true"
+        android:focusableInTouchMode="true" >
+    </LinearLayout>
+
+</RelativeLayout>
