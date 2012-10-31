@@ -2,7 +2,6 @@ package com.pic2griddler.awesomeness;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -69,7 +68,7 @@ public class GriddlerMenuAdapter extends BaseAdapter
 		}
 		catch (NumberFormatException e)
 		{
-			Log.d("Tag", "Pooped on: " + statuses[position]);// + " at position " + position);
+			//Log.d("Tag", "Pooped on: " + statuses[position]);// + " at position " + position);
 		}
 		RelativeLayout rl = (RelativeLayout) item.findViewById(R.id.rlMenuHolder);
 		Drawable gd = rl.getBackground().mutate();

@@ -6,6 +6,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import android.os.Bundle;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.util.Log;
@@ -14,12 +15,14 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
 import android.widget.GridView;
-import android.widget.Toast;
 
 public class UserGriddlers extends Activity implements OnTouchListener
 {
 	String[] statuses = null, names = null, diffs = null, rates = null, infos = null;
 	GridView gv;
+	final String FILENAME = "USER_GRIDDLERS", SETTINGS = "USER_SETTINGS";
+	SharedPreferences settings;
+	SharedPreferences.Editor edit;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState)
@@ -50,17 +53,20 @@ public class UserGriddlers extends Activity implements OnTouchListener
 
 	private void loadGriddlers() throws IOException
 	{
-		final String FILENAME = "USER_GRIDDLERS", SETTINGS = "USER_SETTINGS";
+		settings = getSharedPreferences(SETTINGS, 0);
+		edit = settings.edit();
 		// Get preferences to see if user ran app before.
-		SharedPreferences settings = getSharedPreferences(SETTINGS, 0);
 		boolean isVirgin = settings.getBoolean("virgin", true);
 		// Put in some defaults if they've never ran the app before.
-		if (isVirgin)
+		if (isVirgin )
 		{
+			Log.d("Tag" , "Virgin");
 			String add = "2 Create Custom We'll~see 0 0 0 0," + System.getProperty("line.separator") + "0 Tutorial Easy 0 4 4 1111100110011111 0000000000000000," + System.getProperty("line.separator");
-			FileOutputStream fos = openFileOutput(FILENAME, this.MODE_PRIVATE);
+			FileOutputStream fos = openFileOutput(FILENAME, Context.MODE_WORLD_WRITEABLE);
 			fos.write(add.getBytes());
 			fos.close();
+			edit.putBoolean("virgin", false);
+			edit.commit();
 		}
 		// Now read the file to get all the Griddlers from it.
 		FileInputStream fis = openFileInput(FILENAME);
@@ -90,6 +96,7 @@ public class UserGriddlers extends Activity implements OnTouchListener
 			rates[i] = temp[3].replace("~", " ");
 			infos[i] = temp[4] + " " + temp[5] + " " + temp[6] + " " + temp[7];
 		}
+		Log.d("Tag", "Refresh: " + sb.toString());
 	}
 
 	@Override
@@ -110,7 +117,7 @@ public class UserGriddlers extends Activity implements OnTouchListener
 				{
 					// Start Create.
 					Intent createIntent = new Intent(this, CreateGriddlerActivity.class);
-					this.startActivity(createIntent);
+					this.startActivityForResult(createIntent, 1);
 					return false;
 				}
 				else
@@ -127,6 +134,33 @@ public class UserGriddlers extends Activity implements OnTouchListener
 		else
 		{
 			return false;
+		}
+	}
+	
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		if(resultCode == RESULT_OK)
+		{
+			//Add to the file.
+			String info = data.getStringExtra("info");
+			try
+			{
+				Log.d("Tag", "Writing: " + info);
+				FileOutputStream fos = openFileOutput(FILENAME, Context.MODE_APPEND);
+				fos.write(info.getBytes());
+				fos.close();
+				loadGriddlers();
+				gv.invalidate();
+			}
+			catch (IOException e)
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		else
+		{
+			//Nothing added.
 		}
 	}
 }

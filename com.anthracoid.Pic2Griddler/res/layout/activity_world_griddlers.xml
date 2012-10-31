@@ -23,7 +23,8 @@
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_toRightOf="@+id/imageView1"
-        android:ems="10" >
+        android:ems="10"
+        android:text="Tab Not Yet Supported" >
 
         <requestFocus />
     </EditText>

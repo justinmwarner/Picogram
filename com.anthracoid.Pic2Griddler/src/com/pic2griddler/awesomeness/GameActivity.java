@@ -17,8 +17,8 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class GameActivity extends Activity implements OnClickListener,
-		OnTouchListener {
+public class GameActivity extends Activity implements OnClickListener, OnTouchListener
+{
 
 	private GridView grid;
 	int[][] solution;
@@ -27,19 +27,19 @@ public class GameActivity extends Activity implements OnClickListener,
 	int solutionOnes = 0, currentOnes = 0;
 
 	@Override
-	public void onCreate(Bundle savedInstanceState) {
+	public void onCreate(Bundle savedInstanceState)
+	{
 		super.onCreate(savedInstanceState);
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
-		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-				WindowManager.LayoutParams.FLAG_FULLSCREEN); // Full screen.
+		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN); // Full
+																														// screen.
 		setContentView(R.layout.activity_game);
 		processInfo(this.getIntent().getExtras().getString("info"));
 		grid = (GridView) findViewById(R.id.gvGame);
 		grid.setNumColumns(current.length);
 		grid.setVerticalSpacing(1);
 		grid.setHorizontalSpacing(1);
-		GriddlerGridAdapter adapter = new GriddlerGridAdapter(this, solution,
-				current);
+		GriddlerGridAdapter adapter = new GriddlerGridAdapter(this, solution, current);
 		grid.setAdapter(adapter);
 		grid.setOnTouchListener(this);
 
@@ -49,7 +49,9 @@ public class GameActivity extends Activity implements OnClickListener,
 		down.setOnClickListener(this);
 	}
 
-	private void processInfo(String info) {
+	private void processInfo(String info)
+	{
+		Log.d("Tag", info);
 		String[] split = info.split(" ");
 		int height = Integer.parseInt(split[0]);
 		int width = Integer.parseInt(split[1]);
@@ -57,8 +59,10 @@ public class GameActivity extends Activity implements OnClickListener,
 		solution = new int[width][height];
 		wasChanged = new boolean[width][height];
 		int runner = 0;
-		for (int i = 0; i < current.length; i++) {
-			for (int j = 0; j < current[i].length; j++) {
+		for (int i = 0; i < current.length; i++)
+		{
+			for (int j = 0; j < current[i].length; j++)
+			{
 				Log.d("Tag", "Filling in " + i + " " + j);
 				current[i][j] = Integer.parseInt("" + split[3].charAt(runner));
 				solution[i][j] = Integer.parseInt("" + split[2].charAt(runner));
@@ -83,24 +87,27 @@ public class GameActivity extends Activity implements OnClickListener,
 			for (int j = 0; j < height; j++) // Like above, may want to change
 												// to actual array.
 			{
-				if (solution[i][j] == 1) {
+				if (solution[i][j] == 1)
+				{
 					sum++;
-				} else {
-					if (sum != 0) {
+				}
+				else
+				{
+					if (sum != 0)
+					{
 						temp += sum + "\n";
 					}
 					sum = 0;
 				}
 			}
 			// Save last of that column, show 0 if it is a zero.
-			if (temp.length() == 0) {
+			if (temp.length() == 0)
+			{
 				temp += sum;
 			}
 			// Give some space between entries so it coordinates well.
 			tv[i].setOnTouchListener(this);
-			LinearLayout.LayoutParams llp = new LinearLayout.LayoutParams(
-					android.view.ViewGroup.LayoutParams.WRAP_CONTENT,
-					android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
+			LinearLayout.LayoutParams llp = new LinearLayout.LayoutParams(android.view.ViewGroup.LayoutParams.WRAP_CONTENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
 			llp.setMargins(5, 0, 5, 0); // llp.setMargins(left, top, right,
 										// bottom);
 			tv[i].setLayoutParams(llp);
@@ -124,8 +131,11 @@ public class GameActivity extends Activity implements OnClickListener,
 				{
 					sum++;
 					hasMore = true;
-				} else {
-					if (sum != 0) {
+				}
+				else
+				{
+					if (sum != 0)
+					{
 						temp += sum + " ";
 						hasMore = false;
 						hasPrinted = true;
@@ -134,14 +144,17 @@ public class GameActivity extends Activity implements OnClickListener,
 				}
 			}
 
-			if (hasMore) {
+			if (hasMore)
+			{
 				temp += sum + "\n";
 				hasPrinted = true;
 			}
-			if (!hasPrinted) {
+			if (!hasPrinted)
+			{
 				temp += "0\n\n";
 			}
-			if (!hasMore) {
+			if (!hasMore)
+			{
 				temp += "\n";
 			}
 			hasPrinted = false;
@@ -151,61 +164,80 @@ public class GameActivity extends Activity implements OnClickListener,
 	}
 
 	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
+	public boolean onCreateOptionsMenu(Menu menu)
+	{
 		getMenuInflater().inflate(R.menu.activity_game, menu);
 		return true;
 	}
 
-	public void onClick(View v) {
-		if (v.getId() == R.id.bUp) {
+	public void onClick(View v)
+	{
+		if (v.getId() == R.id.bUp)
+		{
 			// Up vote.
-		} else if (v.getId() == R.id.bDown) {
+		}
+		else if (v.getId() == R.id.bDown)
+		{
 			// Down vote.
 		}
 	}
 
-	public boolean onTouch(View v, MotionEvent event) {
-		if (event.getActionMasked() == MotionEvent.ACTION_MOVE) {
+	public boolean onTouch(View v, MotionEvent event)
+	{
+		if (event.getActionMasked() == MotionEvent.ACTION_MOVE)
+		{
 			// || event.getActionMasked() == MotionEvent.ACTION_DOWN) {
-			int pos = grid.pointToPosition((int) event.getX(),
-					(int) event.getY());
-			if (pos >= 0) {
-				if (!wasChanged[pos % wasChanged.length][pos
-						/ wasChanged.length]) {
-					if (current[pos % current.length][pos / current.length] == 0) {
+			int pos = grid.pointToPosition((int) event.getX(), (int) event.getY());
+			if (pos >= 0)
+			{
+				if (!wasChanged[pos % wasChanged.length][pos / wasChanged.length])
+				{
+					if (current[pos % current.length][pos / current.length] == 0)
+					{
 						grid.getChildAt(pos).setBackgroundColor(Color.RED);
 						current[pos % current.length][pos / current.length] = 1;
 						++currentOnes;
-					} else {
+					}
+					else
+					{
 						grid.getChildAt(pos).setBackgroundColor(Color.WHITE);
 						current[pos % current.length][pos / current.length] = 0;
 						--currentOnes;
 					}
-					if (currentOnes == solutionOnes) {
+					if (currentOnes == solutionOnes)
+					{
 						checkWin();
 					}
 				}
 				wasChanged[pos % wasChanged.length][pos / wasChanged.length] = true;
 			}
 		}
-		if (event.getActionMasked() == MotionEvent.ACTION_UP) {
+		if (event.getActionMasked() == MotionEvent.ACTION_UP)
+		{
 			resetWasChanged();
 		}
 		return false;
 	}
 
-	private void resetWasChanged() {
-		for (int i = 0; i < wasChanged.length; i++) {
-			for (int j = 0; j < wasChanged[i].length; j++) {
+	private void resetWasChanged()
+	{
+		for (int i = 0; i < wasChanged.length; i++)
+		{
+			for (int j = 0; j < wasChanged[i].length; j++)
+			{
 				wasChanged[i][j] = false;
 			}
 		}
 	}
 
-	private void checkWin() {
-		for (int i = 0; i < current.length; i++) {
-			for (int j = 0; j < current[i].length; j++) {
-				if (current[i][j] != solution[i][j]) {
+	private void checkWin()
+	{
+		for (int i = 0; i < current.length; i++)
+		{
+			for (int j = 0; j < current[i].length; j++)
+			{
+				if (current[i][j] != solution[i][j])
+				{
 					return;
 				}
 			}

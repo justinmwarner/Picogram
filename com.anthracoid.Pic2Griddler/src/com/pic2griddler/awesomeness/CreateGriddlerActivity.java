@@ -16,6 +16,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -36,6 +37,8 @@ public class CreateGriddlerActivity extends Activity implements OnClickListener
 	private EditText etURL;
 	private Bitmap orig;
 	private Spinner sX, sY, sColor;
+	private String solution = "", current = "";
+	private int numColors, yNum, xNum;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState)
@@ -160,9 +163,12 @@ public class CreateGriddlerActivity extends Activity implements OnClickListener
 		else if (v.getId() == R.id.buttonDone)
 		{
 			AlertDialog.Builder builder = new AlertDialog.Builder(this);
+			LayoutInflater inflater = getLayoutInflater();
 			builder.setTitle("Before you leave...");
 			builder.setMessage("Would would you like to do with your masterpiece?");
-			//Only show save if the user actually did something.
+			final View view = (inflater.inflate(R.layout.dialog_save_griddler, null));
+			builder.setView(view);
+			// Only show save if the user actually did something.
 			if (this.ivAfter.getHeight() > 5)
 			{
 				builder.setPositiveButton("Save!", new DialogInterface.OnClickListener()
@@ -170,9 +176,21 @@ public class CreateGriddlerActivity extends Activity implements OnClickListener
 					public void onClick(DialogInterface dialog, int id)
 					{
 						// Save the stuff.
-						//Implement this in a bit.
-						print("Yay!");
-						
+						// Implement this in a bit.
+
+						EditText etName = (EditText) view.findViewById(R.id.etName);
+						EditText etTags = (EditText) view.findViewById(R.id.etTags);
+
+						String name = etName.getText().toString(), difficulty = "N/A";
+
+						String info = "0 " + name + " " + difficulty + " 0 " + yNum + " " + xNum + " " + solution + " " + current + "," + System.getProperty("line.separator");
+						Log.d("Tag", "INFO: " + info);
+						 
+						// 2 Create Custom We'll~see 0 0 0 0,
+						Intent returnIntent = new Intent();
+						returnIntent.putExtra("info", info);
+						returnIntent.putExtra("tags", etTags.getText().toString().replace(" ", ","));
+						setResult(RESULT_OK, returnIntent);
 						finish();
 					}
 				});
@@ -264,11 +282,14 @@ public class CreateGriddlerActivity extends Activity implements OnClickListener
 	{
 		if (orig != null)
 		{
-			//Touch this up.  It's a bit messy.
-			int numColors = Integer.parseInt(sColor.getSelectedItem().toString()), yNum = Integer.parseInt(sY.getSelectedItem().toString()), xNum = Integer.parseInt(sX.getSelectedItem().toString());
-			Bitmap scaled = Bitmap.createScaledBitmap(orig, yNum * 10, xNum * 10, false);
+			// Touch this up. It's a bit messy.
+			numColors = Integer.parseInt(sColor.getSelectedItem().toString());
+			yNum = Integer.parseInt(sY.getSelectedItem().toString());
+			xNum = Integer.parseInt(sX.getSelectedItem().toString());
+			Bitmap scaled = Bitmap.createScaledBitmap(orig, xNum * 10, yNum * 10, false);
 			ivBefore.setImageBitmap(scaled);
-			Bitmap alter = Bitmap.createScaledBitmap(orig, yNum, xNum, false);
+			Bitmap alter = Bitmap.createScaledBitmap(orig, xNum, yNum, false);
+			//Set pixels = to each pixel in the scaled image (Easier to find values, and smaller!)
 			int pixels[] = new int[xNum * yNum];
 			alter.getPixels(pixels, 0, alter.getWidth(), 0, 0, alter.getWidth(), alter.getHeight());
 			String temp = "";
@@ -277,18 +298,16 @@ public class CreateGriddlerActivity extends Activity implements OnClickListener
 				int r = (pixels[i]) >> 16 & 0xff;
 				int g = (pixels[i]) >> 8 & 0xff;
 				int b = (pixels[i]) & 0xff;
-				pixels[i] = (r + g + b) / 3;
-				temp += pixels[i] + " ";
+				pixels[i] = (r + g + b) / 3;	//Convert the values in pixels to be grey values.  Or normalize them.
 			}
-			TextView tv = (TextView) findViewById(R.id.tv);
-			tv.setText(temp);
+			TextView tv = (TextView) findViewById(R.id.tv);//For debuging.
 			int pix[][] = new int[xNum][yNum];
 			int run = 0;
 			for (int i = 0; i < pix.length; i++)
 			{
 				for (int j = 0; j < pix[i].length; j++)
 				{
-					pix[j][i] = pixels[run++];
+					pix[j][i] = pixels[run++];	//Griddlers go column by column, not row by row.
 				}
 			}
 			for (int i = 0; i < xNum; i++)
@@ -297,14 +316,31 @@ public class CreateGriddlerActivity extends Activity implements OnClickListener
 				{
 					if (pix[i][j] >= 256 / numColors)
 					{
-						alter.setPixel(i, j, Color.WHITE);	//Change color in an array.  Get to it later.
+						alter.setPixel(i, j, Color.WHITE); // Change color in an
+															// array. Get to it
+															// later.
+						pix[i][j] = 0;
 					}
 					else
 					{
 						alter.setPixel(i, j, Color.BLACK);
+						pix[i][j] = 1;
 					}
+					temp += pix[i][j] + " ";
+				}
+				temp += "\n";
+			}
+			// Set up "solution" for when it's submitted, this requires us to go
+			// backwards UP pix.
+			for (int i = yNum - 1; i >= 0; i--)
+			{
+				for (int j = 0; j < xNum; j++)
+				{
+					solution += pix[i][j];
+					current += "0";
 				}
 			}
+			tv.setText(temp);
 			alter = Bitmap.createScaledBitmap(alter, yNum * 10, xNum * 10, false);
 			this.ivAfter.setImageBitmap(alter);
 		}

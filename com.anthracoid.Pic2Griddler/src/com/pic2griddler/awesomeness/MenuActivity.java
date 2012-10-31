@@ -3,18 +3,10 @@ package com.pic2griddler.awesomeness;
 import android.os.Bundle;
 import android.app.TabActivity;
 import android.content.Intent;
-import android.util.Log;
-import android.view.GestureDetector;
-import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.Menu;
-import android.view.MotionEvent;
-import android.view.View;
-import android.view.View.OnTouchListener;
 import android.view.Window;
 import android.view.WindowManager;
-import android.view.View.OnClickListener;
 import android.widget.TabHost;
-import android.widget.Toast;
 import android.widget.TabHost.TabSpec;
 
 public class MenuActivity extends TabActivity
