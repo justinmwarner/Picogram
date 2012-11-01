@@ -60,7 +60,6 @@ public class UserGriddlers extends Activity implements OnTouchListener
 		// Put in some defaults if they've never ran the app before.
 		if (isVirgin )
 		{
-			Log.d("Tag" , "Virgin");
 			String add = "2 Create Custom We'll~see 0 0 0 0," + System.getProperty("line.separator") + "0 Tutorial Easy 0 4 4 1111100110011111 0000000000000000," + System.getProperty("line.separator");
 			FileOutputStream fos = openFileOutput(FILENAME, Context.MODE_WORLD_WRITEABLE);
 			fos.write(add.getBytes());
@@ -96,7 +95,6 @@ public class UserGriddlers extends Activity implements OnTouchListener
 			rates[i] = temp[3].replace("~", " ");
 			infos[i] = temp[4] + " " + temp[5] + " " + temp[6] + " " + temp[7];
 		}
-		Log.d("Tag", "Refresh: " + sb.toString());
 	}
 
 	@Override
@@ -145,7 +143,6 @@ public class UserGriddlers extends Activity implements OnTouchListener
 			String info = data.getStringExtra("info");
 			try
 			{
-				Log.d("Tag", "Writing: " + info);
 				FileOutputStream fos = openFileOutput(FILENAME, Context.MODE_APPEND);
 				fos.write(info.getBytes());
 				fos.close();

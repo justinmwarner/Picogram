@@ -183,9 +183,7 @@ public class CreateGriddlerActivity extends Activity implements OnClickListener
 
 						String name = etName.getText().toString(), difficulty = "N/A";
 
-						String info = "0 " + name + " " + difficulty + " 0 " + yNum + " " + xNum + " " + solution + " " + current + "," + System.getProperty("line.separator");
-						Log.d("Tag", "INFO: " + info);
-						 
+						String info = "0 " + name + " " + difficulty + " 0 " + yNum + " " + xNum + " " + solution + " " + current + "," + System.getProperty("line.separator");						 
 						// 2 Create Custom We'll~see 0 0 0 0,
 						Intent returnIntent = new Intent();
 						returnIntent.putExtra("info", info);
@@ -307,7 +305,7 @@ public class CreateGriddlerActivity extends Activity implements OnClickListener
 			{
 				for (int j = 0; j < pix[i].length; j++)
 				{
-					pix[j][i] = pixels[run++];	//Griddlers go column by column, not row by row.
+					pix[i][j] = pixels[run++];	//Griddlers go column by column, not row by row.
 				}
 			}
 			for (int i = 0; i < xNum; i++)
@@ -336,7 +334,7 @@ public class CreateGriddlerActivity extends Activity implements OnClickListener
 			{
 				for (int j = 0; j < xNum; j++)
 				{
-					solution += pix[i][j];
+					solution += pix[j][i];
 					current += "0";
 				}
 			}

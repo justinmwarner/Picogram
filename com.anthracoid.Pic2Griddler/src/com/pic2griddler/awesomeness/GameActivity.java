@@ -51,7 +51,6 @@ public class GameActivity extends Activity implements OnClickListener, OnTouchLi
 
 	private void processInfo(String info)
 	{
-		Log.d("Tag", info);
 		String[] split = info.split(" ");
 		int height = Integer.parseInt(split[0]);
 		int width = Integer.parseInt(split[1]);
@@ -63,7 +62,6 @@ public class GameActivity extends Activity implements OnClickListener, OnTouchLi
 		{
 			for (int j = 0; j < current[i].length; j++)
 			{
-				Log.d("Tag", "Filling in " + i + " " + j);
 				current[i][j] = Integer.parseInt("" + split[3].charAt(runner));
 				solution[i][j] = Integer.parseInt("" + split[2].charAt(runner));
 				wasChanged[i][j] = false;
