@@ -44,7 +44,7 @@ public class CreateGriddlerActivity extends Activity implements OnClickListener
 	public void onCreate(Bundle savedInstanceState)
 	{
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_main);
+		setContentView(R.layout.activity_create);
 		Button photoButton = (Button) findViewById(R.id.buttonCamera);
 		Button fileButton = (Button) findViewById(R.id.buttonFile);
 		Button urlButton = (Button) findViewById(R.id.buttonURL);
@@ -290,6 +290,7 @@ public class CreateGriddlerActivity extends Activity implements OnClickListener
 			//Set pixels = to each pixel in the scaled image (Easier to find values, and smaller!)
 			int pixels[] = new int[xNum * yNum];
 			alter.getPixels(pixels, 0, alter.getWidth(), 0, 0, alter.getWidth(), alter.getHeight());
+			TextView tv = (TextView) findViewById(R.id.tv);//For debuging.
 			String temp = "";
 			for (int i = 0; i < pixels.length; i++)
 			{
@@ -298,49 +299,63 @@ public class CreateGriddlerActivity extends Activity implements OnClickListener
 				int b = (pixels[i]) & 0xff;
 				pixels[i] = (r + g + b) / 3;	//Convert the values in pixels to be grey values.  Or normalize them.
 			}
-			TextView tv = (TextView) findViewById(R.id.tv);//For debuging.
-			int pix[][] = new int[xNum][yNum];
+			int pix[][] = new int[yNum][xNum];	//Height, then width per a height.
 			int run = 0;
 			for (int i = 0; i < pix.length; i++)
 			{
 				for (int j = 0; j < pix[i].length; j++)
 				{
 					pix[i][j] = pixels[run++];	//Griddlers go column by column, not row by row.
-				}
-			}
-			for (int i = 0; i < xNum; i++)
-			{
-				for (int j = 0; j < yNum; j++)
-				{
-					if (pix[i][j] >= 256 / numColors)
-					{
-						alter.setPixel(i, j, Color.WHITE); // Change color in an
-															// array. Get to it
-															// later.
-						pix[i][j] = 0;
-					}
-					else
-					{
-						alter.setPixel(i, j, Color.BLACK);
-						pix[i][j] = 1;
-					}
 					temp += pix[i][j] + " ";
 				}
 				temp += "\n";
 			}
-			// Set up "solution" for when it's submitted, this requires us to go
-			// backwards UP pix.
-			for (int i = yNum - 1; i >= 0; i--)
+			temp += "\n";
+			temp += "\n";
+			temp += "\n";
+			for (int i = 0; i < alter.getWidth(); i++)
 			{
-				for (int j = 0; j < xNum; j++)
+				for (int j = 0; j < alter.getHeight(); j++)
+				{
+					if (pix[j][i] >= 256 / numColors)
+					{
+						alter.setPixel(i, j, Color.WHITE); // Change color in an
+															// array. Get to it
+															// later.
+						pix[j][i] = 0;
+						temp += "0";
+					}
+					else
+					{
+						alter.setPixel(i, j, Color.BLACK);
+						pix[j][i] = 1;
+						temp += "1";
+					}
+				}
+				temp += "\n";
+			}
+			temp += "\n";
+			temp += "\n";
+			temp += "\n";
+			// Set up "solution" for when it's submitted, this requires us to go
+			for (int i =  0; i < pix[0].length; i++)
+			{
+				for (int j = 0; j < pix.length; j++)
 				{
 					solution += pix[j][i];
 					current += "0";
+					temp+=pix[j][i];
 				}
+				temp+="\n";
 			}
-			tv.setText(temp);
 			alter = Bitmap.createScaledBitmap(alter, yNum * 10, xNum * 10, false);
 			this.ivAfter.setImageBitmap(alter);
+			/*
+			 * 3 5
+			 * 111000111111100
+			*/
+			temp+=solution;
+			tv.setText(temp);
 		}
 		else
 		{

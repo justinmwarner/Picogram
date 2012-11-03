@@ -29,7 +29,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/llHorizontalHolder"
         android:layout_toRightOf="@+id/tvVertical"
-        android:columnWidth="20dp"
+        android:columnWidth="30dp"
         android:numColumns="5"
         android:scrollbars="vertical|horizontal"
         android:stretchMode="none" >

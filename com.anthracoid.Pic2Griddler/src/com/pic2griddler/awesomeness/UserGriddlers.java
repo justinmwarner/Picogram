@@ -18,17 +18,19 @@ import android.widget.GridView;
 
 public class UserGriddlers extends Activity implements OnTouchListener
 {
-	String[] statuses = null, names = null, diffs = null, rates = null, infos = null;
-	GridView gv;
-	final String FILENAME = "USER_GRIDDLERS", SETTINGS = "USER_SETTINGS";
-	SharedPreferences settings;
-	SharedPreferences.Editor edit;
+	private String[] statuses = null, names = null, diffs = null, rates = null, infos = null;
+	private GridView gv;
+	private final String FILENAME = "USER_GRIDDLERS", SETTINGS = "USER_SETTINGS";
+	private SharedPreferences settings;
+	private SharedPreferences.Editor edit;
+	private GriddlerMenuAdapter gma;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState)
 	{
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_user_griddlers);
+		gv = (GridView) findViewById(R.id.gvUser);
 		// Grab all the Griddlers on local drive.
 		// IE: The ones the user started on.
 		// Also show the create a Griddler and Tutorial Griddler.
@@ -44,10 +46,7 @@ public class UserGriddlers extends Activity implements OnTouchListener
 		{
 			e.printStackTrace();
 		}
-		gv = (GridView) findViewById(R.id.gvUser);
 		gv.setNumColumns(2);
-		GriddlerMenuAdapter gma = new GriddlerMenuAdapter(this, statuses, names, diffs, rates, infos);
-		gv.setAdapter(gma);
 		gv.setOnTouchListener(this);
 	}
 
@@ -58,9 +57,10 @@ public class UserGriddlers extends Activity implements OnTouchListener
 		// Get preferences to see if user ran app before.
 		boolean isVirgin = settings.getBoolean("virgin", true);
 		// Put in some defaults if they've never ran the app before.
-		if (isVirgin )
+		if (isVirgin)
 		{
-			String add = "2 Create Custom We'll~see 0 0 0 0," + System.getProperty("line.separator") + "0 Tutorial Easy 0 4 4 1111100110011111 0000000000000000," + System.getProperty("line.separator");
+			String add = "2 Create Custom We'll~see 0 0 0 0," + System.getProperty("line.separator") + "0 Tutorial Easy 0 4 4 1111100110011111 1110011001100111," + System.getProperty("line.separator");
+			add += "1 Test Easy 0 5 3 111101000000000 111111111111111," + System.getProperty("line.separator");
 			FileOutputStream fos = openFileOutput(FILENAME, Context.MODE_WORLD_WRITEABLE);
 			fos.write(add.getBytes());
 			fos.close();
@@ -95,6 +95,9 @@ public class UserGriddlers extends Activity implements OnTouchListener
 			rates[i] = temp[3].replace("~", " ");
 			infos[i] = temp[4] + " " + temp[5] + " " + temp[6] + " " + temp[7];
 		}
+
+		gma = new GriddlerMenuAdapter(this, statuses, names, diffs, rates, infos);
+		gv.setAdapter(gma);
 	}
 
 	@Override
@@ -134,12 +137,13 @@ public class UserGriddlers extends Activity implements OnTouchListener
 			return false;
 		}
 	}
-	
+
 	@Override
-	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-		if(resultCode == RESULT_OK)
+	protected void onActivityResult(int requestCode, int resultCode, Intent data)
+	{
+		if (resultCode == RESULT_OK)
 		{
-			//Add to the file.
+			// Add to the file.
 			String info = data.getStringExtra("info");
 			try
 			{
@@ -147,17 +151,15 @@ public class UserGriddlers extends Activity implements OnTouchListener
 				fos.write(info.getBytes());
 				fos.close();
 				loadGriddlers();
-				gv.invalidate();
 			}
 			catch (IOException e)
 			{
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
 		else
 		{
-			//Nothing added.
+			// Nothing added.
 		}
 	}
 }
