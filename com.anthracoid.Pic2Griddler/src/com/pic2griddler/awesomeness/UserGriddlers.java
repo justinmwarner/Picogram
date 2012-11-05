@@ -15,10 +15,11 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
 import android.widget.GridView;
+import android.widget.Toast;
 
 public class UserGriddlers extends Activity implements OnTouchListener
 {
-	private String[] statuses = null, names = null, diffs = null, rates = null, infos = null;
+	private String[] ids = null, statuses = null, names = null, diffs = null, rates = null, infos = null;
 	private GridView gv;
 	private final String FILENAME = "USER_GRIDDLERS", SETTINGS = "USER_SETTINGS";
 	private SharedPreferences settings;
@@ -59,7 +60,7 @@ public class UserGriddlers extends Activity implements OnTouchListener
 		// Put in some defaults if they've never ran the app before.
 		if (isVirgin)
 		{
-			String add = "2 Create Custom We'll~see 0 0 0 0," + System.getProperty("line.separator") + "0 Tutorial Easy 0 4 4 1111100110011111 1110011001100111," + System.getProperty("line.separator");
+			String add = "2 Create Custom We'll~see 0 0 0 0," + System.getProperty("line.separator") + "1 Tutorial Easy 0 4 4 1111100110011111 1110011001100111," + System.getProperty("line.separator");
 			add += "1 Test Easy 0 5 3 111101000000000 111111111111111," + System.getProperty("line.separator");
 			FileOutputStream fos = openFileOutput(FILENAME, Context.MODE_WORLD_WRITEABLE);
 			fos.write(add.getBytes());
@@ -81,6 +82,7 @@ public class UserGriddlers extends Activity implements OnTouchListener
 		String[] griddlers = sb.toString().split(",");
 		// Because of buffer size, we want to ignore anything "Extra", so
 		// length-1 will do.
+		ids = new String[griddlers.length - 1];
 		statuses = new String[griddlers.length - 1];
 		names = new String[griddlers.length - 1];
 		diffs = new String[griddlers.length - 1];
@@ -94,6 +96,8 @@ public class UserGriddlers extends Activity implements OnTouchListener
 			diffs[i] = temp[2];
 			rates[i] = temp[3].replace("~", " ");
 			infos[i] = temp[4] + " " + temp[5] + " " + temp[6] + " " + temp[7];
+			ids[i] = temp[6].hashCode() + ""; // ID is based on solutions hash
+												// code.
 		}
 
 		gma = new GriddlerMenuAdapter(this, statuses, names, diffs, rates, infos);
@@ -126,7 +130,7 @@ public class UserGriddlers extends Activity implements OnTouchListener
 					// Start game with info!
 					Intent gameIntent = new Intent(this, GameActivity.class);
 					gameIntent.putExtra("info", infos[pos]);
-					this.startActivity(gameIntent);
+					this.startActivityForResult(gameIntent, 2);
 					return false;
 				}
 			}
@@ -147,6 +151,7 @@ public class UserGriddlers extends Activity implements OnTouchListener
 			String info = data.getStringExtra("info");
 			try
 			{
+
 				FileOutputStream fos = openFileOutput(FILENAME, Context.MODE_APPEND);
 				fos.write(info.getBytes());
 				fos.close();
@@ -156,6 +161,16 @@ public class UserGriddlers extends Activity implements OnTouchListener
 			{
 				e.printStackTrace();
 			}
+		}
+		else if (resultCode == 2)
+		{
+			// Game activitiy.
+			String current = data.getStringExtra("current");
+			String status = data.getStringExtra("status");
+			String solve = data.getStringExtra("ID");
+			// Alter file and change it.
+			
+			//Update views for new colors.
 		}
 		else
 		{

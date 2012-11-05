@@ -66,45 +66,49 @@
                 android:id="@+id/tvX"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:lines="2"
-                android:minLines="2"
+                android:layout_weight="1"
                 android:text="Width" />
 
             <Spinner
                 android:id="@+id/spinX"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_weight="2"
                 android:prompt="@string/xBlocks" />
 
             <TextView
                 android:id="@+id/tvY"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_weight="1"
                 android:text="Height" />
 
             <Spinner
                 android:id="@+id/spinY"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
+                android:layout_weight="2"
                 android:prompt="@string/yBlock" />
 
             <TextView
                 android:id="@+id/tvY"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_weight="1"
                 android:text="Number \nof \nColors" />
 
             <Spinner
                 android:id="@+id/spinColor"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_weight="2"
                 android:prompt="@string/colorNumber" />
 
             <Button
                 android:id="@+id/buttonSubmit"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_weight="1"
                 android:text="Submit" />
         </TableRow>
 

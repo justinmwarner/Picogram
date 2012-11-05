@@ -2,6 +2,7 @@ package com.pic2griddler.awesomeness;
 
 import android.os.Bundle;
 import android.app.Activity;
+import android.content.Intent;
 import android.graphics.Color;
 import android.util.Log;
 import android.view.Menu;
@@ -21,10 +22,10 @@ public class GameActivity extends Activity implements OnClickListener, OnTouchLi
 {
 
 	private GridView grid;
-	int[][] solution;
-	int[][] current;
-	boolean[][] wasChanged;
-	int solutionOnes = 0, currentOnes = 0;
+	private int[][] solution;
+	private int[][] current;
+	private boolean[][] wasChanged;
+	private int solutionOnes = 0, currentOnes = 0;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState)
@@ -47,6 +48,18 @@ public class GameActivity extends Activity implements OnClickListener, OnTouchLi
 		Button down = (Button) findViewById(R.id.bDown);
 		up.setOnClickListener(this);
 		down.setOnClickListener(this);
+	}
+
+	@Override
+	public void onBackPressed()
+	{
+		super.onPause();
+		Intent returnIntent = new Intent();
+		returnIntent.putExtra("current", getCurrent());
+		returnIntent.putExtra("status", "0");
+		returnIntent.putExtra("ID", getSolution());
+		setResult(2, returnIntent);
+		finish();
 	}
 
 	private void processInfo(String info)
@@ -242,5 +255,38 @@ public class GameActivity extends Activity implements OnClickListener, OnTouchLi
 		}
 		// Win!
 		Toast.makeText(this, "Congrats, you win.", Toast.LENGTH_SHORT).show();
+		Intent returnIntent = new Intent();
+		returnIntent.putExtra("current", getCurrent());
+		returnIntent.putExtra("status", "1");
+		returnIntent.putExtra("ID", getSolution());
+		setResult(2, returnIntent);
+		finish();
+	}
+
+	private String getCurrent()
+	{
+		String temp = "";
+		for (int i = 0; i < current[0].length; i++)
+		{
+			for (int j = 0; j < current.length; j++)
+			{
+				temp += current[j][i];
+			}
+		}
+		return temp;
+	}
+	
+	private String getSolution()
+	{
+		String temp = "";
+
+		for (int i = 0; i < solution[0].length; i++)
+		{
+			for (int j = 0; j < solution.length; j++)
+			{
+				temp += solution[j][i];
+			}
+		}
+		return temp;
 	}
 }
