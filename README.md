@@ -31,9 +31,9 @@ The numbers on the left and top of the grid represent the number of blocks you h
 	<tr>
 		<th></th>
 		<th>2</th>
-		<th>2</th>
-		<th>2</th>
 		<th>4</th>
+		<th>4</th>
+		<th>2</th>
 	</tr>
 	<tr>
 		<th>2</th>
@@ -70,9 +70,9 @@ Becomes:
 	<tr>
 		<th></th>
 		<th>2</th>
-		<th>2</th>
-		<th>2</th>
 		<th>4</th>
+		<th>4</th>
+		<th>2</th>
 	</tr>
 	<tr>
 		<th>2</th>

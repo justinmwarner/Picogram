@@ -37,57 +37,15 @@ public class UserGriddlers extends Activity implements OnTouchListener
 		// IE: The ones the user started on.
 		// Also show the create a Griddler and Tutorial Griddler.
 		sql = new SQLiteGriddlerAdapter(this.getApplicationContext(), "Griddlers", null, 1);
-		try
-		{
-			loadGriddlers();
-		}
-		catch (FileNotFoundException e)
-		{
-			e.printStackTrace();
-		}
-		catch (IOException e)
-		{
-			e.printStackTrace();
-		}
+
+		loadGriddlers();
 		gv.setNumColumns(2);
 		gv.setOnTouchListener(this);
 	}
 
-	private void loadGriddlers() throws IOException
+	private void loadGriddlers()
 	{
-		/*
-		 * settings = getSharedPreferences(SETTINGS, 0); edit = settings.edit();
-		 * // Get preferences to see if user ran app before. boolean isVirgin =
-		 * settings.getBoolean("virgin", true); // Put in some defaults if
-		 * they've never ran the app before. if (isVirgin) { String add =
-		 * "2 Create Custom We'll~see 0 0 0 0," +
-		 * System.getProperty("line.separator") +
-		 * "1 Tutorial Easy 0 4 4 1111100110011111 1110011001100111," +
-		 * System.getProperty("line.separator"); add +=
-		 * "1 Test Easy 0 5 3 111101000000000 111111111111111," +
-		 * System.getProperty("line.separator"); FileOutputStream fos =
-		 * openFileOutput(FILENAME, Context.MODE_WORLD_WRITEABLE);
-		 * fos.write(add.getBytes()); fos.close(); edit.putBoolean("virgin",
-		 * false); edit.commit(); } // Now read the file to get all the
-		 * Griddlers from it. FileInputStream fis = openFileInput(FILENAME);
-		 * StringBuffer sb = new StringBuffer(""); byte[] buffer = new
-		 * byte[1024]; int length = 0; while ((length = fis.read(buffer)) != -1)
-		 * { sb.append(new String(buffer)); } fis.close(); // Now process the
-		 * file. String[] griddlers = sb.toString().split(","); // Because of
-		 * buffer size, we want to ignore anything "Extra", so // length-1 will
-		 * do. ids = new String[griddlers.length - 1]; statuses = new
-		 * String[griddlers.length - 1]; names = new String[griddlers.length -
-		 * 1]; diffs = new String[griddlers.length - 1]; rates = new
-		 * String[griddlers.length - 1]; infos = new String[griddlers.length -
-		 * 1]; for (int i = 0; i < griddlers.length - 1; i++) { String temp[] =
-		 * griddlers[i].split(" "); statuses[i] = temp[0]; names[i] =
-		 * temp[1].replace("~", " "); diffs[i] = temp[2]; rates[i] =
-		 * temp[3].replace("~", " "); infos[i] = temp[4] + " " + temp[5] + " " +
-		 * temp[6] + " " + temp[7]; ids[i] = temp[6].hashCode() + ""; // ID is
-		 * based on solutions hash // code. }
-		 */
 		String[] griddlers = sql.getGriddlers(1);
-		Log.d("TAG", griddlers.length +"");
 		ids = new String[griddlers.length];
 		statuses = new String[griddlers.length];
 		names = new String[griddlers.length];
@@ -149,32 +107,24 @@ public class UserGriddlers extends Activity implements OnTouchListener
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data)
 	{
+		//These could be compiled in to one, but for now, just keep it as is for simplicity.
 		if (resultCode == RESULT_OK)
 		{
 			// Add to the file.
-			String info = data.getStringExtra("info");
-			try
-			{
-
-				FileOutputStream fos = openFileOutput(FILENAME, Context.MODE_APPEND);
-				fos.write(info.getBytes());
-				fos.close();
-				loadGriddlers();
-			}
-			catch (IOException e)
-			{
-				e.printStackTrace();
-			}
+			String id = data.getStringExtra("ID");
+			String status = data.getStringExtra("status");
+			String current = data.getStringExtra("current");
+			sql.updateCurrentGriddler(id + " " + status + " " + current);
+			loadGriddlers();
 		}
 		else if (resultCode == 2)
 		{
 			// Game activitiy.
-			String current = data.getStringExtra("current");
+			String id = data.getStringExtra("ID");
 			String status = data.getStringExtra("status");
-			String solve = data.getStringExtra("ID");
-			// Alter file and change it.
-
-			// Update views for new colors.
+			String current = data.getStringExtra("current");
+			sql.updateCurrentGriddler(id + " " + status + " " + current);
+			loadGriddlers();
 		}
 		else
 		{

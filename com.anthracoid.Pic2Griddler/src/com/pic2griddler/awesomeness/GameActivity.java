@@ -57,7 +57,7 @@ public class GameActivity extends Activity implements OnClickListener, OnTouchLi
 		Intent returnIntent = new Intent();
 		returnIntent.putExtra("current", getCurrent());
 		returnIntent.putExtra("status", "0");
-		returnIntent.putExtra("ID", getSolution());
+		returnIntent.putExtra("ID", getSolution().hashCode());
 		setResult(2, returnIntent);
 		finish();
 	}

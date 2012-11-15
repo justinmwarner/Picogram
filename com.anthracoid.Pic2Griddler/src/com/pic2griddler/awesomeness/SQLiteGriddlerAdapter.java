@@ -6,7 +6,6 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteDatabase.CursorFactory;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.util.Log;
 
 public class SQLiteGriddlerAdapter extends SQLiteOpenHelper
 {
@@ -39,13 +38,10 @@ public class SQLiteGriddlerAdapter extends SQLiteOpenHelper
 				+ " VARCHAR(16)," + width + " INT(12)," + height + " INT(12)," + status + " INT(12)," + "primary KEY (id));";
 		db.execSQL(query);
 		insertDefaults(db);
-		Log.d("TAG", "Create");
-
 	}
 
 	private void insertDefaults(SQLiteDatabase db)
 	{
-		Log.d("TAG", "Defaults");
 		// Create Custom and Tutorial blocks. Will ALWAYS be there.
 		ContentValues cv = new ContentValues();
 		cv.put(id, "".hashCode()); // Odd, to me, but nothing will ever have
@@ -84,14 +80,19 @@ public class SQLiteGriddlerAdapter extends SQLiteOpenHelper
 
 	public int updateCurrentGriddler(String info)
 	{
+		// info = id + " " + status + " " + current
 		// Info should include hash and new current.
 		SQLiteDatabase db = this.getWritableDatabase();
-		String[] hash =
-		{ info.split(" ")[0] };
-		String newCurrent = info.split(" ")[1];
+		String split[] = info.split(" ");
+		String newHash = split[0];
+		String newStatus = split[1];
+		String newCurrent = split[2];
 		ContentValues cv = new ContentValues();
 		cv.put(current, newCurrent);
-		return db.update(griddlerTable, cv, "id=?", hash);
+		cv.put(status, newStatus);
+		cv.put(id, newHash);
+		return db.update(griddlerTable, cv, "id=?", new String[]
+		{ newHash });
 	}
 
 	public int deleteGriddler(String info)
@@ -114,18 +115,14 @@ public class SQLiteGriddlerAdapter extends SQLiteOpenHelper
 		String query = "";
 		query = "SELECT * FROM " + griddlerTable + " LIMIT " + (page * numItemsPerPage);
 		Cursor c = db.rawQuery(query, null);
-		Log.d("TAG", "Getting: " + query);
 		if (c.moveToFirst())
 		{
-			Log.d("TAG", "Something exists!");
 			String[] result = new String[c.getCount()];
 			for (int i = 0; i < result.length; i++)
 			{
-				Log.d("TAG", "Length: " + result.length);
 				String info = "";
 				for (int j = 0; j < c.getColumnCount(); j++)
 				{
-					Log.d("TAG", "Adding");
 					info += c.getString(j) + " ";
 				}
 				result[i] = info;
@@ -136,7 +133,6 @@ public class SQLiteGriddlerAdapter extends SQLiteOpenHelper
 		}
 		else
 		{
-			Log.d("TAG", "Nithin!");
 			c.close();
 			return new String[]
 			{}; // Should never happen because tutorial and custom will be
