@@ -15,10 +15,11 @@
         android:id="@+id/etName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
         android:layout_alignParentTop="true"
-        android:layout_marginLeft="14dp"
-        android:layout_toRightOf="@+id/textView2"
-        android:ems="10" >
+        android:layout_toRightOf="@+id/textView3"
+        android:ems="10"
+        android:hint="Griddler Name" >
 
         <requestFocus />
     </EditText>
@@ -36,79 +37,31 @@
         android:id="@+id/etTags"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/etName"
+        android:layout_alignRight="@+id/etName"
         android:layout_alignTop="@+id/textView1"
+        android:layout_toRightOf="@+id/textView3"
         android:layout_weight="1"
         android:ems="10"
         android:hint="Comma Separated (Spaces auto-comma&apos;d)" />
-
-    <RadioGroup
-        android:id="@+id/radioGroup1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/etTags"
-        android:layout_centerHorizontal="true" >
-
-        <RadioButton
-            android:id="@+id/rEasy"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:checked="true"
-            android:text="Easy" />
-
-        <RadioButton
-            android:id="@+id/rMedium"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Medium" />
-
-        <RadioButton
-            android:id="@+id/rHard"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Hard" />
-    </RadioGroup>
 
     <TextView
         android:id="@+id/textView3"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
-        android:layout_alignTop="@+id/radioGroup1"
-        android:layout_marginTop="53dp"
+        android:layout_below="@+id/etTags"
         android:text="Difficulty"
         android:textAppearance="?android:attr/textAppearanceLarge" />
 
-    <TextView
-        android:id="@+id/textView4"
-        android:layout_width="wrap_content"
+    <SeekBar
+        android:id="@+id/sbDiff"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_below="@+id/radioGroup1"
-        android:lines="2"
-        android:minLines="2"
-        android:text="And give yourself \na smile..."
-        android:textAppearance="?android:attr/textAppearanceLarge" />
-
-    <RadioGroup
-        android:id="@+id/radioGroup2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:layout_below="@+id/radioGroup1" >
-
-        <RadioButton
-            android:id="@+id/rGood"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:checked="true"
-            android:text=":)" />
-
-        <RadioButton
-            android:id="@+id/rBad"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text=":(" />
-    </RadioGroup>
+        android:layout_alignRight="@+id/etTags"
+        android:layout_alignTop="@+id/textView3"
+        android:layout_toRightOf="@+id/textView3"
+        android:max="3"
+        android:paddingLeft="10dp"
+        android:progress="2" />
 
 </RelativeLayout>

@@ -25,6 +25,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.SeekBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -180,13 +181,32 @@ public class CreateGriddlerActivity extends Activity implements OnClickListener
 
 						EditText etName = (EditText) view.findViewById(R.id.etName);
 						EditText etTags = (EditText) view.findViewById(R.id.etTags);
-
-						String name = etName.getText().toString(), difficulty = "N/A";
-
-						String info = "0 " + name + " " + difficulty + " 0 " + yNum + " " + xNum + " " + solution + " " + current + "," + System.getProperty("line.separator");						 
+						SeekBar sbDifficulty = (SeekBar) view.findViewById(R.id.sbDiff);
+						
+						String name = etName.getText().toString();
+						String difficulty = "Easy";
+						
+						if(sbDifficulty.getProgress() == 1)
+						{
+							difficulty = "Medium";
+						}
+						else if(sbDifficulty.getProgress() == 2)
+						{
+							difficulty = "Hard";
+						}			 
+						else
+						{
+							difficulty = "Extreme";
+						}
 						// 2 Create Custom We'll~see 0 0 0 0,
 						Intent returnIntent = new Intent();
-						returnIntent.putExtra("info", info);
+						returnIntent.putExtra("solution", solution + "");
+						returnIntent.putExtra("author", "justinwarner");	//This must be changed to current user.
+						returnIntent.putExtra("name", name + "");	
+						returnIntent.putExtra("rank", "1");	//Give them a point ;).
+						returnIntent.putExtra("difficulty", difficulty + "");
+						returnIntent.putExtra("width", xNum + "");
+						returnIntent.putExtra("height", yNum + "");
 						returnIntent.putExtra("tags", etTags.getText().toString().replace(" ", ","));
 						setResult(RESULT_OK, returnIntent);
 						finish();

@@ -110,11 +110,18 @@ public class UserGriddlers extends Activity implements OnTouchListener
 		//These could be compiled in to one, but for now, just keep it as is for simplicity.
 		if (resultCode == RESULT_OK)
 		{
-			// Add to the file.
-			String id = data.getStringExtra("ID");
-			String status = data.getStringExtra("status");
-			String current = data.getStringExtra("current");
-			sql.updateCurrentGriddler(id + " " + status + " " + current);
+			// Add to the SQL.
+			Log.d("Tag", data.getExtras().toString());
+			String id = data.getStringExtra("solution").hashCode() +"";
+			String status = "0";
+			String solution = data.getStringExtra("solution");
+			String author = data.getStringExtra("author");
+			String name = data.getStringExtra("name");
+			String rank = data.getStringExtra("rank");
+			String difficulty = data.getStringExtra("difficulty");
+			String width = data.getStringExtra("width");
+			String height = data.getStringExtra("height");
+			sql.addUserGriddler(id, author, name, rank, solution, difficulty, width, height, status);
 			loadGriddlers();
 		}
 		else if (resultCode == 2)
@@ -123,7 +130,7 @@ public class UserGriddlers extends Activity implements OnTouchListener
 			String id = data.getStringExtra("ID");
 			String status = data.getStringExtra("status");
 			String current = data.getStringExtra("current");
-			sql.updateCurrentGriddler(id + " " + status + " " + current);
+			sql.updateCurrentGriddler(id, status, current);
 			loadGriddlers();
 		}
 		else

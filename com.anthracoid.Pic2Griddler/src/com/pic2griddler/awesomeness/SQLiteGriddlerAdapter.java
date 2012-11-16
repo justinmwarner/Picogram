@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteDatabase.CursorFactory;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
 public class SQLiteGriddlerAdapter extends SQLiteOpenHelper
 {
@@ -69,16 +70,35 @@ public class SQLiteGriddlerAdapter extends SQLiteOpenHelper
 		db.insert(griddlerTable, null, cv); // Tutorial Griddler.
 	}
 
-	public long addUserGriddler(String info)
+	public long addUserGriddler(String id, String author, String name, String rank, String solution, String difficulty, String width, String height, String status)
 	{
 		// Do stuff. Unknown so far. Implement later.
 		SQLiteDatabase db = this.getWritableDatabase();
 		ContentValues cv = new ContentValues();
-
+		cv.put(this.id, id.hashCode());
+		cv.put(this.author, author);
+		cv.put(this.name, name);
+		cv.put(this.rank, rank);
+		cv.put(this.solution, solution);
+		cv.put(this.difficulty, difficulty);
+		cv.put(this.width, width);
+		cv.put(this.height, height);
+		cv.put(this.status, status);
+		// All 0's.
+		Log.d("TAG", width + " " + height);
+		String curr = "";
+		for(int i = 0; i < Integer.parseInt(width); i++)
+		{
+			for(int j = 0; j < Integer.parseInt(height); j++)
+			{
+				curr += "0";
+			}
+		}
+		cv.put(this.current, curr);
 		return db.insert(griddlerTable, null, cv);
 	}
 
-	public int updateCurrentGriddler(String info)
+	public int updateCurrentGriddler(String info, String status2, String current2)
 	{
 		// info = id + " " + status + " " + current
 		// Info should include hash and new current.
