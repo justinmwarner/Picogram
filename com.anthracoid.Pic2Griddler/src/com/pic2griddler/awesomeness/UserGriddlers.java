@@ -1,5 +1,6 @@
 package com.pic2griddler.awesomeness;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -41,11 +42,12 @@ public class UserGriddlers extends Activity implements OnTouchListener
 		loadGriddlers();
 		gv.setNumColumns(2);
 		gv.setOnTouchListener(this);
+		
 	}
 
 	private void loadGriddlers()
 	{
-		String[] griddlers = sql.getGriddlers(1);
+		String[][] griddlers = sql.getGriddlers(1);
 		ids = new String[griddlers.length];
 		statuses = new String[griddlers.length];
 		names = new String[griddlers.length];
@@ -54,17 +56,13 @@ public class UserGriddlers extends Activity implements OnTouchListener
 		infos = new String[griddlers.length];
 		for (int i = 0; i < griddlers.length; i++)
 		{
-			String temp[] = griddlers[i].split(" ");
+			String temp[] = griddlers[i];
 			ids[i] = temp[0];
 			names[i] = temp[2];
 			rates[i] = temp[3];
 			infos[i] = temp[8] + " " + temp[7] + " " + temp[4] + " " + temp[5];
 			diffs[i] = temp[6];
 			statuses[i] = temp[9];
-			if(temp[2].equals("Heart"))
-			{
-				Log.d("TAG", "Load, id: " + temp[0] + " and current: " + temp[5]);
-			}
 		}
 		gma = new GriddlerMenuAdapter(this, statuses, names, diffs, rates, infos);
 		gv.setAdapter(gma);
@@ -137,7 +135,6 @@ public class UserGriddlers extends Activity implements OnTouchListener
 			String status = data.getStringExtra("status");
 			String current = data.getStringExtra("current");
 			int i = sql.updateCurrentGriddler(id, status, current);
-			Log.d("TAG", "Result 2 : id: " + id);
 			loadGriddlers();
 		}
 		else

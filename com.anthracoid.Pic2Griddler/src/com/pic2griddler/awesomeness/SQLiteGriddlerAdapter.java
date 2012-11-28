@@ -86,9 +86,9 @@ public class SQLiteGriddlerAdapter extends SQLiteOpenHelper
 		cv.put(this.status, status);
 		// All 0's.
 		String curr = "";
-		for(int i = 0; i < Integer.parseInt(width); i++)
+		for (int i = 0; i < Integer.parseInt(width); i++)
 		{
-			for(int j = 0; j < Integer.parseInt(height); j++)
+			for (int j = 0; j < Integer.parseInt(height); j++)
 			{
 				curr += "0";
 			}
@@ -118,7 +118,7 @@ public class SQLiteGriddlerAdapter extends SQLiteOpenHelper
 		return db.delete(griddlerTable, "id=" + hash, null);
 	}
 
-	public String[] getGriddlers(int page)
+	public String[][] getGriddlers(int page)
 	{
 		// Page is the page of Griddlers to get. Might change.
 		// Returns String array of Griddler infos to be processed internally.
@@ -131,15 +131,13 @@ public class SQLiteGriddlerAdapter extends SQLiteOpenHelper
 		Cursor c = db.rawQuery(query, null);
 		if (c.moveToFirst())
 		{
-			String[] result = new String[c.getCount()];
+			String[][] result = new String[c.getCount()][c.getColumnCount()];
 			for (int i = 0; i < result.length; i++)
 			{
-				String info = "";
 				for (int j = 0; j < c.getColumnCount(); j++)
 				{
-					info += c.getString(j) + " ";
+					result[i][j] = c.getString(j);
 				}
-				result[i] = info;
 				c.moveToNext();
 			}
 			c.close();
@@ -148,7 +146,7 @@ public class SQLiteGriddlerAdapter extends SQLiteOpenHelper
 		else
 		{
 			c.close();
-			return new String[]
+			return new String[][]
 			{}; // Should never happen because tutorial and custom will be
 				// there.
 		}
