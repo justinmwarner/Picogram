@@ -72,18 +72,18 @@ public class GriddlerMenuAdapter extends BaseAdapter
 		{
 			Bitmap bm = BitmapFactory.decodeResource(context.getResources(), R.drawable.ic_launcher);
 			bm = Bitmap.createScaledBitmap(bm, width, height, true);
-			for (int i = 0; i < bm.getWidth(); i++)
+			for (int i = 0; i < height; i++)
 			{
-				for (int j = 0; j < bm.getHeight(); j++)
+				for (int j = 0; j < width; j++)
 				{
 					
 					if (curr.charAt(run) == '0')
 					{
-						bm.setPixel(i, j, Color.WHITE);
+						bm.setPixel(j, i, Color.WHITE);
 					}
 					else
 					{
-						bm.setPixel(i, j, Color.BLACK);
+						bm.setPixel(j, i, Color.BLACK);
 					}
 					run++;
 				}

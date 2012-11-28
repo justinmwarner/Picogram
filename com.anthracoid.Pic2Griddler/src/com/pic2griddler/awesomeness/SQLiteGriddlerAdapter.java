@@ -75,15 +75,15 @@ public class SQLiteGriddlerAdapter extends SQLiteOpenHelper
 		// Do stuff. Unknown so far. Implement later.
 		SQLiteDatabase db = this.getWritableDatabase();
 		ContentValues cv = new ContentValues();
-		cv.put(this.id, id.hashCode());
-		cv.put(this.author, author);
-		cv.put(this.name, name);
-		cv.put(this.rank, rank);
-		cv.put(this.solution, solution);
-		cv.put(this.difficulty, difficulty);
-		cv.put(this.width, width);
-		cv.put(this.height, height);
-		cv.put(this.status, status);
+		cv.put(SQLiteGriddlerAdapter.id, id);
+		cv.put(SQLiteGriddlerAdapter.author, author);
+		cv.put(SQLiteGriddlerAdapter.name, name);
+		cv.put(SQLiteGriddlerAdapter.rank, rank);
+		cv.put(SQLiteGriddlerAdapter.solution, solution);
+		cv.put(SQLiteGriddlerAdapter.difficulty, difficulty);
+		cv.put(SQLiteGriddlerAdapter.width, width);
+		cv.put(SQLiteGriddlerAdapter.height, height);
+		cv.put(SQLiteGriddlerAdapter.status, status);
 		// All 0's.
 		String curr = "";
 		for (int i = 0; i < Integer.parseInt(width); i++)
@@ -93,7 +93,7 @@ public class SQLiteGriddlerAdapter extends SQLiteOpenHelper
 				curr += "0";
 			}
 		}
-		cv.put(this.current, curr);
+		cv.put(SQLiteGriddlerAdapter.current, curr);
 		return db.insert(griddlerTable, null, cv);
 	}
 
@@ -103,10 +103,10 @@ public class SQLiteGriddlerAdapter extends SQLiteOpenHelper
 		// Info should include hash and new current.
 		SQLiteDatabase db = this.getWritableDatabase();
 		ContentValues cv = new ContentValues();
-		cv.put(this.current, current);
-		cv.put(this.status, status);
-		cv.put(this.id, id);
-		return db.update(griddlerTable, cv, this.id + "=" + id, null);
+		cv.put(SQLiteGriddlerAdapter.current, current);
+		cv.put(SQLiteGriddlerAdapter.status, status);
+		cv.put(SQLiteGriddlerAdapter.id, id);
+		return db.update(griddlerTable, cv, SQLiteGriddlerAdapter.id + " = ? ", new String[]{String.valueOf(id)});
 	}
 
 	public int deleteGriddler(String info)

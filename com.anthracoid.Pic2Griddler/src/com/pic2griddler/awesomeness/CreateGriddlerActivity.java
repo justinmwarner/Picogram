@@ -182,34 +182,48 @@ public class CreateGriddlerActivity extends Activity implements OnClickListener
 						EditText etName = (EditText) view.findViewById(R.id.etName);
 						EditText etTags = (EditText) view.findViewById(R.id.etTags);
 						SeekBar sbDifficulty = (SeekBar) view.findViewById(R.id.sbDiff);
-						
+
 						String name = etName.getText().toString();
-						String difficulty = "Easy";
-						
-						if(sbDifficulty.getProgress() == 1)
+						if (name.equals("Create a Griddler") || name.equals("Tutorial"))
 						{
-							difficulty = "Medium";
+							print("Can't use that name silly!");
 						}
-						else if(sbDifficulty.getProgress() == 2)
-						{
-							difficulty = "Hard";
-						}			 
 						else
 						{
-							difficulty = "Extreme";
+							String difficulty = "Easy";
+
+							if (sbDifficulty.getProgress() == 1)
+							{
+								difficulty = "Medium";
+							}
+							else if (sbDifficulty.getProgress() == 2)
+							{
+								difficulty = "Hard";
+							}
+							else
+							{
+								difficulty = "Extreme";
+							}
+							// 2 Create Custom We'll~see 0 0 0 0,
+							Intent returnIntent = new Intent();
+							returnIntent.putExtra("solution", solution + "");
+							returnIntent.putExtra("author", "justinwarner"); // This
+																				// must
+																				// be
+																				// changed
+																				// to
+																				// current
+																				// user.
+							returnIntent.putExtra("name", name + "");
+							returnIntent.putExtra("rank", "1"); // Give them a
+																// point ;).
+							returnIntent.putExtra("difficulty", difficulty + "");
+							returnIntent.putExtra("width", xNum + "");
+							returnIntent.putExtra("height", yNum + "");
+							returnIntent.putExtra("tags", etTags.getText().toString().replace(" ", ","));
+							setResult(RESULT_OK, returnIntent);
+							finish();
 						}
-						// 2 Create Custom We'll~see 0 0 0 0,
-						Intent returnIntent = new Intent();
-						returnIntent.putExtra("solution", solution + "");
-						returnIntent.putExtra("author", "justinwarner");	//This must be changed to current user.
-						returnIntent.putExtra("name", name + "");	
-						returnIntent.putExtra("rank", "1");	//Give them a point ;).
-						returnIntent.putExtra("difficulty", difficulty + "");
-						returnIntent.putExtra("width", xNum + "");
-						returnIntent.putExtra("height", yNum + "");
-						returnIntent.putExtra("tags", etTags.getText().toString().replace(" ", ","));
-						setResult(RESULT_OK, returnIntent);
-						finish();
 					}
 				});
 			}
@@ -307,25 +321,29 @@ public class CreateGriddlerActivity extends Activity implements OnClickListener
 			Bitmap scaled = Bitmap.createScaledBitmap(orig, xNum * 10, yNum * 10, false);
 			ivBefore.setImageBitmap(scaled);
 			Bitmap alter = Bitmap.createScaledBitmap(orig, xNum, yNum, false);
-			//Set pixels = to each pixel in the scaled image (Easier to find values, and smaller!)
+			// Set pixels = to each pixel in the scaled image (Easier to find
+			// values, and smaller!)
 			int pixels[] = new int[xNum * yNum];
 			alter.getPixels(pixels, 0, alter.getWidth(), 0, 0, alter.getWidth(), alter.getHeight());
-			TextView tv = (TextView) findViewById(R.id.tv);//For debuging.
+			TextView tv = (TextView) findViewById(R.id.tv);// For debuging.
 			String temp = "";
 			for (int i = 0; i < pixels.length; i++)
 			{
 				int r = (pixels[i]) >> 16 & 0xff;
 				int g = (pixels[i]) >> 8 & 0xff;
 				int b = (pixels[i]) & 0xff;
-				pixels[i] = (r + g + b) / 3;	//Convert the values in pixels to be grey values.  Or normalize them.
+				pixels[i] = (r + g + b) / 3; // Convert the values in pixels to
+												// be grey values. Or normalize
+												// them.
 			}
-			int pix[][] = new int[yNum][xNum];	//Height, then width per a height.
+			int pix[][] = new int[yNum][xNum]; // Height, then width per a
+												// height.
 			int run = 0;
 			for (int i = 0; i < pix.length; i++)
 			{
 				for (int j = 0; j < pix[i].length; j++)
 				{
-					pix[i][j] = pixels[run++];	
+					pix[i][j] = pixels[run++];
 					temp += pix[i][j] + " ";
 				}
 				temp += "\n";
@@ -358,23 +376,22 @@ public class CreateGriddlerActivity extends Activity implements OnClickListener
 			temp += "\n";
 			temp += "\n";
 			// Set up "solution" for when it's submitted, this requires us to go
-			for (int i =  0; i < pix.length; i++)
+			for (int i = 0; i < pix.length; i++)
 			{
 				for (int j = 0; j < pix[i].length; j++)
 				{
 					solution += pix[i][j];
 					current += "0";
-					temp+=pix[i][j];
+					temp += pix[i][j];
 				}
-				temp+="\n";
+				temp += "\n";
 			}
 			alter = Bitmap.createScaledBitmap(alter, yNum * 10, xNum * 10, false);
 			this.ivAfter.setImageBitmap(alter);
 			/*
-			 * 3 5
-			 * 111000111111100
-			*/
-			temp+=solution;
+			 * 3 5 111000111111100
+			 */
+			temp += solution;
 			tv.setText(temp);
 		}
 		else

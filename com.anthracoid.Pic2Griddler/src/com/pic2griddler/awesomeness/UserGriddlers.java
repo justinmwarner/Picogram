@@ -42,7 +42,7 @@ public class UserGriddlers extends Activity implements OnTouchListener
 		loadGriddlers();
 		gv.setNumColumns(2);
 		gv.setOnTouchListener(this);
-		
+
 	}
 
 	private void loadGriddlers()
@@ -62,7 +62,21 @@ public class UserGriddlers extends Activity implements OnTouchListener
 			rates[i] = temp[3];
 			infos[i] = temp[8] + " " + temp[7] + " " + temp[4] + " " + temp[5];
 			diffs[i] = temp[6];
-			statuses[i] = temp[9];
+			if (temp[4].equals(temp[5]))
+			{
+				if (names[i].equals("Create a Griddler"))
+				{
+					statuses[i] = 2 + "";
+				}
+				else
+				{
+					statuses[i] = 1 + "";
+				}
+			}
+			else
+			{
+				statuses[i] = 0 + "";
+			}// statuses[i] = temp[9];
 		}
 		gma = new GriddlerMenuAdapter(this, statuses, names, diffs, rates, infos);
 		gv.setAdapter(gma);
@@ -112,11 +126,12 @@ public class UserGriddlers extends Activity implements OnTouchListener
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data)
 	{
-		//These could be compiled in to one, but for now, just keep it as is for simplicity.
+		// These could be compiled in to one, but for now, just keep it as is
+		// for simplicity.
 		if (resultCode == RESULT_OK)
 		{
-			// New Girddler, add to database. 
-			String id = data.getStringExtra("solution").hashCode() +"";
+			// New Girddler, add to database.
+			String id = data.getStringExtra("solution").hashCode() + "";
 			String status = "0";
 			String solution = data.getStringExtra("solution");
 			String author = data.getStringExtra("author");
@@ -131,10 +146,10 @@ public class UserGriddlers extends Activity implements OnTouchListener
 		else if (resultCode == 2)
 		{
 			// Back button pushed.
-			String id = data.getStringExtra("ID") ;
+			String id = data.getStringExtra("ID");
 			String status = data.getStringExtra("status");
 			String current = data.getStringExtra("current");
-			int i = sql.updateCurrentGriddler(id, status, current);
+			sql.updateCurrentGriddler(id, status, current);
 			loadGriddlers();
 		}
 		else
