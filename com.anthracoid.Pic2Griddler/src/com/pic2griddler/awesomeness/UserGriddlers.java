@@ -61,6 +61,10 @@ public class UserGriddlers extends Activity implements OnTouchListener
 			infos[i] = temp[8] + " " + temp[7] + " " + temp[4] + " " + temp[5];
 			diffs[i] = temp[6];
 			statuses[i] = temp[9];
+			if(temp[2].equals("Heart"))
+			{
+				Log.d("TAG", "Load, id: " + temp[0] + " and current: " + temp[5]);
+			}
 		}
 		gma = new GriddlerMenuAdapter(this, statuses, names, diffs, rates, infos);
 		gv.setAdapter(gma);
@@ -84,6 +88,7 @@ public class UserGriddlers extends Activity implements OnTouchListener
 				{
 					// Start Create.
 					Intent createIntent = new Intent(this, CreateGriddlerActivity.class);
+					sql.close();
 					this.startActivityForResult(createIntent, 1);
 					return false;
 				}
@@ -91,7 +96,9 @@ public class UserGriddlers extends Activity implements OnTouchListener
 				{
 					// Start game with info!
 					Intent gameIntent = new Intent(this, GameActivity.class);
+					sql.close();
 					gameIntent.putExtra("info", infos[pos]);
+					gameIntent.putExtra("id", ids[pos]);
 					this.startActivityForResult(gameIntent, 2);
 					return false;
 				}
@@ -110,8 +117,7 @@ public class UserGriddlers extends Activity implements OnTouchListener
 		//These could be compiled in to one, but for now, just keep it as is for simplicity.
 		if (resultCode == RESULT_OK)
 		{
-			// Add to the SQL.
-			Log.d("Tag", data.getExtras().toString());
+			// New Girddler, add to database. 
 			String id = data.getStringExtra("solution").hashCode() +"";
 			String status = "0";
 			String solution = data.getStringExtra("solution");
@@ -126,11 +132,12 @@ public class UserGriddlers extends Activity implements OnTouchListener
 		}
 		else if (resultCode == 2)
 		{
-			// Game activitiy.
-			String id = data.getStringExtra("ID");
+			// Back button pushed.
+			String id = data.getStringExtra("ID") ;
 			String status = data.getStringExtra("status");
 			String current = data.getStringExtra("current");
-			sql.updateCurrentGriddler(id, status, current);
+			int i = sql.updateCurrentGriddler(id, status, current);
+			Log.d("TAG", "Result 2 : id: " + id);
 			loadGriddlers();
 		}
 		else

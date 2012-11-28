@@ -325,7 +325,7 @@ public class CreateGriddlerActivity extends Activity implements OnClickListener
 			{
 				for (int j = 0; j < pix[i].length; j++)
 				{
-					pix[i][j] = pixels[run++];	//Griddlers go column by column, not row by row.
+					pix[i][j] = pixels[run++];	
 					temp += pix[i][j] + " ";
 				}
 				temp += "\n";
@@ -358,13 +358,13 @@ public class CreateGriddlerActivity extends Activity implements OnClickListener
 			temp += "\n";
 			temp += "\n";
 			// Set up "solution" for when it's submitted, this requires us to go
-			for (int i =  0; i < pix[0].length; i++)
+			for (int i =  0; i < pix.length; i++)
 			{
-				for (int j = 0; j < pix.length; j++)
+				for (int j = 0; j < pix[i].length; j++)
 				{
-					solution += pix[j][i];
+					solution += pix[i][j];
 					current += "0";
-					temp+=pix[j][i];
+					temp+=pix[i][j];
 				}
 				temp+="\n";
 			}

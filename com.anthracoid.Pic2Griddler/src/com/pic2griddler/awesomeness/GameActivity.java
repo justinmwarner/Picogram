@@ -37,7 +37,7 @@ public class GameActivity extends Activity implements OnClickListener, OnTouchLi
 		setContentView(R.layout.activity_game);
 		processInfo(this.getIntent().getExtras().getString("info"));
 		grid = (GridView) findViewById(R.id.gvGame);
-		grid.setNumColumns(current.length);
+		grid.setNumColumns(current[0].length);
 		grid.setVerticalSpacing(1);
 		grid.setHorizontalSpacing(1);
 		GriddlerGridAdapter adapter = new GriddlerGridAdapter(this, solution, current);
@@ -57,9 +57,38 @@ public class GameActivity extends Activity implements OnClickListener, OnTouchLi
 		Intent returnIntent = new Intent();
 		returnIntent.putExtra("current", getCurrent());
 		returnIntent.putExtra("status", "0");
-		returnIntent.putExtra("ID", getSolution().hashCode());
+		returnIntent.putExtra("ID", getSolution().hashCode() + "");
 		setResult(2, returnIntent);
 		finish();
+	}
+
+	@Override
+	public void onSaveInstanceState(Bundle out)
+	{
+		super.onSaveInstanceState(out);
+		out.putString("current", this.getCurrent());
+	}
+
+	@Override
+	public void onRestoreInstanceState(Bundle in)
+	{
+		super.onRestoreInstanceState(in);
+		if (in != null)
+		{
+			setGameFromString(in.getString("current"));
+		}
+	}
+
+	private void setGameFromString(String temp)
+	{
+		int run = 0;
+		for (int i = 0; i < current.length; i++)
+		{
+			for (int j = 0; j < current[i].length; j++)
+			{
+				current[i][j] = temp.charAt(run++);
+			}
+		}
 	}
 
 	private void processInfo(String info)
@@ -67,9 +96,9 @@ public class GameActivity extends Activity implements OnClickListener, OnTouchLi
 		String[] split = info.split(" ");
 		int height = Integer.parseInt(split[0]);
 		int width = Integer.parseInt(split[1]);
-		current = new int[width][height];
-		solution = new int[width][height];
-		wasChanged = new boolean[width][height];
+		current = new int[height][width];
+		solution = new int[height][width];
+		wasChanged = new boolean[height][width];
 		int runner = 0;
 		for (int i = 0; i < current.length; i++)
 		{
@@ -88,14 +117,14 @@ public class GameActivity extends Activity implements OnClickListener, OnTouchLi
 		LinearLayout ll = (LinearLayout) findViewById(R.id.llHorizontalHolder);
 		TextView[] tv = new TextView[width]; // Create an array of TextViews to
 												// hold each column.
-		for (int i = 0; i < width; i++) // Like above, may want to change to
+		for (int i = 0; i < solution.length; i++) // Like above, may want to change to
 										// actual array.
 		{
 			tv[i] = new TextView(this);
 			String temp = "";
 			int sum = 0;
 			// Sum up each block of 1's.
-			for (int j = 0; j < height; j++) // Like above, may want to change
+			for (int j = 0; j < solution[i].length; j++) // Like above, may want to change
 												// to actual array.
 			{
 				if (solution[i][j] == 1)
@@ -130,15 +159,14 @@ public class GameActivity extends Activity implements OnClickListener, OnTouchLi
 		TextView vert = (TextView) findViewById(R.id.tvVertical);
 		String temp = "\n";
 		boolean hasMore = false, hasPrinted = false;
-		for (int i = 0; i < height; i++) // Like above, may want to change to
+		for (int i = 0; i < solution.length; i++) // Like above, may want to change to
 											// actual array.
 		{
 			int sum = 0;
-			for (int j = 0; j < width; j++) // Like above, may want to change to
+			for (int j = 0; j < solution[i].length; j++) // Like above, may want to change to
 											// actual array.
 			{
-				if (solution[j][i] == 1) // Going by row order, not column, so
-											// i's and j's are backwards.
+				if (solution[i][j] == 1) 
 				{
 					sum++;
 					hasMore = true;
@@ -201,18 +229,18 @@ public class GameActivity extends Activity implements OnClickListener, OnTouchLi
 			int pos = grid.pointToPosition((int) event.getX(), (int) event.getY());
 			if (pos >= 0)
 			{
-				if (!wasChanged[pos % wasChanged.length][pos / wasChanged.length])
+				if (!wasChanged[pos / wasChanged[0].length][pos % wasChanged[0].length])
 				{
-					if (current[pos % current.length][pos / current.length] == 0)
+					if (current[pos / current[0].length][pos % current[0].length] == 0)
 					{
 						grid.getChildAt(pos).setBackgroundColor(Color.RED);
-						current[pos % current.length][pos / current.length] = 1;
+						current[pos / current[0].length][pos % current[0].length] = 1;
 						++currentOnes;
 					}
 					else
 					{
 						grid.getChildAt(pos).setBackgroundColor(Color.WHITE);
-						current[pos % current.length][pos / current.length] = 0;
+						current[pos / current[0].length][pos % current[0].length] = 0;
 						--currentOnes;
 					}
 					if (currentOnes == solutionOnes)
@@ -220,7 +248,7 @@ public class GameActivity extends Activity implements OnClickListener, OnTouchLi
 						checkWin();
 					}
 				}
-				wasChanged[pos % wasChanged.length][pos / wasChanged.length] = true;
+				wasChanged[pos / wasChanged[0].length][pos % wasChanged[0].length] = true;
 			}
 		}
 		if (event.getActionMasked() == MotionEvent.ACTION_UP)
@@ -258,7 +286,7 @@ public class GameActivity extends Activity implements OnClickListener, OnTouchLi
 		Intent returnIntent = new Intent();
 		returnIntent.putExtra("current", getCurrent());
 		returnIntent.putExtra("status", "1");
-		returnIntent.putExtra("ID", getSolution());
+		returnIntent.putExtra("ID", getSolution().hashCode() + "");
 		setResult(2, returnIntent);
 		finish();
 	}
@@ -266,25 +294,25 @@ public class GameActivity extends Activity implements OnClickListener, OnTouchLi
 	private String getCurrent()
 	{
 		String temp = "";
-		for (int i = 0; i < current[0].length; i++)
+		for (int i = 0; i < current.length; i++)
 		{
-			for (int j = 0; j < current.length; j++)
+			for (int j = 0; j < current[i].length; j++)
 			{
-				temp += current[j][i];
+				temp += current[i][j];
 			}
 		}
 		return temp;
 	}
-	
+
 	private String getSolution()
 	{
 		String temp = "";
 
-		for (int i = 0; i < solution[0].length; i++)
+		for (int i = 0; i < solution.length; i++)
 		{
-			for (int j = 0; j < solution.length; j++)
+			for (int j = 0; j < solution[i].length; j++)
 			{
-				temp += solution[j][i];
+				temp += solution[i][j];
 			}
 		}
 		return temp;

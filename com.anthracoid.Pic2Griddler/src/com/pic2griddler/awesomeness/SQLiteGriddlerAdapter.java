@@ -57,7 +57,7 @@ public class SQLiteGriddlerAdapter extends SQLiteOpenHelper
 		cv.put(height, "0");
 		cv.put(status, "2");
 		db.insert(griddlerTable, null, cv); // Custom Griddler.
-		cv.put(id, "Tutorial".hashCode()); // Now set up the tutorial.
+		cv.put(id, "1111100110011111".hashCode()); // Now set up the tutorial.
 		cv.put(author, "justinwarner");
 		cv.put(name, "Tutorial");
 		cv.put(rank, 0);
@@ -85,7 +85,6 @@ public class SQLiteGriddlerAdapter extends SQLiteOpenHelper
 		cv.put(this.height, height);
 		cv.put(this.status, status);
 		// All 0's.
-		Log.d("TAG", width + " " + height);
 		String curr = "";
 		for(int i = 0; i < Integer.parseInt(width); i++)
 		{
@@ -98,21 +97,16 @@ public class SQLiteGriddlerAdapter extends SQLiteOpenHelper
 		return db.insert(griddlerTable, null, cv);
 	}
 
-	public int updateCurrentGriddler(String info, String status2, String current2)
+	public int updateCurrentGriddler(String id, String status, String current)
 	{
 		// info = id + " " + status + " " + current
 		// Info should include hash and new current.
 		SQLiteDatabase db = this.getWritableDatabase();
-		String split[] = info.split(" ");
-		String newHash = split[0];
-		String newStatus = split[1];
-		String newCurrent = split[2];
 		ContentValues cv = new ContentValues();
-		cv.put(current, newCurrent);
-		cv.put(status, newStatus);
-		cv.put(id, newHash);
-		return db.update(griddlerTable, cv, "id=?", new String[]
-		{ newHash });
+		cv.put(this.current, current);
+		cv.put(this.status, status);
+		cv.put(this.id, id);
+		return db.update(griddlerTable, cv, this.id + "=" + id, null);
 	}
 
 	public int deleteGriddler(String info)
@@ -121,7 +115,7 @@ public class SQLiteGriddlerAdapter extends SQLiteOpenHelper
 		SQLiteDatabase db = this.getWritableDatabase();
 		String[] hash =
 		{ info.split(" ")[0] };
-		return db.delete(griddlerTable, "id=?", hash);
+		return db.delete(griddlerTable, "id=" + hash, null);
 	}
 
 	public String[] getGriddlers(int page)
