@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/RelativeLayout1"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal" >
+
+    <Button
+        android:id="@+id/bLeft"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/container"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:text="&lt;" />
+
+    <Button
+        android:id="@+id/bRight"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/container"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        android:text=">" />
+
+    <ViewFlipper
+        android:id="@+id/vfContainer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_toLeftOf="@+id/bRight"
+        android:layout_toRightOf="@+id/bLeft" >
+
+        <LinearLayout
+            android:id="@+id/llFirst"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:orientation="horizontal" >
+
+            <Button
+                android:id="@+id/bURLA"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="URL" />
+
+            <Button
+                android:id="@+id/bCameraA"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Camera" />
+
+            <Button
+                android:id="@+id/bFileA"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="File" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/llURL"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:orientation="horizontal" >
+
+            <TextView
+                android:id="@+id/textView1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="URL:" />
+
+            <EditText
+                android:id="@+id/etURLA"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:ems="10"
+                android:hint="https://www.google.com/images/srpr/logo3w.png"
+                android:text="https://www.google.com/images/srpr/logo3w.png" >
+
+                <requestFocus android:layout_width="wrap_content" />
+
+            </EditText>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/llWidthHeight"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:orientation="vertical" >
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="fill_parent"
+                android:orientation="vertical" >
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="horizontal" >
+
+                    <TextView
+                        android:id="@+id/textView2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Width Blocks" />
+
+                    <TextView
+                        android:id="@+id/textView3"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Height Blocks" />
+
+                    <TextView
+                        android:id="@+id/textView4"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="# Colors" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="horizontal" >
+
+                    <Spinner
+                        android:id="@+id/spinWidth"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1" />
+
+                    <Spinner
+                        android:id="@+id/spinHeight"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1" />
+
+                    <Spinner
+                        android:id="@+id/spinColor"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1" />
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/llGriddlerNameTagsDiff"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_weight="1"
+            android:orientation="horizontal" >
+
+            <EditText
+                android:id="@+id/etNameA"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="10"
+                android:hint="Name of Griddler"
+                android:textSize="10sp" />
+
+            <EditText
+                android:id="@+id/etTagA"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="10"
+                android:hint="Tags (Comma Separated)"
+                android:textSize="10sp" />
+
+            <Spinner
+                android:id="@+id/spinDiffA"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/llFinal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:orientation="horizontal" >
+
+            <TextView
+                android:id="@+id/textView5"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Looks good.  You can click on the image view below to compare with the original picture too!  If you&apos;d like to manually edit the result, then you may do so by enabling the button to switch modes." />
+
+            <ToggleButton
+                android:id="@+id/tbEditView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textOff="View Mode"
+                android:textOn="Edit Mode" />
+        </LinearLayout>
+    </ViewFlipper>
+
+    <ImageView
+        android:id="@+id/ivGriddlerCreate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/container" />
+
+</RelativeLayout>

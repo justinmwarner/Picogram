@@ -20,6 +20,8 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -29,53 +31,71 @@ import android.widget.SeekBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ViewFlipper;
 
-public class CreateGriddlerActivity extends Activity implements OnClickListener
+public class CreateGriddlerActivity extends Activity implements OnClickListener, OnItemSelectedListener
 {
 
 	private static final int CAMERA_REQUEST_CODE = 1888, FILE_SELECT_CODE = 1337;
-	private ImageView ivBefore, ivAfter;
+	private static final String TAG = "CreateGriddlerActivity";
+	private ImageView ivPicture, ivAfter;
 	private EditText etURL;
-	private Bitmap orig;
-	private Spinner sX, sY, sColor;
+	private Bitmap oldPicture, newPicture;
+	private Spinner sX, sY, sColor, sDiff;
 	private String solution = "", current = "";
 	private int numColors, yNum, xNum;
+	private ViewFlipper vf;
+	private boolean isOriginal = true;;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState)
 	{
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_create);
-		Button photoButton = (Button) findViewById(R.id.buttonCamera);
-		Button fileButton = (Button) findViewById(R.id.buttonFile);
-		Button urlButton = (Button) findViewById(R.id.buttonURL);
-		Button submitButton = (Button) findViewById(R.id.buttonSubmit);
-		Button doneButton = (Button) findViewById(R.id.buttonDone);
-		ivBefore = (ImageView) findViewById(R.id.preImage);
-		ivAfter = (ImageView) findViewById(R.id.ivPreview);
+		setContentView(R.layout.activity_create_advanced);
+		Button photoButton = (Button) findViewById(R.id.bCameraA);
+		Button fileButton = (Button) findViewById(R.id.bFileA);
+		Button urlButton = (Button) findViewById(R.id.bURLA);
+		// Button submitButton = (Button) findViewById(R.id.buttonSubmit);
+		// Button doneButton = (Button) findViewById(R.id.buttonDone);
+		Button leftButton = (Button) findViewById(R.id.bLeft);
+		Button rightButton = (Button) findViewById(R.id.bRight);
+		ivPicture = (ImageView) findViewById(R.id.ivGriddlerCreate);
+		// ivAfter = (ImageView) findViewById(R.id.ivGriddlerCreate);
 		photoButton.setOnClickListener(this);
 		fileButton.setOnClickListener(this);
 		urlButton.setOnClickListener(this);
-		submitButton.setOnClickListener(this);
-		doneButton.setOnClickListener(this);
+		// submitButton.setOnClickListener(this);
+		// doneButton.setOnClickListener(this);
+		leftButton.setOnClickListener(this);
+		rightButton.setOnClickListener(this);
+		ivPicture.setOnClickListener(this);
+		vf = (ViewFlipper) findViewById(R.id.vfContainer);
 
 		// Add items to spinners... Might be a better way to do this, seriously,
 		// this is idiotic.
-		sX = (Spinner) findViewById(R.id.spinX);
-		sY = (Spinner) findViewById(R.id.spinY);
+		sX = (Spinner) findViewById(R.id.spinWidth);
+		sY = (Spinner) findViewById(R.id.spinHeight);
 		sColor = (Spinner) findViewById(R.id.spinColor);
+		sDiff = (Spinner) findViewById(R.id.spinDiffA);
+		sX.setOnItemSelectedListener(this);
+		sY.setOnItemSelectedListener(this);
+		sColor.setOnItemSelectedListener(this);
 		String colorNumbers[] = new String[9];
 		String xyNumbers[] = new String[20]; // Support more than 20 for
 												// multi-griddlers in future.
+		String difficulties[] =
+		{ "Easy", "Medium", "Hard", "Extreme" };
 		for (int i = 1; i < 21; i++)
 			xyNumbers[i - 1] = "" + i;
 		for (int i = 2; i < 11; i++)
 			colorNumbers[i - 2] = "" + i;
 		ArrayAdapter xy = new ArrayAdapter(this, android.R.layout.simple_spinner_item, xyNumbers);
 		ArrayAdapter cols = new ArrayAdapter(this, android.R.layout.simple_spinner_item, colorNumbers);
+		ArrayAdapter diffs = new ArrayAdapter(this, android.R.layout.simple_spinner_item, difficulties);
 		sX.setAdapter(xy);
 		sY.setAdapter(xy);
 		sColor.setAdapter(cols);
+		sDiff.setAdapter(diffs);
 
 		// Check if we're getting data from a share.
 		Intent intent = getIntent();
@@ -87,15 +107,15 @@ public class CreateGriddlerActivity extends Activity implements OnClickListener
 			{
 				Uri uri = (Uri) intent.getParcelableExtra(Intent.EXTRA_STREAM);
 				Bitmap bi = readBitmap(uri);
-				ivBefore.setImageBitmap(bi);
-				orig = bi;
+				ivPicture.setImageBitmap(bi);
+				oldPicture = bi;
 			}
 		}
 		// Prevent keyboard from popping up.
-		etURL = (EditText) findViewById(R.id.etURL);
-		etURL.clearFocus();
-		LinearLayout trash = (LinearLayout) findViewById(R.id.llTrash);
-		trash.requestFocus();
+		// etURL = (EditText) findViewById(R.id.etURL);
+		// etURL.clearFocus();
+		// LinearLayout trash = (LinearLayout) findViewById(R.id.llTrash);
+		// trash.requestFocus();
 	}
 
 	@Override
@@ -107,12 +127,101 @@ public class CreateGriddlerActivity extends Activity implements OnClickListener
 
 	public void onClick(View v)
 	{
-		if (v.getId() == R.id.buttonCamera)
+		if (v.getId() == R.id.bLeft)
+		{
+			vf.setInAnimation(this, R.anim.in_from_left);
+			vf.setOutAnimation(this, R.anim.out_to_right);
+			if (vf.getDisplayedChild() == 0)
+			{
+				// Exit.
+				finish();
+			}
+			else if (vf.getDisplayedChild() == 2)
+			{
+				vf.setDisplayedChild(0);
+			}
+			else
+			{
+				vf.showPrevious();
+			}
+		}
+		else if (v.getId() == R.id.bRight)
+		{
+			vf.setInAnimation(this, R.anim.in_from_right);
+			vf.setOutAnimation(this, R.anim.out_to_left);
+			if (vf.getDisplayedChild() == 4)
+			{
+				// Done and save everything.
+				finish();
+			}
+			else if (vf.getDisplayedChild() == 0) // On the first, don't do
+													// anything, must select a
+													// button.
+			{
+
+			}
+			else if (vf.getDisplayedChild() == 1) // On the URL.
+			{
+				new Thread(new Runnable()
+				{
+					public void run()
+					{
+						try
+						{
+							etURL = (EditText) findViewById(R.id.etURLA);
+							URL url = new URL(etURL.getText().toString());
+							HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+							conn.setDoInput(true);
+							conn.connect();
+							InputStream in;
+							in = conn.getInputStream();
+							final Bitmap bm = BitmapFactory.decodeStream(in);
+							oldPicture = bm;
+							ivPicture.post(new Runnable()
+							{
+								public void run()
+								{
+									ivPicture.setImageBitmap(bm);
+									oldPicture = bm;
+								}
+
+							});
+						}
+						catch (IOException e)
+						{
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+							// print(e.toString());
+						}
+					}
+
+				}).start();
+				print("Saved picture from url.");
+				vf.showNext();
+			}
+			else if (vf.getDisplayedChild() == 2) // Doing spinner stuff.
+			{
+				// Make sure 3 spinners are valid.
+				vf.showNext();
+			}
+			else if (vf.getDisplayedChild() == 3) // Doing name and tag stuff.
+			{
+				// Make sure valid name, tags, and difficulty.
+				vf.showNext();
+			}
+			else
+			// Now save.
+			{
+				vf.showNext();
+				print("Save it!");
+			}
+		}
+		else if (v.getId() == R.id.bCameraA)
 		{
 			Intent cameraIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
 			this.startActivityForResult(cameraIntent, CAMERA_REQUEST_CODE);
 		}
-		else if (v.getId() == R.id.buttonFile)
+		else if (v.getId() == R.id.bFileA)
 		{
 			// File stuff.
 			Intent fileIntent = new Intent(Intent.ACTION_GET_CONTENT);
@@ -121,134 +230,14 @@ public class CreateGriddlerActivity extends Activity implements OnClickListener
 																// files! =)
 			this.startActivityForResult(fileIntent, FILE_SELECT_CODE);
 		}
-		else if (v.getId() == R.id.buttonURL)
+		else if (v.getId() == R.id.bURLA)
 		{
-			new Thread(new Runnable()
-			{
-				public void run()
-				{
-					try
-					{
-						etURL = (EditText) findViewById(R.id.etURL);
-						URL url = new URL(etURL.getText().toString());
-						HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-						conn.setDoInput(true);
-						conn.connect();
-						InputStream in;
-						in = conn.getInputStream();
-						final Bitmap bm = BitmapFactory.decodeStream(in);
-						ivBefore.post(new Runnable()
-						{
-							public void run()
-							{
-								ivBefore.setImageBitmap(bm);
-								orig = bm;
-							}
-						});
-					}
-					catch (IOException e)
-					{
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-						// print(e.toString());
-					}
-				}
-
-			}).start();
+			vf.setDisplayedChild(1);
 		}
-		else if (v.getId() == R.id.buttonSubmit)
+		else if (v.getId() == R.id.ivGriddlerCreate)
 		{
-			ivBefore.setImageBitmap(orig);
-			alterPhoto();
+			changePictures();
 		}
-		else if (v.getId() == R.id.buttonDone)
-		{
-			AlertDialog.Builder builder = new AlertDialog.Builder(this);
-			LayoutInflater inflater = getLayoutInflater();
-			builder.setTitle("Before you leave...");
-			builder.setMessage("Would would you like to do with your masterpiece?");
-			final View view = (inflater.inflate(R.layout.dialog_save_griddler, null));
-			builder.setView(view);
-			// Only show save if the user actually did something.
-			if (this.ivAfter.getHeight() > 5)
-			{
-				builder.setPositiveButton("Save!", new DialogInterface.OnClickListener()
-				{
-					public void onClick(DialogInterface dialog, int id)
-					{
-						// Save the stuff.
-						// Implement this in a bit.
-
-						EditText etName = (EditText) view.findViewById(R.id.etName);
-						EditText etTags = (EditText) view.findViewById(R.id.etTags);
-						SeekBar sbDifficulty = (SeekBar) view.findViewById(R.id.sbDiff);
-
-						String name = etName.getText().toString();
-						if (name.equals("Create a Griddler") || name.equals("Tutorial"))
-						{
-							print("Can't use that name silly!");
-						}
-						else
-						{
-							String difficulty = "Easy";
-
-							if (sbDifficulty.getProgress() == 1)
-							{
-								difficulty = "Medium";
-							}
-							else if (sbDifficulty.getProgress() == 2)
-							{
-								difficulty = "Hard";
-							}
-							else
-							{
-								difficulty = "Extreme";
-							}
-							// 2 Create Custom We'll~see 0 0 0 0,
-							Intent returnIntent = new Intent();
-							returnIntent.putExtra("solution", solution + "");
-							returnIntent.putExtra("author", "justinwarner"); // This
-																				// must
-																				// be
-																				// changed
-																				// to
-																				// current
-																				// user.
-							returnIntent.putExtra("name", name + "");
-							returnIntent.putExtra("rank", "1"); // Give them a
-																// point ;).
-							returnIntent.putExtra("difficulty", difficulty + "");
-							returnIntent.putExtra("width", xNum + "");
-							returnIntent.putExtra("height", yNum + "");
-							returnIntent.putExtra("tags", etTags.getText().toString().replace(" ", ","));
-							setResult(RESULT_OK, returnIntent);
-							finish();
-						}
-					}
-				});
-			}
-			// Add the buttons
-			builder.setNegativeButton("Menu", new DialogInterface.OnClickListener()
-			{
-				public void onClick(DialogInterface dialog, int id)
-				{
-					finish();
-				}
-			});
-
-			builder.setNeutralButton("Cancel", new DialogInterface.OnClickListener()
-			{
-				public void onClick(DialogInterface dialog, int id)
-				{
-					dialog.dismiss();
-				}
-			});
-			// Create the AlertDialog
-			AlertDialog dialog = builder.create();
-			dialog.show();
-
-		}
-
 	}
 
 	@Override
@@ -259,8 +248,9 @@ public class CreateGriddlerActivity extends Activity implements OnClickListener
 			if (result == Activity.RESULT_OK)
 			{
 				Bitmap photo = (Bitmap) data.getExtras().get("data");
-				ivBefore.setImageBitmap(photo);
-				orig = photo;
+				ivPicture.setImageBitmap(photo);
+				oldPicture = photo;
+				vf.setDisplayedChild(2);
 			}
 			else
 			{
@@ -273,8 +263,13 @@ public class CreateGriddlerActivity extends Activity implements OnClickListener
 			{
 				Uri uri = data.getData();
 				Bitmap bi = readBitmap(uri);
-				ivBefore.setImageBitmap(bi);
-				orig = bi;
+				ivPicture.setImageBitmap(bi);
+				oldPicture = bi;
+				vf.setDisplayedChild(2);
+			}
+			else
+			{
+				print("Aww, we wanted your picture =(");
 			}
 		}
 	}
@@ -312,21 +307,21 @@ public class CreateGriddlerActivity extends Activity implements OnClickListener
 
 	private void alterPhoto()
 	{
-		if (orig != null)
+		if (oldPicture != null)
 		{
 			// Touch this up. It's a bit messy.
 			numColors = Integer.parseInt(sColor.getSelectedItem().toString());
 			yNum = Integer.parseInt(sY.getSelectedItem().toString());
 			xNum = Integer.parseInt(sX.getSelectedItem().toString());
-			Bitmap scaled = Bitmap.createScaledBitmap(orig, xNum * 10, yNum * 10, false);
-			ivBefore.setImageBitmap(scaled);
-			Bitmap alter = Bitmap.createScaledBitmap(orig, xNum, yNum, false);
+			Bitmap scaled = Bitmap.createScaledBitmap(oldPicture, xNum * 10, yNum * 10, false);
+			ivPicture.setImageBitmap(scaled);
+			Bitmap alter = Bitmap.createScaledBitmap(oldPicture, xNum, yNum, false);
 			// Set pixels = to each pixel in the scaled image (Easier to find
 			// values, and smaller!)
 			int pixels[] = new int[xNum * yNum];
 			alter.getPixels(pixels, 0, alter.getWidth(), 0, 0, alter.getWidth(), alter.getHeight());
-			TextView tv = (TextView) findViewById(R.id.tv);// For debuging.
-			String temp = "";
+			// TextView tv = (TextView) findViewById(R.id.tv);// For debuging.
+			// String temp = "";
 			for (int i = 0; i < pixels.length; i++)
 			{
 				int r = (pixels[i]) >> 16 & 0xff;
@@ -344,13 +339,13 @@ public class CreateGriddlerActivity extends Activity implements OnClickListener
 				for (int j = 0; j < pix[i].length; j++)
 				{
 					pix[i][j] = pixels[run++];
-					temp += pix[i][j] + " ";
+					// temp += pix[i][j] + " ";
 				}
-				temp += "\n";
+				// temp += "\n";
 			}
-			temp += "\n";
-			temp += "\n";
-			temp += "\n";
+			// temp += "\n";
+			// temp += "\n";
+			// temp += "\n";
 			for (int i = 0; i < alter.getWidth(); i++)
 			{
 				for (int j = 0; j < alter.getHeight(); j++)
@@ -361,20 +356,20 @@ public class CreateGriddlerActivity extends Activity implements OnClickListener
 															// array. Get to it
 															// later.
 						pix[j][i] = 0;
-						temp += "0";
+						// temp += "0";
 					}
 					else
 					{
 						alter.setPixel(i, j, Color.BLACK);
 						pix[j][i] = 1;
-						temp += "1";
+						// temp += "1";
 					}
 				}
-				temp += "\n";
+				// temp += "\n";
 			}
-			temp += "\n";
-			temp += "\n";
-			temp += "\n";
+			// temp += "\n";
+			// temp += "\n";
+			// temp += "\n";
 			// Set up "solution" for when it's submitted, this requires us to go
 			for (int i = 0; i < pix.length; i++)
 			{
@@ -382,17 +377,14 @@ public class CreateGriddlerActivity extends Activity implements OnClickListener
 				{
 					solution += pix[i][j];
 					current += "0";
-					temp += pix[i][j];
+					// temp += pix[i][j];
 				}
-				temp += "\n";
+				// temp += "\n";
 			}
 			alter = Bitmap.createScaledBitmap(alter, yNum * 10, xNum * 10, false);
-			this.ivAfter.setImageBitmap(alter);
-			/*
-			 * 3 5 111000111111100
-			 */
-			temp += solution;
-			tv.setText(temp);
+			newPicture = alter;
+			changePictures();
+			// temp += solution;
 		}
 		else
 		{
@@ -400,9 +392,39 @@ public class CreateGriddlerActivity extends Activity implements OnClickListener
 		}
 	}
 
+	private void changePictures()
+	{
+		if (isOriginal)	//Go to the new picture.
+		{
+			if (newPicture != null)
+			{
+				ivPicture.setImageBitmap(newPicture);
+				isOriginal = false;
+			}
+		}
+		else	//Go to the old picture.
+		{
+			ivPicture.setImageBitmap(oldPicture);
+			isOriginal = true;
+		}
+	}
+
 	private void print(String t)
 	{
-		Toast.makeText(this, t, Toast.LENGTH_LONG).show();
+		Toast.makeText(this, t, Toast.LENGTH_SHORT).show();
 	}
+
+	public void onItemSelected(AdapterView<?> p, View v, int pos, long id)
+	{
+		// When item is changed, update.'
+		Log.d(TAG, pos + "");
+		if (pos >= 1)
+		{
+			alterPhoto();
+		}
+	}
+
+	public void onNothingSelected(AdapterView<?> arg0)
+	{}
 
 }
