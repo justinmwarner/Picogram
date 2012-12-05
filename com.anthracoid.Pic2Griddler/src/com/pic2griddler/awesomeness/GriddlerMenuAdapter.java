@@ -13,7 +13,6 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 public class GriddlerMenuAdapter extends BaseAdapter
 {
@@ -88,7 +87,7 @@ public class GriddlerMenuAdapter extends BaseAdapter
 					run++;
 				}
 			}
-			bm = bm.createScaledBitmap(bm, width*10, height*10, false);
+			bm = Bitmap.createScaledBitmap(bm, width*10, height*10, false);
 			iv.setImageBitmap(bm);
 			iv.setVisibility(1);
 		}
