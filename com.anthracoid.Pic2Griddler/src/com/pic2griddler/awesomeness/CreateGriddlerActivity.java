@@ -227,15 +227,19 @@ public class CreateGriddlerActivity extends Activity implements OnClickListener,
 			else
 			{
 				// Now save.
-				String info = "0 " + griddlerName + " " + sDiff.getItemAtPosition(sDiff.getSelectedItemPosition()).toString() + " 0 " + yNum + " " + xNum + " " + solution + " " + current + ","
-						+ System.getProperty("line.separator");
-				// 2 Create Custom We'll~see 0 0 0 0,
 				Intent returnIntent = new Intent();
-				returnIntent.putExtra("info", info);
+				returnIntent.putExtra("solution", solution);
+				String username = "justinwarner";
+				returnIntent.putExtra("author", username);
+				returnIntent.putExtra("name", griddlerName);
+				returnIntent.putExtra("rank", 1+"");
+				returnIntent.putExtra("difficulty", sDiff.getItemAtPosition(sDiff.getSelectedItemPosition()).toString());
+				returnIntent.putExtra("width", xNum+"");
+				returnIntent.putExtra("height", yNum +"");
 				returnIntent.putExtra("tags", griddlerTags);
-				print(info);
 				setResult(RESULT_OK, returnIntent);
-				// finish();
+				print("Dude");
+				finish();
 			}
 		}
 		else if (v.getId() == R.id.bCameraA)
