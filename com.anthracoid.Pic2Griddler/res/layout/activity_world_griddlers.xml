@@ -3,39 +3,49 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent" >
 
-    <ImageView
-        android:id="@+id/imageView1"
+    <EditText
+        android:id="@+id/etSearch"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@drawable/ic_action_search" />
+        android:layout_alignBottom="@+id/bSearch"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="5dp"
+        android:layout_toLeftOf="@+id/bSearch"
+        android:ems="10"
+        android:hint="Keep Text Empty To Get Most Recent Or All Time Best"
+        android:maxLines="1" >
 
-    <GridView
+        <requestFocus />
+    </EditText>
+
+    <ListView
+        android:id="@+id/lvWorld"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:layout_alignParentLeft="true"
         android:layout_below="@+id/bSearch"
         android:numColumns="auto_fit" >
-    </GridView>
+    </ListView>
 
-    <EditText
-        android:id="@+id/etSearch"
-        android:layout_width="wrap_content"
+    <Spinner
+        android:id="@+id/spinSort"
+        android:layout_width="100dp"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_toRightOf="@+id/imageView1"
-        android:ems="10"
-        android:text="Tab Not Yet Supported" >
-
-        <requestFocus />
-    </EditText>
+        android:layout_alignBottom="@+id/bSearch"
+        android:layout_alignParentRight="true"
+        android:layout_alignTop="@+id/bSearch"
+        android:layout_marginRight="5dp"
+        android:text="Top" />
 
     <Button
         android:id="@+id/bSearch"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignBaseline="@+id/etSearch"
-        android:layout_alignBottom="@+id/etSearch"
-        android:layout_toRightOf="@+id/etSearch"
+        android:layout_alignParentTop="true"
+        android:layout_toLeftOf="@+id/spinSort"
+        android:maxLines="1"
         android:text="Search" />
 
  

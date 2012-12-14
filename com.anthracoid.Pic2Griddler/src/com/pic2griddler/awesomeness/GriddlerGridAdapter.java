@@ -11,8 +11,8 @@ import android.widget.TextView;
 public class GriddlerGridAdapter extends BaseAdapter
 {
 
-	private int[][] solution, current;
 	private Context context;
+	private int[][] solution, current;
 
 	public GriddlerGridAdapter(Context context, int[][] colors, int[][] current)
 	{

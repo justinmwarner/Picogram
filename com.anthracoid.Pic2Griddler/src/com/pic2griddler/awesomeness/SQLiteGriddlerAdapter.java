@@ -10,18 +10,18 @@ import android.database.sqlite.SQLiteOpenHelper;
 public class SQLiteGriddlerAdapter extends SQLiteOpenHelper
 {
 
-	static final String dbName = "Griddlers";
-	static final String griddlerTable = "UserGriddlers";
-	static final String id = "id";
 	static final String author = "Author";
+	static final String current = "Current";
+	static final String dbName = "Griddlers";
+	static final String difficulty = "Difficulty";
+	static final String griddlerTable = "UserGriddlers";
+	static final String height = "Height";
+	static final String id = "id";
 	static final String name = "Name";
 	static final String rank = "Rank";
 	static final String solution = "Solution";
-	static final String current = "Current";
-	static final String difficulty = "Difficulty";
-	static final String width = "Width";
-	static final String height = "Height";
 	static final String status = "Status";
+	static final String width = "Width";
 
 	// static final String tags = "Tags";
 
@@ -30,14 +30,72 @@ public class SQLiteGriddlerAdapter extends SQLiteOpenHelper
 		super(context, name, factory, version);
 	}
 
-	@Override
-	public void onCreate(SQLiteDatabase db)
+	public long addUserGriddler(String id, String author, String name, String rank, String solution, String difficulty, String width, String height, String status)
 	{
-		// Create the database son.
-		String query = "CREATE TABLE " + griddlerTable + " (" + id + " INT(32)," + author + " TEXT," + name + " TEXT," + rank + " INT(32)," + solution + " TEXT," + current + " TEXT," + difficulty
-				+ " VARCHAR(16)," + width + " INT(12)," + height + " INT(12)," + status + " INT(12)," + "primary KEY (id));";
-		db.execSQL(query);
-		insertDefaults(db);
+		// Do stuff. Unknown so far. Implement later.
+		SQLiteDatabase db = this.getWritableDatabase();
+		ContentValues cv = new ContentValues();
+		cv.put(SQLiteGriddlerAdapter.id, id);
+		cv.put(SQLiteGriddlerAdapter.author, author);
+		cv.put(SQLiteGriddlerAdapter.name, name);
+		cv.put(SQLiteGriddlerAdapter.rank, rank);
+		cv.put(SQLiteGriddlerAdapter.solution, solution);
+		cv.put(SQLiteGriddlerAdapter.difficulty, difficulty);
+		cv.put(SQLiteGriddlerAdapter.width, width);
+		cv.put(SQLiteGriddlerAdapter.height, height);
+		cv.put(SQLiteGriddlerAdapter.status, status);
+		// All 0's.
+		String curr = "";
+		for (int i = 0; i < Integer.parseInt(width); i++)
+		{
+			for (int j = 0; j < Integer.parseInt(height); j++)
+			{
+				curr += "0";
+			}
+		}
+		cv.put(SQLiteGriddlerAdapter.current, curr);
+		return db.insert(griddlerTable, null, cv);
+	}
+
+	public int deleteGriddler(String info)
+	{
+		// Probably won't implement. Not a huge deal (Right now).
+		SQLiteDatabase db = this.getWritableDatabase();
+		String[] hash =
+		{ info.split(" ")[0] };
+		return db.delete(griddlerTable, "id=" + hash, null);
+	}
+
+	public String[][] getGriddlers()
+	{
+		// Page is the page of Griddlers to get. Might change.
+		// Returns String array of Griddler infos to be processed internally.
+		// Maybe change this so it's easier to process?
+		SQLiteDatabase db = this.getWritableDatabase();
+		String query = "";
+		query = "SELECT * FROM " + griddlerTable;
+		Cursor c = db.rawQuery(query, null);
+		if (c.moveToFirst())
+		{
+			String[][] result = new String[c.getCount()][c.getColumnCount()];
+			for (int i = 0; i < result.length; i++)
+			{
+				for (int j = 0; j < c.getColumnCount(); j++)
+				{
+					result[i][j] = c.getString(j);
+				}
+				c.moveToNext();
+			}
+			c.close();
+			return result;
+		}
+		else
+		{
+			c.close();
+			return new String[][]
+			{}; // Should never happen because tutorial and custom will be
+				// there.
+		}
 	}
 
 	private void insertDefaults(SQLiteDatabase db)
@@ -69,31 +127,20 @@ public class SQLiteGriddlerAdapter extends SQLiteOpenHelper
 		db.insert(griddlerTable, null, cv); // Tutorial Griddler.
 	}
 
-	public long addUserGriddler(String id, String author, String name, String rank, String solution, String difficulty, String width, String height, String status)
+	@Override
+	public void onCreate(SQLiteDatabase db)
 	{
-		// Do stuff. Unknown so far. Implement later.
-		SQLiteDatabase db = this.getWritableDatabase();
-		ContentValues cv = new ContentValues();
-		cv.put(SQLiteGriddlerAdapter.id, id);
-		cv.put(SQLiteGriddlerAdapter.author, author);
-		cv.put(SQLiteGriddlerAdapter.name, name);
-		cv.put(SQLiteGriddlerAdapter.rank, rank);
-		cv.put(SQLiteGriddlerAdapter.solution, solution);
-		cv.put(SQLiteGriddlerAdapter.difficulty, difficulty);
-		cv.put(SQLiteGriddlerAdapter.width, width);
-		cv.put(SQLiteGriddlerAdapter.height, height);
-		cv.put(SQLiteGriddlerAdapter.status, status);
-		// All 0's.
-		String curr = "";
-		for (int i = 0; i < Integer.parseInt(width); i++)
-		{
-			for (int j = 0; j < Integer.parseInt(height); j++)
-			{
-				curr += "0";
-			}
-		}
-		cv.put(SQLiteGriddlerAdapter.current, curr);
-		return db.insert(griddlerTable, null, cv);
+		// Create the database son.
+		String query = "CREATE TABLE " + griddlerTable + " (" + id + " INT(32)," + author + " TEXT," + name + " TEXT," + rank + " INT(32)," + solution + " TEXT," + current + " TEXT," + difficulty
+				+ " VARCHAR(16)," + width + " INT(12)," + height + " INT(12)," + status + " INT(12)," + "primary KEY (id));";
+		db.execSQL(query);
+		insertDefaults(db);
+	}
+
+	@Override
+	public void onUpgrade(SQLiteDatabase db, int oldV, int newV)
+	{
+		// Don't do anything... Yet. Need to read up on what/how this works.
 	}
 
 	public int updateCurrentGriddler(String id, String status, String current)
@@ -106,55 +153,6 @@ public class SQLiteGriddlerAdapter extends SQLiteOpenHelper
 		cv.put(SQLiteGriddlerAdapter.status, status);
 		cv.put(SQLiteGriddlerAdapter.id, id);
 		return db.update(griddlerTable, cv, SQLiteGriddlerAdapter.id + " = ? ", new String[]{String.valueOf(id)});
-	}
-
-	public int deleteGriddler(String info)
-	{
-		// Probably won't implement. Not a huge deal (Right now).
-		SQLiteDatabase db = this.getWritableDatabase();
-		String[] hash =
-		{ info.split(" ")[0] };
-		return db.delete(griddlerTable, "id=" + hash, null);
-	}
-
-	public String[][] getGriddlers(int page)
-	{
-		// Page is the page of Griddlers to get. Might change.
-		// Returns String array of Griddler infos to be processed internally.
-		// Maybe change this so it's easier to process?
-		int numItemsPerPage = 6; // This should be passed, will implement later
-									// on.
-		SQLiteDatabase db = this.getWritableDatabase();
-		String query = "";
-		query = "SELECT * FROM " + griddlerTable + " LIMIT " + (page * numItemsPerPage);
-		Cursor c = db.rawQuery(query, null);
-		if (c.moveToFirst())
-		{
-			String[][] result = new String[c.getCount()][c.getColumnCount()];
-			for (int i = 0; i < result.length; i++)
-			{
-				for (int j = 0; j < c.getColumnCount(); j++)
-				{
-					result[i][j] = c.getString(j);
-				}
-				c.moveToNext();
-			}
-			c.close();
-			return result;
-		}
-		else
-		{
-			c.close();
-			return new String[][]
-			{}; // Should never happen because tutorial and custom will be
-				// there.
-		}
-	}
-
-	@Override
-	public void onUpgrade(SQLiteDatabase db, int oldV, int newV)
-	{
-		// Don't do anything... Yet. Need to read up on what/how this works.
 	}
 
 }

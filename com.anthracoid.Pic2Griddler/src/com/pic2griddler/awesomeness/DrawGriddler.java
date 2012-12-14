@@ -39,51 +39,6 @@ public class DrawGriddler extends SurfaceView implements SurfaceHolder.Callback,
 		Log.d("MAKE", "3");
 	}
 
-	public void surfaceChanged(SurfaceHolder sh, int format, int width, int height)
-	{
-		// TODO Auto-generated method stub
-		Log.d("STATUS", "Changing");
-
-	}
-
-	public void surfaceCreated(SurfaceHolder sh)
-	{
-		Log.d("STATUS", "Creating");
-	}
-
-	public void surfaceDestroyed(SurfaceHolder sh)
-	{
-		// TODO Auto-generated method stub
-		Log.d("STATUS", "Dieing");
-
-	}
-
-	public void run()
-	{
-		Canvas c;
-		while (true)
-		{
-			c = null;
-			SurfaceHolder surface = getHolder();
-			try
-			{
-				c = surface.lockCanvas(surface.getSurfaceFrame());
-				synchronized (surface)
-				{
-					onDraw(c);
-				}
-			}
-			finally
-			{
-				if (c != null)
-				{
-					surface.unlockCanvasAndPost(c);
-				}
-			}
-		}
-
-	}
-
 	@Override
 	public void onDraw(Canvas canvas)
 	{
@@ -125,6 +80,32 @@ public class DrawGriddler extends SurfaceView implements SurfaceHolder.Callback,
 		return true;
 	}
 
+	public void run()
+	{
+		Canvas c;
+		while (true)
+		{
+			c = null;
+			SurfaceHolder surface = getHolder();
+			try
+			{
+				c = surface.lockCanvas(surface.getSurfaceFrame());
+				synchronized (surface)
+				{
+					onDraw(c);
+				}
+			}
+			finally
+			{
+				if (c != null)
+				{
+					surface.unlockCanvasAndPost(c);
+				}
+			}
+		}
+
+	}
+
 	public void setColor(int c)
 	{
 		// TODO Auto-generated method stub
@@ -135,6 +116,25 @@ public class DrawGriddler extends SurfaceView implements SurfaceHolder.Callback,
 	{
 		values[0] = one;
 		values[1] = two;
+	}
+
+	public void surfaceChanged(SurfaceHolder sh, int format, int width, int height)
+	{
+		// TODO Auto-generated method stub
+		Log.d("STATUS", "Changing");
+
+	}
+
+	public void surfaceCreated(SurfaceHolder sh)
+	{
+		Log.d("STATUS", "Creating");
+	}
+
+	public void surfaceDestroyed(SurfaceHolder sh)
+	{
+		// TODO Auto-generated method stub
+		Log.d("STATUS", "Dieing");
+
 	}
 
 

@@ -11,6 +11,7 @@ import android.widget.TabHost.TabSpec;
 
 public class MenuActivity extends TabActivity
 {
+	protected static final String TAG = "MenuActivity";
 	private TabHost th;
 
 	@Override
@@ -41,9 +42,29 @@ public class MenuActivity extends TabActivity
 		th.addTab(userSpec);
 		th.addTab(worldSpec);
 		th.addTab(settingsSpec);
+		/*
+		 * final EditText user = new EditText(this); user.setWidth(100); final
+		 * EditText pass = new EditText(this); pass.setWidth(100); LinearLayout
+		 * ll = new LinearLayout(this); ll.addView(user); ll.addView(pass);
+		 * ll.setOrientation(LinearLayout.VERTICAL); AlertDialog.Builder adb =
+		 * new AlertDialog.Builder(this);
+		 * adb.setTitle("User name and password please..."); adb.setMessage(
+		 * "We don't require an email, only a user/pass.  Previous usernames will be checked with password."
+		 * ); adb.setView(ll); adb.setCancelable(false);
+		 * adb.setPositiveButton("Submit", new DialogInterface.OnClickListener()
+		 * {
+		 * 
+		 * public void onClick(DialogInterface dialog, int which) { } });
+		 * adb.show();
+		 */
 		// Puzzles for future test.
 		// "5 3 111101000000000 111111011011000"
 		// "20 20 0100100100100000011101110110000101101110011101000010000001110100011011110010000001101000011000010111011001100101001000000110000101101110011000010110110000100000011100110110010101111000001000000111011101101001011101000110100000100000010001000110000101101110011000010010000001001000011011110110011001100110011011010110000101101110001011101110001011101110001011101000101110100010111010001011101000101110 0100100100100000011101110110000101101110011101000010000001110100011011110010000001101000011000010111011001100101001000000110000101101110011000010110110000100000011100110110010101111000001000000111011101101001011101000110100000100000010001000110000101101110011000010010000001001000011011110110011001100110011011010110000101101110001011101110001011101110001011101000101110100010111010001011101000101101"
+	}
+
+	public void switchTab(int tab)
+	{
+		getTabHost().setCurrentTab(tab);
 	}
 
 	@Override

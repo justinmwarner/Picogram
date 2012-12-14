@@ -1,52 +1,51 @@
 package com.pic2griddler.awesomeness;
 
+import java.util.ArrayList;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
+import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-public class GriddlerMenuAdapter extends BaseAdapter
+public class GriddlerListAdapter extends ArrayAdapter<Griddler>
 {
+	private static final String TAG = "GriddlerListAdapter";
 	private Context context;
-	private String[] statuses, names, difficulties, ratings, infos;
+	ArrayList<Griddler> griddlers = new ArrayList<Griddler>();
 
-	public GriddlerMenuAdapter(Context context, String[] s, String[] n, String[] d, String[] r, String[] i)
+	public GriddlerListAdapter(Context context, int textViewResourceId)
 	{
-		this.statuses = s;
-		this.context = context;
-		this.names = n;
-		this.difficulties = d;
-		this.ratings = r;
-		this.infos = i;
+		super(context, textViewResourceId);
 	}
 
+	@Override
 	public int getCount()
 	{
-		return names.length;
+		return griddlers.size();
 	}
 
-	public Object getItem(int pos)
+	public void setGriddlers(ArrayList<Griddler> g)
 	{
-		return pos;
+		griddlers = g;
 	}
 
-	public long getItemId(int arg0)
-	{
-		return 0;
-	}
-
+	@Override
 	public View getView(int position, View convertView, ViewGroup parent)
 	{
 		// This is expensive!!
 		View item;
+		if (context == null)
+		{
+			context = this.getContext();
+		}
 		LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		if (convertView == null)
 		{
@@ -56,12 +55,14 @@ public class GriddlerMenuAdapter extends BaseAdapter
 		{
 			item = convertView;
 		}
-		TextView rate = (TextView) item.findViewById(R.id.tvRating), diff = (TextView) item.findViewById(R.id.tvDiff), name = (TextView) item.findViewById(R.id.tvName);
+		TextView rate = (TextView) item.findViewById(R.id.tvRating);
+		TextView diff = (TextView) item.findViewById(R.id.tvDiff);
+		TextView name = (TextView) item.findViewById(R.id.tvName);
 		ImageView iv = (ImageView) item.findViewById(R.id.ivCurrent);
 		iv.setVisibility(0);
-		int height = Integer.parseInt(infos[position].split(" ")[0]);
-		int width = Integer.parseInt(infos[position].split(" ")[1]);
-		String curr = infos[position].split(" ")[3];
+		int height = Integer.parseInt(griddlers.get(position).getInfo().split(" ")[0]);
+		int width = Integer.parseInt(griddlers.get(position).getInfo().split(" ")[1]);
+		String curr = griddlers.get(position).getInfo().split(" ")[2];
 		int run = 0;
 		if (height > 0 && width > 0)
 		{
@@ -71,7 +72,7 @@ public class GriddlerMenuAdapter extends BaseAdapter
 			{
 				for (int j = 0; j < width; j++)
 				{
-					
+
 					if (curr.charAt(run) == '0')
 					{
 						bm.setPixel(j, i, Color.WHITE);
@@ -83,18 +84,18 @@ public class GriddlerMenuAdapter extends BaseAdapter
 					run++;
 				}
 			}
-			bm = Bitmap.createScaledBitmap(bm, width*10, height*10, false);
+			bm = Bitmap.createScaledBitmap(bm, 100, 100, false);
 			iv.setImageBitmap(bm);
 			iv.setVisibility(1);
 		}
-		rate.setText("Rating: " + this.ratings[position]);
-		diff.setText("Difficulty: " + this.difficulties[position]);
-		name.setText(this.names[position]);
+		rate.setText("Rating: " + griddlers.get(position).getRank());
+		diff.setText("Difficulty: " + griddlers.get(position).getDiff());
+		name.setText(griddlers.get(position).getName());
 		// Change color if user has beaten level.
 		int status = 0;
 		try
 		{
-			status = Integer.parseInt(statuses[position]);
+			status = Integer.parseInt(griddlers.get(position).getStatus());
 		}
 		catch (NumberFormatException e)
 		{
@@ -120,7 +121,7 @@ public class GriddlerMenuAdapter extends BaseAdapter
 			rl.setBackgroundResource(R.drawable.griddler_menu_choice_border_other);
 		}
 		gd.invalidateSelf();
+		((ViewGroup) item).setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
 		return item;
 	}
-
 }

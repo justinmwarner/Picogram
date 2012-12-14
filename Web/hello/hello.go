@@ -29,6 +29,10 @@ type GriddlerTag struct {
 	GriddlerId string
 }
 
+type GriddlerUser struct {
+	Username string
+}
+
 func createHandler(w http.ResponseWriter, r *http.Request) {
 	//Creating a Griddler to add to datastore.
 	c := appengine.NewContext(r)
@@ -78,7 +82,6 @@ func topHandler(w http.ResponseWriter, r *http.Request) {
 		var x Griddler
 		_, err := g.Next(&x)
 		if err == datastore.Done {
-			//fmt.Fprintln(buff, "Done.\t", key)
 			break
 		}
 		if err != nil {
@@ -101,8 +104,8 @@ func searchHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	urlParse := parsed.Query() //Parse the URL.
 	search := urlParse.Get("q")
-	offset, err := strconv.Atoi(urlParse.Get("offset")) // -1: Highest Rank.  Else, Page Number (Offset)
-	gtQuery := datastore.NewQuery("GriddlerTag").Filter("Tag =", search).Offset(offset * 6).Limit(6)
+	//offset, err := strconv.Atoi(urlParse.Get("offset"))
+	gtQuery := datastore.NewQuery("GriddlerTag").Filter("Tag =", search).Limit(100)
 	index := 1
 	for g1 := gtQuery.Run(c); ; index++ {
 		var gtTemp GriddlerTag
@@ -119,7 +122,7 @@ func searchHandler(w http.ResponseWriter, r *http.Request) {
 		for g2 := gQuery.Run(c); ; {
 			var gTemp Griddler
 			g2.Next(&gTemp)
-			fmt.Fprintln(w, gTemp)
+			fmt.Fprint(w, gTemp)
 			break
 		}
 		//fmt.Fprintf(buff, "%d. %s\n\n", index, gtTemp)
@@ -131,7 +134,7 @@ func voteHandler(w http.ResponseWriter, r *http.Request) {
 	c := appengine.NewContext(r)
 	parsed, err := url.Parse(r.URL.String())
 	if err != nil {
-		fmt.Fprintln(w, "Bad stuff happened in the vote handler\t")
+		fmt.Fprintln(w, "Vote Handler: ", err)
 		return
 	}
 	q := parsed.Query() //Parse the URL.
@@ -142,7 +145,7 @@ func voteHandler(w http.ResponseWriter, r *http.Request) {
 	g := new(Griddler)
 	if err := datastore.Get(c, k, g); err != nil {
 		//Error.
-		fmt.Fprintln(w, "Error getting griddler from data store in vote")
+		fmt.Fprintln(w, "Error getting griddler from data store in vote: ", err)
 		return
 	}
 	one, err := strconv.Atoi(g.Rank)
@@ -160,8 +163,21 @@ func voteHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func userHandler(w http.ResponseWriter, r *http.Request) {
-	//Create User.
-	//
+	//Create User at start of app.
+	c := appengine.NewContext(r)
+	parsed, err := url.Parse(r.URL.String())
+	if err != nil {
+		fmt.Fprintln(w, "User Handler: ", err)
+	}
+	q := parsed.Query()
+	k := datastore.NewKey(c, "GriddlerUser", q.Get("u"), 0, nil)
+	u := new(GriddlerUser)
+	u.Username = q.Get("u")
+	if _, err := datastore.Put(c, k, u); err != nil {
+		fmt.Fprintln(w, "Putting User: ", err)
+		return
+	}
+	fmt.Fprintln(w, "Successfully added ", q.Get("u"))
 }
 
 func init() {
