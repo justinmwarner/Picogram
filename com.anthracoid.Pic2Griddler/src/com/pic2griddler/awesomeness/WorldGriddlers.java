@@ -130,11 +130,12 @@ public class WorldGriddlers extends Activity implements OnClickListener, OnItemC
 				String diff = now[4];
 				String width = now[5];
 				String height = now[6];
-				String solution = now[7].replaceAll("[1-9]", "0"); // Make it an
+				String solution = now[7];
+				String current = now[7].replaceAll("[1-9]", "0"); // Make it an
 																	// empty
 																	// start.
 				String id = now[7].hashCode() + "";
-				String info = (width + " " + height + " " + solution);
+				String info = (width + " " + height + " " + solution + " " + current);
 				temp = new Griddler(id, "0", name, diff, rank, info, author);
 				griddlers.add(temp);
 			}

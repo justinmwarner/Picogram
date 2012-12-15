@@ -62,7 +62,7 @@ public class GriddlerListAdapter extends ArrayAdapter<Griddler>
 		iv.setVisibility(0);
 		int height = Integer.parseInt(griddlers.get(position).getInfo().split(" ")[0]);
 		int width = Integer.parseInt(griddlers.get(position).getInfo().split(" ")[1]);
-		String curr = griddlers.get(position).getInfo().split(" ")[2];
+		String curr = griddlers.get(position).getInfo().split(" ")[3];
 		int run = 0;
 		if (height > 0 && width > 0)
 		{

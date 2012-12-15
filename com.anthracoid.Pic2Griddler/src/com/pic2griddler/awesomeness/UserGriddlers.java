@@ -70,7 +70,10 @@ public class UserGriddlers extends Activity implements OnTouchListener, OnItemCl
 			String id = temp[0];
 			String name = temp[2];
 			String rate = temp[3];
-			String info = temp[8] + " " + temp[7] + " " + temp[4] + " " + temp[5];
+			String width = temp[7];
+			String height = temp[8];
+			String current = temp[4];
+			String solution = temp[5];
 			String diff = temp[6];
 			String author = temp[1];
 			Log.d(TAG, "Author: " + author);
@@ -90,7 +93,7 @@ public class UserGriddlers extends Activity implements OnTouchListener, OnItemCl
 			{
 				status = 0 + "";
 			}
-			tempGriddler = new Griddler(id, status, name, diff, rate, info, author);
+			tempGriddler = new Griddler(id, status, name, diff, rate, author, width, height, solution, current);
 			this.griddlers.add(tempGriddler);
 		}
 		lv.setAdapter(adapter);
@@ -198,7 +201,10 @@ public class UserGriddlers extends Activity implements OnTouchListener, OnItemCl
 				// Start game with info!
 				Intent gameIntent = new Intent(this, GameActivity.class);
 				sql.close();
-				gameIntent.putExtra("info", griddlers.get(pos).getInfo());
+				gameIntent.putExtra("solution", griddlers.get(pos).getSolution());
+				gameIntent.putExtra("current", griddlers.get(pos).getCurrent());
+				gameIntent.putExtra("width", griddlers.get(pos).getWidth());
+				gameIntent.putExtra("height", griddlers.get(pos).getHeight());
 				gameIntent.putExtra("id", griddlers.get(pos).getId());
 				this.startActivityForResult(gameIntent, 2);
 			}
@@ -234,7 +240,10 @@ public class UserGriddlers extends Activity implements OnTouchListener, OnItemCl
 						// Start game with info!
 						Intent gameIntent = new Intent(this, GameActivity.class);
 						sql.close();
-						gameIntent.putExtra("info", griddlers.get(pos).getInfo());
+						gameIntent.putExtra("solution", griddlers.get(pos).getSolution());
+						gameIntent.putExtra("current", griddlers.get(pos).getCurrent());
+						gameIntent.putExtra("width", griddlers.get(pos).getWidth());
+						gameIntent.putExtra("height", griddlers.get(pos).getHeight());
 						gameIntent.putExtra("id", griddlers.get(pos).getId());
 						this.startActivityForResult(gameIntent, 2);
 						return false;
