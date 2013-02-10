@@ -27,8 +27,7 @@ import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TabHost;
 
-public class WorldGriddlers extends Activity implements OnClickListener, OnItemClickListener
-{
+public class WorldGriddlers extends Activity implements OnClickListener, OnItemClickListener {
 
 	private static final String TAG = "WorldGriddlers";
 	Spinner spinSort;
@@ -38,72 +37,57 @@ public class WorldGriddlers extends Activity implements OnClickListener, OnItemC
 	private String parseMe;
 	private SQLiteGriddlerAdapter sql;
 
-	public void onClick(View v)
-	{
-		if (v.getId() == R.id.bSearch)
-		{
-			Thread t = new Thread(new Runnable()
-			{
+	public void onClick(View v) {
+		if (v.getId() == R.id.bSearch) {
+			Thread t = new Thread(new Runnable() {
 
-				public void run()
-				{
+				public void run() {
 
-					EasyTracker.getTracker().trackEvent("Search", "Searching", etQ.getText().toString().toLowerCase(), (long) 0);
+					EasyTracker.getTracker().trackEvent("Search", "Searching",
+							etQ.getText().toString().toLowerCase(), (long) 0);
 					// Ignore offset for now.
-					String url = "http://www.pic2griddler.appspot.com/search?q=" + etQ.getText().toString().toLowerCase();
-					try
-					{
+					String url = "http://www.pic2griddler.appspot.com/search?q="
+							+ etQ.getText().toString().toLowerCase();
+					try {
 						// Searching
 						HttpClient hc = new DefaultHttpClient();
 						url = url.replace(" ", "");
 						HttpGet hg = new HttpGet(url);
 						HttpResponse r = hc.execute(hg);
 						StatusLine sl = r.getStatusLine();
-						if (sl.getStatusCode() == HttpStatus.SC_OK)
-						{
+						if (sl.getStatusCode() == HttpStatus.SC_OK) {
 							ByteArrayOutputStream out = new ByteArrayOutputStream();
 							r.getEntity().writeTo(out);
 							out.close();
 							parseMe = out.toString();
 
-						}
-						else
-						{
+						} else {
 							r.getEntity().getContent().close();
 							parseMe = "ERROR";
 						}
-					}
-					catch (ClientProtocolException e)
-					{
+					} catch (ClientProtocolException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
-					}
-					catch (IOException e)
-					{
+					} catch (IOException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 
 				}
 
-				private void loadGriddlers(String string)
-				{
+				private void loadGriddlers(String string) {
 					// TODO Auto-generated method stub
 
 				}
 			});
 			t.start();
 			// Add them from out
-			while (parseMe == null)
-			{
+			while (parseMe == null) {
 
 			}
-			if (parseMe.equals("ERROR"))
-			{
+			if (parseMe.equals("ERROR")) {
 
-			}
-			else
-			{
+			} else {
 				loadGriddlers(parseMe);
 				GriddlerListAdapter adapter = new GriddlerListAdapter(this, R.id.lvWorld);
 				adapter.setGriddlers(griddlers);
@@ -114,16 +98,13 @@ public class WorldGriddlers extends Activity implements OnClickListener, OnItemC
 		}
 	}
 
-	private void loadGriddlers(String parse)
-	{
+	private void loadGriddlers(String parse) {
 		String[] me = parse.split("\n");
 
-		Griddler temp;
-		for (int i = 0; i < me.length; i++)
-		{
+		Griddler temp = null;
+		for (int i = 0; i < me.length; i++) {
 			String[] now = me[i].replace("{", "").replace("}", "").split(" ");
-			if (now.length == 8)
-			{
+			if (now.length == 8) {
 				String author = now[1];
 				String name = now[2];
 				String rank = now[3];
@@ -136,15 +117,14 @@ public class WorldGriddlers extends Activity implements OnClickListener, OnItemC
 																	// start.
 				String id = now[7].hashCode() + "";
 				String info = (width + " " + height + " " + solution + " " + current);
-				temp = new Griddler(id, "0", name, diff, rank, info, author);
+				// temp = new Griddler(id, "0", name, diff, rank, info, author);
 				griddlers.add(temp);
 			}
 		}
 	}
 
 	@Override
-	public void onCreate(Bundle savedInstanceState)
-	{
+	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_world_griddlers);
 
@@ -159,7 +139,8 @@ public class WorldGriddlers extends Activity implements OnClickListener, OnItemC
 		String[] array_spinner = new String[2];
 		array_spinner[0] = "Date";
 		array_spinner[1] = "Rank";
-		ArrayAdapter adapter = new ArrayAdapter(this, android.R.layout.simple_spinner_item, array_spinner);
+		ArrayAdapter adapter = new ArrayAdapter(this, android.R.layout.simple_spinner_item,
+				array_spinner);
 		spinSort.setAdapter(adapter);
 		// Other setup.
 		sql = new SQLiteGriddlerAdapter(this.getApplicationContext(), "Griddlers", null, 1);
@@ -169,36 +150,36 @@ public class WorldGriddlers extends Activity implements OnClickListener, OnItemC
 	}
 
 	@Override
-	public boolean onCreateOptionsMenu(Menu menu)
-	{
+	public boolean onCreateOptionsMenu(Menu menu) {
 		getMenuInflater().inflate(R.menu.activity_world_griddlers, menu);
 		return true;
 	}
 
-	public void onItemClick(AdapterView<?> parent, View v, int pos, long id)
-	{
+	public void onItemClick(AdapterView<?> parent, View v, int pos, long id) {
 		// If user tries to play, do the same exact thing as a normal game.
 		// BUT, add this to the SQLite for their own personal games.
-		if (pos >= 0)
-		{
+		if (pos >= 0) {
 			// Start game with info!
 			Intent gameIntent = new Intent(this, GameActivity.class);
-			sql.addUserGriddler(griddlers.get(pos).getId(), griddlers.get(pos).getAuthor(), griddlers.get(pos).getName(), griddlers.get(pos).getRank(), griddlers.get(pos).getInfo().split(" ")[2],
-					griddlers.get(pos).getDiff(), griddlers.get(pos).getInfo().split(" ")[0], griddlers.get(pos).getInfo().split(" ")[1], "0");
+			// sql.addUserGriddler(griddlers.get(pos).getId(),
+			// griddlers.get(pos).getAuthor(), griddlers.get(pos).getName(),
+			// griddlers.get(pos).getRank(),
+			// griddlers.get(pos).getInfo().split(" ")[2],
+			// griddlers.get(pos).getDiff(),
+			// griddlers.get(pos).getInfo().split(" ")[0],
+			// griddlers.get(pos).getInfo().split(" ")[1], "0");
 			sql.close();
-			gameIntent.putExtra("info", griddlers.get(pos).getInfo());
+			// gameIntent.putExtra("info", griddlers.get(pos).getInfo());
 			gameIntent.putExtra("id", griddlers.get(pos).getId());
 			this.startActivityForResult(gameIntent, 2);
 		}
 	}
 
 	@Override
-	protected void onActivityResult(int requestCode, int resultCode, Intent data)
-	{
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		// These could be compiled in to one, but for now, just keep it as is
 		// for simplicity.
-		if (resultCode == 2)
-		{
+		if (resultCode == 2) {
 			String id = data.getStringExtra("ID");
 			String status = data.getStringExtra("status");
 			String current = data.getStringExtra("current");
@@ -211,8 +192,7 @@ public class WorldGriddlers extends Activity implements OnClickListener, OnItemC
 	}
 
 	@Override
-	public void onStop()
-	{
+	public void onStop() {
 		super.onStop();
 		EasyTracker.getInstance().activityStop(this); // Add this method.
 	}

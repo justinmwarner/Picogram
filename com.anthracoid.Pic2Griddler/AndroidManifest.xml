@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.pic2griddler.awesomeness"
     android:versionCode="1"
@@ -44,16 +45,20 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".UserGriddlers"
+            android:name="com.pic2griddler.awesomeness.UserGriddlers"
             android:label="@string/title_activity_user_griddlers" >
         </activity>
         <activity
-            android:name=".WorldGriddlers"
+            android:name="com.pic2griddler.awesomeness.WorldGriddlers"
             android:label="@string/title_activity_world_griddlers" >
         </activity>
         <activity
-            android:name=".SettingsActivity"
+            android:name="com.pic2griddler.awesomeness.SettingsActivity"
             android:label="@string/title_activity_settings" >
+        </activity>
+        <activity
+            android:name="com.pic2griddler.awesomeness.AdvancedGameActivity"
+            android:label="@string/title_activity_advanced_game" >
         </activity>
     </application>
 

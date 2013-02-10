@@ -60,9 +60,9 @@ public class GriddlerListAdapter extends ArrayAdapter<Griddler>
 		TextView name = (TextView) item.findViewById(R.id.tvName);
 		ImageView iv = (ImageView) item.findViewById(R.id.ivCurrent);
 		iv.setVisibility(0);
-		int height = Integer.parseInt(griddlers.get(position).getInfo().split(" ")[0]);
-		int width = Integer.parseInt(griddlers.get(position).getInfo().split(" ")[1]);
-		String curr = griddlers.get(position).getInfo().split(" ")[3];
+		int height = 0;//Integer.parseInt(griddlers.get(position).getInfo().split(" ")[0]);
+		int width = 0;//Integer.parseInt(griddlers.get(position).getInfo().split(" ")[1]);
+		String curr = "";//griddlers.get(position).getInfo().split(" ")[3];
 		int run = 0;
 		if (height > 0 && width > 0)
 		{

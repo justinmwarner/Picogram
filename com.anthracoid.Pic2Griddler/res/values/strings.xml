@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
 
     <string name="app_name">Pic2Griddler</string>
@@ -14,5 +15,6 @@
     <string name="title_activity_user_griddlers">UserGriddlers</string>
     <string name="title_activity_world_griddlers">WorldGriddlers</string>
     <string name="title_activity_settings">SettingsActivity</string>
+    <string name="title_activity_advanced_game">AdvancedGameActivity</string>
 
 </resources>
