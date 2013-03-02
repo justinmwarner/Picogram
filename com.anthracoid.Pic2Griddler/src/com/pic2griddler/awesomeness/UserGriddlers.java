@@ -68,8 +68,8 @@ public class UserGriddlers extends Activity implements OnTouchListener, OnItemCl
 			String rate = temp[3];
 			String width = temp[7];
 			String height = temp[8];
-			String current = temp[4];
-			String solution = temp[5];
+			String current = temp[5];
+			String solution = temp[4];
 			String diff = temp[6];
 			String author = temp[1];
 			Log.d(TAG, "Author: " + author);
@@ -83,8 +83,7 @@ public class UserGriddlers extends Activity implements OnTouchListener, OnItemCl
 			} else {
 				status = 0 + "";
 			}
-			tempGriddler = new Griddler(id, status, name, diff, rate, author, width, height,
-					solution, current);
+			tempGriddler = new Griddler(id, status, name, diff, rate, author, width, height, solution, current);
 			this.griddlers.add(tempGriddler);
 		}
 		lv.setAdapter(adapter);
@@ -115,11 +114,8 @@ public class UserGriddlers extends Activity implements OnTouchListener, OnItemCl
 				public void run() {
 					try {
 						HttpClient hc = new DefaultHttpClient();
-						String url = "http:// www.pic2griddler.appspot.com/create?id=" + id
-								+ "&author=" + author + "&name=" + name + "&rank=" + rank
-								+ "&diff=" + difficulty + "&width=" + width + "&height=" + height
-								+ "&solution=" + solution + "&tags="
-								+ tags.toLowerCase(Locale.getDefault());
+						String url = "http:// www.pic2griddler.appspot.com/create?id=" + id + "&author=" + author + "&name=" + name + "&rank=" + rank + "&diff=" + difficulty + "&width=" + width + "&height=" + height + "&solution=" + solution
+								+ "&tags=" + tags.toLowerCase(Locale.getDefault());
 						url = url.replace(" ", "");
 						HttpGet hg = new HttpGet(url);
 						HttpResponse r = hc.execute(hg);
@@ -161,8 +157,6 @@ public class UserGriddlers extends Activity implements OnTouchListener, OnItemCl
 	}
 
 	public void onItemClick(AdapterView<?> parent, View v, int pos, long id) {
-		Log.d(TAG, "You selected: " + parent.getSelectedItemPosition());
-		Log.d(TAG, "or you selected: " + pos);
 		if (pos >= 0) {
 			if (pos == 0) {
 				// Start Create.
@@ -171,14 +165,13 @@ public class UserGriddlers extends Activity implements OnTouchListener, OnItemCl
 				this.startActivityForResult(createIntent, 1);
 			} else {
 				// Start game with info!
-				startGame(griddlers.get(pos).getSolution(), griddlers.get(pos).getCurrent(),
-						griddlers.get(pos).getWidth(), griddlers.get(pos).getHeight(), griddlers
-								.get(pos).getId());
+				startGame(griddlers.get(pos).getSolution(), griddlers.get(pos).getCurrent(), griddlers.get(pos).getWidth(), griddlers.get(pos).getHeight(), griddlers.get(pos).getId());
 			}
 		}
 	}
 
 	private void startGame(String solution, String current, String width, String height, String id) {
+		// Intent gameIntent = new Intent(this, AdvancedGameActivity.class);
 		Intent gameIntent = new Intent(this, AdvancedGameActivity.class);
 		gameIntent.putExtra("solution", solution);
 		gameIntent.putExtra("current", current);
@@ -209,9 +202,7 @@ public class UserGriddlers extends Activity implements OnTouchListener, OnItemCl
 						return false;
 					} else {
 						// Start game with info!
-						startGame(griddlers.get(pos).getSolution(),
-								griddlers.get(pos).getCurrent(), griddlers.get(pos).getWidth(),
-								griddlers.get(pos).getHeight(), griddlers.get(pos).getId());
+						startGame(griddlers.get(pos).getSolution(), griddlers.get(pos).getCurrent(), griddlers.get(pos).getWidth(), griddlers.get(pos).getHeight(), griddlers.get(pos).getId());
 					}
 				}
 				return false;
@@ -227,8 +218,7 @@ public class UserGriddlers extends Activity implements OnTouchListener, OnItemCl
 	public void onStart() {
 		super.onStart();
 		// Add this method.
-		Log.d(TAG, "*******************************Start: "
-				+ EasyTracker.getTracker().getTrackingId());
+		Log.d(TAG, "*******************************Start: " + EasyTracker.getTracker().getTrackingId());
 	}
 
 	@Override

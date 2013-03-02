@@ -79,8 +79,8 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:ems="10"
-                android:hint="https://www.google.com/images/srpr/logo3w.png"
-                android:text="https://www.google.com/images/srpr/logo3w.png" >
+                android:hint="http://195.83.128.55/~src10f19/c_e/pixelart2.jpg"
+                android:text="http://195.83.128.55/~src10f19/c_e/pixelart2.jpg" >
 
                 <requestFocus android:layout_width="wrap_content" />
 

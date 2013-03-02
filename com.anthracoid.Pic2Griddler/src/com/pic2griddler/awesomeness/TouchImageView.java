@@ -1,6 +1,7 @@
 package com.pic2griddler.awesomeness;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -278,150 +279,237 @@ public class TouchImageView extends ImageView {
 	// Convert current String to a bitmap that's drawable.
 	// This will draw everything: grid, numbers, and onclicks.
 	private void bitmapFromCurrent() {
-		int colors[] = new int[gCurrent.length()];
-		for (int i = 0; i < colors.length; i++) {
-			if (gCurrent.charAt(i) == '1') {
-				colors[i] = Color.BLACK;
-			} else {
-				colors[i] = Color.WHITE;
-			}
-		}
-		// Add numbers
-		// Build up outside, numbers for puzzle.
-		// ArrayList's for top and side numbers.
-		ArrayList<String> top = new ArrayList<String>();
-		ArrayList<String> side = new ArrayList<String>();
+		// Get a 2D array of "current" griddler.
+		char current2D[][] = solutionTo2DArray();
+		// Create bitmap based on the current. Make a int array with pixel
+		// colors.
+		int colors[] = getPixelArrayFromString(gSolution, gSolution.length());
 
-		char current2D[][] = convertOneDimensionalToTwoDimensional(gHeight, gWidth, gCurrent.toCharArray());
-		// Top
-		for (int i = 0; i < gWidth; i++) {
-			String temp = "";
-			char prev = current2D[i][0];
-			int iter = 0;
-			for (int j = 0; j < gHeight; j++) {
-				// Make sure we aren't a background piece.
-				if (current2D[i][j] != '0') {
-					if (prev == current2D[i][j]) {
-						// Still in same series.
-						iter++;
-					}
-				} else {
-					if (iter > 0) {
-						// We found one series. Add to temp.
-						temp += iter + " ";
-						iter = 0;// reset iter.
-					}
-				}
-			}
-			if (iter > 0) {
-				temp += iter + " ";
-			}
-			top.add(temp);
-		}
-		// Side
-		for (int i = 0; i < gHeight; i++) {
-			String temp = "";
-			char prev = current2D[i][0];
-			int iter = 0;
-			for (int j = 0; j < gWidth; j++) {
-				// Make sure we aren't a background piece.
-				if (current2D[i][j] != '0') {
-					if (prev == current2D[i][j]) {
-						// Still in same series.
-						iter++;
-					}
-				} else {
-					if (iter > 0) {
-						// We found one series. Add to temp.
-						temp += iter + " ";
-						iter = 0;// reset iter.
-					}
-				}
-			}
-			if (iter > 0) {
-				temp += iter + " ";
-			}
-			side.add(temp);
-		}
-		// Resize bitmap according to longest length of number clues.
-		int longestTop = 0, longestSide = 0;
-		for (int i = 0; i < top.size(); i++) {
-			if (top.get(i).length() > longestTop) {
-				longestTop = top.get(i).length();
-			}
-		}
-		for (int i = 0; i < side.size(); i++) {
-			if (side.get(i).length() > longestSide) {
-				longestSide = side.get(i).length();
-			}
-		}
-		longestSide = longestSide / 2;
-		longestTop = longestTop / 2;
-		ArrayList<Integer> colorFinal = new ArrayList<Integer>();
-		for (int i = 0; i < longestTop; i++) {
-			// Add in fluff pixels for location of numbers on the top.
-			// Add in the extra width from the sides too.
-			for (int j = 0; j < gWidth + longestSide; j++) {
-				colorFinal.add(Color.WHITE);
-			}
-		}
-		// Top section covered, now do the sides and actual image.
-		int runner = 0; // runner marks progress in actual image.
-		for (int i = 0; i < gWidth; i++) {
-			// First add fluff for side.
-			for (int j = 0; j < longestSide; j++) {
-				colorFinal.add(Color.WHITE);
-			}
-			// Now add the picture part for this row of pixels.
-			for (int j = 0; j < gWidth; j++, runner++) {
-				colorFinal.add(colors[runner]);
-			}
-		}
-		int[] color = new int[colorFinal.size()];
-		for (int i = 0; i < colorFinal.size(); i++) {
-			color[i] = colorFinal.get(i);
-		}
+		ArrayList<String> rows = getRows(current2D);
+		ArrayList<String> columns = getColumns(current2D);
+
+		ArrayList<String[]> topHints = getTopHints(columns); // Because of how
+																// we're making
+																// the
+																// top hints, it
+																// needs its own
+																// method...
+		ArrayList<String> sideHints = getSideHints(rows);
+
+		int longestTop = topHints.size(); // Since this is layered, we just need
+											// number of layers.
+		int longestSide = getLongest(sideHints); // Get widest "layer"
 		// Create bitmap with padding for the numbers.
-		Bitmap bm = Bitmap.createScaledBitmap(Bitmap.createBitmap(color, gWidth + longestSide, gHeight + longestTop, Bitmap.Config.ARGB_8888), gWidth * 100, gHeight * 100, false);
-		colors = new int[bm.getWidth() * bm.getHeight()];
-		bm.getPixels(colors, 0, bm.getWidth(), 0, 0, bm.getWidth(), bm.getHeight());
-
+		colors = resizeBitMapsForHints(colors, longestTop, longestSide);
+		Bitmap bm = Bitmap.createScaledBitmap(Bitmap.createBitmap(colors, gWidth + longestSide, gHeight + longestTop, Bitmap.Config.ARGB_8888), gWidth * 100, gHeight * 100, false);
 		Canvas c = new Canvas(bm);
 		Paint p = new Paint();
 		p.setColor(Color.RED);
+		p.setStrokeWidth(4);
+		// Change canvas and it'll reflect on the bm.
 
-		int lw = 100; // size of the initial square to fill in.
-		p.setStrokeWidth(5);
-		for (int i = longestTop; i < c.getHeight(); i++) {	//Side to side.
-			c.drawLine(0, i * (c.getHeight() / (gHeight + longestTop)), c.getWidth(), i * (c.getHeight() / (gHeight + longestTop)), p);
-		}
-		c.drawLine(0, c.getHeight() * (c.getHeight() / gHeight), c.getWidth(), c.getHeight() * (c.getHeight() / gHeight), p);
-		for (int i = longestSide; i < c.getWidth(); i++) {	//Up and down.
-			c.drawLine(i * (c.getWidth() / (gWidth + longestSide)), 0, i * (c.getHeight() / (gHeight + longestSide)), c.getHeight(), p);
-		}
-		c.drawLine(c.getWidth() * (bm.getWidth() / gWidth), 0, c.getWidth() * (c.getHeight() / gHeight), c.getHeight(), p);
-
-		// --------------------------------------------------
-
-		// Draw the number clues.
-		p.setTextSize(50);
-		p.setAntiAlias(true);
-		p.setTypeface(Typeface.MONOSPACE); // Typeface.createFromAsset(getAssets(),
-											// "myfont.ttf");
-		p.setTextAlign(Align.RIGHT);
-		for (int i = 0; i < top.size(); i++) {
-		}
-		for (int i = 0; i < side.size(); i++) {
-			c.drawText(top.get(i), (longestSide - 1) * lw, (longestTop * lw) + (i * lw), p);
-		}
+		drawOnCanvas(c, p, topHints, sideHints);
 		setImageBitmap(bm); // bm should contain all info we changed. Don't
 							// worry.
+	}
 
+	// Just add on fluff area for the hints on the top and on the side.
+	private int[] resizeBitMapsForHints(int[] colors, int longestTop, int longestSide) {
+		int result[] = new int[(longestTop * (longestSide + gWidth)) + colors.length + (gHeight * longestSide)];
+		String temp = "";
+		int runner;
+		// Fill up the top with blank white.
+		for (runner = 0; runner != (longestTop * (longestSide + gWidth)); ++runner) {
+			result[runner] = Color.WHITE;
+			temp += "W";
+		}
+		// Fill side hints with white, and the image with what was in it
+		// previously.
+		int colorRunner = 0; // Used to run through original colors.
+		for (int i = 0; i != gHeight; ++i) {
+			// Draw side for hints.
+			for (int j = 0; j != longestSide; ++j) {
+				result[runner++] = Color.WHITE;
+			}
+			// Add in the array.
+			for (int j = 0; j != gWidth; ++j) {
+				result[runner++] = colors[colorRunner++];
+			}
+		}
+		return result;
+	}
+
+	private void drawOnCanvas(Canvas c, Paint paint, ArrayList<String[]> topHints, ArrayList<String> sideHints) {
+		int longestSide = getLongest(sideHints);
+		int longestTop = (topHints.size());
+		drawGridlines(c, paint, longestTop, longestSide);
+		drawHints(c, paint, topHints, sideHints, longestTop, longestSide);
+	}
+
+	private void drawHints(Canvas c, Paint paint, ArrayList<String[]> topHints, ArrayList<String> sideHints, int longestTop, int longestSide) {
+		paint.setAntiAlias(true);
+		paint.setColor(Color.GREEN);
+		int sideIncrement = c.getHeight() / (longestTop + gHeight);
+		int topIncrement = c.getWidth() / (longestSide + gWidth);
+		paint.setTextSize(topIncrement / 2);
+		// Draw top hints.
+		for (int i = 0; i != longestTop; ++i) {
+			for (int j = 0; j != topHints.get(i).length; ++j) {
+				c.drawText(topHints.get(i)[j] + "", (longestSide * sideIncrement) + (sideIncrement / 2) + (j * sideIncrement), (longestTop * topIncrement) - (topIncrement * i), paint);
+			}
+		}
+
+		// Draw side hints.
+		paint.setTextAlign(Align.RIGHT);
+		paint.setTextSize(sideIncrement / 2);
+		for (int i = 0; i != sideHints.size(); ++i) {
+			c.drawText(sideHints.get(i), longestSide * sideIncrement, (longestTop * topIncrement) + (i * topIncrement) + (2 * topIncrement / 3), paint);
+
+		}
+	}
+
+	private void drawGridlines(Canvas c, Paint paint, int longestTop, int longestSide) {
+		// Up down.
+		int widthOffset = c.getWidth() / (gWidth + longestSide);
+		// i=0, gWidth+1 if you want sides.
+		for (int i = longestSide; i != (gWidth + longestSide); ++i) {
+			c.drawLine(widthOffset * i, 0, widthOffset * i, c.getHeight(), paint);
+		}
+		// Side side.
+		int heightOffset = c.getHeight() / (gHeight + longestTop);
+		// i=0, gHeight+1 if you want sides.
+		for (int i = longestTop; i != (gHeight + longestTop); ++i) {
+			c.drawLine(0, heightOffset * i, c.getWidth(), heightOffset * i, paint);
+
+		}
+	}
+
+	private char[][] solutionTo2DArray() {
+		char[][] result = new char[gHeight][gWidth];
+		int runner = 0;
+		for (int i = 0; i != result.length; ++i) {
+			for (int j = 0; j != result[i].length; ++j) {
+				result[i][j] = gSolution.charAt(runner++);
+			}
+		}
+		return result;
+	}
+
+	private ArrayList<String[]> getTopHints(ArrayList<String> columns) {
+		ArrayList<String[]> result = new ArrayList<String[]>();
+		ArrayList<String> parsed = getSideHints(columns);
+		for (int i = 0; i != parsed.size(); ++i) {
+			parsed.set(i, new StringBuilder(parsed.get(i)).reverse().toString());
+		}
+		int longest = getLongest(parsed);
+		for (int i = 0; i != longest; ++i) {
+			String temp = "";
+			for (int j = 0; j != parsed.size(); ++j) {
+				String split[] = parsed.get(j).split(" ");
+				if (i >= split.length) {
+					temp += " ,";
+				} else {
+					temp += split[i] + ",";
+				}
+			}
+			// Using a , split for double digit numbers, things can get big ;).
+			result.add(temp.split(","));
+		}
+		// Note: result needs to be flipped when actually printed, or printed
+		// upside down.
+		return result;
+	}
+
+	// regex:
+	// http://stackoverflow.com/questions/15101577/split-string-when-character-changes-possible-regex-solution
+	private ArrayList<String> getSideHints(ArrayList<String> rows) {
+		ArrayList<String> result = new ArrayList<String>();
+		for (String row : rows) {
+			String temp = "";
+			row.replaceFirst("^0+(?=[^0])", ""); // Remove leading 0's.
+			String nums[] = row.split("0+|(?<=([1-9]))(?=[1-9])(?!\\1)");
+			for (String item : nums) {
+				temp += item + " ";
+			}
+			result.add(temp);
+		}
+		ArrayList<String> lengths = listToLengths(result);
+		result.clear();
+
+		return lengths;
+	}
+
+	private int getLongest(ArrayList<?> list) {
+		int longest = 0;
+		for (Object o : list) {
+			String temp[] = o.toString().replaceAll(" +", " ").split(" ");
+			if (temp.length > longest) {
+				longest = temp.length;
+			}
+		}
+		return longest;
+	}
+
+	private ArrayList<String> listToLengths(ArrayList<String> list) {
+		ArrayList<String> result = new ArrayList<String>();
+		for (int i = 0; i != list.size(); ++i) {
+			String temp = "";
+			String parse[] = list.get(i).split(" +");
+			for (String p : parse) {
+				if (p.length() != 0) {
+					temp += p.length() + " ";
+				}
+			}
+			if (temp.length() == 0) {
+				result.add("0");
+			} else {
+				result.add(temp.substring(0, temp.length() - 1));
+			}
+		}
+		return result;
+	}
+
+	private ArrayList<String> getRows(char[][] current2d) {
+		ArrayList<String> result = new ArrayList<String>();
+
+		for (int i = 0; i != current2d.length; ++i) {
+			String temp = "";
+			for (int j = 0; j != current2d[i].length; ++j) {
+				temp += current2d[i][j];
+			}
+			result.add(temp);
+		}
+		return result;
+	}
+
+	private ArrayList<String> getColumns(char[][] current2d) {
+		ArrayList<String> result = new ArrayList<String>();
+		for (int i = 0; i != current2d[0].length; ++i) {
+			String temp = "";
+			for (int j = 0; j != current2d.length; ++j) {
+				temp += current2d[j][i];
+			}
+			result.add(temp);
+		}
+		return result;
+	}
+
+	private int[] getPixelArrayFromString(String from, int length) {
+		int[] colors = new int[length];
+		for (int i = 0; i != colors.length; ++i) {
+			if (from.charAt(i) == '0') {
+				colors[i] = Color.WHITE;
+			} else {
+				colors[i] = Color.BLACK;
+			}
+		}
+		return colors;
 	}
 
 	// Site
 	// http://stackoverflow.com/questions/8629202/fast-conversion-from-one-dimensional-array-to-two-dimensional-in-java
 	private char[][] convertOneDimensionalToTwoDimensional(int numberOfRows, int rowSize, char[] srcMatrix) {
+
 		int srcMatrixLength = srcMatrix.length;
 		int srcPosition = 0;
 
@@ -438,5 +526,6 @@ public class TouchImageView extends ImageView {
 			srcPosition = nextSrcPosition;
 		}
 		return returnMatrix;
+
 	}
 }
