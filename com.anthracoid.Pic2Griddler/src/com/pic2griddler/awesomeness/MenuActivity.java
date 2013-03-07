@@ -1,5 +1,6 @@
 package com.pic2griddler.awesomeness;
 
+import com.crittercism.app.Crittercism;
 import android.os.Bundle;
 import android.app.ActivityGroup;
 import android.content.Intent;
@@ -16,10 +17,11 @@ public class MenuActivity extends ActivityGroup {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		Crittercism.setUsername("justinwarner");
+		Crittercism.init(getApplicationContext(), "5132a7682d09b61bfd000020");
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
-		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-				WindowManager.LayoutParams.FLAG_FULLSCREEN); // Full
-																// screen.
+		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN); // Full
+																														// screen.
 		setContentView(R.layout.activity_menu);
 		th = (TabHost) findViewById(R.id.thMain);
 		th.setup(getLocalActivityManager());
@@ -35,8 +37,7 @@ public class MenuActivity extends ActivityGroup {
 		worldSpec.setContent(worldIntent);
 
 		TabSpec settingsSpec = th.newTabSpec("Settings");
-		settingsSpec.setIndicator("Settings",
-				getResources().getDrawable(R.drawable.icon_settings_tab));
+		settingsSpec.setIndicator("Settings", getResources().getDrawable(R.drawable.icon_settings_tab));
 		Intent settingsIntent = new Intent(this, SettingsActivity.class);
 		settingsSpec.setContent(settingsIntent);
 

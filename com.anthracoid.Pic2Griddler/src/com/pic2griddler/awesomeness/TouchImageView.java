@@ -10,8 +10,10 @@ import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Paint.Align;
+import android.graphics.Paint.Cap;
 import android.graphics.Path;
 import android.graphics.PointF;
+import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.util.AttributeSet;
@@ -56,7 +58,7 @@ public class TouchImageView extends ImageView {
 
 	// Griddler specifics.
 	String gCurrent, gSolution;
-	int gWidth, gHeight, gId;
+	int gWidth, gHeight, gId, lTop, lSide;
 
 	public TouchImageView(Context context, AttributeSet attrs, int defStyle) {
 		super(context, attrs, defStyle);
@@ -152,10 +154,13 @@ public class TouchImageView extends ImageView {
 				} else {
 					// If we're playing, we can't move the screen around and
 					// whatnot.
-
+					// In other words, time to play! =)
+					float x = event.getX(), y = event.getY();
+					Log.d(TAG, (int) x + " " + (int) y);
+					//Log.d(TAG, ((((int) x) % (gWidth+lSide))+1) + " " + ((((int) y) % (gHeight + lTop)+1)));
 					// Update the current image to follow changes in the current
 					// array.
-					bitmapFromCurrent();
+					//bitmapFromCurrent();
 
 					return true;
 				}
@@ -299,16 +304,18 @@ public class TouchImageView extends ImageView {
 		int longestTop = topHints.size(); // Since this is layered, we just need
 											// number of layers.
 		int longestSide = getLongest(sideHints); // Get widest "layer"
+		lTop = longestTop;
+		lSide = longestSide;
 		// Create bitmap with padding for the numbers.
 		colors = resizeBitMapsForHints(colors, longestTop, longestSide);
-		Bitmap bm = Bitmap.createScaledBitmap(Bitmap.createBitmap(colors, gWidth + longestSide, gHeight + longestTop, Bitmap.Config.ARGB_8888), gWidth * 100, gHeight * 100, false);
+		// Bitmap bm = Bitmap.createScaledBitmap(Bitmap.createBitmap(colors,
+		// gWidth + longestSide, gHeight + longestTop, Bitmap.Config.ARGB_4444),
+		// gWidth * 100, gHeight * 100, false);
+		Bitmap bm = Bitmap.createBitmap((gWidth + longestSide) * 50, (gHeight + longestTop) * 50, Bitmap.Config.ARGB_4444);
 		Canvas c = new Canvas(bm);
 		Paint p = new Paint();
-		p.setColor(Color.RED);
-		p.setStrokeWidth(4);
 		// Change canvas and it'll reflect on the bm.
-
-		drawOnCanvas(c, p, topHints, sideHints);
+		drawOnCanvas(c, p, colors, topHints, sideHints);
 		setImageBitmap(bm); // bm should contain all info we changed. Don't
 							// worry.
 	}
@@ -316,12 +323,10 @@ public class TouchImageView extends ImageView {
 	// Just add on fluff area for the hints on the top and on the side.
 	private int[] resizeBitMapsForHints(int[] colors, int longestTop, int longestSide) {
 		int result[] = new int[(longestTop * (longestSide + gWidth)) + colors.length + (gHeight * longestSide)];
-		String temp = "";
 		int runner;
 		// Fill up the top with blank white.
 		for (runner = 0; runner != (longestTop * (longestSide + gWidth)); ++runner) {
 			result[runner] = Color.WHITE;
-			temp += "W";
 		}
 		// Fill side hints with white, and the image with what was in it
 		// previously.
@@ -331,7 +336,7 @@ public class TouchImageView extends ImageView {
 			for (int j = 0; j != longestSide; ++j) {
 				result[runner++] = Color.WHITE;
 			}
-			// Add in the array.
+			// Add in the array/picture.
 			for (int j = 0; j != gWidth; ++j) {
 				result[runner++] = colors[colorRunner++];
 			}
@@ -339,48 +344,88 @@ public class TouchImageView extends ImageView {
 		return result;
 	}
 
-	private void drawOnCanvas(Canvas c, Paint paint, ArrayList<String[]> topHints, ArrayList<String> sideHints) {
+	private void drawOnCanvas(Canvas c, Paint paint, int[] colors, ArrayList<String[]> topHints, ArrayList<String> sideHints) {
 		int longestSide = getLongest(sideHints);
 		int longestTop = (topHints.size());
+		// White out whole canvas.
+		drawWhiteCanvas(c, paint);
+		// Draw game surface.
+		drawGame(c, paint, colors, longestTop, longestSide);
+		// Draw gridlines and hints
 		drawGridlines(c, paint, longestTop, longestSide);
 		drawHints(c, paint, topHints, sideHints, longestTop, longestSide);
 	}
 
+	private void drawGame(Canvas c, Paint paint, int[] colors, int longestTop, int longestSide) {
+		int heightTrim = c.getHeight() % (gHeight + longestTop);
+		int widthTrim = c.getWidth() % (gWidth + longestSide);
+		// Up down.
+		paint.setColor(Color.RED);
+		int widthOffset = (c.getWidth() - widthTrim) / (longestSide + gWidth);
+		int heightOffset = (c.getHeight() - heightTrim) / (gHeight + longestTop);
+		int row = -1, column = 0;
+		for (int i = 0; i != gSolution.length(); ++i) {
+			paint.setColor(Color.rgb(i * 10, i * 10, i * 10));
+			if (i % (gWidth) == 0) {
+				column = 0;
+				++row;
+			}
+			Rect r = new Rect(widthOffset * (longestSide + column), heightOffset * (longestTop + row), widthOffset * (longestSide + column + 1), heightOffset * (longestTop + row + 1));
+
+			if (gSolution.charAt(i) == '0') {
+				paint.setColor(Color.WHITE);
+			} else {
+				paint.setColor(Color.BLACK);
+			}
+			c.drawRect(r, paint);
+			++column;
+		}
+	}
+
+	private void drawWhiteCanvas(Canvas c, Paint paint) {
+		paint.setColor(Color.rgb(255, 251, 237));
+		c.drawRect(0, 0, c.getWidth(), c.getHeight(), paint);
+	}
+
 	private void drawHints(Canvas c, Paint paint, ArrayList<String[]> topHints, ArrayList<String> sideHints, int longestTop, int longestSide) {
 		paint.setAntiAlias(true);
-		paint.setColor(Color.GREEN);
-		int sideIncrement = c.getHeight() / (longestTop + gHeight);
-		int topIncrement = c.getWidth() / (longestSide + gWidth);
-		paint.setTextSize(topIncrement / 2);
+		paint.setColor(Color.rgb(61, 54, 26));
+		paint.setStrokeWidth(1);
+		int widthOffset = c.getWidth() / (longestSide + gWidth);
+		int heightOffset = c.getHeight() / (gHeight + longestTop);
+		paint.setTextSize(heightOffset / 2);
 		// Draw top hints.
 		for (int i = 0; i != longestTop; ++i) {
 			for (int j = 0; j != topHints.get(i).length; ++j) {
-				c.drawText(topHints.get(i)[j] + "", (longestSide * sideIncrement) + (sideIncrement / 2) + (j * sideIncrement), (longestTop * topIncrement) - (topIncrement * i), paint);
+				c.drawText(topHints.get(i)[j] + "", (longestSide * widthOffset) + (widthOffset / 2) + (j * widthOffset), (longestTop * heightOffset) - (heightOffset * i), paint);
 			}
 		}
 
 		// Draw side hints.
 		paint.setTextAlign(Align.RIGHT);
-		paint.setTextSize(sideIncrement / 2);
+		paint.setTextSize(widthOffset / 2);
 		for (int i = 0; i != sideHints.size(); ++i) {
-			c.drawText(sideHints.get(i), longestSide * sideIncrement, (longestTop * topIncrement) + (i * topIncrement) + (2 * topIncrement / 3), paint);
+			// The 2 * heightOffset/3 is for balance issues.
+			c.drawText(sideHints.get(i), longestSide * widthOffset, (longestTop * heightOffset) + (i * heightOffset) + (2 * heightOffset / 3), paint);
 
 		}
 	}
 
 	private void drawGridlines(Canvas c, Paint paint, int longestTop, int longestSide) {
+		paint.setStrokeWidth(3);
+		int heightTrim = c.getHeight() % (gHeight + longestTop);
+		int widthTrim = c.getWidth() % (gWidth + longestSide);
 		// Up down.
-		int widthOffset = c.getWidth() / (gWidth + longestSide);
-		// i=0, gWidth+1 if you want sides.
-		for (int i = longestSide; i != (gWidth + longestSide); ++i) {
+		paint.setColor(Color.rgb(117, 111, 88));
+		int widthOffset = (c.getWidth() - widthTrim) / (longestSide + gWidth);
+		int heightOffset = (c.getHeight() - heightTrim) / (gHeight + longestTop);
+
+		for (int i = longestSide; i != (gWidth + longestSide) + 1; ++i) {
 			c.drawLine(widthOffset * i, 0, widthOffset * i, c.getHeight(), paint);
 		}
 		// Side side.
-		int heightOffset = c.getHeight() / (gHeight + longestTop);
-		// i=0, gHeight+1 if you want sides.
-		for (int i = longestTop; i != (gHeight + longestTop); ++i) {
+		for (int i = longestTop; i != (gHeight + longestTop) + 1; ++i) {
 			c.drawLine(0, heightOffset * i, c.getWidth(), heightOffset * i, paint);
-
 		}
 	}
 
