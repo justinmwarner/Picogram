@@ -58,7 +58,7 @@ public class TouchImageView extends ImageView {
 
 	// Griddler specifics.
 	String gCurrent, gSolution;
-	int gWidth, gHeight, gId, lTop, lSide;
+	int gWidth, gHeight, gId, lTop, lSide, cellWidth, cellHeight;
 
 	public TouchImageView(Context context, AttributeSet attrs, int defStyle) {
 		super(context, attrs, defStyle);
@@ -84,6 +84,7 @@ public class TouchImageView extends ImageView {
 		m = new float[9];
 		setImageMatrix(matrix);
 		setScaleType(ScaleType.MATRIX);
+
 
 		setOnTouchListener(new OnTouchListener() {
 
@@ -152,16 +153,49 @@ public class TouchImageView extends ImageView {
 					invalidate();
 					return true; // indicate event was handled
 				} else {
-					// If we're playing, we can't move the screen around and
-					// whatnot.
-					// In other words, time to play! =)
-					float x = event.getX(), y = event.getY();
-					Log.d(TAG, (int) x + " " + (int) y);
-					//Log.d(TAG, ((((int) x) % (gWidth+lSide))+1) + " " + ((((int) y) % (gHeight + lTop)+1)));
-					// Update the current image to follow changes in the current
-					// array.
-					//bitmapFromCurrent();
+					if (event.getAction() == MotionEvent.ACTION_UP) {
+						// If we're playing, we can't move the screen around and
+						// whatnot.
+						// In other words, time to play! =)
+						// TODO: This stuff.
+						float x = event.getX(), y = event.getY();
+						float floats[] = new float[] { x, y };
+						matrix.mapPoints(floats);
+						x = floats[0];
+						y = floats[1];
 
+						if (x < 0) {
+							x = 0;
+						} else if (x > bmWidth - 1) {
+							x = bmWidth - 1;
+						}
+
+						if (y < 0) {
+							y = 0;
+						} else if (y > bmHeight - 1) {
+							y = bmHeight - 1;
+						}
+						
+						Log.d(TAG, "Pixels: " + x + ", " + y);
+						double pixelsWidth = width;
+						pixelsWidth -= (width / (lSide + gWidth)) * lSide;
+						
+						double stepOne = (width / (lSide + gWidth));
+						double stepTwo = x / stepOne;
+						double stepThree = Math.floor(stepTwo);
+						double stepFour = stepThree - lSide;
+						double stepFive = stepFour - 1;
+						int i = 0;
+
+						// 7 and 8 of i = spot 2. 5 and 6 of i = spot 1
+						// Log.d(TAG, ((((int) x) % (gWidth+lSide))+1) + " " +
+						// ((((int) y) % (gHeight + lTop)+1)));
+						// Update the current image to follow changes in the
+						// current
+						// array.
+						// bitmapFromCurrent();
+
+					}
 					return true;
 				}
 			}
@@ -363,6 +397,8 @@ public class TouchImageView extends ImageView {
 		paint.setColor(Color.RED);
 		int widthOffset = (c.getWidth() - widthTrim) / (longestSide + gWidth);
 		int heightOffset = (c.getHeight() - heightTrim) / (gHeight + longestTop);
+		cellWidth = widthOffset;
+		cellHeight = heightOffset;
 		int row = -1, column = 0;
 		for (int i = 0; i != gSolution.length(); ++i) {
 			paint.setColor(Color.rgb(i * 10, i * 10, i * 10));
