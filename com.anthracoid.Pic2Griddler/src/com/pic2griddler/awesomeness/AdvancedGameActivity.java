@@ -1,13 +1,17 @@
 package com.pic2griddler.awesomeness;
 
+import com.pic2griddler.awesomeness.TouchImageView.WinnerListener;
+
 import android.os.Bundle;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 
-public class AdvancedGameActivity extends Activity implements OnClickListener {
+public class AdvancedGameActivity extends Activity implements OnClickListener, WinnerListener {
 	TouchImageView tiv;
 
 	@Override
@@ -16,6 +20,7 @@ public class AdvancedGameActivity extends Activity implements OnClickListener {
 		setContentView(R.layout.activity_advanced_game);
 
 		tiv = (TouchImageView) findViewById(R.id.tivGame);
+		tiv.setWinListener(this);
 		tiv.setGriddlerInfo(getIntent().getExtras());
 		Button bHand = (Button) findViewById(R.id.bToolboxHand);
 		Button bWhite = (Button) findViewById(R.id.bToolboxWhite);
@@ -40,5 +45,16 @@ public class AdvancedGameActivity extends Activity implements OnClickListener {
 			tiv.isGameplay = true;
 
 		}
+	}
+
+	public void win() {
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		builder.setMessage("Congrats! You won!").setCancelable(false).setPositiveButton("OK", new DialogInterface.OnClickListener() {
+			public void onClick(DialogInterface dialog, int id) {
+				finish();
+			}
+		});
+		AlertDialog alert = builder.create();
+		alert.show();
 	}
 }

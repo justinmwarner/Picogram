@@ -15,6 +15,7 @@ import android.graphics.Path;
 import android.graphics.PointF;
 import android.graphics.Rect;
 import android.graphics.Typeface;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -25,7 +26,7 @@ import android.widget.ImageView;
 
 public class TouchImageView extends ImageView {
 
-	Matrix matrix = new Matrix();
+	Matrix matrix;
 
 	// We can be in one of these 3 states
 	static final int NONE = 0;
@@ -40,14 +41,13 @@ public class TouchImageView extends ImageView {
 	float maxScale = 3f;
 	float[] m;
 
-	float redundantXSpace, redundantYSpace;
-
-	float width, height;
+	int viewWidth, viewHeight;
 	static final int CLICK = 3;
 
-	private static final String TAG = "TOUCHIMAGEVIEW";
+	protected static final String TAG = "TouchImageView";
 	float saveScale = 1f;
-	float right, bottom, origWidth, origHeight, bmWidth, bmHeight;
+	protected float origWidth, origHeight;
+	int oldMeasuredWidth, oldMeasuredHeight;
 
 	ScaleGestureDetector mScaleDetector;
 
@@ -56,83 +56,54 @@ public class TouchImageView extends ImageView {
 	// Control whether we're moving around or in actual gameplay mode.
 	boolean isGameplay = false;
 
+	int lastTouchX = 0;
+	int lastTouchY = 0;
+
 	// Griddler specifics.
 	String gCurrent, gSolution;
 	int gWidth, gHeight, gId, lTop, lSide, cellWidth, cellHeight;
 
-	public TouchImageView(Context context, AttributeSet attrs, int defStyle) {
-		super(context, attrs, defStyle);
-		setup(context);
+	public TouchImageView(Context context) {
+		super(context);
+		sharedConstructing(context);
 	}
 
 	public TouchImageView(Context context, AttributeSet attrs) {
 		super(context, attrs);
-		setup(context);
+		sharedConstructing(context);
 	}
 
-	public TouchImageView(Context context) {
-		super(context);
-		setup(context);
-
-	}
-
-	private void setup(Context context) {
+	private void sharedConstructing(Context context) {
 		super.setClickable(true);
 		this.context = context;
 		mScaleDetector = new ScaleGestureDetector(context, new ScaleListener());
-		matrix.setTranslate(1f, 1f);
+		matrix = new Matrix();
 		m = new float[9];
 		setImageMatrix(matrix);
 		setScaleType(ScaleType.MATRIX);
-
 
 		setOnTouchListener(new OnTouchListener() {
 
 			public boolean onTouch(View v, MotionEvent event) {
 				if (!isGameplay) {
 					mScaleDetector.onTouchEvent(event);
-
-					matrix.getValues(m);
-					float x = m[Matrix.MTRANS_X];
-					float y = m[Matrix.MTRANS_Y];
 					PointF curr = new PointF(event.getX(), event.getY());
 
 					switch (event.getAction()) {
 					case MotionEvent.ACTION_DOWN:
-						last.set(event.getX(), event.getY());
+						last.set(curr);
 						start.set(last);
 						mode = DRAG;
 						break;
+
 					case MotionEvent.ACTION_MOVE:
 						if (mode == DRAG) {
 							float deltaX = curr.x - last.x;
 							float deltaY = curr.y - last.y;
-							float scaleWidth = Math.round(origWidth * saveScale);
-							float scaleHeight = Math.round(origHeight * saveScale);
-							if (scaleWidth < width) {
-								deltaX = 0;
-								if (y + deltaY > 0)
-									deltaY = -y;
-								else if (y + deltaY < -bottom)
-									deltaY = -(y + bottom);
-							} else if (scaleHeight < height) {
-								deltaY = 0;
-								if (x + deltaX > 0)
-									deltaX = -x;
-								else if (x + deltaX < -right)
-									deltaX = -(x + right);
-							} else {
-								if (x + deltaX > 0)
-									deltaX = -x;
-								else if (x + deltaX < -right)
-									deltaX = -(x + right);
-
-								if (y + deltaY > 0)
-									deltaY = -y;
-								else if (y + deltaY < -bottom)
-									deltaY = -(y + bottom);
-							}
-							matrix.postTranslate(deltaX, deltaY);
+							float fixTransX = getFixDragTrans(deltaX, viewWidth, origWidth * saveScale);
+							float fixTransY = getFixDragTrans(deltaY, viewHeight, origHeight * saveScale);
+							matrix.postTranslate(fixTransX, fixTransY);
+							fixTrans();
 							last.set(curr.x, curr.y);
 						}
 						break;
@@ -149,65 +120,55 @@ public class TouchImageView extends ImageView {
 						mode = NONE;
 						break;
 					}
+
 					setImageMatrix(matrix);
 					invalidate();
-					return true; // indicate event was handled
 				} else {
 					if (event.getAction() == MotionEvent.ACTION_UP) {
-						// If we're playing, we can't move the screen around and
-						// whatnot.
-						// In other words, time to play! =)
-						// TODO: This stuff.
-						float x = event.getX(), y = event.getY();
-						float floats[] = new float[] { x, y };
-						matrix.mapPoints(floats);
-						x = floats[0];
-						y = floats[1];
+						// matrix.postScale(1, 1);
+						matrix.getValues(m);
+						float transX = m[Matrix.MTRANS_X] * -1;
+						float transY = m[Matrix.MTRANS_Y] * -1;
+						float scaleX = m[Matrix.MSCALE_X];
+						float scaleY = m[Matrix.MSCALE_Y];
+						lastTouchX = (int) ((event.getX() + transX) / scaleX);
+						lastTouchY = (int) ((event.getY() + transY) / scaleY);
+						lastTouchX = Math.abs(lastTouchX);
+						lastTouchY = Math.abs(lastTouchY);
 
-						if (x < 0) {
-							x = 0;
-						} else if (x > bmWidth - 1) {
-							x = bmWidth - 1;
+						int indexX = (int) Math.floor((lastTouchX - (cellWidth * lSide)) / cellWidth);
+						int indexY = (int) Math.floor((lastTouchY - (cellHeight * lTop)) / cellHeight);
+						char[] temp = gCurrent.toCharArray();
+						if (temp[indexY * gWidth + indexX] == '0') {
+							temp[indexY * gWidth + indexX] = '1';
+						} else {
+							temp[indexY * gWidth + indexX] = '0';
 						}
-
-						if (y < 0) {
-							y = 0;
-						} else if (y > bmHeight - 1) {
-							y = bmHeight - 1;
+						gCurrent = String.valueOf(temp);
+						bitmapFromCurrent();
+						if (gCurrent.equals(gSolution)) {
+							Log.d(TAG, "WIN!");
+							if(winListener != null)
+							{
+							winListener.win();
+							}
+							else
+							{
+								try {
+									throw new Exception("No WinListener!");
+								} catch (Exception e) {
+									// TODO Auto-generated catch block
+									e.printStackTrace();
+								}
+							}
 						}
-						
-						Log.d(TAG, "Pixels: " + x + ", " + y);
-						double pixelsWidth = width;
-						pixelsWidth -= (width / (lSide + gWidth)) * lSide;
-						
-						double stepOne = (width / (lSide + gWidth));
-						double stepTwo = x / stepOne;
-						double stepThree = Math.floor(stepTwo);
-						double stepFour = stepThree - lSide;
-						double stepFive = stepFour - 1;
-						int i = 0;
-
-						// 7 and 8 of i = spot 2. 5 and 6 of i = spot 1
-						// Log.d(TAG, ((((int) x) % (gWidth+lSide))+1) + " " +
-						// ((((int) y) % (gHeight + lTop)+1)));
-						// Update the current image to follow changes in the
-						// current
-						// array.
-						// bitmapFromCurrent();
-
 					}
-					return true;
+
 				}
+				return true; // indicate event was handled
 			}
 
 		});
-	}
-
-	@Override
-	public void setImageBitmap(Bitmap bm) {
-		super.setImageBitmap(bm);
-		bmWidth = bm.getWidth();
-		bmHeight = bm.getHeight();
 	}
 
 	public void setMaxZoom(float x) {
@@ -223,7 +184,7 @@ public class TouchImageView extends ImageView {
 
 		@Override
 		public boolean onScale(ScaleGestureDetector detector) {
-			float mScaleFactor = (float) Math.min(Math.max(.95f, detector.getScaleFactor()), 1.05);
+			float mScaleFactor = detector.getScaleFactor();
 			float origScale = saveScale;
 			saveScale *= mScaleFactor;
 			if (saveScale > maxScale) {
@@ -233,76 +194,98 @@ public class TouchImageView extends ImageView {
 				saveScale = minScale;
 				mScaleFactor = minScale / origScale;
 			}
-			right = width * saveScale - width - (2 * redundantXSpace * saveScale);
-			bottom = height * saveScale - height - (2 * redundantYSpace * saveScale);
-			if (origWidth * saveScale <= width || origHeight * saveScale <= height) {
-				matrix.postScale(mScaleFactor, mScaleFactor, width / 2, height / 2);
-				if (mScaleFactor < 1) {
-					matrix.getValues(m);
-					float x = m[Matrix.MTRANS_X];
-					float y = m[Matrix.MTRANS_Y];
-					if (mScaleFactor < 1) {
-						if (Math.round(origWidth * saveScale) < width) {
-							if (y < -bottom)
-								matrix.postTranslate(0, -(y + bottom));
-							else if (y > 0)
-								matrix.postTranslate(0, -y);
-						} else {
-							if (x < -right)
-								matrix.postTranslate(-(x + right), 0);
-							else if (x > 0)
-								matrix.postTranslate(-x, 0);
-						}
-					}
-				}
+
+			if (origWidth * saveScale <= viewWidth || origHeight * saveScale <= viewHeight) {
+				matrix.postScale(mScaleFactor, mScaleFactor, viewWidth / 2, viewHeight / 2);
 			} else {
 				matrix.postScale(mScaleFactor, mScaleFactor, detector.getFocusX(), detector.getFocusY());
-				matrix.getValues(m);
-				float x = m[Matrix.MTRANS_X];
-				float y = m[Matrix.MTRANS_Y];
-				if (mScaleFactor < 1) {
-					if (x < -right)
-						matrix.postTranslate(-(x + right), 0);
-					else if (x > 0)
-						matrix.postTranslate(-x, 0);
-					if (y < -bottom)
-						matrix.postTranslate(0, -(y + bottom));
-					else if (y > 0)
-						matrix.postTranslate(0, -y);
-				}
 			}
+			fixTrans();
 			return true;
-
 		}
+	}
+
+	void fixTrans() {
+		matrix.getValues(m);
+		float transX = m[Matrix.MTRANS_X];
+		float transY = m[Matrix.MTRANS_Y];
+
+		float fixTransX = getFixTrans(transX, viewWidth, origWidth * saveScale);
+		float fixTransY = getFixTrans(transY, viewHeight, origHeight * saveScale);
+
+		if (fixTransX != 0 || fixTransY != 0)
+			matrix.postTranslate(fixTransX, fixTransY);
+	}
+
+	float getFixTrans(float trans, float viewSize, float contentSize) {
+		float minTrans, maxTrans;
+
+		if (contentSize <= viewSize) {
+			minTrans = 0;
+			maxTrans = viewSize - contentSize;
+		} else {
+			minTrans = viewSize - contentSize;
+			maxTrans = 0;
+		}
+
+		if (trans < minTrans)
+			return -trans + minTrans;
+		if (trans > maxTrans)
+			return -trans + maxTrans;
+		return 0;
+	}
+
+	float getFixDragTrans(float delta, float viewSize, float contentSize) {
+		if (contentSize <= viewSize) {
+			return 0;
+		}
+		return delta;
 	}
 
 	@Override
 	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
 		super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-		width = MeasureSpec.getSize(widthMeasureSpec);
-		height = MeasureSpec.getSize(heightMeasureSpec);
-		// Fit to screen.
-		float scale;
-		float scaleX = (float) width / (float) bmWidth;
-		float scaleY = (float) height / (float) bmHeight;
-		scale = Math.min(scaleX, scaleY);
-		matrix.setScale(scale, scale);
-		setImageMatrix(matrix);
-		saveScale = 1f;
+		viewWidth = MeasureSpec.getSize(widthMeasureSpec);
+		viewHeight = MeasureSpec.getSize(heightMeasureSpec);
 
-		// Center the image
-		redundantYSpace = (float) height - (scale * (float) bmHeight);
-		redundantXSpace = (float) width - (scale * (float) bmWidth);
-		redundantYSpace /= (float) 2;
-		redundantXSpace /= (float) 2;
+		//
+		// Rescales image on rotation
+		//
+		if (oldMeasuredHeight == viewWidth && oldMeasuredHeight == viewHeight || viewWidth == 0 || viewHeight == 0)
+			return;
+		oldMeasuredHeight = viewHeight;
+		oldMeasuredWidth = viewWidth;
 
-		matrix.postTranslate(redundantXSpace, redundantYSpace);
+		if (saveScale == 1) {
+			// Fit to screen.
+			float scale;
 
-		origWidth = width - 2 * redundantXSpace;
-		origHeight = height - 2 * redundantYSpace;
-		right = width * saveScale - width - (2 * redundantXSpace * saveScale);
-		bottom = height * saveScale - height - (2 * redundantYSpace * saveScale);
-		setImageMatrix(matrix);
+			Drawable drawable = getDrawable();
+			if (drawable == null || drawable.getIntrinsicWidth() == 0 || drawable.getIntrinsicHeight() == 0)
+				return;
+			int bmWidth = drawable.getIntrinsicWidth();
+			int bmHeight = drawable.getIntrinsicHeight();
+
+			Log.d("bmSize", "bmWidth: " + bmWidth + " bmHeight : " + bmHeight);
+
+			float scaleX = (float) viewWidth / (float) bmWidth;
+			float scaleY = (float) viewHeight / (float) bmHeight;
+			scale = Math.min(scaleX, scaleY);
+			matrix.setScale(scale, scale);
+
+			// Center the image
+			float redundantYSpace = (float) viewHeight - (scale * (float) bmHeight);
+			float redundantXSpace = (float) viewWidth - (scale * (float) bmWidth);
+			redundantYSpace /= (float) 2;
+			redundantXSpace /= (float) 2;
+
+			matrix.postTranslate(redundantXSpace, redundantYSpace);
+
+			origWidth = viewWidth - 2 * redundantXSpace;
+			origHeight = viewHeight - 2 * redundantYSpace;
+			setImageMatrix(matrix);
+		}
+		fixTrans();
 	}
 
 	// Get bundled info and set it for use.
@@ -322,7 +305,7 @@ public class TouchImageView extends ImageView {
 		char current2D[][] = solutionTo2DArray();
 		// Create bitmap based on the current. Make a int array with pixel
 		// colors.
-		int colors[] = getPixelArrayFromString(gSolution, gSolution.length());
+		int colors[] = getPixelArrayFromString(gCurrent, gCurrent.length());
 
 		ArrayList<String> rows = getRows(current2D);
 		ArrayList<String> columns = getColumns(current2D);
@@ -388,6 +371,8 @@ public class TouchImageView extends ImageView {
 		// Draw gridlines and hints
 		drawGridlines(c, paint, longestTop, longestSide);
 		drawHints(c, paint, topHints, sideHints, longestTop, longestSide);
+		paint.setColor(Color.RED);
+		c.drawCircle(lastTouchX, lastTouchY, 5, paint);
 	}
 
 	private void drawGame(Canvas c, Paint paint, int[] colors, int longestTop, int longestSide) {
@@ -400,7 +385,7 @@ public class TouchImageView extends ImageView {
 		cellWidth = widthOffset;
 		cellHeight = heightOffset;
 		int row = -1, column = 0;
-		for (int i = 0; i != gSolution.length(); ++i) {
+		for (int i = 0; i != gCurrent.length(); ++i) {
 			paint.setColor(Color.rgb(i * 10, i * 10, i * 10));
 			if (i % (gWidth) == 0) {
 				column = 0;
@@ -408,7 +393,7 @@ public class TouchImageView extends ImageView {
 			}
 			Rect r = new Rect(widthOffset * (longestSide + column), heightOffset * (longestTop + row), widthOffset * (longestSide + column + 1), heightOffset * (longestTop + row + 1));
 
-			if (gSolution.charAt(i) == '0') {
+			if (gCurrent.charAt(i) == '0') {
 				paint.setColor(Color.WHITE);
 			} else {
 				paint.setColor(Color.BLACK);
@@ -608,5 +593,17 @@ public class TouchImageView extends ImageView {
 		}
 		return returnMatrix;
 
+	}
+
+	/*
+	 * Interface to see if we win.
+	 */private WinnerListener winListener;
+
+	public interface WinnerListener {
+		public void win();
+	}
+
+	public void setWinListener(WinnerListener winListener) {
+		this.winListener = winListener;
 	}
 }
