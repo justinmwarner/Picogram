@@ -58,6 +58,10 @@ public class TouchImageView extends ImageView {
 
 	int lastTouchX = 0;
 	int lastTouchY = 0;
+	char colorCharacter = '0';
+	// These take a long time to calculate and don't change. Only do it once.
+	ArrayList<String[]> topHints;
+	ArrayList<String> sideHints;
 
 	// Griddler specifics.
 	String gCurrent, gSolution;
@@ -124,7 +128,7 @@ public class TouchImageView extends ImageView {
 					setImageMatrix(matrix);
 					invalidate();
 				} else {
-					if (event.getAction() == MotionEvent.ACTION_UP) {
+					if (event.getAction() == MotionEvent.ACTION_MOVE || event.getAction() == MotionEvent.ACTION_DOWN) {
 						// matrix.postScale(1, 1);
 						matrix.getValues(m);
 						float transX = m[Matrix.MTRANS_X] * -1;
@@ -135,25 +139,31 @@ public class TouchImageView extends ImageView {
 						lastTouchY = (int) ((event.getY() + transY) / scaleY);
 						lastTouchX = Math.abs(lastTouchX);
 						lastTouchY = Math.abs(lastTouchY);
-
 						int indexX = (int) Math.floor((lastTouchX - (cellWidth * lSide)) / cellWidth);
 						int indexY = (int) Math.floor((lastTouchY - (cellHeight * lTop)) / cellHeight);
-						char[] temp = gCurrent.toCharArray();
-						if (temp[indexY * gWidth + indexX] == '0') {
-							temp[indexY * gWidth + indexX] = '1';
-						} else {
-							temp[indexY * gWidth + indexX] = '0';
+						if (lastTouchX < (cellWidth * lSide) || lastTouchY < (cellHeight * lTop) || lastTouchX > getWidth() || lastTouchY > getHeight()) {
+							// If we're on the hints, just get out of there.
+							// Don't do anything.
+							return true;
 						}
-						gCurrent = String.valueOf(temp);
-						bitmapFromCurrent();
+						char[] temp = gCurrent.toCharArray();
+						String past = gCurrent;
+						if (indexY * gWidth + indexX < temp.length) {
+							if (temp[indexY * gWidth + indexX] == '0') {
+								temp[indexY * gWidth + indexX] = colorCharacter;
+							} else {
+								temp[indexY * gWidth + indexX] = colorCharacter;
+							}
+							gCurrent = String.valueOf(temp);
+							if (!past.equals(gCurrent)) {
+								bitmapFromCurrent();
+							}
+						}
 						if (gCurrent.equals(gSolution)) {
 							Log.d(TAG, "WIN!");
-							if(winListener != null)
-							{
-							winListener.win();
-							}
-							else
-							{
+							if (winListener != null) {
+								winListener.win();
+							} else {
 								try {
 									throw new Exception("No WinListener!");
 								} catch (Exception e) {
@@ -309,32 +319,25 @@ public class TouchImageView extends ImageView {
 
 		ArrayList<String> rows = getRows(current2D);
 		ArrayList<String> columns = getColumns(current2D);
-
-		ArrayList<String[]> topHints = getTopHints(columns); // Because of how
-																// we're making
-																// the
-																// top hints, it
-																// needs its own
-																// method...
-		ArrayList<String> sideHints = getSideHints(rows);
-
-		int longestTop = topHints.size(); // Since this is layered, we just need
-											// number of layers.
+		// Because of how we're making the top hints, it needs its own method.
+		if (topHints == null) {
+			topHints = getTopHints(columns);
+			sideHints = getSideHints(rows);
+		}
+		// Since this is layered, we just need number of layers.
+		int longestTop = topHints.size();
 		int longestSide = getLongest(sideHints); // Get widest "layer"
 		lTop = longestTop;
 		lSide = longestSide;
 		// Create bitmap with padding for the numbers.
 		colors = resizeBitMapsForHints(colors, longestTop, longestSide);
-		// Bitmap bm = Bitmap.createScaledBitmap(Bitmap.createBitmap(colors,
-		// gWidth + longestSide, gHeight + longestTop, Bitmap.Config.ARGB_4444),
-		// gWidth * 100, gHeight * 100, false);
 		Bitmap bm = Bitmap.createBitmap((gWidth + longestSide) * 50, (gHeight + longestTop) * 50, Bitmap.Config.ARGB_4444);
 		Canvas c = new Canvas(bm);
 		Paint p = new Paint();
 		// Change canvas and it'll reflect on the bm.
 		drawOnCanvas(c, p, colors, topHints, sideHints);
-		setImageBitmap(bm); // bm should contain all info we changed. Don't
-							// worry.
+		// bm should contain all info we changed. Don't worry.
+		setImageBitmap(bm);
 	}
 
 	// Just add on fluff area for the hints on the top and on the side.
@@ -418,7 +421,7 @@ public class TouchImageView extends ImageView {
 		// Draw top hints.
 		for (int i = 0; i != longestTop; ++i) {
 			for (int j = 0; j != topHints.get(i).length; ++j) {
-				c.drawText(topHints.get(i)[j] + "", (longestSide * widthOffset) + (widthOffset / 2) + (j * widthOffset), (longestTop * heightOffset) - (heightOffset * i), paint);
+				c.drawText(topHints.get(i)[j] + "", (longestSide * widthOffset) + (widthOffset / 2) + (j * widthOffset) - 5, (longestTop * heightOffset) - (heightOffset * i) - 5, paint);
 			}
 		}
 
@@ -427,7 +430,7 @@ public class TouchImageView extends ImageView {
 		paint.setTextSize(widthOffset / 2);
 		for (int i = 0; i != sideHints.size(); ++i) {
 			// The 2 * heightOffset/3 is for balance issues.
-			c.drawText(sideHints.get(i), longestSide * widthOffset, (longestTop * heightOffset) + (i * heightOffset) + (2 * heightOffset / 3), paint);
+			c.drawText(sideHints.get(i), longestSide * widthOffset - 5, (longestTop * heightOffset) + (i * heightOffset) + (2 * heightOffset / 3), paint);
 
 		}
 	}
@@ -465,7 +468,18 @@ public class TouchImageView extends ImageView {
 		ArrayList<String[]> result = new ArrayList<String[]>();
 		ArrayList<String> parsed = getSideHints(columns);
 		for (int i = 0; i != parsed.size(); ++i) {
-			parsed.set(i, new StringBuilder(parsed.get(i)).reverse().toString());
+			String temp = parsed.get(i);
+			// This reverses all double digits. Only happens once and is quick
+			// enough to not matter. Of course this can be done much better.
+			// Perhaps later.
+			for (int j = 10; j != 50; ++j) {
+				if (temp.contains(j + "")) {
+					Log.d(TAG, "Found one: " + j);
+					temp = temp.replace(j + "", new StringBuilder(j + "").reverse().toString());
+				}
+			}
+			temp = new StringBuilder(temp).reverse().toString();
+			parsed.set(i, temp);
 		}
 		int longest = getLongest(parsed);
 		for (int i = 0; i != longest; ++i) {
@@ -596,8 +610,9 @@ public class TouchImageView extends ImageView {
 	}
 
 	/*
-	 * Interface to see if we win.
-	 */private WinnerListener winListener;
+	 * Interface and such to see if we win.
+	 */
+	private WinnerListener winListener;
 
 	public interface WinnerListener {
 		public void win();

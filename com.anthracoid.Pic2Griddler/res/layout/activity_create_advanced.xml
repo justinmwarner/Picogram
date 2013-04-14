@@ -80,7 +80,7 @@
                 android:layout_weight="1"
                 android:ems="10"
                 android:hint="http://195.83.128.55/~src10f19/c_e/pixelart2.jpg"
-                android:text="http://195.83.128.55/~src10f19/c_e/pixelart2.jpg" >
+                android:text="http://img.ctrlv.in.s3.amazonaws.com/img/516b16f3c677d.jpg" >
 
                 <requestFocus android:layout_width="wrap_content" />
 
@@ -210,11 +210,10 @@
 
     <ImageView
         android:id="@+id/ivGriddlerCreate"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
         android:layout_alignParentBottom="true"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentRight="true"
-        android:layout_below="@+id/container" />
+        android:layout_below="@+id/vfContainer" />
 
 </RelativeLayout>
