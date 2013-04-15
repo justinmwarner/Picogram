@@ -165,12 +165,12 @@ public class UserGriddlers extends Activity implements OnTouchListener, OnItemCl
 				this.startActivityForResult(createIntent, 1);
 			} else {
 				// Start game with info!
-				startGame(griddlers.get(pos).getSolution(), griddlers.get(pos).getCurrent(), griddlers.get(pos).getWidth(), griddlers.get(pos).getHeight(), griddlers.get(pos).getId());
+				startGame(griddlers.get(pos).getSolution(), griddlers.get(pos).getCurrent(), griddlers.get(pos).getWidth(), griddlers.get(pos).getHeight(), griddlers.get(pos).getId(), griddlers.get(pos).getName());
 			}
 		}
 	}
 
-	private void startGame(String solution, String current, String width, String height, String id) {
+	private void startGame(String solution, String current, String width, String height, String id, String name) {
 		// Intent gameIntent = new Intent(this, AdvancedGameActivity.class);
 		Intent gameIntent = new Intent(this, AdvancedGameActivity.class);
 		gameIntent.putExtra("solution", solution);
@@ -178,6 +178,7 @@ public class UserGriddlers extends Activity implements OnTouchListener, OnItemCl
 		gameIntent.putExtra("width", width);
 		gameIntent.putExtra("height", height);
 		gameIntent.putExtra("id", id);
+		gameIntent.putExtra("name", name);
 		this.startActivityForResult(gameIntent, 2); // 2 because we need to know
 													// what the outcome of the
 													// game was.
@@ -202,7 +203,7 @@ public class UserGriddlers extends Activity implements OnTouchListener, OnItemCl
 						return false;
 					} else {
 						// Start game with info!
-						startGame(griddlers.get(pos).getSolution(), griddlers.get(pos).getCurrent(), griddlers.get(pos).getWidth(), griddlers.get(pos).getHeight(), griddlers.get(pos).getId());
+						startGame(griddlers.get(pos).getSolution(), griddlers.get(pos).getCurrent(), griddlers.get(pos).getWidth(), griddlers.get(pos).getHeight(), griddlers.get(pos).getId(), griddlers.get(pos).getName());
 					}
 				}
 				return false;
