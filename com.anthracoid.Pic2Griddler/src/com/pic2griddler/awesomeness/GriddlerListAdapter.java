@@ -15,70 +15,51 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-public class GriddlerListAdapter extends ArrayAdapter<Griddler>
-{
+public class GriddlerListAdapter extends ArrayAdapter<Griddler> {
 	private static final String TAG = "GriddlerListAdapter";
 	private Context context;
 	ArrayList<Griddler> griddlers = new ArrayList<Griddler>();
 
-	public GriddlerListAdapter(Context context, int textViewResourceId)
-	{
+	public GriddlerListAdapter(Context context, int textViewResourceId) {
 		super(context, textViewResourceId);
 	}
 
 	@Override
-	public int getCount()
-	{
+	public int getCount() {
 		return griddlers.size();
 	}
 
-	public void setGriddlers(ArrayList<Griddler> g)
-	{
+	public void setGriddlers(ArrayList<Griddler> g) {
 		griddlers = g;
 	}
 
 	@Override
-	public View getView(int position, View convertView, ViewGroup parent)
-	{
+	public View getView(int position, View convertView, ViewGroup parent) {
 		// This is expensive!!
 		View item;
-		if (context == null)
-		{
+		if (context == null) {
 			context = this.getContext();
 		}
 		LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		if (convertView == null)
-		{
-			item = inflater.inflate(R.layout.griddler_menu_choice_item, parent, false);
-		}
-		else
-		{
-			item = convertView;
-		}
+		item = inflater.inflate(R.layout.griddler_menu_choice_item, parent, false);
 		TextView rate = (TextView) item.findViewById(R.id.tvRating);
 		TextView diff = (TextView) item.findViewById(R.id.tvDiff);
 		TextView name = (TextView) item.findViewById(R.id.tvName);
 		ImageView iv = (ImageView) item.findViewById(R.id.ivCurrent);
 		iv.setVisibility(0);
-		int height = 0;//Integer.parseInt(griddlers.get(position).getInfo().split(" ")[0]);
-		int width = 0;//Integer.parseInt(griddlers.get(position).getInfo().split(" ")[1]);
-		String curr = "";//griddlers.get(position).getInfo().split(" ")[3];
+		int height = 0;// Integer.parseInt(griddlers.get(position).getInfo().split(" ")[0]);
+		int width = 0;// Integer.parseInt(griddlers.get(position).getInfo().split(" ")[1]);
+		String curr = "";// griddlers.get(position).getInfo().split(" ")[3];
 		int run = 0;
-		if (height > 0 && width > 0)
-		{
+		if (height > 0 && width > 0) {
 			Bitmap bm = BitmapFactory.decodeResource(context.getResources(), R.drawable.ic_launcher);
 			bm = Bitmap.createScaledBitmap(bm, width, height, true);
-			for (int i = 0; i < height; i++)
-			{
-				for (int j = 0; j < width; j++)
-				{
+			for (int i = 0; i < height; i++) {
+				for (int j = 0; j < width; j++) {
 
-					if (curr.charAt(run) == '0')
-					{
+					if (curr.charAt(run) == '0') {
 						bm.setPixel(j, i, Color.WHITE);
-					}
-					else
-					{
+					} else {
 						bm.setPixel(j, i, Color.BLACK);
 					}
 					run++;
@@ -86,42 +67,35 @@ public class GriddlerListAdapter extends ArrayAdapter<Griddler>
 			}
 			bm = Bitmap.createScaledBitmap(bm, 100, 100, false);
 			iv.setImageBitmap(bm);
-			iv.setVisibility(1);
+			iv.setVisibility(View.VISIBLE);
 		}
 		rate.setText("Rating: " + griddlers.get(position).getRank());
 		diff.setText("Difficulty: " + griddlers.get(position).getDiff());
 		name.setText(griddlers.get(position).getName());
 		// Change color if user has beaten level.
 		int status = 0;
-		try
-		{
+		try {
 			status = Integer.parseInt(griddlers.get(position).getStatus());
-		}
-		catch (NumberFormatException e)
-		{
-			// Log.d("Tag", "Pooped on: " + statuses[position]);// +
-			// " at position " + position);
+		} catch (NumberFormatException e) {
 		}
 		RelativeLayout rl = (RelativeLayout) item.findViewById(R.id.rlMenuHolder);
 		Drawable gd = rl.getBackground().mutate();
-		if (status == 0)
-		{
+		item.setBackgroundResource(R.drawable.griddler_menu_choice_border_red);
+		if (status == 0) {
 			// In progress.
-			rl.setBackgroundResource(R.drawable.griddler_menu_choice_border_red);
-
-		}
-		else if (status == 1)
-		{
+			item.setBackgroundResource(R.drawable.griddler_menu_choice_border_red);
+		} else if (status == 1) {
 			// Won.
-			rl.setBackgroundResource(R.drawable.griddler_menu_choice_border_green);
-		}
-		else
-		{
+			item.setBackgroundResource(R.drawable.griddler_menu_choice_border_green);
+		} else {
 			// Other (Custom, special levels, etc.).
-			rl.setBackgroundResource(R.drawable.griddler_menu_choice_border_other);
+			item.setBackgroundResource(R.drawable.griddler_menu_choice_border_other);
 		}
 		gd.invalidateSelf();
+		item.invalidate();
+		rl.invalidate();
 		((ViewGroup) item).setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
 		return item;
 	}
+
 }

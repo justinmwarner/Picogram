@@ -28,7 +28,6 @@ import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.Toast;
 import android.widget.ViewFlipper;
-
 public class CreateGriddlerActivity extends Activity implements OnClickListener, OnItemSelectedListener {
 
 	private static final int CAMERA_REQUEST_CODE = 1888, FILE_SELECT_CODE = 1337;

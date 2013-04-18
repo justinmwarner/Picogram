@@ -17,6 +17,7 @@ import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -56,6 +57,7 @@ public class TouchImageView extends ImageView {
 	// Control whether we're moving around or in actual gameplay mode.
 	boolean isGameplay = false;
 
+	Handler h = new Handler();
 	int lastTouchX = 0;
 	int lastTouchY = 0;
 	char colorCharacter = '0';
@@ -141,9 +143,12 @@ public class TouchImageView extends ImageView {
 						lastTouchY = Math.abs(lastTouchY);
 						int indexX = (int) Math.floor((lastTouchX - (cellWidth * lSide)) / cellWidth);
 						int indexY = (int) Math.floor((lastTouchY - (cellHeight * lTop)) / cellHeight);
-						if (lastTouchX < (cellWidth * lSide) || lastTouchY < (cellHeight * lTop) || lastTouchX > getWidth() || lastTouchY > getHeight()) {
+						if (lastTouchX < (cellWidth * lSide) || lastTouchY < (cellHeight * lTop) || lastTouchX > getWidth() || lastTouchY > (lTop + gHeight) * cellHeight) {
 							// If we're on the hints, just get out of there.
 							// Don't do anything.
+							if (lastTouchY > (lTop + gHeight) * cellHeight)
+								Log.d(TAG, "4 " + lastTouchY + " " + ((lTop + gHeight) * cellHeight));
+							Log.d(TAG, "No");
 							return true;
 						}
 						char[] temp = gCurrent.toCharArray();
@@ -156,7 +161,19 @@ public class TouchImageView extends ImageView {
 							}
 							gCurrent = String.valueOf(temp);
 							if (!past.equals(gCurrent)) {
-								bitmapFromCurrent();
+								new Thread(new Runnable() {
+
+									public void run() {
+										h.post(new Runnable() {
+
+											public void run() {
+												bitmapFromCurrent();
+											}
+
+										});
+									}
+
+								}).start();
 							}
 						}
 						if (gCurrent.equals(gSolution)) {
@@ -284,10 +301,10 @@ public class TouchImageView extends ImageView {
 			matrix.setScale(scale, scale);
 
 			// Center the image
-			float redundantYSpace = (float) viewHeight - (scale * (float) bmHeight);
-			float redundantXSpace = (float) viewWidth - (scale * (float) bmWidth);
-			redundantYSpace /= (float) 2;
-			redundantXSpace /= (float) 2;
+			float redundantYSpace = viewHeight - (scale * bmHeight);
+			float redundantXSpace = viewWidth - (scale * bmWidth);
+			redundantYSpace /= 2;
+			redundantXSpace /= 2;
 
 			matrix.postTranslate(redundantXSpace, redundantYSpace);
 
@@ -335,7 +352,7 @@ public class TouchImageView extends ImageView {
 		Canvas c = new Canvas(bm);
 		Paint p = new Paint();
 		// Change canvas and it'll reflect on the bm.
-		drawOnCanvas(c, p, colors, topHints, sideHints);
+		drawOnCanvas(c, p, topHints, sideHints);
 		// bm should contain all info we changed. Don't worry.
 		setImageBitmap(bm);
 	}
@@ -364,21 +381,27 @@ public class TouchImageView extends ImageView {
 		return result;
 	}
 
-	private void drawOnCanvas(Canvas c, Paint paint, int[] colors, ArrayList<String[]> topHints, ArrayList<String> sideHints) {
-		int longestSide = getLongest(sideHints);
-		int longestTop = (topHints.size());
+	private void drawOnCanvas(Canvas c, Paint paint, ArrayList<String[]> topHints, ArrayList<String> sideHints) {
+		int longestSide = this.lSide;
+		int longestTop = this.lTop;
 		// White out whole canvas.
 		drawWhiteCanvas(c, paint);
 		// Draw game surface.
-		drawGame(c, paint, colors, longestTop, longestSide);
+		drawGame(c, paint, longestTop, longestSide);
 		// Draw gridlines and hints
 		drawGridlines(c, paint, longestTop, longestSide);
 		drawHints(c, paint, topHints, sideHints, longestTop, longestSide);
 		paint.setColor(Color.RED);
 		c.drawCircle(lastTouchX, lastTouchY, 5, paint);
 	}
+	
+	public void clearGame()
+	{
+gCurrent.replace("1","0");
+bitmapFromCurrent();
+	}
 
-	private void drawGame(Canvas c, Paint paint, int[] colors, int longestTop, int longestSide) {
+	private void drawGame(Canvas c, Paint paint, int longestTop, int longestSide) {
 		int heightTrim = c.getHeight() % (gHeight + longestTop);
 		int widthTrim = c.getWidth() % (gWidth + longestSide);
 		// Up down.
@@ -389,17 +412,27 @@ public class TouchImageView extends ImageView {
 		cellHeight = heightOffset;
 		int row = -1, column = 0;
 		for (int i = 0; i != gCurrent.length(); ++i) {
-			paint.setColor(Color.rgb(i * 10, i * 10, i * 10));
+			// paint.setColor(Color.rgb(i * 10, i * 10, i * 10));
 			if (i % (gWidth) == 0) {
 				column = 0;
 				++row;
 			}
 			Rect r = new Rect(widthOffset * (longestSide + column), heightOffset * (longestTop + row), widthOffset * (longestSide + column + 1), heightOffset * (longestTop + row + 1));
 
-			if (gCurrent.charAt(i) == '0') {
-				paint.setColor(Color.WHITE);
+			if (i != 0) {
+				if (gCurrent.charAt(i) != gCurrent.charAt(i - 1)) {
+					if (gCurrent.charAt(i) == '0') {
+						paint.setColor(Color.WHITE);
+					} else {
+						paint.setColor(Color.BLACK);
+					}
+				}
 			} else {
-				paint.setColor(Color.BLACK);
+				if (gCurrent.charAt(i) == '0') {
+					paint.setColor(Color.WHITE);
+				} else {
+					paint.setColor(Color.BLACK);
+				}
 			}
 			c.drawRect(r, paint);
 			++column;

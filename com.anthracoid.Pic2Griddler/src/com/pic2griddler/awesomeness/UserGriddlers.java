@@ -1,5 +1,7 @@
 package com.pic2griddler.awesomeness;
 
+import com.google.analytics.tracking.android.EasyTracker;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -17,6 +19,7 @@ import com.google.analytics.tracking.android.EasyTracker;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -35,7 +38,7 @@ public class UserGriddlers extends Activity implements OnTouchListener, OnItemCl
 	private ArrayList<Griddler> griddlers = new ArrayList<Griddler>();
 	private ListView lv;
 	private SharedPreferences settings;
-	private SQLiteGriddlerAdapter sql;
+	private static SQLiteGriddlerAdapter sql;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -50,10 +53,9 @@ public class UserGriddlers extends Activity implements OnTouchListener, OnItemCl
 		sql = new SQLiteGriddlerAdapter(this.getApplicationContext(), "Griddlers", null, 1);
 		loadGriddlers();
 		lv.setOnItemClickListener(this);
-
 	}
 
-	private void loadGriddlers() {
+	public void loadGriddlers() {
 		GriddlerListAdapter adapter = new GriddlerListAdapter(this, R.id.lvUser);
 		griddlers.clear(); // Clear all old info.
 		adapter.setGriddlers(griddlers);

@@ -1,5 +1,7 @@
 package com.pic2griddler.awesomeness;
 
+import com.google.analytics.tracking.android.EasyTracker;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -43,11 +45,9 @@ public class WorldGriddlers extends Activity implements OnClickListener, OnItemC
 
 				public void run() {
 
-					EasyTracker.getTracker().trackEvent("Search", "Searching",
-							etQ.getText().toString().toLowerCase(), (long) 0);
+					EasyTracker.getTracker().trackEvent("Search", "Searching", etQ.getText().toString().toLowerCase(), (long) 0);
 					// Ignore offset for now.
-					String url = "http://www.pic2griddler.appspot.com/search?q="
-							+ etQ.getText().toString().toLowerCase();
+					String url = "http://www.pic2griddler.appspot.com/search?q=" + etQ.getText().toString().toLowerCase();
 					try {
 						// Searching
 						HttpClient hc = new DefaultHttpClient();
@@ -139,8 +139,7 @@ public class WorldGriddlers extends Activity implements OnClickListener, OnItemC
 		String[] array_spinner = new String[2];
 		array_spinner[0] = "Date";
 		array_spinner[1] = "Rank";
-		ArrayAdapter adapter = new ArrayAdapter(this, android.R.layout.simple_spinner_item,
-				array_spinner);
+		ArrayAdapter adapter = new ArrayAdapter(this, android.R.layout.simple_spinner_item, array_spinner);
 		spinSort.setAdapter(adapter);
 		// Other setup.
 		sql = new SQLiteGriddlerAdapter(this.getApplicationContext(), "Griddlers", null, 1);

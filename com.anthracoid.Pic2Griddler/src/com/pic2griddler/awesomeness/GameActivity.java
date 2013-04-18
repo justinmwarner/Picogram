@@ -1,6 +1,7 @@
 package com.pic2griddler.awesomeness;
 
 import com.google.analytics.tracking.android.EasyTracker;
+
 import android.os.Bundle;
 import android.app.Activity;
 import android.content.Intent;
@@ -18,8 +19,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class GameActivity extends Activity implements OnClickListener, OnTouchListener
-{
+public class GameActivity extends Activity implements OnClickListener, OnTouchListener {
 
 	private int[][] current;
 	private GridView grid;
@@ -27,14 +27,10 @@ public class GameActivity extends Activity implements OnClickListener, OnTouchLi
 	private int solutionOnes = 0, currentOnes = 0;
 	private boolean[][] wasChanged;
 
-	private void checkWin()
-	{
-		for (int i = 0; i < current.length; i++)
-		{
-			for (int j = 0; j < current[i].length; j++)
-			{
-				if (current[i][j] != solution[i][j])
-				{
+	private void checkWin() {
+		for (int i = 0; i < current.length; i++) {
+			for (int j = 0; j < current[i].length; j++) {
+				if (current[i][j] != solution[i][j]) {
 					return;
 				}
 			}
@@ -49,27 +45,21 @@ public class GameActivity extends Activity implements OnClickListener, OnTouchLi
 		finish();
 	}
 
-	private String getCurrent()
-	{
+	private String getCurrent() {
 		String temp = "";
-		for (int i = 0; i < current.length; i++)
-		{
-			for (int j = 0; j < current[i].length; j++)
-			{
+		for (int i = 0; i < current.length; i++) {
+			for (int j = 0; j < current[i].length; j++) {
 				temp += current[i][j];
 			}
 		}
 		return temp;
 	}
 
-	private String getSolution()
-	{
+	private String getSolution() {
 		String temp = "";
 
-		for (int i = 0; i < solution.length; i++)
-		{
-			for (int j = 0; j < solution[i].length; j++)
-			{
+		for (int i = 0; i < solution.length; i++) {
+			for (int j = 0; j < solution[i].length; j++) {
 				temp += solution[i][j];
 			}
 		}
@@ -77,8 +67,7 @@ public class GameActivity extends Activity implements OnClickListener, OnTouchLi
 	}
 
 	@Override
-	public void onBackPressed()
-	{
+	public void onBackPressed() {
 		super.onPause();
 		Intent returnIntent = new Intent();
 		returnIntent.putExtra("current", getCurrent());
@@ -88,21 +77,16 @@ public class GameActivity extends Activity implements OnClickListener, OnTouchLi
 		finish();
 	}
 
-	public void onClick(View v)
-	{
-		if (v.getId() == R.id.bUp)
-		{
+	public void onClick(View v) {
+		if (v.getId() == R.id.bUp) {
 			// Up vote.
-		}
-		else if (v.getId() == R.id.bDown)
-		{
+		} else if (v.getId() == R.id.bDown) {
 			// Down vote.
 		}
 	}
 
 	@Override
-	public void onCreate(Bundle savedInstanceState)
-	{
+	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN); // Full
@@ -125,68 +109,54 @@ public class GameActivity extends Activity implements OnClickListener, OnTouchLi
 	}
 
 	@Override
-	public boolean onCreateOptionsMenu(Menu menu)
-	{
+	public boolean onCreateOptionsMenu(Menu menu) {
 		getMenuInflater().inflate(R.menu.activity_game, menu);
 		return true;
 	}
 
 	@Override
-	public void onRestoreInstanceState(Bundle in)
-	{
+	public void onRestoreInstanceState(Bundle in) {
 		super.onRestoreInstanceState(in);
-		if (in != null)
-		{
+		if (in != null) {
 			setGameFromString(in.getString("current"));
 		}
 	}
 
 	@Override
-	public void onSaveInstanceState(Bundle out)
-	{
+	public void onSaveInstanceState(Bundle out) {
 		super.onSaveInstanceState(out);
 		out.putString("current", this.getCurrent());
 	}
 
-	public boolean onTouch(View v, MotionEvent event)
-	{
-		if (event.getActionMasked() == MotionEvent.ACTION_MOVE)
-		{
+	public boolean onTouch(View v, MotionEvent event) {
+		if (event.getActionMasked() == MotionEvent.ACTION_MOVE) {
 			// || event.getActionMasked() == MotionEvent.ACTION_DOWN) {
 			int pos = grid.pointToPosition((int) event.getX(), (int) event.getY());
-			if (pos >= 0)
-			{
-				if (!wasChanged[pos / wasChanged[0].length][pos % wasChanged[0].length])
-				{
-					if (current[pos / current[0].length][pos % current[0].length] == 0)
-					{
+			if (pos >= 0) {
+				if (!wasChanged[pos / wasChanged[0].length][pos % wasChanged[0].length]) {
+					if (current[pos / current[0].length][pos % current[0].length] == 0) {
 						grid.getChildAt(pos).setBackgroundColor(Color.RED);
 						current[pos / current[0].length][pos % current[0].length] = 1;
 						++currentOnes;
-					}
-					else
-					{
+					} else {
 						grid.getChildAt(pos).setBackgroundColor(Color.WHITE);
 						current[pos / current[0].length][pos % current[0].length] = 0;
 						--currentOnes;
 					}
-					if (currentOnes == solutionOnes)
-					{
+					if (currentOnes == solutionOnes) {
 						checkWin();
 					}
 				}
 				wasChanged[pos / wasChanged[0].length][pos % wasChanged[0].length] = true;
 			}
 		}
-		if (event.getActionMasked() == MotionEvent.ACTION_UP)
-		{
+		if (event.getActionMasked() == MotionEvent.ACTION_UP) {
 			resetWasChanged();
 		}
 		return false;
 	}
 
-	private void processInfo(String info)
-	{
+	private void processInfo(String info) {
 		String[] split = info.split(" ");
 		int height = Integer.parseInt(split[0]);
 		int width = Integer.parseInt(split[1]);
@@ -194,10 +164,8 @@ public class GameActivity extends Activity implements OnClickListener, OnTouchLi
 		solution = new int[height][width];
 		wasChanged = new boolean[height][width];
 		int runner = 0;
-		for (int i = 0; i < current.length; i++)
-		{
-			for (int j = 0; j < current[i].length; j++)
-			{
+		for (int i = 0; i < current.length; i++) {
+			for (int j = 0; j < current[i].length; j++) {
 				current[i][j] = Integer.parseInt("" + split[3].charAt(runner));
 				solution[i][j] = Integer.parseInt("" + split[2].charAt(runner));
 				wasChanged[i][j] = false;
@@ -223,22 +191,17 @@ public class GameActivity extends Activity implements OnClickListener, OnTouchLi
 															// to change
 			// to actual array.
 			{
-				if (solution[i][j] == 1)
-				{
+				if (solution[i][j] == 1) {
 					sum++;
-				}
-				else
-				{
-					if (sum != 0)
-					{
+				} else {
+					if (sum != 0) {
 						temp += sum + "\n";
 					}
 					sum = 0;
 				}
 			}
 			// Save last of that column, show 0 if it is a zero.
-			if (temp.length() == 0)
-			{
+			if (temp.length() == 0) {
 				temp += sum;
 			}
 			// Give some space between entries so it coordinates well.
@@ -264,15 +227,11 @@ public class GameActivity extends Activity implements OnClickListener, OnTouchLi
 															// to change to
 			// actual array.
 			{
-				if (solution[i][j] == 1)
-				{
+				if (solution[i][j] == 1) {
 					sum++;
 					hasMore = true;
-				}
-				else
-				{
-					if (sum != 0)
-					{
+				} else {
+					if (sum != 0) {
 						temp += sum + " ";
 						hasMore = false;
 						hasPrinted = true;
@@ -281,17 +240,14 @@ public class GameActivity extends Activity implements OnClickListener, OnTouchLi
 				}
 			}
 
-			if (hasMore)
-			{
+			if (hasMore) {
 				temp += sum + "\n";
 				hasPrinted = true;
 			}
-			if (!hasPrinted)
-			{
+			if (!hasPrinted) {
 				temp += "0\n\n";
 			}
-			if (!hasMore)
-			{
+			if (!hasMore) {
 				temp += "\n";
 			}
 			hasPrinted = false;
@@ -300,39 +256,31 @@ public class GameActivity extends Activity implements OnClickListener, OnTouchLi
 		vert.setText(temp);
 	}
 
-	private void resetWasChanged()
-	{
-		for (int i = 0; i < wasChanged.length; i++)
-		{
-			for (int j = 0; j < wasChanged[i].length; j++)
-			{
+	private void resetWasChanged() {
+		for (int i = 0; i < wasChanged.length; i++) {
+			for (int j = 0; j < wasChanged[i].length; j++) {
 				wasChanged[i][j] = false;
 			}
 		}
 	}
 
-	private void setGameFromString(String temp)
-	{
+	private void setGameFromString(String temp) {
 		int run = 0;
-		for (int i = 0; i < current.length; i++)
-		{
-			for (int j = 0; j < current[i].length; j++)
-			{
+		for (int i = 0; i < current.length; i++) {
+			for (int j = 0; j < current[i].length; j++) {
 				current[i][j] = temp.charAt(run++);
 			}
 		}
 	}
 
 	@Override
-	public void onStart()
-	{
+	public void onStart() {
 		super.onStart();
 		EasyTracker.getInstance().activityStart(this); // Add this method.
 	}
 
 	@Override
-	public void onStop()
-	{
+	public void onStop() {
 		super.onStop();
 		EasyTracker.getInstance().activityStop(this); // Add this method.
 	}

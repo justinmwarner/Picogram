@@ -188,7 +188,7 @@ public class AdvancedGameActivity extends Activity implements OnClickListener, W
 								public void run() {
 									showStepFour();
 								}
-								
+
 							});
 							break;
 						}

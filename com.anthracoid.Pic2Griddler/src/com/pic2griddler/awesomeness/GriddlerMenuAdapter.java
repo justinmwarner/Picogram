@@ -13,13 +13,11 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-public class GriddlerMenuAdapter extends BaseAdapter
-{
+public class GriddlerMenuAdapter extends BaseAdapter {
 	private Context context;
 	private String[] statuses, names, difficulties, ratings, infos;
 
-	public GriddlerMenuAdapter(Context context, String[] s, String[] n, String[] d, String[] r, String[] i)
-	{
+	public GriddlerMenuAdapter(Context context, String[] s, String[] n, String[] d, String[] r, String[] i) {
 		this.statuses = s;
 		this.context = context;
 		this.names = n;
@@ -28,32 +26,25 @@ public class GriddlerMenuAdapter extends BaseAdapter
 		this.infos = i;
 	}
 
-	public int getCount()
-	{
+	public int getCount() {
 		return names.length;
 	}
 
-	public Object getItem(int pos)
-	{
+	public Object getItem(int pos) {
 		return pos;
 	}
 
-	public long getItemId(int arg0)
-	{
+	public long getItemId(int arg0) {
 		return 0;
 	}
 
-	public View getView(int position, View convertView, ViewGroup parent)
-	{
+	public View getView(int position, View convertView, ViewGroup parent) {
 		// This is expensive!!
 		View item;
 		LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		if (convertView == null)
-		{
+		if (convertView == null) {
 			item = inflater.inflate(R.layout.griddler_menu_choice_item, parent, false);
-		}
-		else
-		{
+		} else {
 			item = convertView;
 		}
 		TextView rate = (TextView) item.findViewById(R.id.tvRating), diff = (TextView) item.findViewById(R.id.tvDiff), name = (TextView) item.findViewById(R.id.tvName);
@@ -63,27 +54,21 @@ public class GriddlerMenuAdapter extends BaseAdapter
 		int width = Integer.parseInt(infos[position].split(" ")[1]);
 		String curr = infos[position].split(" ")[3];
 		int run = 0;
-		if (height > 0 && width > 0)
-		{
+		if (height > 0 && width > 0) {
 			Bitmap bm = BitmapFactory.decodeResource(context.getResources(), R.drawable.ic_launcher);
 			bm = Bitmap.createScaledBitmap(bm, width, height, true);
-			for (int i = 0; i < height; i++)
-			{
-				for (int j = 0; j < width; j++)
-				{
-					
-					if (curr.charAt(run) == '0')
-					{
+			for (int i = 0; i < height; i++) {
+				for (int j = 0; j < width; j++) {
+
+					if (curr.charAt(run) == '0') {
 						bm.setPixel(j, i, Color.WHITE);
-					}
-					else
-					{
+					} else {
 						bm.setPixel(j, i, Color.BLACK);
 					}
 					run++;
 				}
 			}
-			bm = Bitmap.createScaledBitmap(bm, width*10, height*10, false);
+			bm = Bitmap.createScaledBitmap(bm, width * 10, height * 10, false);
 			iv.setImageBitmap(bm);
 			iv.setVisibility(1);
 		}
@@ -92,30 +77,22 @@ public class GriddlerMenuAdapter extends BaseAdapter
 		name.setText(this.names[position]);
 		// Change color if user has beaten level.
 		int status = 0;
-		try
-		{
+		try {
 			status = Integer.parseInt(statuses[position]);
-		}
-		catch (NumberFormatException e)
-		{
+		} catch (NumberFormatException e) {
 			// Log.d("Tag", "Pooped on: " + statuses[position]);// +
 			// " at position " + position);
 		}
 		RelativeLayout rl = (RelativeLayout) item.findViewById(R.id.rlMenuHolder);
 		Drawable gd = rl.getBackground().mutate();
-		if (status == 0)
-		{
+		if (status == 0) {
 			// In progress.
 			rl.setBackgroundResource(R.drawable.griddler_menu_choice_border_red);
 
-		}
-		else if (status == 1)
-		{
+		} else if (status == 1) {
 			// Won.
 			rl.setBackgroundResource(R.drawable.griddler_menu_choice_border_green);
-		}
-		else
-		{
+		} else {
 			// Other (Custom, special levels, etc.).
 			rl.setBackgroundResource(R.drawable.griddler_menu_choice_border_other);
 		}

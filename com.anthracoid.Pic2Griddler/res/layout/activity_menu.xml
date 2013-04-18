@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <TabHost xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://millennialmedia.com/android/schema"
     android:id="@+id/thMain"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent" >
@@ -15,7 +16,10 @@
             android:id="@android:id/tabcontent"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
-            android:layout_marginTop="70dp" >
+            android:layout_above="@+id/llAds"
+            android:layout_marginTop="70dp"
+            android:descendantFocusability="beforeDescendants" >
+
         </FrameLayout>
 
         <TabWidget
@@ -27,6 +31,24 @@
             android:layout_alignParentTop="true"
             android:layout_weight="0.36" >
         </TabWidget>
+
+        <LinearLayout
+            android:id="@+id/llAds"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentRight="true"
+            android:gravity="center" >
+
+            <com.millennialmedia.android.MMAdView
+                android:id="@+id/adView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:layout_centerHorizontal="true"
+                android:minHeight="50dp" />
+        </LinearLayout>
     </RelativeLayout>
 
 </TabHost>
