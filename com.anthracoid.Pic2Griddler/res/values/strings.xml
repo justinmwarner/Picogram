@@ -16,4 +16,10 @@
     <string name="title_activity_world_griddlers">WorldGriddlers</string>
     <string name="title_activity_settings">SettingsActivity</string>
     <string name="title_activity_advanced_game">AdvancedGameActivity</string>
-</resources>
+    <string name="title_activity_facebook_login">FacebookLoginActivity</string>
+    <string name="action_settings">Settings</string>
+    <string name="applicationId">168035366694115</string>
+    <string name="app_id">168035366694115</string>
+    <string name="title_activity_advanced_menu">AdvancedMenuActivity</string>
+
+</resources>

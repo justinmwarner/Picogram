@@ -10,7 +10,6 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -31,7 +30,6 @@ public class AdvancedGameActivity extends Activity implements OnClickListener, W
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 		setContentView(R.layout.activity_advanced_game);
-
 		Button bHand = (Button) findViewById(R.id.bToolboxHand);
 		Button bWhite = (Button) findViewById(R.id.bToolboxWhite);
 		Button bBlack = (Button) findViewById(R.id.bToolboxBlack);
@@ -42,12 +40,15 @@ public class AdvancedGameActivity extends Activity implements OnClickListener, W
 		tiv.setWinListener(this);
 		tiv.setGriddlerInfo(getIntent().getExtras());
 		String name = getIntent().getExtras().getString("name");
-		Log.d(TAG, "Name:  " + name);
+		String c = getIntent().getExtras().getString("current");
+		String s = getIntent().getExtras().getString("solution");
 		if (name != null) {
+			EasyTracker.getTracker().trackEvent("Game", "GriddlerName", name, (long) 1);
 			if (name.equals("Tutorial")) {
-				Log.d(TAG, "IN TUTORIAL!");
 				// We're in a tutorial.
-				showStepOne();
+				if (!c.equals(s)) {
+					showStepOne();
+				}
 			}
 		}
 
@@ -149,19 +150,36 @@ public class AdvancedGameActivity extends Activity implements OnClickListener, W
 	}
 
 	public void win() {
-		AlertDialog.Builder builder = new AlertDialog.Builder(this);
-		builder.setMessage("Congrats! You won!").setCancelable(false).setPositiveButton("OK", new DialogInterface.OnClickListener() {
-			public void onClick(DialogInterface dialog, int id) {
-				Intent returnIntent = new Intent();
-				returnIntent.putExtra("current", tiv.gCurrent);
-				returnIntent.putExtra("status", "1");
-				returnIntent.putExtra("ID", tiv.gSolution.hashCode() + "");
-				setResult(2, returnIntent);
-				finish();
+
+		DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+			public void onClick(DialogInterface dialog, int which) {
+				switch (which) {
+				case DialogInterface.BUTTON_POSITIVE:
+					// Yes button clicked
+					Intent intent = new Intent(AdvancedGameActivity.this, FacebookLoginActivity.class);
+					startActivity(intent);
+					Intent returnIntent = new Intent();
+					returnIntent.putExtra("current", tiv.gCurrent);
+					returnIntent.putExtra("status", "1");
+					returnIntent.putExtra("ID", tiv.gSolution.hashCode() + "");
+					setResult(2, returnIntent);
+					finish();
+					break;
+
+				case DialogInterface.BUTTON_NEGATIVE:
+					Intent returnIntent1 = new Intent();
+					returnIntent1.putExtra("current", tiv.gCurrent);
+					returnIntent1.putExtra("status", "1");
+					returnIntent1.putExtra("ID", tiv.gSolution.hashCode() + "");
+					setResult(2, returnIntent1);
+					finish();
+					break;
+				}
 			}
-		});
-		AlertDialog alert = builder.create();
-		alert.show();
+		};
+
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		builder.setMessage("You won! Did you want to share on Facebook?").setPositiveButton("Yes", dialogClickListener).setNegativeButton("No", dialogClickListener).show();
 	}
 
 	public void onShowcaseViewHide(ShowcaseView showcaseView) {

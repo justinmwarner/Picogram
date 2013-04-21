@@ -1,0 +1,59 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <PreferenceCategory android:title="Game Preferences" >
+
+        <!-- Preferences about the game itself. -->
+
+        <CheckBoxPreference
+            android:key="nightmode"
+            android:summary="Night/Dark Mode"
+            android:title="Turn the lights off with me! If you like it dark ;)." />
+    </PreferenceCategory>
+    <PreferenceCategory android:title="View Preferences" >
+
+        <!-- Preferences about what to see. -->
+
+        <CheckBoxPreference
+            android:key="wonvisible"
+            android:summary="Remove Won Games"
+            android:title="Hardcore griddler master?  Remove all those pesky games to find new challenges faster!" />
+        <CheckBoxPreference
+            android:key="rating"
+            android:summary="Rated G"
+            android:title="Some Griddlers may be NSFW (Not safe for work), remove them from your eyes if you feel it&apos;s needed." />
+    </PreferenceCategory>
+    <PreferenceCategory android:title="User Preferences" >
+
+        <!-- User preferences -->
+
+        <EditTextPreference
+            android:dialogTitle="Please enter a username?"
+            android:key="username"
+            android:summary="Username"
+            android:title="If you have an error, we&apos;re reported this, so if you message us, we can cross check to see =)." />
+    </PreferenceCategory>
+    <PreferenceCategory android:title="Data Preferences" >
+
+        <!-- Data handling. -->
+
+        <PreferenceScreen
+            android:summary="Remove Data"
+            android:title="Remove all the data on your device we&apos;re using, cuz you know, it&apos;s a lot." >
+        </PreferenceScreen>
+    </PreferenceCategory>
+    <PreferenceCategory android:title="Privacy Preferences" >
+        <CheckBoxPreference
+            android:key="google_tracking"
+            android:summary="Hey, we know, tracking people is lame. But it&apos;s more to know that people use our app.  Please let us."
+            android:title="Google Tracking?" />
+        <CheckBoxPreference
+            android:key="advertisements"
+            android:summary="I hate adverts as much as the next person, but it costs money to keep the servers up for multiplayer."
+            android:title="Advertisements" />
+        <CheckBoxPreference
+            android:key="crittercism"
+            android:summary="This helps us help you.  We&apos;re allowing you to disable it, but if you disable it, please know we can&apos;t help you as easily."
+            android:title="Track My Crashes" />
+    </PreferenceCategory>
+
+</PreferenceScreen>

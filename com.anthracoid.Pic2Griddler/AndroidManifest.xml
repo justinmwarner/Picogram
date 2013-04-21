@@ -51,6 +51,10 @@
             android:label="@string/title_activity_user_griddlers" >
         </activity>
         <activity
+            android:name="com.pic2griddler.awesomeness.FacebookLoginActivity"
+            android:label="Facebook" >
+        </activity>
+        <activity
             android:name="com.pic2griddler.awesomeness.WorldGriddlers"
             android:label="@string/title_activity_world_griddlers" >
         </activity>
