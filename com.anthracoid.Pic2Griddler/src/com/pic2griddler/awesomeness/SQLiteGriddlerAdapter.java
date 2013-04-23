@@ -52,6 +52,23 @@ public class SQLiteGriddlerAdapter extends SQLiteOpenHelper {
 		return db.insert(griddlerTable, null, cv);
 	}
 
+	public long addUserGriddler(Griddler g) {
+		// Do stuff. Unknown so far. Implement later.
+		SQLiteDatabase db = this.getWritableDatabase();
+		ContentValues cv = new ContentValues();
+		cv.put(SQLiteGriddlerAdapter.id, g.getId());
+		cv.put(SQLiteGriddlerAdapter.author, g.getAuthor());
+		cv.put(SQLiteGriddlerAdapter.name, g.getName());
+		cv.put(SQLiteGriddlerAdapter.rank, g.getRank());
+		cv.put(SQLiteGriddlerAdapter.solution, g.getSolution());
+		cv.put(SQLiteGriddlerAdapter.difficulty, g.getDiff());
+		cv.put(SQLiteGriddlerAdapter.width, g.getWidth());
+		cv.put(SQLiteGriddlerAdapter.height, g.getHeight());
+		cv.put(SQLiteGriddlerAdapter.status, g.getStatus());
+		cv.put(SQLiteGriddlerAdapter.current, g.getCurrent());
+		return db.insert(griddlerTable, null, cv);
+	}
+
 	public int deleteGriddler(String info) {
 		// Probably won't implement. Not a huge deal (Right now).
 		SQLiteDatabase db = this.getWritableDatabase();

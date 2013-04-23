@@ -2,15 +2,14 @@ package com.pic2griddler.awesomeness;
 
 import com.crittercism.app.Crittercism;
 import com.millennialmedia.android.MMAdView;
-import com.millennialmedia.android.MMAd;
-import com.millennialmedia.android.MMInterstitial;
 import com.millennialmedia.android.MMRequest;
 import com.millennialmedia.android.MMSDK;
-import com.millennialmedia.android.RequestListener.RequestListenerImpl;
 
 import android.os.Bundle;
 import android.app.ActivityGroup;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.util.Log;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.LinearLayout;
@@ -22,15 +21,19 @@ public class MenuActivity extends ActivityGroup {
 	private TabHost th;
 	int currentTab = 0;
 	private LinearLayout llAds;
+	public static int THEME = R.style.Theme_Sherlock_Light;
+	public static String PREFS_FILE = "com.pic2griddler.awesomeness_preferences";
 
 	// admob: a1516b691219c3b
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		setTheme(THEME);
 		final MenuActivity c = this;
-
-		Crittercism.setUsername("justinwarner");
+		SharedPreferences preferences = getSharedPreferences(MenuActivity.PREFS_FILE, MODE_PRIVATE);
+		String user = preferences.getString("username", "N/A");
+		Crittercism.setUsername(user);
 		Crittercism.init(getApplicationContext(), "5132a7682d09b61bfd000020");
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN); // Full
@@ -74,6 +77,7 @@ public class MenuActivity extends ActivityGroup {
 		adViewFromXml.setMMRequest(request);
 		adViewFromXml.setTransitionType(MMAdView.TRANSITION_RANDOM);
 		adViewFromXml.getAd();
+
 	}
 
 	public void switchTab(int tab) {
@@ -81,6 +85,5 @@ public class MenuActivity extends ActivityGroup {
 		currentTab = tab;
 
 	}
-
 
 }

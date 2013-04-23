@@ -19,6 +19,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MotionEvent;
@@ -49,7 +50,6 @@ public class UserGriddlers extends Activity implements OnTouchListener, OnItemCl
 		// IE: The ones the user started on.
 		// Also show the create a Griddler and Tutorial Griddler.
 		sql = new SQLiteGriddlerAdapter(this.getApplicationContext(), "Griddlers", null, 1);
-		loadGriddlers();
 		lv.setOnItemClickListener(this);
 	}
 
@@ -76,15 +76,30 @@ public class UserGriddlers extends Activity implements OnTouchListener, OnItemCl
 			String status;
 			if (temp[4].equals(temp[5])) {
 				if (name.equals("Create a Griddler")) {
+					//Special
 					status = 2 + "";
 				} else {
+					//Completed
 					status = 1 + "";
 				}
 			} else {
+				//Not completed.
 				status = 0 + "";
 			}
-			tempGriddler = new Griddler(id, status, name, diff, rate, author, width, height, solution, current);
-			this.griddlers.add(tempGriddler);
+			boolean isAdd = true;
+			SharedPreferences prefs = getSharedPreferences(MenuActivity.PREFS_FILE, MODE_PRIVATE);
+			if (prefs != null) {
+				;
+				if (prefs.getBoolean("wonvisible", false)) {
+					if (status.equals("1")) {
+						isAdd = false;
+					}
+				}
+			}
+			if (isAdd) {
+				tempGriddler = new Griddler(id, status, name, diff, rate, author, width, height, solution, current);
+				this.griddlers.add(tempGriddler);
+			}
 		}
 		lv.setAdapter(adapter);
 	}
@@ -216,17 +231,17 @@ public class UserGriddlers extends Activity implements OnTouchListener, OnItemCl
 	}
 
 	@Override
-	public void onStart() {
-		super.onStart();
-		// Add this method.
-		Log.d(TAG, "*******************************Start: " + EasyTracker.getTracker().getTrackingId());
+	public void onResume() {
+		super.onResume();
+		loadGriddlers();
+		EasyTracker.getInstance().activityStart(this);
 	}
 
+
 	@Override
-	public void onStop() {
-		super.onStop();
-		EasyTracker.getInstance().activityStop(this); // Add this method.
-		Log.d(TAG, "Stop: " + EasyTracker.getTracker().getTrackingId());
+	public void onPause() {
+		super.onPause();
+		EasyTracker.getInstance().activityStop(this);
 	}
 
 }

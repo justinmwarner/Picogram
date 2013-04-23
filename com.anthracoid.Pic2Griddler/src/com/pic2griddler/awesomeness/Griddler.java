@@ -14,17 +14,17 @@ public class Griddler {
 		this.name = "Name: " + i;
 	}
 
-	public Griddler(String i, String s, String n, String d, String r, String a, String w, String h, String sol, String c) {
-		this.id = i;
-		this.status = s;
-		this.name = n;
-		this.diff = d;
-		this.rank = r;
-		this.author = a;
-		this.width = w;
-		this.height = h;
-		this.current = c;
-		this.solution = sol;
+	public Griddler(String id, String status, String name, String difficulty, String rank, String author, String width, String height, String solution, String current) {
+		this.id = id;
+		this.status = status;
+		this.name = name;
+		this.diff = difficulty;
+		this.rank = rank;
+		this.author = author;
+		this.width = width;
+		this.height = height;
+		this.current = current;
+		this.solution = solution;
 	}
 
 	public String getId() {

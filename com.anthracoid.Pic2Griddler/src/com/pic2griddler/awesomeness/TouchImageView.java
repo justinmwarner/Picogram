@@ -143,7 +143,6 @@ public class TouchImageView extends ImageView {
 							// Don't do anything.
 							if (lastTouchY > (lTop + gHeight) * cellHeight)
 								Log.d(TAG, "4 " + lastTouchY + " " + ((lTop + gHeight) * cellHeight));
-							Log.d(TAG, "No");
 							return true;
 						}
 						char[] temp = gCurrent.toCharArray();

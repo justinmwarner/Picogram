@@ -1,5 +1,7 @@
 package com.pic2griddler.awesomeness;
 
+import java.util.Map;
+
 import com.actionbarsherlock.app.SherlockPreferenceActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
@@ -26,7 +28,7 @@ public class SettingsActivity extends SherlockPreferenceActivity {
 
 		addPreferencesFromResource(R.xml.preferences);
 
-		prefs = PreferenceManager.getDefaultSharedPreferences(this);
+		prefs = getSharedPreferences("Pic2Griddler", 0);
 	}
 
 	@Override
@@ -34,8 +36,6 @@ public class SettingsActivity extends SherlockPreferenceActivity {
 		/*
 		 * Add stuff to action bar...
 		 */
-		menu.add("Save").setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM | MenuItem.SHOW_AS_ACTION_WITH_TEXT);
-
 		return super.onCreateOptionsMenu(menu);
 	}
 
@@ -47,18 +47,15 @@ public class SettingsActivity extends SherlockPreferenceActivity {
 	}
 
 	@Override
-	public void onStart() {
-		super.onStart();
+	public void onResume() {
+		super.onResume();
 		EasyTracker.getInstance().setContext(this);
-		Log.d(TAG, "User Before: " + prefs.getString("username", "N/A"));
-
 	}
 
 	@Override
 	public void onPause() {
 		super.onStop();
 		EasyTracker.getInstance().activityStop(this); // Add this method.
-		Log.d(TAG, "User After: " + prefs.getString("username", "N/A"));
 
 	}
 }

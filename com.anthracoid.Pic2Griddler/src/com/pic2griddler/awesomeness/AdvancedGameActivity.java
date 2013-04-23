@@ -1,21 +1,33 @@
 package com.pic2griddler.awesomeness;
 
+import com.crittercism.app.Crittercism;
 import com.github.espiandev.showcaseview.ShowcaseView;
 import com.google.analytics.tracking.android.EasyTracker;
 import com.pic2griddler.awesomeness.TouchImageView.WinnerListener;
-
+import com.socialize.api.SocializeSession;
+import com.socialize.api.action.share.SocialNetworkShareListener;
+import com.socialize.entity.Entity;
+import com.socialize.error.SocializeException;
+import com.socialize.listener.SocializeAuthListener;
+import com.socialize.networks.facebook.FacebookUtils;
+import com.socialize.networks.twitter.TwitterUtils;
+import com.socialize.networks.SocialNetwork;
+import com.socialize.networks.PostData;
+import org.json.JSONObject;
 import android.os.Bundle;
 import android.os.Handler;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.Toast;
 
 public class AdvancedGameActivity extends Activity implements OnClickListener, WinnerListener, ShowcaseView.OnShowcaseEventListener {
 	private static final String TAG = "AdvancedGameActivity";
@@ -23,6 +35,8 @@ public class AdvancedGameActivity extends Activity implements OnClickListener, W
 	ShowcaseView sv;
 	Handler handle = new Handler();
 	int tutorialStep = 0;
+	private static SQLiteGriddlerAdapter sql;
+	Handler handler = new Handler();
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -51,7 +65,6 @@ public class AdvancedGameActivity extends Activity implements OnClickListener, W
 				}
 			}
 		}
-
 	}
 
 	@Override
@@ -127,15 +140,18 @@ public class AdvancedGameActivity extends Activity implements OnClickListener, W
 	}
 
 	@Override
-	public void onStart() {
-		super.onStart();
+	public void onResume() {
+		super.onResume();
 		EasyTracker.getInstance().activityStart(this); // Add this method.
+		sql = new SQLiteGriddlerAdapter(this.getApplicationContext(), "Griddlers", null, 1);
 	}
 
 	@Override
-	public void onStop() {
-		super.onStop();
+	public void onPause() {
+		super.onPause();
 		EasyTracker.getInstance().activityStop(this); // Add this method.
+		sql.updateCurrentGriddler(tiv.gSolution.hashCode() + "", "0", tiv.gCurrent);
+		sql.close();
 	}
 
 	@Override
@@ -155,31 +171,192 @@ public class AdvancedGameActivity extends Activity implements OnClickListener, W
 			public void onClick(DialogInterface dialog, int which) {
 				switch (which) {
 				case DialogInterface.BUTTON_POSITIVE:
-					// Yes button clicked
-					Intent intent = new Intent(AdvancedGameActivity.this, FacebookLoginActivity.class);
-					startActivity(intent);
-					Intent returnIntent = new Intent();
-					returnIntent.putExtra("current", tiv.gCurrent);
-					returnIntent.putExtra("status", "1");
-					returnIntent.putExtra("ID", tiv.gSolution.hashCode() + "");
-					setResult(2, returnIntent);
-					finish();
+					// Facebook.
+					handler.post(new Runnable() {
+
+						public void run() {
+							doFacebookStuff();
+						}
+
+					});
 					break;
 
 				case DialogInterface.BUTTON_NEGATIVE:
-					Intent returnIntent1 = new Intent();
-					returnIntent1.putExtra("current", tiv.gCurrent);
-					returnIntent1.putExtra("status", "1");
-					returnIntent1.putExtra("ID", tiv.gSolution.hashCode() + "");
-					setResult(2, returnIntent1);
-					finish();
+					// Nothing.
+					returnIntent();
+					break;
+				case DialogInterface.BUTTON_NEUTRAL:
+					// Twitter.
+					handler.post(new Runnable() {
+
+						public void run() {
+							doTwitterStuff();
+						}
+
+					});
 					break;
 				}
+
 			}
+
 		};
 
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
-		builder.setMessage("You won! Did you want to share on Facebook?").setPositiveButton("Yes", dialogClickListener).setNegativeButton("No", dialogClickListener).show();
+		builder.setMessage("You won! Share?").setPositiveButton("Facebook", dialogClickListener).setNeutralButton("Twitter", dialogClickListener).setNegativeButton("No", dialogClickListener).show();
+	}
+
+	private void returnIntent() {
+
+		Intent returnIntent2 = new Intent();
+		returnIntent2.putExtra("current", tiv.gCurrent);
+		returnIntent2.putExtra("status", "1");
+		returnIntent2.putExtra("ID", tiv.gSolution.hashCode() + "");
+		setResult(2, returnIntent2);
+		finish();
+	}
+
+	private void doFacebookStuff() {
+		if (FacebookUtils.isLinked(this)) {
+			String name = getIntent().getExtras().getString("name");
+			Entity entity = Entity.newInstance("http://www.google.com", name);
+
+			// The "this" argument refers to the current Activity
+			FacebookUtils.postEntity(this, entity, "I just beat " + name + " on Pic2Griddler!", new SocialNetworkShareListener() {
+
+				@Override
+				public void onNetworkError(Activity context, SocialNetwork network, Exception error) {
+					// Handle error
+					print("Couldn't post to Facebook.");
+					Crittercism.logHandledException(error);
+					returnIntent();
+				}
+
+				@Override
+				public void onCancel() {
+					// The user cancelled the operation.
+					print("Cancelled share");
+					returnIntent();
+				}
+
+				@Override
+				public void onAfterPost(Activity parent, SocialNetwork socialNetwork, JSONObject responseObject) {
+					// Called after the post returned from Facebook.
+					// responseObject contains the raw JSON response from
+					// Facebook.
+					print("Facebook post successful!");
+					returnIntent();
+				}
+
+				@Override
+				public boolean onBeforePost(Activity parent, SocialNetwork socialNetwork, PostData postData) {
+					// Called just prior to the post.
+					// postData contains the dictionary (map) of data to be
+					// posted.
+					// You can change this here to customize the post.
+					// Return true to prevent the post from occurring.
+					return false;
+				}
+			});
+		} else {
+			// Request write access
+			FacebookUtils.link(this, new SocializeAuthListener() {
+
+				public void onCancel() {
+					// The user cancelled the operation.
+					returnIntent();
+				}
+
+				public void onAuthSuccess(SocializeSession session) {
+					// Perform direct Facebook operation.
+					doFacebookStuff();
+					print("Successfully authenticated to Facebook.");
+				}
+
+				public void onAuthFail(SocializeException error) {
+					Crittercism.logHandledException(error);
+					print("Failed to authenticate Facebook.");
+					returnIntent();
+				}
+
+				public void onError(SocializeException error) {
+					Crittercism.logHandledException(error);
+					print("Failed to authenticate Facebook.");
+					returnIntent();
+				}
+			}, "publish_stream");
+		}
+	}
+
+	private void doTwitterStuff() {
+		final Activity a = this;
+		if (TwitterUtils.isLinked(this)) {
+			String name = getIntent().getExtras().getString("name");
+			Entity entity = Entity.newInstance("http://www.google.com", name);
+
+			TwitterUtils.tweetEntity(this, entity, "I just beat " + name + " on Pic2Griddler!", new SocialNetworkShareListener() {
+
+				@Override
+				public void onNetworkError(Activity context, SocialNetwork network, Exception error) {
+					// Handle error
+					print("Couldn't post to Twitter");
+					Crittercism.logHandledException(error);
+				}
+
+				@Override
+				public void onCancel() {
+					// The user cancelled the operation.
+					print("Cancelled share to Twitter.");
+				}
+
+				@Override
+				public void onAfterPost(Activity parent, SocialNetwork socialNetwork, JSONObject responseObject) {
+					// Called after the post returned from Twitter.
+					// responseObject contains the raw JSON response from
+					// Twitter.
+					print("Successfully posted to Twitter.");
+				}
+
+				@Override
+				public boolean onBeforePost(Activity parent, SocialNetwork socialNetwork, PostData postData) {
+					// Called just prior to the post.
+					// postData contains the dictionary (map) of data to be
+					// posted.
+					// You can change this here to customize the post.
+					// Return true to prevent the post from occurring.
+					return false;
+				}
+			});
+		} else {
+			// The "this" argument refers to the current Activity
+			TwitterUtils.link(this, new SocializeAuthListener() {
+
+				public void onCancel() {
+					// The user cancelled the operation.
+					print("Cancelled Twitter auth =(");
+				}
+
+				public void onAuthSuccess(SocializeSession session) {
+					// User was authed.
+					print("Successfully authenticated Twitter!!");
+					doTwitterStuff();
+				}
+
+				public void onAuthFail(SocializeException error) {
+					Crittercism.logHandledException(error);
+					print("Failed authenticating to Twitter, sorry mate. ");
+				}
+
+				public void onError(SocializeException error) {
+					Crittercism.logHandledException(error);
+					print("Failed connecting to Twitter, sorry mate. ");
+				}
+			});
+
+		}
+	}
+
+	private void print(String text) {
+		Toast.makeText(this, text, Toast.LENGTH_LONG).show();
 	}
 
 	public void onShowcaseViewHide(ShowcaseView showcaseView) {

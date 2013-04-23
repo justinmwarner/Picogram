@@ -71,11 +71,6 @@ public class WorldGriddlers extends Activity implements OnClickListener, OnItemC
 					}
 
 				}
-
-				private void loadGriddlers(String string) {
-					// TODO Auto-generated method stub
-
-				}
 			});
 			t.start();
 			// Add them from out
@@ -113,8 +108,7 @@ public class WorldGriddlers extends Activity implements OnClickListener, OnItemC
 																	// empty
 																	// start.
 				String id = now[7].hashCode() + "";
-				String info = (width + " " + height + " " + solution + " " + current);
-				// temp = new Griddler(id, "0", name, diff, rank, info, author);
+				temp = new Griddler(id, "0", name, diff, rank, author, width, height, solution, current);
 				griddlers.add(temp);
 			}
 		}
@@ -125,9 +119,7 @@ public class WorldGriddlers extends Activity implements OnClickListener, OnItemC
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_world_griddlers);
 
-		EasyTracker.getInstance().setContext(this);
 		// Check server for new Griddler of the Days
-
 		// Search Stuff
 		Button search = (Button) findViewById(R.id.bSearch);
 		search.setOnClickListener(this);
@@ -157,13 +149,7 @@ public class WorldGriddlers extends Activity implements OnClickListener, OnItemC
 		if (pos >= 0) {
 			// Start game with info!
 			Intent gameIntent = new Intent(this, GameActivity.class);
-			// sql.addUserGriddler(griddlers.get(pos).getId(),
-			// griddlers.get(pos).getAuthor(), griddlers.get(pos).getName(),
-			// griddlers.get(pos).getRank(),
-			// griddlers.get(pos).getInfo().split(" ")[2],
-			// griddlers.get(pos).getDiff(),
-			// griddlers.get(pos).getInfo().split(" ")[0],
-			// griddlers.get(pos).getInfo().split(" ")[1], "0");
+			sql.addUserGriddler(griddlers.get(pos));
 			sql.close();
 			// gameIntent.putExtra("info", griddlers.get(pos).getInfo());
 			gameIntent.putExtra("id", griddlers.get(pos).getId());
@@ -188,8 +174,14 @@ public class WorldGriddlers extends Activity implements OnClickListener, OnItemC
 	}
 
 	@Override
-	public void onStop() {
-		super.onStop();
-		EasyTracker.getInstance().activityStop(this); // Add this method.
+	public void onResume() {
+		super.onResume();
+		EasyTracker.getInstance().activityStart(this);
+	}
+
+	@Override
+	public void onPause() {
+		super.onPause();
+		EasyTracker.getInstance().activityStop(this);
 	}
 }

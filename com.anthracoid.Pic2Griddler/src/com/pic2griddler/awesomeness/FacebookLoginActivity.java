@@ -1,115 +1,97 @@
 package com.pic2griddler.awesomeness;
 
-//import com.facebook.*;
-
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.location.Location;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
+import android.text.TextUtils;
+import android.util.Log;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
+import com.facebook.*;
+import com.facebook.android.DialogError;
+import com.facebook.android.Facebook;
+import com.facebook.android.Facebook.DialogListener;
+import com.facebook.android.FacebookError;
+import com.facebook.model.GraphObject;
+import com.facebook.model.GraphPlace;
+import com.facebook.model.GraphUser;
+import com.facebook.widget.*;
+import com.socialize.ActionBarUtils;
+import com.socialize.Socialize;
+import com.socialize.entity.Entity;
 
-public class FacebookLoginActivity extends Activity {
+import java.util.*;
 
-	private static final String URL_PREFIX_FRIENDS = "https://graph.facebook.com/me/friends?access_token=";
+import org.json.JSONException;
+import org.json.JSONObject;
 
-	private TextView textInstructionsOrLink;
-	private Button buttonLoginLogout;
-	//private Session.StatusCallback statusCallback = new SessionStatusCallback();
+public class FacebookLoginActivity extends FragmentActivity {
+	protected static final String TAG = "FacebookLoginActivity";
+	private Button shareButton;
+	private static final List<String> PERMISSIONS = Arrays.asList("publish_actions");
+	private static final String PENDING_PUBLISH_KEY = "pendingPublishReauthorization";
+	private boolean pendingPublishReauthorization = false;
 
-	@Override
-	public void onCreate(Bundle savedInstanceState) {
+	public void onCreateView(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_facebook_login);
-		/*buttonLoginLogout = (Button) findViewById(R.id.buttonLoginLogout);
-		textInstructionsOrLink = (TextView) findViewById(R.id.instructionsOrLink);
+		// Entity entity =
+		// Entity.newInstance("http://www.example.com/object/1234",
+		// "Example Entity");
+		// View actionBarWrapped = ActionBarUtils.showActionBar(this,
+		// R.layout.activity_facebook_login, entity);
+		// setContentView(actionBarWrapped);
+		// Call Socialize in onCreate
+		Socialize.onCreate(this, savedInstanceState);
 
-		Settings.addLoggingBehavior(LoggingBehavior.INCLUDE_ACCESS_TOKENS);
+		// Your entity key. May be passed as a Bundle parameter to your activity
+		String entityKey = "http://www.getsocialize.com";
 
-		Session session = Session.getActiveSession();
-		if (session == null) {
-			if (savedInstanceState != null) {
-				session = Session.restoreSession(this, null, statusCallback, savedInstanceState);
-			}
-			if (session == null) {
-				session = new Session(this);
-			}
-			Session.setActiveSession(session);
-			if (session.getState().equals(SessionState.CREATED_TOKEN_LOADED)) {
-				//session.openForRead(new Session.OpenRequest(this).setCallback(statusCallback));
-			}
-			*/
-		}
+		// Create an entity object including a name
+		// The Entity object is Serializable, so you could also store the whole
+		// object in the Intent
+		Entity entity = Entity.newInstance(entityKey, "Socialize");
 
-		//updateView();
-	}
-/*
-	@Override
-	public void onStart() {
-		super.onStart();
-		Session.getActiveSession().addCallback(statusCallback);
+		// Wrap your existing view with the action bar.
+		// your_layout refers to the resource ID of your current layout.
+		View actionBarWrapped = ActionBarUtils.showActionBar(this, R.layout.activity_facebook_login, entity);
+
+		// Now set the view for your activity to be the wrapped view.
+		setContentView(actionBarWrapped);
 	}
 
 	@Override
-	public void onStop() {
-		super.onStop();
-		Session.getActiveSession().removeCallback(statusCallback);
+	protected void onPause() {
+		super.onPause();
+
+		// Call Socialize in onPause
+		Socialize.onPause(this);
 	}
 
 	@Override
-	public void onActivityResult(int requestCode, int resultCode, Intent data) {
-		super.onActivityResult(requestCode, resultCode, data);
-		Session.getActiveSession().onActivityResult(this, requestCode, resultCode, data);
+	protected void onResume() {
+		super.onResume();
+
+		// Call Socialize in onResume
+		Socialize.onResume(this);
 	}
 
 	@Override
-	protected void onSaveInstanceState(Bundle outState) {
-		super.onSaveInstanceState(outState);
-		Session session = Session.getActiveSession();
-		Session.saveSession(session, outState);
+	protected void onDestroy() {
+		// Call Socialize in onDestroy before the activity is destroyed
+		Socialize.onDestroy(this);
+
+		super.onDestroy();
 	}
-
-	private void updateView() {
-		Session session = Session.getActiveSession();
-		if (session.isOpened()) {
-			textInstructionsOrLink.setText(URL_PREFIX_FRIENDS + session.getAccessToken());
-			buttonLoginLogout.setText("LOGOUT");
-			buttonLoginLogout.setOnClickListener(new OnClickListener() {
-				public void onClick(View view) {
-					onClickLogout();
-				}
-			});
-		} else {
-			textInstructionsOrLink.setText("INSTRUCTIONS HERE");
-			buttonLoginLogout.setText("LOGIN");
-			buttonLoginLogout.setOnClickListener(new OnClickListener() {
-				public void onClick(View view) {
-					onClickLogin();
-				}
-			});
-		}
-	}
-
-	private void onClickLogin() {
-		Session session = Session.getActiveSession();
-		if (!session.isOpened() && !session.isClosed()) {
-			//session.openForRead(new Session.OpenRequest(this).setCallback(statusCallback));
-		} else {
-			Session.openActiveSession(this, true, statusCallback);
-		}
-	}
-
-	private void onClickLogout() {
-		Session session = Session.getActiveSession();
-		if (!session.isClosed()) {
-			session.closeAndClearTokenInformation();
-		}
-	}
-
-	private class SessionStatusCallback implements Session.StatusCallback {
-
-		public void call(Session session, SessionState state, Exception exception) {
-			updateView();
-		}
-	}
-
 }
-*/

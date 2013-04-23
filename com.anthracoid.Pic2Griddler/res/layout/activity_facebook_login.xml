@@ -1,22 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:facebook="http://schemas.android.com/apk/res-auto"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
+    android:background="#FFF"
     android:orientation="vertical" >
 
-    <TextView
-        android:id="@+id/instructionsOrLink"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:autoLink="web"
-        android:linksClickable="true"
-        android:text="INSTRUCTIONS LOGIN:"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
-
     <Button
-        android:id="@+id/buttonLoginLogout"
+        android:id="@+id/shareButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="LOGIN" />
+        android:layout_marginTop="30dp"
+        android:gravity="center"
+        android:text="Share"
+        android:textStyle="bold"
+        android:visibility="invisible" />
 
 </LinearLayout>

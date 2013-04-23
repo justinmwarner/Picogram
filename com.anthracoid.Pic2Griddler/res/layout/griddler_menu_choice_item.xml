@@ -12,9 +12,12 @@
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true" >
 
+        <!-- This needs to be changed to give it a background color for dark themed. -->
+
         <RelativeLayout
             android:layout_width="wrap_content"
-            android:layout_height="78dp" >
+            android:layout_height="78dp"
+            android:background="@color/textcolor" >
 
             <ImageView
                 android:id="@+id/ivCurrent"
