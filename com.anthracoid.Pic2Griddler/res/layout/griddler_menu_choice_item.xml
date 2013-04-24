@@ -15,9 +15,9 @@
         <!-- This needs to be changed to give it a background color for dark themed. -->
 
         <RelativeLayout
+            android:id="@+id/mainBackgroundItem"
             android:layout_width="wrap_content"
-            android:layout_height="78dp"
-            android:background="@color/textcolor" >
+            android:layout_height="78dp" >
 
             <ImageView
                 android:id="@+id/ivCurrent"

@@ -31,13 +31,10 @@ import android.widget.ListView;
 
 public class UserGriddlers extends Activity implements OnTouchListener, OnItemClickListener {
 	protected static final String TAG = "UserGriddlers";
-	private SharedPreferences.Editor edit;
-	private final String FILENAME = "USER_GRIDDLERS", SETTINGS = "USER_SETTINGS";
-	private GriddlerMenuAdapter gma;
 	private ArrayList<Griddler> griddlers = new ArrayList<Griddler>();
 	private ListView lv;
-	private SharedPreferences settings;
 	private static SQLiteGriddlerAdapter sql;
+	int yPrev;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -61,6 +58,7 @@ public class UserGriddlers extends Activity implements OnTouchListener, OnItemCl
 		lv.setAdapter(null);
 		String[][] griddlers = sql.getGriddlers();
 		Griddler tempGriddler = new Griddler();
+		SharedPreferences prefs = getSharedPreferences(MenuActivity.PREFS_FILE, MODE_PRIVATE);
 		for (int i = 0; i < griddlers.length; i++) {
 			String temp[] = griddlers[i];
 			String id = temp[0];
@@ -76,20 +74,19 @@ public class UserGriddlers extends Activity implements OnTouchListener, OnItemCl
 			String status;
 			if (temp[4].equals(temp[5])) {
 				if (name.equals("Create a Griddler")) {
-					//Special
+					// Special
 					status = 2 + "";
 				} else {
-					//Completed
+					// Completed
 					status = 1 + "";
 				}
 			} else {
-				//Not completed.
+				// Not completed.
 				status = 0 + "";
 			}
 			boolean isAdd = true;
-			SharedPreferences prefs = getSharedPreferences(MenuActivity.PREFS_FILE, MODE_PRIVATE);
+
 			if (prefs != null) {
-				;
 				if (prefs.getBoolean("wonvisible", false)) {
 					if (status.equals("1")) {
 						isAdd = false;
@@ -199,8 +196,6 @@ public class UserGriddlers extends Activity implements OnTouchListener, OnItemCl
 													// game was.
 	}
 
-	int yPrev;
-
 	public boolean onTouch(View v, MotionEvent me) {
 		Log.d(TAG, "Touched: " + lv.pointToPosition((int) me.getX(), (int) me.getY()));
 		if (me.getAction() == MotionEvent.ACTION_DOWN) {
@@ -236,7 +231,6 @@ public class UserGriddlers extends Activity implements OnTouchListener, OnItemCl
 		loadGriddlers();
 		EasyTracker.getInstance().activityStart(this);
 	}
-
 
 	@Override
 	public void onPause() {

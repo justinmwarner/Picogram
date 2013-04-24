@@ -40,13 +40,6 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.pic2griddler.awesomeness.GameActivity"
-            android:label="@string/app_name" >
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-            </intent-filter>
-        </activity>
-        <activity
             android:name="com.pic2griddler.awesomeness.UserGriddlers"
             android:label="@string/title_activity_user_griddlers" >
         </activity>
@@ -82,23 +75,22 @@
             android:theme="@android:style/Theme.Translucent.NoTitleBar" >
         </activity>
         <!-- Facebook -->
-        <activity
-            android:name="com.pic2griddler.awesomeness.FacebookLoginActivity"
-            android:label="Facebook" >
-        </activity>
-
         <meta-data
             android:name="com.facebook.sdk.ApplicationId"
             android:value="@string/app_id" />
         <!-- Activities Required by Socialize -->
-        <activity android:name="com.socialize.ui.comment.CommentActivity" android:configChanges="orientation|keyboardHidden|screenSize"/>
-        <activity android:name="com.socialize.ui.action.ActionDetailActivity"/>
-        <activity android:name="com.socialize.ui.profile.ProfileActivity"/>
-        <activity android:name="com.socialize.auth.facebook.FacebookActivity"/>
-        <activity android:name="com.socialize.ui.SocializeLaunchActivity" android:noHistory="true"/>
-        
+        <activity
+            android:name="com.socialize.ui.comment.CommentActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize" />
+        <activity android:name="com.socialize.ui.action.ActionDetailActivity" />
+        <activity android:name="com.socialize.ui.profile.ProfileActivity" />
+        <activity android:name="com.socialize.auth.facebook.FacebookActivity" />
+        <activity
+            android:name="com.socialize.ui.SocializeLaunchActivity"
+            android:noHistory="true" />
+
         <!-- Activities Required by Facebook -->
-        <activity android:name="com.facebook.LoginActivity"/>
+        <activity android:name="com.facebook.LoginActivity" />
     </application>
 
 </manifest>

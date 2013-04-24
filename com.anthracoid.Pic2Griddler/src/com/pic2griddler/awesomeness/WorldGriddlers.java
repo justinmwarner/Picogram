@@ -148,7 +148,7 @@ public class WorldGriddlers extends Activity implements OnClickListener, OnItemC
 		// BUT, add this to the SQLite for their own personal games.
 		if (pos >= 0) {
 			// Start game with info!
-			Intent gameIntent = new Intent(this, GameActivity.class);
+			Intent gameIntent = new Intent(this, AdvancedGameActivity.class);
 			sql.addUserGriddler(griddlers.get(pos));
 			sql.close();
 			// gameIntent.putExtra("info", griddlers.get(pos).getInfo());

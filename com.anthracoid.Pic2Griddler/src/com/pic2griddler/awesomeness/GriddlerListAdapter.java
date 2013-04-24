@@ -90,6 +90,13 @@ public class GriddlerListAdapter extends ArrayAdapter<Griddler> {
 			// Other (Custom, special levels, etc.).
 			item.setBackgroundResource(R.drawable.griddler_menu_choice_border_other);
 		}
+		// Change background of the linear view based on theme.
+		View themeChange = item.findViewById(R.id.mainBackgroundItem);
+		if (MenuActivity.THEME == R.style.Theme_Sherlock_Light) {
+			themeChange.setBackgroundColor(Color.WHITE);
+		} else {
+			themeChange.setBackgroundColor(Color.BLACK);
+		}
 		gd.invalidateSelf();
 		item.invalidate();
 		rl.invalidate();
