@@ -1,219 +1,189 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/RelativeLayout1"
+<com.agimind.widget.SlideHolder
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:id="@+id/slideHolder"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:background="#FFFFFF">
+
+	<LinearLayout
+		android:layout_width="300dp"
+		android:layout_height="match_parent"
+		android:orientation="vertical"
+        android:focusable="true" 
+	    android:padding="15dp"
+        android:focusableInTouchMode="true"
+		android:background="@drawable/border">
+
+		<LinearLayout
+			android:id="@+id/llFirst"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+		    android:padding="5dp"
+			android:orientation="horizontal">
+
+			<Button
+				android:id="@+id/bURLA"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_weight="1"
+				android:text="URL" />
+
+			<Button
+				android:id="@+id/bCameraA"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_weight="1"
+				android:text="Camera" />
+
+			<Button
+				android:id="@+id/bFileA"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_weight="1"
+				android:text="File" />
+		</LinearLayout>
+
+		<LinearLayout
+			android:id="@+id/llFirst"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+		    android:padding="5dp"
+			android:orientation="horizontal">
+		<EditText
+		    android:id="@+id/etURLA"
+		    android:layout_width="match_parent"
+		    android:layout_height="wrap_content"
+		    android:hint="http://195.83.128.55/~src10f19/c_e/pixelart2.jpg"
+		    android:inputType="textUri"
+		    android:padding="5dp"
+		    android:layout_weight="5"
+		    android:text="http://img.ctrlv.in.s3.amazonaws.com/img/516b16f3c677d.jpg" />
+			<Button
+				android:id="@+id/bURLSubmit"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_weight="1"
+				android:text="File" />
+</LinearLayout>
+		<LinearLayout
+			android:id="@+id/llWidthHeight"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_gravity="center"
+		    android:padding="5dp"
+			android:orientation="vertical">
+
+			<LinearLayout
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:orientation="vertical">
+
+				<LinearLayout
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:orientation="horizontal">
+
+					<TextView
+						android:id="@+id/textView2"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:layout_weight="1"
+						android:text="Width Blocks" />
+
+					<TextView
+						android:id="@+id/textView3"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:layout_weight="1"
+						android:text="Height Blocks" />
+
+					<TextView
+						android:id="@+id/textView4"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:layout_weight="1"
+						android:text="# Colors"/>
+				</LinearLayout>
+
+				<LinearLayout
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:layout_weight="1"
+					android:orientation="horizontal">
+
+					<Spinner
+						android:id="@+id/spinWidth"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:layout_weight="1" />
+
+					<Spinner
+						android:id="@+id/spinHeight"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:layout_weight="1" />
+
+					<Spinner
+						android:id="@+id/spinColor"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:layout_weight="1" />
+				</LinearLayout>
+			</LinearLayout>
+		</LinearLayout>
+			<EditText
+				android:id="@+id/etNameA"
+		    android:padding="5dp"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:hint="Name of Griddler"
+				android:textSize="10sp" />
+
+			<EditText
+				android:id="@+id/etTagA"
+		    android:padding="5dp"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:hint="Tags (Comma Separated)"
+				android:textSize="10sp" />
+
+			<Spinner
+				android:id="@+id/spinDiffA"
+		    android:padding="5dp"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"/>
+		<Button
+			android:id="@+id/bCancel"
+		    android:padding="5dp"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:text="Cancel" />
+
+		<Button
+			android:id="@+id/bSubmit"
+			android:layout_width="match_parent"
+		    android:padding="5dp"
+			android:layout_height="wrap_content"
+			android:text="Submit" />
+	</LinearLayout>
+
+<LinearLayout
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="horizontal" >
+    android:padding="15dp" >
 
-    <Button
-        android:id="@+id/bLeft"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBottom="@+id/container"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentTop="true"
-        android:text="&lt;" />
+	<WebView
+	    android:id="@+id/wvGif"
+	    android:layout_width="wrap_content"
+	    android:layout_height="wrap_content"
+	    android:layout_gravity="center_vertical" />
 
-    <Button
-        android:id="@+id/bRight"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBottom="@+id/container"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentTop="true"
-        android:text=">" />
-
-    <ViewFlipper
-        android:id="@+id/vfContainer"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_toLeftOf="@+id/bRight"
-        android:layout_toRightOf="@+id/bLeft" >
-
-        <LinearLayout
-            android:id="@+id/llFirst"
+	<com.pic2griddler.awesomeness.TouchImageView
+            android:id="@+id/tivPreview"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:orientation="horizontal" >
-
-            <Button
-                android:id="@+id/bURLA"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="URL" />
-
-            <Button
-                android:id="@+id/bCameraA"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Camera" />
-
-            <Button
-                android:id="@+id/bFileA"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="File" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/llURL"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:orientation="horizontal" >
-
-            <TextView
-                android:id="@+id/textView1"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="URL:" />
-
-            <EditText
-                android:id="@+id/etURLA"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:ems="10"
-                android:hint="http://195.83.128.55/~src10f19/c_e/pixelart2.jpg"
-                android:text="http://img.ctrlv.in.s3.amazonaws.com/img/516b16f3c677d.jpg" >
-
-                <requestFocus android:layout_width="wrap_content" />
-            </EditText>
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/llWidthHeight"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:orientation="vertical" >
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="fill_parent"
-                android:orientation="vertical" >
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="horizontal" >
-
-                    <TextView
-                        android:id="@+id/textView2"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="Width Blocks" />
-
-                    <TextView
-                        android:id="@+id/textView3"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="Height Blocks" />
-
-                    <TextView
-                        android:id="@+id/textView4"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="# Colors"
-                        android:visibility="invisible" />
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="horizontal" >
-
-                    <Spinner
-                        android:id="@+id/spinWidth"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1" />
-
-                    <Spinner
-                        android:id="@+id/spinHeight"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1" />
-
-                    <Spinner
-                        android:id="@+id/spinColor"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:visibility="invisible" />
-                </LinearLayout>
-            </LinearLayout>
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/llGriddlerNameTagsDiff"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_weight="1"
-            android:orientation="horizontal" >
-
-            <EditText
-                android:id="@+id/etNameA"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="10"
-                android:hint="Name of Griddler"
-                android:textSize="10sp" />
-
-            <EditText
-                android:id="@+id/etTagA"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="10"
-                android:hint="Tags (Comma Separated)"
-                android:textSize="10sp" />
-
-            <Spinner
-                android:id="@+id/spinDiffA"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/llFinal"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:orientation="horizontal" >
-
-            <TextView
-                android:id="@+id/textView5"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Looks good.  You can click on the image view below to compare with the original picture too!  If you&apos;d like to manually edit the result, then you may do so by enabling the button to switch modes." />
-
-            <ToggleButton
-                android:id="@+id/tbEditView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textOff="View Mode"
-                android:textOn="Edit Mode" />
-        </LinearLayout>
-    </ViewFlipper>
-
-    <ImageView
-        android:id="@+id/ivGriddlerCreate"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentLeft="true"
-        android:layout_below="@+id/vfContainer" />
-
-</RelativeLayout>
+            android:layout_height="match_parent"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"  />"
+</LinearLayout>
+</com.agimind.widget.SlideHolder>

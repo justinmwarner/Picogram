@@ -1,3 +1,4 @@
+
 package com.pic2griddler.awesomeness;
 
 import com.crittercism.app.Crittercism;
@@ -29,374 +30,395 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.Toast;
 
-public class AdvancedGameActivity extends Activity implements OnClickListener, WinnerListener, ShowcaseView.OnShowcaseEventListener {
-	private static final String TAG = "AdvancedGameActivity";
-	TouchImageView tiv;
-	ShowcaseView sv;
-	Handler handle = new Handler();
-	int tutorialStep = 0;
-	private static SQLiteGriddlerAdapter sql;
-	Handler handler = new Handler();
+public class AdvancedGameActivity extends Activity implements OnClickListener, WinnerListener,
+        ShowcaseView.OnShowcaseEventListener {
+    private static final String TAG = "AdvancedGameActivity";
+    TouchImageView tiv;
+    ShowcaseView sv;
+    Handler handle = new Handler();
+    int tutorialStep = 0;
+    private static SQLiteGriddlerAdapter sql;
+    Handler handler = new Handler();
 
-	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		requestWindowFeature(Window.FEATURE_NO_TITLE);
-		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
-		setContentView(R.layout.activity_advanced_game);
-		Button bHand = (Button) findViewById(R.id.bToolboxHand);
-		Button bWhite = (Button) findViewById(R.id.bToolboxWhite);
-		Button bBlack = (Button) findViewById(R.id.bToolboxBlack);
-		bHand.setOnClickListener(this);
-		bWhite.setOnClickListener(this);
-		bBlack.setOnClickListener(this);
-		tiv = (TouchImageView) findViewById(R.id.tivGame);
-		tiv.setWinListener(this);
-		tiv.setGriddlerInfo(getIntent().getExtras());
-		String name = getIntent().getExtras().getString("name");
-		String c = getIntent().getExtras().getString("current");
-		String s = getIntent().getExtras().getString("solution");
-		if (name != null) {
-			EasyTracker.getTracker().trackEvent("Game", "GriddlerName", name, (long) 1);
-			if (name.equals("Tutorial")) {
-				// We're in a tutorial.
-				if (!c.equals(s)) {
-					showStepOne();
-				}
-			}
-		}
-	}
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        setContentView(R.layout.activity_advanced_game);
+        Button bHand = (Button) findViewById(R.id.bToolboxHand);
+        Button bWhite = (Button) findViewById(R.id.bToolboxWhite);
+        Button bBlack = (Button) findViewById(R.id.bToolboxBlack);
+        bHand.setOnClickListener(this);
+        bWhite.setOnClickListener(this);
+        bBlack.setOnClickListener(this);
+        tiv = (TouchImageView) findViewById(R.id.tivGame);
+        tiv.setWinListener(this);
+        tiv.setGriddlerInfo(getIntent().getExtras());
+        String name = getIntent().getExtras().getString("name");
+        String c = getIntent().getExtras().getString("current");
+        String s = getIntent().getExtras().getString("solution");
+        if (name != null) {
+            EasyTracker.getTracker().trackEvent("Game", "GriddlerName", name, (long) 1);
+            if (name.equals("Tutorial")) {
+                // We're in a tutorial.
+                if (!c.equals(s)) {
+                    showStepOne();
+                }
+            }
+        }
+    }
 
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.activity_advanced_game, menu);
-		return true;
-	}
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.activity_advanced_game, menu);
+        return true;
+    }
 
-	public void onClick(View v) {
-		if (v.getId() == R.id.bToolboxHand) {
-			tiv.isGameplay = false;
-		} else if (v.getId() == R.id.bToolboxBlack) {
-			tiv.colorCharacter = '1';
-			tiv.isGameplay = true;
-		} else if (v.getId() == R.id.bToolboxWhite) {
-			tiv.colorCharacter = '0';
-			tiv.isGameplay = true;
-		}
-	}
+    public void onClick(View v) {
+        if (v.getId() == R.id.bToolboxHand) {
+            tiv.isGameplay = false;
+        } else if (v.getId() == R.id.bToolboxBlack) {
+            tiv.colorCharacter = '1';
+            tiv.isGameplay = true;
+        } else if (v.getId() == R.id.bToolboxWhite) {
+            tiv.colorCharacter = '0';
+            tiv.isGameplay = true;
+        }
+    }
 
-	private void showStepOne() {
-		ShowcaseView.ConfigOptions co = new ShowcaseView.ConfigOptions();
-		co.hideOnClickOutside = true;
-		sv = ShowcaseView
-				.insertShowcaseView(
-						R.id.llToolbox,
-						this,
-						"Movement and Brush Color",
-						"Here are your tools to use during your griddler-ing.  The Move is used to move and zoom.  You can zoom in via-pinching, and from there, you may slide around.\n\nAs you may know, Griddlers use colors to draw pictures.  This is also the location of your brushes you may use.",
-						co);
-		sv.setOnShowcaseEventListener(this);
+    private void showStepOne() {
+        ShowcaseView.ConfigOptions co = new ShowcaseView.ConfigOptions();
+        co.hideOnClickOutside = true;
+        sv = ShowcaseView
+                .insertShowcaseView(
+                        R.id.llToolbox,
+                        this,
+                        "Movement and Brush Color",
+                        "Here are your tools to use during your griddler-ing.  The Move is used to move and zoom.  You can zoom in via-pinching, and from there, you may slide around.\n\nAs you may know, Griddlers use colors to draw pictures.  This is also the location of your brushes you may use.",
+                        co);
+        sv.setOnShowcaseEventListener(this);
 
-	}
+    }
 
-	private void showStepTwo() {
+    private void showStepTwo() {
 
-		ShowcaseView.ConfigOptions co = new ShowcaseView.ConfigOptions();
-		co.hideOnClickOutside = true;
-		sv = ShowcaseView
-				.insertShowcaseView(
-						R.id.tivGame,
-						this,
-						"Game Board",
-						"This here is the heart and soul of the Griddler game.  This is your game board.\n\nAs you can see, the side and top numbers are your hints. You can use these to figure out this board.  If you already know how to win, just play.  If not, then follow the steps.",
-						co);
-		sv.setOnShowcaseEventListener(this);
+        ShowcaseView.ConfigOptions co = new ShowcaseView.ConfigOptions();
+        co.hideOnClickOutside = true;
+        sv = ShowcaseView
+                .insertShowcaseView(
+                        R.id.tivGame,
+                        this,
+                        "Game Board",
+                        "This here is the heart and soul of the Griddler game.  This is your game board.\n\nAs you can see, the side and top numbers are your hints. You can use these to figure out this board.  If you already know how to win, just play.  If not, then follow the steps.",
+                        co);
+        sv.setOnShowcaseEventListener(this);
 
-	}
+    }
 
-	private void showStepThree() {
+    private void showStepThree() {
 
-		ShowcaseView.ConfigOptions co = new ShowcaseView.ConfigOptions();
-		co.hideOnClickOutside = true;
-		sv = ShowcaseView
-				.insertShowcaseView(
-						R.id.tivGame,
-						this,
-						"First Row",
-						"As you can see, the board is a 4X4.  If we see the numbers on the side, we see two rows have 4.  This means, by deduction, the whole row must be filled.  So let's finish filling up the first row. \n\nRemember, Click the black up top to be able to draw.",
-						co);
-		sv.setOnShowcaseEventListener(this);
+        ShowcaseView.ConfigOptions co = new ShowcaseView.ConfigOptions();
+        co.hideOnClickOutside = true;
+        sv = ShowcaseView
+                .insertShowcaseView(
+                        R.id.tivGame,
+                        this,
+                        "First Row",
+                        "As you can see, the board is a 4X4.  If we see the numbers on the side, we see two rows have 4.  This means, by deduction, the whole row must be filled.  So let's finish filling up the first row. \n\nRemember, Click the black up top to be able to draw.",
+                        co);
+        sv.setOnShowcaseEventListener(this);
 
-	}
+    }
 
-	private void showStepFour() {
-		ShowcaseView.ConfigOptions co = new ShowcaseView.ConfigOptions();
-		co.hideOnClickOutside = true;
-		sv = ShowcaseView.insertShowcaseView(R.id.tivGame, this, "Finish her!",
-				"Good, now you just gotta finish the two. If we check the side hints, we can see 1 1.  This means that we have one black, with some white space between the next.  Use the top hints to figure out where the remainding pieces go.", co);
-		sv.setOnShowcaseEventListener(this);
+    private void showStepFour() {
+        ShowcaseView.ConfigOptions co = new ShowcaseView.ConfigOptions();
+        co.hideOnClickOutside = true;
+        sv = ShowcaseView
+                .insertShowcaseView(
+                        R.id.tivGame,
+                        this,
+                        "Finish her!",
+                        "Good, now you just gotta finish the two. If we check the side hints, we can see 1 1.  This means that we have one black, with some white space between the next.  Use the top hints to figure out where the remainding pieces go.",
+                        co);
+        sv.setOnShowcaseEventListener(this);
 
-	}
+    }
 
-	@Override
-	public void onResume() {
-		super.onResume();
-		EasyTracker.getInstance().activityStart(this); // Add this method.
-		sql = new SQLiteGriddlerAdapter(this.getApplicationContext(), "Griddlers", null, 1);
-	}
+    @Override
+    public void onResume() {
+        super.onResume();
+        EasyTracker.getInstance().activityStart(this); // Add this method.
+        sql = new SQLiteGriddlerAdapter(this.getApplicationContext(), "Griddlers", null, 1);
+    }
 
-	@Override
-	public void onPause() {
-		super.onPause();
-		EasyTracker.getInstance().activityStop(this); // Add this method.
-		sql.updateCurrentGriddler(tiv.gSolution.hashCode() + "", "0", tiv.gCurrent);
-		sql.close();
-	}
+    @Override
+    public void onPause() {
+        super.onPause();
+        EasyTracker.getInstance().activityStop(this); // Add this method.
+        sql.updateCurrentGriddler(tiv.gSolution.hashCode() + "", "0", tiv.gCurrent);
+        sql.close();
+    }
 
-	@Override
-	public void onBackPressed() {
-		super.onPause();
-		Intent returnIntent = new Intent();
-		returnIntent.putExtra("current", tiv.gCurrent);
-		returnIntent.putExtra("status", "0");
-		returnIntent.putExtra("ID", tiv.gSolution.hashCode() + "");
-		setResult(2, returnIntent);
-		finish();
-	}
+    @Override
+    public void onBackPressed() {
+        super.onPause();
+        Intent returnIntent = new Intent();
+        returnIntent.putExtra("current", tiv.gCurrent);
+        returnIntent.putExtra("status", "0");
+        returnIntent.putExtra("ID", tiv.gSolution.hashCode() + "");
+        setResult(2, returnIntent);
+        finish();
+    }
 
-	public void win() {
+    public void win() {
 
-		DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
-			public void onClick(DialogInterface dialog, int which) {
-				switch (which) {
-				case DialogInterface.BUTTON_POSITIVE:
-					// Facebook.
-					handler.post(new Runnable() {
+        DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                switch (which) {
+                    case DialogInterface.BUTTON_POSITIVE:
+                        // Facebook.
+                        handler.post(new Runnable() {
 
-						public void run() {
-							doFacebookStuff();
-						}
+                            public void run() {
+                                doFacebookStuff();
+                            }
 
-					});
-					break;
+                        });
+                        break;
 
-				case DialogInterface.BUTTON_NEGATIVE:
-					// Nothing.
-					returnIntent();
-					break;
-				case DialogInterface.BUTTON_NEUTRAL:
-					// Twitter.
-					handler.post(new Runnable() {
+                    case DialogInterface.BUTTON_NEGATIVE:
+                        // Nothing.
+                        returnIntent();
+                        break;
+                    case DialogInterface.BUTTON_NEUTRAL:
+                        // Twitter.
+                        handler.post(new Runnable() {
 
-						public void run() {
-							doTwitterStuff();
-						}
+                            public void run() {
+                                doTwitterStuff();
+                            }
 
-					});
-					break;
-				}
+                        });
+                        break;
+                }
 
-			}
+            }
 
-		};
+        };
 
-		AlertDialog.Builder builder = new AlertDialog.Builder(this);
-		builder.setMessage("You won! Share?").setPositiveButton("Facebook", dialogClickListener).setNeutralButton("Twitter", dialogClickListener).setNegativeButton("No", dialogClickListener).show();
-	}
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage("You won! Share?").setPositiveButton("Facebook", dialogClickListener)
+                .setNeutralButton("Twitter", dialogClickListener)
+                .setNegativeButton("No", dialogClickListener).show();
+    }
 
-	private void returnIntent() {
+    private void returnIntent() {
 
-		Intent returnIntent2 = new Intent();
-		returnIntent2.putExtra("current", tiv.gCurrent);
-		returnIntent2.putExtra("status", "1");
-		returnIntent2.putExtra("ID", tiv.gSolution.hashCode() + "");
-		setResult(2, returnIntent2);
-		finish();
-	}
+        Intent returnIntent2 = new Intent();
+        returnIntent2.putExtra("current", tiv.gCurrent);
+        returnIntent2.putExtra("status", "1");
+        returnIntent2.putExtra("ID", tiv.gSolution.hashCode() + "");
+        setResult(2, returnIntent2);
+        finish();
+    }
 
-	private void doFacebookStuff() {
-		if (FacebookUtils.isLinked(this)) {
-			String name = getIntent().getExtras().getString("name");
-			Entity entity = Entity.newInstance("http://www.google.com", name);
+    private void doFacebookStuff() {
+        if (FacebookUtils.isLinked(this)) {
+            String name = getIntent().getExtras().getString("name");
+            Entity entity = Entity.newInstance("http://www.google.com", name);
 
-			// The "this" argument refers to the current Activity
-			FacebookUtils.postEntity(this, entity, "I just beat " + name + " on Pic2Griddler!", new SocialNetworkShareListener() {
+            // The "this" argument refers to the current Activity
+            FacebookUtils.postEntity(this, entity, "I just beat " + name + " on Pic2Griddler!",
+                    new SocialNetworkShareListener() {
 
-				@Override
-				public void onNetworkError(Activity context, SocialNetwork network, Exception error) {
-					// Handle error
-					print("Couldn't post to Facebook.");
-					Crittercism.logHandledException(error);
-					returnIntent();
-				}
+                        @Override
+                        public void onNetworkError(Activity context, SocialNetwork network,
+                                Exception error) {
+                            // Handle error
+                            print("Couldn't post to Facebook.");
+                            Crittercism.logHandledException(error);
+                            returnIntent();
+                        }
 
-				@Override
-				public void onCancel() {
-					// The user cancelled the operation.
-					print("Cancelled share");
-					returnIntent();
-				}
+                        @Override
+                        public void onCancel() {
+                            // The user cancelled the operation.
+                            print("Cancelled share");
+                            returnIntent();
+                        }
 
-				@Override
-				public void onAfterPost(Activity parent, SocialNetwork socialNetwork, JSONObject responseObject) {
-					// Called after the post returned from Facebook.
-					// responseObject contains the raw JSON response from
-					// Facebook.
-					print("Facebook post successful!");
-					returnIntent();
-				}
+                        @Override
+                        public void onAfterPost(Activity parent, SocialNetwork socialNetwork,
+                                JSONObject responseObject) {
+                            // Called after the post returned from Facebook.
+                            // responseObject contains the raw JSON response
+                            // from
+                            // Facebook.
+                            print("Facebook post successful!");
+                            returnIntent();
+                        }
 
-				@Override
-				public boolean onBeforePost(Activity parent, SocialNetwork socialNetwork, PostData postData) {
-					// Called just prior to the post.
-					// postData contains the dictionary (map) of data to be
-					// posted.
-					// You can change this here to customize the post.
-					// Return true to prevent the post from occurring.
-					return false;
-				}
-			});
-		} else {
-			// Request write access
-			FacebookUtils.link(this, new SocializeAuthListener() {
+                        @Override
+                        public boolean onBeforePost(Activity parent, SocialNetwork socialNetwork,
+                                PostData postData) {
+                            // Called just prior to the post.
+                            // postData contains the dictionary (map) of data to
+                            // be
+                            // posted.
+                            // You can change this here to customize the post.
+                            // Return true to prevent the post from occurring.
+                            return false;
+                        }
+                    });
+        } else {
+            // Request write access
+            FacebookUtils.link(this, new SocializeAuthListener() {
 
-				public void onCancel() {
-					// The user cancelled the operation.
-					returnIntent();
-				}
+                public void onCancel() {
+                    // The user cancelled the operation.
+                    returnIntent();
+                }
 
-				public void onAuthSuccess(SocializeSession session) {
-					// Perform direct Facebook operation.
-					doFacebookStuff();
-					print("Successfully authenticated to Facebook.");
-				}
+                public void onAuthSuccess(SocializeSession session) {
+                    // Perform direct Facebook operation.
+                    doFacebookStuff();
+                    print("Successfully authenticated to Facebook.");
+                }
 
-				public void onAuthFail(SocializeException error) {
-					Crittercism.logHandledException(error);
-					print("Failed to authenticate Facebook.");
-					returnIntent();
-				}
+                public void onAuthFail(SocializeException error) {
+                    Crittercism.logHandledException(error);
+                    print("Failed to authenticate Facebook.");
+                    returnIntent();
+                }
 
-				public void onError(SocializeException error) {
-					Crittercism.logHandledException(error);
-					print("Failed to authenticate Facebook.");
-					returnIntent();
-				}
-			}, "publish_stream");
-		}
-	}
+                public void onError(SocializeException error) {
+                    Crittercism.logHandledException(error);
+                    print("Failed to authenticate Facebook.");
+                    returnIntent();
+                }
+            }, "publish_stream");
+        }
+    }
 
-	private void doTwitterStuff() {
-		final Activity a = this;
-		if (TwitterUtils.isLinked(this)) {
-			String name = getIntent().getExtras().getString("name");
-			Entity entity = Entity.newInstance("http://www.google.com", name);
+    private void doTwitterStuff() {
+        final Activity a = this;
+        if (TwitterUtils.isLinked(this)) {
+            String name = getIntent().getExtras().getString("name");
+            Entity entity = Entity.newInstance("http://www.google.com", name);
 
-			TwitterUtils.tweetEntity(this, entity, "I just beat " + name + " on Pic2Griddler!", new SocialNetworkShareListener() {
+            TwitterUtils.tweetEntity(this, entity, "I just beat " + name + " on Pic2Griddler!",
+                    new SocialNetworkShareListener() {
 
-				@Override
-				public void onNetworkError(Activity context, SocialNetwork network, Exception error) {
-					// Handle error
-					print("Couldn't post to Twitter");
-					Crittercism.logHandledException(error);
-				}
+                        @Override
+                        public void onNetworkError(Activity context, SocialNetwork network,
+                                Exception error) {
+                            // Handle error
+                            print("Couldn't post to Twitter");
+                            Crittercism.logHandledException(error);
+                        }
 
-				@Override
-				public void onCancel() {
-					// The user cancelled the operation.
-					print("Cancelled share to Twitter.");
-				}
+                        @Override
+                        public void onCancel() {
+                            // The user cancelled the operation.
+                            print("Cancelled share to Twitter.");
+                        }
 
-				@Override
-				public void onAfterPost(Activity parent, SocialNetwork socialNetwork, JSONObject responseObject) {
-					// Called after the post returned from Twitter.
-					// responseObject contains the raw JSON response from
-					// Twitter.
-					print("Successfully posted to Twitter.");
-				}
+                        @Override
+                        public void onAfterPost(Activity parent, SocialNetwork socialNetwork,
+                                JSONObject responseObject) {
+                            // Called after the post returned from Twitter.
+                            // responseObject contains the raw JSON response
+                            // from
+                            // Twitter.
+                            print("Successfully posted to Twitter.");
+                        }
 
-				@Override
-				public boolean onBeforePost(Activity parent, SocialNetwork socialNetwork, PostData postData) {
-					// Called just prior to the post.
-					// postData contains the dictionary (map) of data to be
-					// posted.
-					// You can change this here to customize the post.
-					// Return true to prevent the post from occurring.
-					return false;
-				}
-			});
-		} else {
-			// The "this" argument refers to the current Activity
-			TwitterUtils.link(this, new SocializeAuthListener() {
+                        @Override
+                        public boolean onBeforePost(Activity parent, SocialNetwork socialNetwork,
+                                PostData postData) {
+                            // Called just prior to the post.
+                            // postData contains the dictionary (map) of data to
+                            // be
+                            // posted.
+                            // You can change this here to customize the post.
+                            // Return true to prevent the post from occurring.
+                            return false;
+                        }
+                    });
+        } else {
+            // The "this" argument refers to the current Activity
+            TwitterUtils.link(this, new SocializeAuthListener() {
 
-				public void onCancel() {
-					// The user cancelled the operation.
-					print("Cancelled Twitter auth =(");
-				}
+                public void onCancel() {
+                    // The user cancelled the operation.
+                    print("Cancelled Twitter auth =(");
+                }
 
-				public void onAuthSuccess(SocializeSession session) {
-					// User was authed.
-					print("Successfully authenticated Twitter!!");
-					doTwitterStuff();
-				}
+                public void onAuthSuccess(SocializeSession session) {
+                    // User was authed.
+                    print("Successfully authenticated Twitter!!");
+                    doTwitterStuff();
+                }
 
-				public void onAuthFail(SocializeException error) {
-					Crittercism.logHandledException(error);
-					print("Failed authenticating to Twitter, sorry mate. ");
-				}
+                public void onAuthFail(SocializeException error) {
+                    Crittercism.logHandledException(error);
+                    print("Failed authenticating to Twitter, sorry mate. ");
+                }
 
-				public void onError(SocializeException error) {
-					Crittercism.logHandledException(error);
-					print("Failed connecting to Twitter, sorry mate. ");
-				}
-			});
+                public void onError(SocializeException error) {
+                    Crittercism.logHandledException(error);
+                    print("Failed connecting to Twitter, sorry mate. ");
+                }
+            });
 
-		}
-	}
+        }
+    }
 
-	private void print(String text) {
-		Toast.makeText(this, text, Toast.LENGTH_LONG).show();
-	}
+    private void print(String text) {
+        Toast.makeText(this, text, Toast.LENGTH_LONG).show();
+    }
 
-	public void onShowcaseViewHide(ShowcaseView showcaseView) {
+    public void onShowcaseViewHide(ShowcaseView showcaseView) {
 
-		if (tutorialStep == 0) {
-			tutorialStep++;
-			showStepTwo();
-		} else if (tutorialStep == 1) {
-			tutorialStep++;
-			showStepThree();
-		} else if (tutorialStep == 2) {
-			// This is our final step, and we must wait until the top row is
-			// filled to continue. Run a thread and wait until the game is
-			// either finished, or they complete the top row to show the
-			// next step.
-			new Thread(new Runnable() {
+        if (tutorialStep == 0) {
+            tutorialStep++;
+            showStepTwo();
+        } else if (tutorialStep == 1) {
+            tutorialStep++;
+            showStepThree();
+        } else if (tutorialStep == 2) {
+            // This is our final step, and we must wait until the top row is
+            // filled to continue. Run a thread and wait until the game is
+            // either finished, or they complete the top row to show the
+            // next step.
+            new Thread(new Runnable() {
 
-				public void run() {
-					while (true) {
-						if (tiv.gCurrent.startsWith("1111")) {
-							tutorialStep++;
-							handle.post(new Runnable() {
+                public void run() {
+                    while (true) {
+                        if (tiv.gCurrent.startsWith("1111")) {
+                            tutorialStep++;
+                            handle.post(new Runnable() {
 
-								public void run() {
-									showStepFour();
-								}
+                                public void run() {
+                                    showStepFour();
+                                }
 
-							});
-							break;
-						}
-					}
-				}
+                            });
+                            break;
+                        }
+                    }
+                }
 
-			}).start();
-		} else if (tutorialStep == 3) {
-		}
-	}
+            }).start();
+        } else if (tutorialStep == 3) {
+        }
+    }
 
-	public void onShowcaseViewShow(ShowcaseView showcaseView) {
-		// TODO Auto-generated method stub
+    public void onShowcaseViewShow(ShowcaseView showcaseView) {
+        // TODO Auto-generated method stub
 
-	}
+    }
 }

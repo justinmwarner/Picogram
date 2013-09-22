@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <TabHost xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://millennialmedia.com/android/schema"
+    xmlns:mm="http://millennialmedia.com/android/schema"
     android:id="@+id/thMain"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent" >
@@ -19,7 +19,6 @@
             android:layout_above="@+id/llAds"
             android:layout_marginTop="70dp"
             android:descendantFocusability="beforeDescendants" >
-
         </FrameLayout>
 
         <TabWidget

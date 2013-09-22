@@ -47,7 +47,6 @@
         android:layout_toLeftOf="@+id/spinSort"
         android:maxLines="1"
         android:text="Search" />
-
- 
+ 
 
 </RelativeLayout>
