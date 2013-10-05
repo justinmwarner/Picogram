@@ -14,6 +14,5 @@
 	<classpathentry exported="true" kind="lib" path="libs/socialize-2.7.4.jar"/>
 	<classpathentry kind="lib" path="C:/Users/Justin/Downloads/ShowcaseView-dev/included-libs/library-2.4.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="libs/sidemenu.jar"/>
-	<classpathentry exported="true" kind="lib" path="libs/wheel.jar"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>

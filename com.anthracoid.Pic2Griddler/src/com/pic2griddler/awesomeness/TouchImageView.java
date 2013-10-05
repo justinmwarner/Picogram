@@ -65,7 +65,6 @@ public class TouchImageView extends ImageView {
     // We can be in one of these 3 states
     static final int NONE = 0;
     static final int DRAG = 1;
-
     static final int ZOOM = 2;
     int mode = NONE;
     // Remember some things for zooming
@@ -202,7 +201,6 @@ public class TouchImageView extends ImageView {
         this.cellHeight = heightOffset;
         int row = -1, column = 0;
         for (int i = 0; i != this.gCurrent.length(); ++i) {
-            // paint.setColor(Color.rgb(i * 10, i * 10, i * 10));
             if ((i % (this.gWidth)) == 0) {
                 column = 0;
                 ++row;
@@ -237,26 +235,38 @@ public class TouchImageView extends ImageView {
         final int heightTrim = this.canvasBitmap.getHeight() % (this.gHeight + this.longestTop);
         final int widthTrim = this.canvasBitmap.getWidth() % (this.gWidth + this.longestSide);
         // Up down.
-        this.paintBitmap.setColor(Color.rgb(117, 111, 88));
+        this.paintBitmap.setColor(this.getResources().getColor(R.color.foreground));
         final int widthOffset = (this.canvasBitmap.getWidth() - widthTrim)
                 / (this.longestSide + this.gWidth);
         final int heightOffset = (this.canvasBitmap.getHeight() - heightTrim)
                 / (this.gHeight + this.longestTop);
 
         for (int i = this.longestSide; i != ((this.gWidth + this.longestSide) + 1); ++i) {
+            if ((i % 5) == 0) {
+                this.paintBitmap.setStrokeWidth(this.paintBitmap.getStrokeWidth() + 2);
+            }
             this.canvasBitmap.drawLine(widthOffset * i, 0, widthOffset * i,
                     this.canvasBitmap.getHeight(), this.paintBitmap);
+            if ((i % 5) == 0) {
+                this.paintBitmap.setStrokeWidth(this.paintBitmap.getStrokeWidth() - 2);
+            }
         }
         // Side side.
         for (int i = this.longestTop; i != ((this.gHeight + this.longestTop) + 1); ++i) {
+            if ((i % 5) == 0) {
+                this.paintBitmap.setStrokeWidth(this.paintBitmap.getStrokeWidth() + 2);
+            }
             this.canvasBitmap.drawLine(0, heightOffset * i, this.canvasBitmap.getWidth(),
                     heightOffset * i, this.paintBitmap);
+            if ((i % 5) == 0) {
+                this.paintBitmap.setStrokeWidth(this.paintBitmap.getStrokeWidth() - 2);
+            }
         }
     }
 
     private void drawHints() {
         this.paintBitmap.setAntiAlias(true);
-        this.paintBitmap.setColor(Color.rgb(61, 54, 26));
+        this.paintBitmap.setColor(this.getResources().getColor(R.color.foreground));
         this.paintBitmap.setStrokeWidth(1);
         final int widthOffset = this.canvasBitmap.getWidth() / (this.longestSide + this.gWidth);
         final int heightOffset = this.canvasBitmap.getHeight() / (this.gHeight + this.longestTop);
@@ -296,7 +306,7 @@ public class TouchImageView extends ImageView {
     }
 
     private void drawWhiteCanvas() {
-        this.paintBitmap.setColor(Color.rgb(255, 248, 231)); // Cosmic latte ;)
+        this.paintBitmap.setColor(this.getResources().getColor(R.color.background));
         this.canvasBitmap.drawRect(0, 0, this.canvasBitmap.getWidth(),
                 this.canvasBitmap.getHeight(), this.paintBitmap);
     }

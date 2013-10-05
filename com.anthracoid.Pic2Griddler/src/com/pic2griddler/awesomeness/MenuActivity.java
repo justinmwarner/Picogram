@@ -41,7 +41,7 @@ public class MenuActivity extends ActivityGroup {
         } else {
             THEME = R.style.Theme_Sherlock_Light;
         }
-        this.setTheme(THEME);
+        // this.setTheme(THEME);
         this.setContentView(R.layout.activity_menu);
         final String user = prefs.getString("username", "N/A");
         Crittercism.setUsername(user);

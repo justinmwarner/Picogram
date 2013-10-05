@@ -1,189 +1,249 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.agimind.widget.SlideHolder
-	xmlns:android="http://schemas.android.com/apk/res/android"
-	android:id="@+id/slideHolder"
-	android:layout_width="match_parent"
-	android:layout_height="match_parent"
-	android:background="#FFFFFF">
-
-	<LinearLayout
-		android:layout_width="300dp"
-		android:layout_height="match_parent"
-		android:orientation="vertical"
-        android:focusable="true" 
-	    android:padding="15dp"
-        android:focusableInTouchMode="true"
-		android:background="@drawable/border">
-
-		<LinearLayout
-			android:id="@+id/llFirst"
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-		    android:padding="5dp"
-			android:orientation="horizontal">
-
-			<Button
-				android:id="@+id/bURLA"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:layout_weight="1"
-				android:text="URL" />
-
-			<Button
-				android:id="@+id/bCameraA"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:layout_weight="1"
-				android:text="Camera" />
-
-			<Button
-				android:id="@+id/bFileA"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:layout_weight="1"
-				android:text="File" />
-		</LinearLayout>
-
-		<LinearLayout
-			android:id="@+id/llFirst"
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-		    android:padding="5dp"
-			android:orientation="horizontal">
-		<EditText
-		    android:id="@+id/etURLA"
-		    android:layout_width="match_parent"
-		    android:layout_height="wrap_content"
-		    android:hint="http://195.83.128.55/~src10f19/c_e/pixelart2.jpg"
-		    android:inputType="textUri"
-		    android:padding="5dp"
-		    android:layout_weight="5"
-		    android:text="http://img.ctrlv.in.s3.amazonaws.com/img/516b16f3c677d.jpg" />
-			<Button
-				android:id="@+id/bURLSubmit"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:layout_weight="1"
-				android:text="File" />
-</LinearLayout>
-		<LinearLayout
-			android:id="@+id/llWidthHeight"
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:layout_gravity="center"
-		    android:padding="5dp"
-			android:orientation="vertical">
-
-			<LinearLayout
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:orientation="vertical">
-
-				<LinearLayout
-					android:layout_width="match_parent"
-					android:layout_height="wrap_content"
-					android:orientation="horizontal">
-
-					<TextView
-						android:id="@+id/textView2"
-						android:layout_width="wrap_content"
-						android:layout_height="wrap_content"
-						android:layout_weight="1"
-						android:text="Width Blocks" />
-
-					<TextView
-						android:id="@+id/textView3"
-						android:layout_width="wrap_content"
-						android:layout_height="wrap_content"
-						android:layout_weight="1"
-						android:text="Height Blocks" />
-
-					<TextView
-						android:id="@+id/textView4"
-						android:layout_width="wrap_content"
-						android:layout_height="wrap_content"
-						android:layout_weight="1"
-						android:text="# Colors"/>
-				</LinearLayout>
-
-				<LinearLayout
-					android:layout_width="match_parent"
-					android:layout_height="wrap_content"
-					android:layout_weight="1"
-					android:orientation="horizontal">
-
-					<Spinner
-						android:id="@+id/spinWidth"
-						android:layout_width="match_parent"
-						android:layout_height="wrap_content"
-						android:layout_weight="1" />
-
-					<Spinner
-						android:id="@+id/spinHeight"
-						android:layout_width="match_parent"
-						android:layout_height="wrap_content"
-						android:layout_weight="1" />
-
-					<Spinner
-						android:id="@+id/spinColor"
-						android:layout_width="match_parent"
-						android:layout_height="wrap_content"
-						android:layout_weight="1" />
-				</LinearLayout>
-			</LinearLayout>
-		</LinearLayout>
-			<EditText
-				android:id="@+id/etNameA"
-		    android:padding="5dp"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:hint="Name of Griddler"
-				android:textSize="10sp" />
-
-			<EditText
-				android:id="@+id/etTagA"
-		    android:padding="5dp"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:hint="Tags (Comma Separated)"
-				android:textSize="10sp" />
-
-			<Spinner
-				android:id="@+id/spinDiffA"
-		    android:padding="5dp"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"/>
-		<Button
-			android:id="@+id/bCancel"
-		    android:padding="5dp"
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:text="Cancel" />
-
-		<Button
-			android:id="@+id/bSubmit"
-			android:layout_width="match_parent"
-		    android:padding="5dp"
-			android:layout_height="wrap_content"
-			android:text="Submit" />
-	</LinearLayout>
-
-<LinearLayout
+<com.agimind.widget.SlideHolder xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/slideHolder"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="15dp" >
+    android:background="@drawable/app_background">"
 
-	<WebView
-	    android:id="@+id/wvGif"
-	    android:layout_width="wrap_content"
-	    android:layout_height="wrap_content"
-	    android:layout_gravity="center_vertical" />
+    <LinearLayout
+        android:layout_width="300dp"
+        android:layout_height="match_parent"
+        android:background="@drawable/border"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:orientation="vertical"
+        android:padding="15dp" >
 
-	<com.pic2griddler.awesomeness.TouchImageView
-            android:id="@+id/tivPreview"
+        <LinearLayout
+            android:id="@+id/llFirst"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="5dp" >
+
+            <Button
+                android:id="@+id/bURLA"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="URL" />
+
+            <Button
+                android:id="@+id/bCameraA"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Camera" />
+
+            <Button
+                android:id="@+id/bFileA"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="File" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/llFirst"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="5dp" >
+
+            <EditText
+                android:id="@+id/etURLA"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="5"
+                android:hint="http://195.83.128.55/~src10f19/c_e/pixelart2.jpg"
+                android:inputType="textUri"
+                android:padding="5dp"
+                android:text="http://2.bp.blogspot.com/-EgLy8m90GQs/UK8hDcfui5I/AAAAAAAAFko/Mq_8xnIe74o/s1600/Photograph+Silhouette+by.jpg" />
+
+            <Button
+                android:id="@+id/bURLSubmit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="File" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/llWidthHeight"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:orientation="vertical"
+            android:padding="5dp" >
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical" >
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal" >
+
+                    <TextView
+                        android:id="@+id/textView2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Width Blocks" />
+
+                    <TextView
+                        android:id="@+id/textView3"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Height Blocks" />
+
+                    <TextView
+                        android:id="@+id/textView4"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="# Colors" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="horizontal" >
+
+                    <kankan.wheel.widget.WheelView
+                        android:id="@+id/spinWidth"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:padding="2dp" />
+
+                    <kankan.wheel.widget.WheelView
+                        android:id="@+id/spinHeight"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:padding="2dp" />
+
+                    <kankan.wheel.widget.WheelView
+                        android:id="@+id/spinColor"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:padding="2dp" />
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+
+        <EditText
+            android:id="@+id/etNameA"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Name of Griddler"
+            android:padding="5dp"
+            android:textSize="10sp" />
+
+        <EditText
+            android:id="@+id/etTagA"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Tags (Comma Separated)"
+            android:padding="5dp"
+            android:textSize="10sp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="5dp" >
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:text="Difficulty " />
+
+            <kankan.wheel.widget.WheelView
+                android:id="@+id/spinDiffA"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="5dp" >
+
+            <Button
+                android:id="@+id/bChangeColor"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Change Colors" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="5dp" >
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Overlay " />
+
+            <SeekBar
+                android:id="@+id/sbTransparency"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:max="255"
+                android:progress="25" />
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/bCancel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="5dp"
+            android:text="Cancel" />
+
+        <Button
+            android:id="@+id/bSubmit"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="5dp"
+            android:text="Submit" />
+    </LinearLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/app_background"
+        android:padding="15dp" >
+
+        <com.gesturetutorial.awesomeness.TutorialView 
+            android:id="@+id/wvGif"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical" />
+
+        <ImageView
+            android:id="@+id/ivNew"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_alignParentLeft="true"
-            android:layout_alignParentTop="true"  />"
-</LinearLayout>
+            android:layout_alignParentTop="true" />
+
+        <ImageView
+            android:id="@+id/ivOld"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true" />
+    </RelativeLayout>
+
 </com.agimind.widget.SlideHolder>

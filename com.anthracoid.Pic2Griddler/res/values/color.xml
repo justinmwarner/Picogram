@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-<color name="background">#E9F1DF</color>
-<color name="textcolor">#366EBF</color>
-
-
+    <color name="background">#EDDCAD</color>
+    <color name="foreground">#333333</color>
+    <color name="good">#7AB384</color>
+    <color name="bad">#A8003A</color>
+    <color name="special">#C98B00</color>
 
 </resources>
