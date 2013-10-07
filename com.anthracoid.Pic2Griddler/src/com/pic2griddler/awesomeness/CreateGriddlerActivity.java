@@ -75,7 +75,7 @@ public class CreateGriddlerActivity extends Activity implements OnClickListener,
 
     boolean[][] visits;
 
-    static TutorialView tv;
+    TutorialView tutorial;
 
     private void alterPhoto() {
         this.visits = null;
@@ -329,7 +329,6 @@ public class CreateGriddlerActivity extends Activity implements OnClickListener,
         }
         else
         {
-            // final View gif = this.findViewById(R.id.wvGif);
             final ShowcaseView.ConfigOptions co = new ShowcaseView.ConfigOptions();
             co.hideOnClickOutside = true;
             this.sv = ShowcaseView
@@ -343,10 +342,21 @@ public class CreateGriddlerActivity extends Activity implements OnClickListener,
             sh.setOnSlideListener(new OnSlideListener() {
 
                 public void onSlideCompleted(final boolean isOpen) {
+                    Log.d(TAG, "Complete " + isOpen);
                     if (isOpen)
                     {
-                        tv.hide();
-                        // gif.setVisibility(View.INVISIBLE);
+                        CreateGriddlerActivity.this.handler.post(new Runnable()
+                        {
+
+                            public void run() {
+                                Log.d(TAG, "Hehrehrehehrhrh");
+                                if (CreateGriddlerActivity.this.tutorial != null) {
+                                    CreateGriddlerActivity.this.tutorial.hide();
+                                    Log.d(TAG, "Hhhhh");
+                                }
+                            }
+
+                        });
                     }
                 }
             });
@@ -392,16 +402,11 @@ public class CreateGriddlerActivity extends Activity implements OnClickListener,
     protected void onResume()
     {
         super.onResume();
-        final TutorialView wv = (TutorialView) this.findViewById(R.id.wvGif);
         if (!this.isTabletDevice(this.getResources()))
         {
-            // wv.loadUrl("file:///android_asset/LeftToRight.gif");
-        } else {
-            // wv.setVisibility(View.GONE);
+            this.tutorial = TutorialView.create(this, TutorialView.UpToDown,
+                    TutorialView.Center, this.findViewById(android.R.id.content)).show();
         }
-        // wv.startTutorial(this, "LeftToRight", null).show();
-        final View v = this.findViewById(android.R.id.content);
-        tv = TutorialView.create(this, TutorialView.LeftToRight, 0, v).show();
     }
 
     public void onStartTrackingTouch(final SeekBar seekBar) {
