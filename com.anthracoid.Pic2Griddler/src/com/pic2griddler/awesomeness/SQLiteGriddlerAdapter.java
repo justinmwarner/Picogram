@@ -22,18 +22,42 @@ public class SQLiteGriddlerAdapter extends SQLiteOpenHelper {
     static final String solution = "Solution";
     static final String status = "Status";
     static final String width = "Width";
+    static final String colors = "Colors";
+    static final String numberOfColors = "NumColors";
 
     // static final String tags = "Tags";
 
-    public SQLiteGriddlerAdapter(Context context, String name, CursorFactory factory, int version) {
+    public SQLiteGriddlerAdapter(final Context context, final String name,
+            final CursorFactory factory, final int version) {
         super(context, name, factory, version);
     }
 
-    public long addUserGriddler(String id, String author, String name, String rank,
-            String solution, String difficulty, String width, String height, String status) {
+    public long addUserGriddler(final Griddler g) {
         // Do stuff. Unknown so far. Implement later.
-        SQLiteDatabase db = this.getWritableDatabase();
-        ContentValues cv = new ContentValues();
+        final SQLiteDatabase db = this.getWritableDatabase();
+        final ContentValues cv = new ContentValues();
+        cv.put(SQLiteGriddlerAdapter.id, g.getId());
+        cv.put(SQLiteGriddlerAdapter.author, g.getAuthor());
+        cv.put(SQLiteGriddlerAdapter.name, g.getName());
+        cv.put(SQLiteGriddlerAdapter.rank, g.getRank());
+        cv.put(SQLiteGriddlerAdapter.solution, g.getSolution());
+        cv.put(SQLiteGriddlerAdapter.difficulty, g.getDiff());
+        cv.put(SQLiteGriddlerAdapter.width, g.getWidth());
+        cv.put(SQLiteGriddlerAdapter.height, g.getHeight());
+        cv.put(SQLiteGriddlerAdapter.status, g.getStatus());
+        cv.put(SQLiteGriddlerAdapter.current, g.getCurrent());
+        cv.put(SQLiteGriddlerAdapter.numberOfColors, g.getNumberOfColors());
+        cv.put(SQLiteGriddlerAdapter.colors, g.getColors());
+        return db.insert(griddlerTable, null, cv);
+    }
+
+    public long addUserGriddler(final String id, final String author, final String name,
+            final String rank, final String solution, final String difficulty, final String width,
+            final String height, final String status, final String numberOfColors,
+            final String colors) {
+        // Do stuff. Unknown so far. Implement later.
+        final SQLiteDatabase db = this.getWritableDatabase();
+        final ContentValues cv = new ContentValues();
         cv.put(SQLiteGriddlerAdapter.id, id);
         cv.put(SQLiteGriddlerAdapter.author, author);
         cv.put(SQLiteGriddlerAdapter.name, name);
@@ -43,6 +67,8 @@ public class SQLiteGriddlerAdapter extends SQLiteOpenHelper {
         cv.put(SQLiteGriddlerAdapter.width, width);
         cv.put(SQLiteGriddlerAdapter.height, height);
         cv.put(SQLiteGriddlerAdapter.status, status);
+        cv.put(SQLiteGriddlerAdapter.numberOfColors, numberOfColors);
+        cv.put(SQLiteGriddlerAdapter.colors, colors);
         // All 0's.
         String curr = "";
         for (int i = 0; i < Integer.parseInt(width); i++) {
@@ -54,27 +80,10 @@ public class SQLiteGriddlerAdapter extends SQLiteOpenHelper {
         return db.insert(griddlerTable, null, cv);
     }
 
-    public long addUserGriddler(Griddler g) {
-        // Do stuff. Unknown so far. Implement later.
-        SQLiteDatabase db = this.getWritableDatabase();
-        ContentValues cv = new ContentValues();
-        cv.put(SQLiteGriddlerAdapter.id, g.getId());
-        cv.put(SQLiteGriddlerAdapter.author, g.getAuthor());
-        cv.put(SQLiteGriddlerAdapter.name, g.getName());
-        cv.put(SQLiteGriddlerAdapter.rank, g.getRank());
-        cv.put(SQLiteGriddlerAdapter.solution, g.getSolution());
-        cv.put(SQLiteGriddlerAdapter.difficulty, g.getDiff());
-        cv.put(SQLiteGriddlerAdapter.width, g.getWidth());
-        cv.put(SQLiteGriddlerAdapter.height, g.getHeight());
-        cv.put(SQLiteGriddlerAdapter.status, g.getStatus());
-        cv.put(SQLiteGriddlerAdapter.current, g.getCurrent());
-        return db.insert(griddlerTable, null, cv);
-    }
-
-    public int deleteGriddler(String info) {
+    public int deleteGriddler(final String info) {
         // Probably won't implement. Not a huge deal (Right now).
-        SQLiteDatabase db = this.getWritableDatabase();
-        String[] hash = {
+        final SQLiteDatabase db = this.getWritableDatabase();
+        final String[] hash = {
                 info.split(" ")[0]
         };
         return db.delete(griddlerTable, "id=" + hash, null);
@@ -84,12 +93,12 @@ public class SQLiteGriddlerAdapter extends SQLiteOpenHelper {
         // Page is the page of Griddlers to get. Might change.
         // Returns String array of Griddler infos to be processed internally.
         // Maybe change this so it's easier to process?
-        SQLiteDatabase db = this.getWritableDatabase();
+        final SQLiteDatabase db = this.getWritableDatabase();
         String query = "";
         query = "SELECT * FROM " + griddlerTable;
-        Cursor c = db.rawQuery(query, null);
+        final Cursor c = db.rawQuery(query, null);
         if (c.moveToFirst()) {
-            String[][] result = new String[c.getCount()][c.getColumnCount()];
+            final String[][] result = new String[c.getCount()][c.getColumnCount()];
             for (int i = 0; i < result.length; i++) {
                 for (int j = 0; j < c.getColumnCount(); j++) {
                     result[i][j] = c.getString(j);
@@ -106,9 +115,9 @@ public class SQLiteGriddlerAdapter extends SQLiteOpenHelper {
         }
     }
 
-    private void insertDefaults(SQLiteDatabase db) {
+    private void insertDefaults(final SQLiteDatabase db) {
         // Create Custom and Tutorial blocks. Will ALWAYS be there.
-        ContentValues cv = new ContentValues();
+        final ContentValues cv = new ContentValues();
         cv.put(id, "".hashCode()); // Odd, to me, but nothing will ever have
                                    // this ;).
         cv.put(author, "justinwarner");
@@ -131,30 +140,33 @@ public class SQLiteGriddlerAdapter extends SQLiteOpenHelper {
         cv.put(width, "4");
         cv.put(height, "4");
         cv.put(status, "0");
+        cv.put(colors, "000000");// Black
+        cv.put(numberOfColors, 1);
         db.insert(griddlerTable, null, cv); // Tutorial Griddler.
     }
 
     @Override
-    public void onCreate(SQLiteDatabase db) {
+    public void onCreate(final SQLiteDatabase db) {
         // Create the database son.
-        String query = "CREATE TABLE " + griddlerTable + " (" + id + " INT(32)," + author
+        final String query = "CREATE TABLE " + griddlerTable + " (" + id + " INT(32)," + author
                 + " TEXT," + name + " TEXT," + rank + " INT(32)," + solution + " TEXT," + current
                 + " TEXT," + difficulty + " VARCHAR(16)," + width + " INT(12)," + height
-                + " INT(12)," + status + " INT(12)," + "primary KEY (id));";
+                + " INT(12)," + status + " INT(12)," + numberOfColors + "  INT(12), " + colors
+                + " TEXT, " + " primary KEY (id));";
         db.execSQL(query);
-        insertDefaults(db);
+        this.insertDefaults(db);
     }
 
     @Override
-    public void onUpgrade(SQLiteDatabase db, int oldV, int newV) {
+    public void onUpgrade(final SQLiteDatabase db, final int oldV, final int newV) {
         // Don't do anything... Yet. Need to read up on what/how this works.
     }
 
-    public int updateCurrentGriddler(String id, String status, String current) {
+    public int updateCurrentGriddler(final String id, final String status, final String current) {
         // info = id + " " + status + " " + current
         // Info should include hash and new current.
-        SQLiteDatabase db = this.getWritableDatabase();
-        ContentValues cv = new ContentValues();
+        final SQLiteDatabase db = this.getWritableDatabase();
+        final ContentValues cv = new ContentValues();
         cv.put(SQLiteGriddlerAdapter.current, current);
         cv.put(SQLiteGriddlerAdapter.status, status);
         cv.put(SQLiteGriddlerAdapter.id, id);

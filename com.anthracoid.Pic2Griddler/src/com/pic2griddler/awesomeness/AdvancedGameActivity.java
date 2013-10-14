@@ -13,7 +13,6 @@ import android.view.View.OnClickListener;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
-import android.widget.Toast;
 
 import com.crittercism.app.Crittercism;
 import com.github.espiandev.showcaseview.ShowcaseView;
@@ -28,6 +27,9 @@ import com.socialize.networks.PostData;
 import com.socialize.networks.SocialNetwork;
 import com.socialize.networks.facebook.FacebookUtils;
 import com.socialize.networks.twitter.TwitterUtils;
+
+import de.keyboardsurfer.android.widget.crouton.Crouton;
+import de.keyboardsurfer.android.widget.crouton.Style;
 
 import org.json.JSONObject;
 
@@ -58,7 +60,8 @@ public class AdvancedGameActivity extends Activity implements OnClickListener, W
                             // responseObject contains the raw JSON response
                             // from
                             // Facebook.
-                            AdvancedGameActivity.this.print("Facebook post successful!");
+                            Crouton.makeText(parent, "Facebook post successful!", Style.ALERT)
+                                    .show();
                             AdvancedGameActivity.this.returnIntent();
                         }
 
@@ -78,7 +81,6 @@ public class AdvancedGameActivity extends Activity implements OnClickListener, W
                         @Override
                         public void onCancel() {
                             // The user cancelled the operation.
-                            AdvancedGameActivity.this.print("Cancelled share");
                             AdvancedGameActivity.this.returnIntent();
                         }
 
@@ -87,7 +89,8 @@ public class AdvancedGameActivity extends Activity implements OnClickListener, W
                                 final SocialNetwork network,
                                 final Exception error) {
                             // Handle error
-                            AdvancedGameActivity.this.print("Couldn't post to Facebook.");
+                            Crouton.makeText(context, "Couldn't post to Facebook.", Style.ALERT)
+                                    .show();
                             Crittercism.logHandledException(error);
                             AdvancedGameActivity.this.returnIntent();
                         }
@@ -98,14 +101,12 @@ public class AdvancedGameActivity extends Activity implements OnClickListener, W
 
                 public void onAuthFail(final SocializeException error) {
                     Crittercism.logHandledException(error);
-                    AdvancedGameActivity.this.print("Failed to authenticate Facebook.");
                     AdvancedGameActivity.this.returnIntent();
                 }
 
                 public void onAuthSuccess(final SocializeSession session) {
                     // Perform direct Facebook operation.
                     AdvancedGameActivity.this.doFacebookStuff();
-                    AdvancedGameActivity.this.print("Successfully authenticated to Facebook.");
                 }
 
                 public void onCancel() {
@@ -115,7 +116,6 @@ public class AdvancedGameActivity extends Activity implements OnClickListener, W
 
                 public void onError(final SocializeException error) {
                     Crittercism.logHandledException(error);
-                    AdvancedGameActivity.this.print("Failed to authenticate Facebook.");
                     AdvancedGameActivity.this.returnIntent();
                 }
             }, "publish_stream");
@@ -137,19 +137,17 @@ public class AdvancedGameActivity extends Activity implements OnClickListener, W
                                 final JSONObject responseObject) {
                             // Called after the post returned from Twitter.
                             // responseObject contains the raw JSON response
-                            // from
-                            // Twitter.
-                            AdvancedGameActivity.this.print("Successfully posted to Twitter.");
+                            // from Twitter.
+                            Crouton.makeText(parent, "Successfully posted to Twitter.", Style.ALERT)
+                                    .show();
                         }
 
                         @Override
                         public boolean onBeforePost(final Activity parent,
                                 final SocialNetwork socialNetwork,
                                 final PostData postData) {
-                            // Called just prior to the post.
-                            // postData contains the dictionary (map) of data to
-                            // be
-                            // posted.
+                            // Called just prior to the post. postData contains
+                            // the dictionary (map) of data to be posted.
                             // You can change this here to customize the post.
                             // Return true to prevent the post from occurring.
                             return false;
@@ -158,7 +156,6 @@ public class AdvancedGameActivity extends Activity implements OnClickListener, W
                         @Override
                         public void onCancel() {
                             // The user cancelled the operation.
-                            AdvancedGameActivity.this.print("Cancelled share to Twitter.");
                         }
 
                         @Override
@@ -166,7 +163,8 @@ public class AdvancedGameActivity extends Activity implements OnClickListener, W
                                 final SocialNetwork network,
                                 final Exception error) {
                             // Handle error
-                            AdvancedGameActivity.this.print("Couldn't post to Twitter");
+                            Crouton.makeText(context, "Couldn't post to Twitter", Style.ALERT)
+                                    .show();
                             Crittercism.logHandledException(error);
                         }
                     });
@@ -176,24 +174,19 @@ public class AdvancedGameActivity extends Activity implements OnClickListener, W
 
                 public void onAuthFail(final SocializeException error) {
                     Crittercism.logHandledException(error);
-                    AdvancedGameActivity.this
-                            .print("Failed authenticating to Twitter, sorry mate. ");
                 }
 
                 public void onAuthSuccess(final SocializeSession session) {
                     // User was authed.
-                    AdvancedGameActivity.this.print("Successfully authenticated Twitter!!");
                     AdvancedGameActivity.this.doTwitterStuff();
                 }
 
                 public void onCancel() {
                     // The user cancelled the operation.
-                    AdvancedGameActivity.this.print("Cancelled Twitter auth =(");
                 }
 
                 public void onError(final SocializeException error) {
                     Crittercism.logHandledException(error);
-                    AdvancedGameActivity.this.print("Failed connecting to Twitter, sorry mate. ");
                 }
             });
 
@@ -314,10 +307,6 @@ public class AdvancedGameActivity extends Activity implements OnClickListener, W
     public void onShowcaseViewShow(final ShowcaseView showcaseView) {
         // TODO Auto-generated method stub
 
-    }
-
-    private void print(final String text) {
-        Toast.makeText(this, text, Toast.LENGTH_LONG).show();
     }
 
     private void returnIntent() {

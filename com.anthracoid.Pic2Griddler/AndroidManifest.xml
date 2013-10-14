@@ -96,6 +96,8 @@
         <!-- Floating Window -->
         <service android:name="CreateWindowToolbox" >
         </service>
+        <meta-data android:name="com.crashlytics.ApiKey" android:value="26cab79768d225df99b868382208fa9bce559df8"/>
+        
     </application>
 
 </manifest>

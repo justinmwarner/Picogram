@@ -2,8 +2,10 @@
 package com.pic2griddler.awesomeness;
 
 import android.app.ActivityGroup;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.Window;
@@ -12,10 +14,21 @@ import android.widget.LinearLayout;
 import android.widget.TabHost;
 import android.widget.TabHost.TabSpec;
 
+import com.crashlytics.android.Crashlytics;
 import com.crittercism.app.Crittercism;
 import com.millennialmedia.android.MMAdView;
 import com.millennialmedia.android.MMRequest;
 import com.millennialmedia.android.MMSDK;
+import com.parse.Parse;
+import com.parse.ParseAnalytics;
+
+import de.keyboardsurfer.android.widget.crouton.Crouton;
+import de.keyboardsurfer.android.widget.crouton.Style;
+
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.util.Enumeration;
+import java.util.UUID;
 
 public class MenuActivity extends ActivityGroup {
     protected static final String TAG = "MenuActivity";
@@ -27,9 +40,57 @@ public class MenuActivity extends ActivityGroup {
 
     // admob: a1516b691219c3b
 
+    private static String uniqueID = null;
+
+    private static final String PREF_UNIQUE_ID = "PREF_UNIQUE_ID";
+
+    public synchronized static String id(final Context context) {
+        final SharedPreferences prefs = context.getSharedPreferences(
+                MenuActivity.PREFS_FILE, MODE_PRIVATE);
+        if (prefs.contains("username")) {
+            uniqueID = prefs.getString("username", "DEFAULT_USER");
+            if (!uniqueID.equals("DEFAULT_USER")) {
+                return uniqueID;
+            }
+        }
+
+        final SharedPreferences sharedPrefs = context.getSharedPreferences(
+                PREF_UNIQUE_ID, Context.MODE_PRIVATE);
+        uniqueID = sharedPrefs.getString(PREF_UNIQUE_ID, null);
+        if (uniqueID == null) {
+            uniqueID = UUID.randomUUID().toString();
+            final Editor editor = sharedPrefs.edit();
+            editor.putString(PREF_UNIQUE_ID, uniqueID);
+            editor.commit();
+        }
+        return uniqueID;
+    }
+
+    public static boolean isOnline() {
+        try
+        {
+            for (final Enumeration<NetworkInterface> enumeration = NetworkInterface
+                    .getNetworkInterfaces(); enumeration.hasMoreElements();) {
+                final NetworkInterface networkInterface = enumeration.nextElement();
+                for (final Enumeration<InetAddress> enumIpAddress = networkInterface
+                        .getInetAddresses(); enumIpAddress
+                        .hasMoreElements();) {
+                    final InetAddress iNetAddress = enumIpAddress.nextElement();
+                    if (!iNetAddress.isLoopbackAddress()) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        } catch (final Exception e) {
+            return false;
+        }
+    }
+
     @Override
     public void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Crashlytics.start(this);
         this.requestWindowFeature(Window.FEATURE_NO_TITLE);
         this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN); // Full
@@ -44,6 +105,10 @@ public class MenuActivity extends ActivityGroup {
         // this.setTheme(THEME);
         this.setContentView(R.layout.activity_menu);
         final String user = prefs.getString("username", "N/A");
+        Parse.initialize(this, "3j445kDaxQ3lelflRVMetszjtpaXo2S1mjMZYNcW",
+                "zaorBzbtWhdwMdJ0sIgBJjYvowpueuCzstLTwq1A");
+        ParseAnalytics.trackAppOpened(this.getIntent());
+
         Crittercism.setUsername(user);
         Crittercism.init(this.getApplicationContext(),
                 "5132a7682d09b61bfd000020");
@@ -90,18 +155,6 @@ public class MenuActivity extends ActivityGroup {
         adViewFromXml.setTransitionType(MMAdView.TRANSITION_RANDOM);
         adViewFromXml.getAd();
         adViewFromXml.addBlackView();
-        /*
-         * adViewFromXml.getAd(new RequestListener() { public void
-         * MMAdOverlayLaunched(MMAd arg0) { // TODO Auto-generated method stub }
-         * public void MMAdRequestIsCaching(MMAd arg0) { // TODO Auto-generated
-         * method stub } public void requestCompleted(MMAd arg0) { // TODO
-         * Auto-generated method stub // Change ad view. if
-         * (prefs.getBoolean("nightmode", false)) {
-         * //adViewFromXml.setBackgroundColor(Color.BLACK); } else {
-         * //adViewFromXml.setBackgroundColor(Color.WHITE); } } public void
-         * requestFailed(MMAd arg0, MMException arg1) { // TODO Auto-generated
-         * method stub adViewFromXml.setVisibility(View.GONE); } });
-         */
         // Change ad view.
         if (prefs.getBoolean("nightmode", false)) {
             adViewFromXml.setBackgroundColor(Color.BLACK);
@@ -111,6 +164,12 @@ public class MenuActivity extends ActivityGroup {
     }
 
     public void switchTab(final int tab) {
+        if ((tab == 1) && !isOnline())
+        {
+            Crouton.makeText(this, "Must be connected to the internet to use social aspects",
+                    Style.INFO).show();
+            return;
+        }
         this.th.setCurrentTab(tab);
         this.currentTab = tab;
 

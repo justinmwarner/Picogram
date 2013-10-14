@@ -29,12 +29,17 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
-import android.widget.Toast;
 
 import com.agimind.widget.SlideHolder;
 import com.agimind.widget.SlideHolder.OnSlideListener;
+import com.crashlytics.android.Crashlytics;
+import com.crittercism.app.Crittercism;
 import com.gesturetutorial.awesomeness.TutorialView;
 import com.github.espiandev.showcaseview.ShowcaseView;
+import com.parse.Parse;
+import com.parse.ParseException;
+import com.parse.ParseObject;
+import com.parse.SaveCallback;
 
 import de.keyboardsurfer.android.widget.crouton.Crouton;
 import de.keyboardsurfer.android.widget.crouton.Style;
@@ -56,10 +61,10 @@ public class CreateGriddlerActivity extends Activity implements OnClickListener,
         OnWheelChangedListener, OnSeekBarChangeListener, OnTouchListener {
     private static final int CAMERA_REQUEST_CODE = 1888, FILE_SELECT_CODE = 1337;
     private static final String TAG = "CreateGriddlerActivity";
-    private EditText etURL;
+    private EditText etURL, name, tags;
     private int numColors, yNum, xNum;
     private Bitmap oldPicture, newPicture;
-    private String solution = "", griddlerName, griddlerTags;
+    private String solution = "";
     private WheelView sX, sY, sColor, sDiff;
     private SeekBar sbTransparency;
     ShowcaseView sv;
@@ -110,28 +115,28 @@ public class CreateGriddlerActivity extends Activity implements OnClickListener,
             }
 
             run = 0;
+            final char[] sol = new char[this.xNum * this.yNum];
             for (int i = 0; i != alter.getHeight(); ++i) {
                 for (int j = 0; j != alter.getWidth(); ++j) {
                     for (int k = 0; k <= this.numColors; ++k)
                     {
-                        if (pix[i][j] < ((256 * (k + 1)) / this.numColors))
+                        if (pix[i][j] <= ((256 * (k + 1)) / this.numColors))
                         {
-                            Log.d(TAG, k + " " + this.numColors);
-                            pix[i][j] = this.colors[k];
+                            // pix[i][j] = this.colors[k];
                             alter.setPixel(j, i, this.colors[k]);
+                            sol[(i * alter.getHeight()) + j] = (k + " ").charAt(0);
                             break;
                         }
                     }
                 }
             }
             // Set up "solution" for when it's submitted, this requires us to go
-            final char[] sol = new char[this.xNum * this.yNum];
             for (int i = 0; i < pix.length; i++) {
                 for (int j = 0; j < pix[i].length; j++) {
-                    sol[(i * j) + j] += pix[i][j];
+                    // sol[(i * j) + j] = pix[i][j];
                 }
             }
-            this.solution = sol.toString();
+            this.solution = new String(sol);
             alter = Bitmap.createScaledBitmap(alter, this.xNum * 10, this.yNum * 10, false);
             this.newPicture = alter;
             this.ivOld.setImageBitmap(Bitmap.createScaledBitmap(this.oldPicture, this.xNum * 10,
@@ -179,8 +184,7 @@ public class CreateGriddlerActivity extends Activity implements OnClickListener,
         }
         else
         {
-            this.print("Aww, we wanted your picture =(");
-            Crouton.makeText(this, "=( We wanted your picture!", Style.CONFIRM).show();
+            Crouton.makeText(this, "Awww, we wanted your picture ='(", Style.INFO).show();
         }
     }
 
@@ -225,27 +229,82 @@ public class CreateGriddlerActivity extends Activity implements OnClickListener,
             this.finish();
         }
         else if (v.getId() == R.id.bSubmit)
-        {// Now save. final Intent returnIntent = new Intent();
+        {
+            if (this.userValuesValid())
+            {
+                final String id = this.solution.hashCode() + "";
+                // For local database-----------------------------------
+                String cols = "";
+                for (final int color : this.colors) {
+                    cols += color + ",";
+                }
+                final Intent returnIntent = new Intent();
+                returnIntent.putExtra("author", MenuActivity.id(this));
+                returnIntent.putExtra("colors", cols.substring(0, cols.length() - 1));
+                returnIntent.putExtra("difficulty", this.sDiff.getCurrentItem() + "");
+                returnIntent.putExtra("height", this.yNum + "");
+                returnIntent.putExtra("name", this.name.getText().toString());
+                returnIntent.putExtra("numberColors", this.numColors + "");
+                returnIntent.putExtra("numRank", 1 + "");
+                returnIntent.putExtra("id", id);
+                returnIntent.putExtra("rank", 5 + "");
+                returnIntent.putExtra("solution", this.solution);
+                returnIntent.putExtra("width", this.xNum + "");
+                this.setResult(RESULT_OK, returnIntent);
+                // End Local------------------------------------------
+                // For parse------------------------------------------
+                Parse.initialize(this, "3j445kDaxQ3lelflRVMetszjtpaXo2S1mjMZYNcW",
+                        "zaorBzbtWhdwMdJ0sIgBJjYvowpueuCzstLTwq1A");
+                ParseObject po = new ParseObject("Puzzle");
+                po.put("author", MenuActivity.id(this));
+                po.put("colors", cols);
+                po.put("difficulty", this.sDiff.getCurrentItem());
+                po.put("height", this.yNum);
+                po.put("PuzzleId", id);
+                po.put("name", this.name.getText().toString());
+                po.put("numberColors", this.numColors);
+                po.put("numRank", 1);
+                po.put("rank", 5);
+                po.put("solution", this.solution);
+                po.put("width", this.xNum);
+                po.saveInBackground(new SaveCallback() {
 
-            final Intent returnIntent = new Intent();
-            returnIntent.putExtra("solution", this.solution);
-            final String username = "justinwarner";
-            returnIntent.putExtra("author", username);
-            returnIntent.putExtra("name", this.griddlerName);
-            returnIntent.putExtra("rank", 1 + "");
-            returnIntent.putExtra("difficulty",
-                    this.sDiff.getCurrentItem() + "");
-            returnIntent.putExtra("width", this.xNum + "");
-            returnIntent.putExtra("height", this.yNum + "");
-            returnIntent.putExtra("tags", this.griddlerTags);
-            this.setResult(RESULT_OK, returnIntent);
-            this.finish();
+                    @Override
+                    public void done(final ParseException e) {
+                        if (e != null) {
+                            Crittercism.logHandledException(e);
+                            Crashlytics.logException(e);
+                        }
+                    }
+                });
+                for (final String tag : this.tags.getText().toString().split(" "))
+                {
+                    po = new ParseObject("PuzzleTag");
+                    po.put("tag", tag);
+                    po.put("PuzzleId", id);
+                    po.saveInBackground(new SaveCallback() {
+
+                        @Override
+                        public void done(final ParseException e) {
+                            if (e != null) {
+                                Crittercism.logHandledException(e);
+                                Crashlytics.logException(e);
+                            }
+                        }
+                    });
+                }
+                Log.d(TAG, "ID: " + id);
+                // End parse-------------------------------------------
+
+                this.finish();
+            }
         }
         else if (v.getId() == R.id.bChangeColor)
         {
             Crouton.makeText(this, "To change the color, please click on a color in the image.",
                     Style.INFO).show();
         }
+
     }
 
     @Override
@@ -268,6 +327,8 @@ public class CreateGriddlerActivity extends Activity implements OnClickListener,
         this.bURLSubmit.setOnClickListener(this);
         // Initially invisible for URL.
         this.etURL = (EditText) this.findViewById(R.id.etURLA);
+        this.tags = (EditText) this.findViewById(R.id.etTagA);
+        this.name = (EditText) this.findViewById(R.id.etNameA);
         this.etURL.setVisibility(View.INVISIBLE);
         this.bURLSubmit.setVisibility(View.INVISIBLE);
 
@@ -342,17 +403,14 @@ public class CreateGriddlerActivity extends Activity implements OnClickListener,
             sh.setOnSlideListener(new OnSlideListener() {
 
                 public void onSlideCompleted(final boolean isOpen) {
-                    Log.d(TAG, "Complete " + isOpen);
                     if (isOpen)
                     {
                         CreateGriddlerActivity.this.handler.post(new Runnable()
                         {
 
                             public void run() {
-                                Log.d(TAG, "Hehrehrehehrhrh");
                                 if (CreateGriddlerActivity.this.tutorial != null) {
                                     CreateGriddlerActivity.this.tutorial.hide();
-                                    Log.d(TAG, "Hhhhh");
                                 }
                             }
 
@@ -404,7 +462,7 @@ public class CreateGriddlerActivity extends Activity implements OnClickListener,
         super.onResume();
         if (!this.isTabletDevice(this.getResources()))
         {
-            this.tutorial = TutorialView.create(this, TutorialView.UpToDown,
+            this.tutorial = TutorialView.create(this, TutorialView.LeftToRight,
                     TutorialView.Center, this.findViewById(android.R.id.content)).show();
         }
     }
@@ -476,10 +534,6 @@ public class CreateGriddlerActivity extends Activity implements OnClickListener,
         }
     }
 
-    private void print(final String t) {
-        Toast.makeText(this, t, Toast.LENGTH_SHORT).show();
-    }
-
     // Read bitmap - From
     // http://tutorials-android.blogspot.co.il/2011/11/outofmemory-exception-when-decoding.html
     private void processURL()
@@ -515,7 +569,6 @@ public class CreateGriddlerActivity extends Activity implements OnClickListener,
             }
 
         }).start();
-        this.print("Saved picture from url.");
     }
 
     public Bitmap readBitmap(final Uri selectedImage) {
@@ -537,5 +590,20 @@ public class CreateGriddlerActivity extends Activity implements OnClickListener,
             }
         }
         return bm;
+    }
+
+    private boolean userValuesValid() {
+        if (this.newPicture == null) {
+            Crouton.makeText(this, "You must generate a valid game.", Style.INFO).show();
+        }
+        else if (this.tags.getText().toString().length() == 0) {
+            Crouton.makeText(this, "You must give some tags.", Style.INFO).show();
+        }
+        else if (this.name.getText().toString().length() == 0) {
+            Crouton.makeText(this, "You must give a name.", Style.INFO).show();
+        } else {
+            return true;
+        }
+        return false;
     }
 }

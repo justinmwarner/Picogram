@@ -37,8 +37,7 @@
             android:layout_height="100dp"
             android:layout_alignParentBottom="true"
             android:layout_alignParentLeft="true"
-            android:layout_alignParentRight="true"
-            android:gravity="center" >
+            android:layout_alignParentRight="true" >
 
             <com.millennialmedia.android.MMAdView
                 android:id="@+id/adView"
@@ -46,7 +45,8 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentTop="true"
                 android:layout_centerHorizontal="true"
-                android:minHeight="50dp" />
+                android:alpha="10"
+            android:gravity="center" />
         </LinearLayout>
     </RelativeLayout>
 
