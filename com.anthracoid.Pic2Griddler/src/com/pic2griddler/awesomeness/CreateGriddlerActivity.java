@@ -72,8 +72,8 @@ public class CreateGriddlerActivity extends Activity implements OnClickListener,
     Handler handler = new Handler();
     Button bURLSubmit;
     int colors[] = {
-            Color.WHITE, Color.BLACK, Color.GRAY, Color.BLUE, Color.YELLOW, Color.RED, Color.GREEN,
-            Color.CYAN, Color.MAGENTA, Color.DKGRAY, Color.LTGRAY
+            Color.TRANSPARENT, Color.BLACK, Color.GRAY, Color.TRANSPARENT, Color.YELLOW, Color.RED,
+            Color.GREEN, Color.CYAN, Color.MAGENTA, Color.DKGRAY, Color.LTGRAY, Color.WHITE
     };
 
     int whitePlotterColor = 0;
@@ -99,10 +99,8 @@ public class CreateGriddlerActivity extends Activity implements OnClickListener,
             final int pixels[] = new int[this.xNum * this.yNum];
             alter.getPixels(pixels, 0, alter.getWidth(), 0, 0, alter.getWidth(), alter.getHeight());
             for (int i = 0; i < pixels.length; i++) {
-                final int r = ((pixels[i]) >> 16) & 0xff;
-                final int g = ((pixels[i]) >> 8) & 0xff;
-                final int b = (pixels[i]) & 0xff;
-                pixels[i] = (r + g + b) / 3; // Greyscale
+                final int rgb[] = this.getRGB(pixels[i]);
+                pixels[i] = (rgb[0] + rgb[1] + rgb[2]) / 3; // Greyscale
             }
             alter.setPixels(pixels, 0, alter.getWidth(), 0, 0, alter.getWidth(), alter.getHeight());
 
@@ -150,6 +148,16 @@ public class CreateGriddlerActivity extends Activity implements OnClickListener,
     public void colorChanged(final String key, final int color) {
         // TODO Auto-generated method stub
         Log.d(TAG, key + " " + color);
+    }
+
+    private int[] getRGB(final int i) {
+
+        final int r = (i >> 16) & 0xff;
+        final int g = (i >> 8) & 0xff;
+        final int b = (i & 0xff);
+        return new int[] {
+                r, g, b
+        };
     }
 
     // http://stackoverflow.com/questions/5832368/tablet-or-phone-android
@@ -281,7 +289,7 @@ public class CreateGriddlerActivity extends Activity implements OnClickListener,
                 {
                     po = new ParseObject("PuzzleTag");
                     po.put("tag", tag);
-                    po.put("PuzzleId", id);
+                    po.put("PuzzleIde", id);
                     po.saveInBackground(new SaveCallback() {
 
                         @Override
@@ -475,7 +483,7 @@ public class CreateGriddlerActivity extends Activity implements OnClickListener,
 
     public boolean onTouch(final View v, final MotionEvent event) {
         // We're changing a color.
-        if (this.newPicture != null)
+        if ((this.newPicture != null) && (event.getAction() == MotionEvent.ACTION_DOWN))
         {
             final float eventX = event.getX();
             final float eventY = event.getY();
@@ -521,9 +529,36 @@ public class CreateGriddlerActivity extends Activity implements OnClickListener,
 
                         }
 
-                        public void onOk(final AmbilWarnaDialog dialog, final int color) {
-                            // TODO Auto-generated method stub
-
+                        public void onOk(final AmbilWarnaDialog dialog, int color) {
+                            // Change the value in the colors array.
+                            for (int i = 0; i != CreateGriddlerActivity.this.colors.length; ++i)
+                            {
+                                if (CreateGriddlerActivity.this.colors[i] == touchedRGB)
+                                {
+                                    // Make sure this color doesn't already
+                                    // exist, if it does, tweak the new color
+                                    // just a little bit.
+                                    for (int j = 0; j != CreateGriddlerActivity.this.numColors; ++j)
+                                    {
+                                        if (CreateGriddlerActivity.this.colors[j] == color)
+                                        {
+                                            final int[] rgb = CreateGriddlerActivity.this
+                                                    .getRGB(color);
+                                            if (rgb[0] == 255) {
+                                                rgb[0] = rgb[0] - 1;
+                                            } else {
+                                                rgb[0] = rgb[0] + 1;
+                                            }
+                                            color = Color.rgb(rgb[0], rgb[1], rgb[2]);
+                                            break;
+                                        }
+                                    }
+                                    CreateGriddlerActivity.this.colors[i] = color;
+                                    break;
+                                }
+                            }
+                            // Update photo
+                            CreateGriddlerActivity.this.alterPhoto();
                         }
                     });
 
