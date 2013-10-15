@@ -1,4 +1,4 @@
-Pic2Griddler
+Picogram
 ============
 
 # What is it

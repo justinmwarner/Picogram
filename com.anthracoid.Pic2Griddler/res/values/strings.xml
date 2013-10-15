@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">Pic2Griddler</string>
+    <string name="app_name">Picogram</string>
     <string name="hello_world">Hello world!</string>
-    <string name="menu_settings">Pic2Griddler</string>
+    <string name="menu_settings">Picogram</string>
     <string name="create_griddler">Griddler Creator</string>
     <string name="testPrompt">This my prompt</string>
     <string name="xBlocks">X Block</string>
@@ -11,7 +11,7 @@
     <string name="colorNumber">Number of Colors</string>
     <string name="title_activity_menu">MenuActivity</string>
     <string name="title_activity_game">GameActivity</string>
-    <string name="title_activity_level_select">Pic2Griddler</string>
+    <string name="title_activity_level_select">Picogram</string>
     <string name="title_activity_user_griddlers">UserGriddlers</string>
     <string name="title_activity_world_griddlers">WorldGriddlers</string>
     <string name="title_activity_settings">SettingsActivity</string>

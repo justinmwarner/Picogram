@@ -1,5 +1,5 @@
 
-package com.pic2griddler.awesomeness;
+package com.picogram.awesomeness;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
@@ -29,7 +29,7 @@ public class SettingsActivity extends SherlockPreferenceActivity implements
 
         this.addPreferencesFromResource(R.xml.preferences);
 
-        this.prefs = this.getSharedPreferences("Pic2Griddler", 0);
+        this.prefs = this.getSharedPreferences("Picogram", 0);
         this.findPreference("nightmode").setOnPreferenceChangeListener(this);
     }
 

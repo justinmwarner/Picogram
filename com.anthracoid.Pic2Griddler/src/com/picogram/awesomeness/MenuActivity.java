@@ -1,5 +1,5 @@
 
-package com.pic2griddler.awesomeness;
+package com.picogram.awesomeness;
 
 import android.app.ActivityGroup;
 import android.content.Context;
@@ -36,7 +36,7 @@ public class MenuActivity extends ActivityGroup {
     int currentTab = 0;
     private LinearLayout llAds;
     public static int THEME = R.style.Theme_Sherlock_Light;
-    public static String PREFS_FILE = "com.pic2griddler.awesomeness_preferences";
+    public static String PREFS_FILE = "com.picogram.awesomeness_preferences";
 
     // admob: a1516b691219c3b
 

@@ -44,7 +44,7 @@
         android:layout_below="@+id/llToolbox"
         android:clickable="true" >
 
-        <com.pic2griddler.awesomeness.TouchImageView
+        <com.picogram.awesomeness.TouchImageView
             android:id="@+id/tivGame"
             android:layout_width="match_parent"
             android:layout_height="match_parent"

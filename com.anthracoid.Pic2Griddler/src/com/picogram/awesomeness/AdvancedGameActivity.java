@@ -1,5 +1,5 @@
 
-package com.pic2griddler.awesomeness;
+package com.picogram.awesomeness;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -17,7 +17,7 @@ import android.widget.Button;
 import com.crittercism.app.Crittercism;
 import com.github.espiandev.showcaseview.ShowcaseView;
 import com.google.analytics.tracking.android.EasyTracker;
-import com.pic2griddler.awesomeness.TouchImageView.WinnerListener;
+import com.picogram.awesomeness.TouchImageView.WinnerListener;
 import com.socialize.api.SocializeSession;
 import com.socialize.api.action.share.SocialNetworkShareListener;
 import com.socialize.entity.Entity;
@@ -49,7 +49,7 @@ public class AdvancedGameActivity extends Activity implements OnClickListener, W
             final Entity entity = Entity.newInstance("http://www.google.com", name);
 
             // The "this" argument refers to the current Activity
-            FacebookUtils.postEntity(this, entity, "I just beat " + name + " on Pic2Griddler!",
+            FacebookUtils.postEntity(this, entity, "I just beat " + name + " on Picogram!",
                     new SocialNetworkShareListener() {
 
                         @Override
@@ -128,7 +128,7 @@ public class AdvancedGameActivity extends Activity implements OnClickListener, W
             final String name = this.getIntent().getExtras().getString("name");
             final Entity entity = Entity.newInstance("http://www.google.com", name);
 
-            TwitterUtils.tweetEntity(this, entity, "I just beat " + name + " on Pic2Griddler!",
+            TwitterUtils.tweetEntity(this, entity, "I just beat " + name + " on Picogram!",
                     new SocialNetworkShareListener() {
 
                         @Override

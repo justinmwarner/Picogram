@@ -1,5 +1,5 @@
 
-package com.pic2griddler.awesomeness;
+package com.picogram.awesomeness;
 
 import android.app.Activity;
 import android.content.Intent;

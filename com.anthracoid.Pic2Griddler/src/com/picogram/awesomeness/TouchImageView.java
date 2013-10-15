@@ -1,5 +1,5 @@
 
-package com.pic2griddler.awesomeness;
+package com.picogram.awesomeness;
 
 import android.content.Context;
 import android.graphics.Bitmap;
