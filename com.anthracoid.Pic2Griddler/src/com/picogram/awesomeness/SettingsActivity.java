@@ -31,6 +31,7 @@ public class SettingsActivity extends SherlockPreferenceActivity implements
 
         this.prefs = this.getSharedPreferences("Picogram", 0);
         this.findPreference("nightmode").setOnPreferenceChangeListener(this);
+        FlurryAgent.logEvent("PreferencesOpened");
     }
 
     @Override
@@ -49,6 +50,7 @@ public class SettingsActivity extends SherlockPreferenceActivity implements
     }
 
     public boolean onPreferenceChange(final Preference preference, final Object newValue) {
+    	FlurryAgent.logEvent("PreferenceChange"+preference.getKey()+"To"+newValue.toString());
         if (preference.getKey().equals("nightmode")) {
             // Restart the app so that effects are in place...
             final PendingIntent intent = PendingIntent.getActivity(this.getParent(), 0, this
@@ -84,6 +86,7 @@ public class SettingsActivity extends SherlockPreferenceActivity implements
     }
 
     public void optOut() {
+    	FlurryAgent.logEvent("UserOptOut");
         final Context mCtx = this; // Get current context.
         final GoogleAnalytics myInstance = GoogleAnalytics
                 .getInstance(mCtx.getApplicationContext());
