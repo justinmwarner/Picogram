@@ -14,6 +14,7 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
 
+import com.agimind.widget.SlideHolder;
 import com.crittercism.app.Crittercism;
 import com.github.espiandev.showcaseview.ShowcaseView;
 import com.google.analytics.tracking.android.EasyTracker;
@@ -41,6 +42,7 @@ public class AdvancedGameActivity extends Activity implements OnClickListener, W
     Handler handle = new Handler();
     int tutorialStep = 0;
     private static SQLiteGriddlerAdapter sql;
+    SlideHolder sh;
     Handler handler = new Handler();
 
     private void doFacebookStuff() {
@@ -213,6 +215,9 @@ public class AdvancedGameActivity extends Activity implements OnClickListener, W
         } else if (v.getId() == R.id.bToolboxWhite) {
             this.tiv.colorCharacter = '0';
             this.tiv.isGameplay = true;
+        } else if (v.getId() == R.id.openOptions)
+        {
+            this.sh.open();
         }
     }
 
@@ -226,9 +231,12 @@ public class AdvancedGameActivity extends Activity implements OnClickListener, W
         final Button bHand = (Button) this.findViewById(R.id.bToolboxHand);
         final Button bWhite = (Button) this.findViewById(R.id.bToolboxWhite);
         final Button bBlack = (Button) this.findViewById(R.id.bToolboxBlack);
+        final Button bOptions = (Button) this.findViewById(R.id.openOptions);
+        bOptions.setOnClickListener(this);
         bHand.setOnClickListener(this);
         bWhite.setOnClickListener(this);
         bBlack.setOnClickListener(this);
+        this.sh = (SlideHolder) this.findViewById(R.id.shGame);
         this.tiv = (TouchImageView) this.findViewById(R.id.tivGame);
         this.tiv.setWinListener(this);
         this.tiv.setGriddlerInfo(this.getIntent().getExtras());

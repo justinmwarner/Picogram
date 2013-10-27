@@ -31,15 +31,17 @@
             android:key="username"
             android:summary="Username"
             android:title="If you have an error, we&apos;re reported this, so if you message us, we can cross check to see =)." />
-    </PreferenceCategory>
-    <PreferenceCategory android:title="Data Preferences" >
-
-        <!-- Data handling. -->
 
         <PreferenceScreen
             android:summary="Remove Data"
             android:title="Remove all the data on your device we&apos;re using, cuz you know, it&apos;s a lot." >
         </PreferenceScreen>
+    </PreferenceCategory>
+    <PreferenceCategory android:title="Changelog" >
+        <Preference
+            android:key="changelog"
+            android:summary="View the changelog."
+            android:title="View the changelog." />
     </PreferenceCategory>
     <PreferenceCategory android:title="Privacy Preferences" >
         <CheckBoxPreference

@@ -391,7 +391,7 @@ public class CreateGriddlerActivity extends Activity implements OnClickListener,
         }
 
         // SlideHolder.
-        final SlideHolder sh = (SlideHolder) this.findViewById(R.id.slideHolder);
+        final SlideHolder sh = (SlideHolder) this.findViewById(R.id.shCreate);
 
         if (this.isTabletDevice(this.getResources())) {
             sh.setAlwaysOpened(true);

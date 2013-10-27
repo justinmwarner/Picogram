@@ -8,6 +8,8 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceChangeListener;
+import android.preference.Preference.OnPreferenceClickListener;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.actionbarsherlock.app.SherlockPreferenceActivity;
@@ -17,7 +19,7 @@ import com.google.analytics.tracking.android.GoogleAnalytics;
 import com.google.analytics.tracking.android.Tracker;
 
 public class SettingsActivity extends SherlockPreferenceActivity implements
-        OnPreferenceChangeListener {
+        OnPreferenceChangeListener, OnPreferenceClickListener {
     private static final String TAG = "SettingsActivity";
     private Tracker tracker;
     SharedPreferences prefs;
@@ -31,6 +33,7 @@ public class SettingsActivity extends SherlockPreferenceActivity implements
 
         this.prefs = this.getSharedPreferences("Picogram", 0);
         this.findPreference("nightmode").setOnPreferenceChangeListener(this);
+        this.findPreference("changelog").setOnPreferenceClickListener(this);
     }
 
     @Override
@@ -49,6 +52,7 @@ public class SettingsActivity extends SherlockPreferenceActivity implements
     }
 
     public boolean onPreferenceChange(final Preference preference, final Object newValue) {
+        Log.d(TAG, preference.getKey());
         if (preference.getKey().equals("nightmode")) {
             // Restart the app so that effects are in place...
             final PendingIntent intent = PendingIntent.getActivity(this.getParent(), 0, this
@@ -75,6 +79,16 @@ public class SettingsActivity extends SherlockPreferenceActivity implements
                     Toast.LENGTH_LONG).show();
         }
         return true;
+    }
+
+    public boolean onPreferenceClick(final Preference preference) {
+        if (preference.getKey().equals("changelog"))
+        {
+            // Launch change log dialog
+            final ChangeLogDialog _ChangelogDialog = new ChangeLogDialog(this);
+            _ChangelogDialog.show();
+        }
+        return false;
     }
 
     @Override
