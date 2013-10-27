@@ -172,11 +172,13 @@ public class CreateGriddlerActivity extends Activity implements OnClickListener,
     @Override
     protected void onActivityResult(final int request, final int result, final Intent data) {
         if (request == CAMERA_REQUEST_CODE) {
+            FlurryAgent.logEvent("CreateFromCamera");
             if (result == Activity.RESULT_OK) {
                 final Bitmap photo = (Bitmap) data.getExtras().get("data");
                 this.oldPicture = photo;
             }
         } else if (request == FILE_SELECT_CODE) {
+            FlurryAgent.logEvent("CreateFromFile");
             if (result == Activity.RESULT_OK) {
                 final Uri uri = data.getData();
                 final Bitmap bi = this.readBitmap(uri);
@@ -185,6 +187,7 @@ public class CreateGriddlerActivity extends Activity implements OnClickListener,
         }
         if (result == Activity.RESULT_OK)
         {
+            FlurryAgent.logEvent("CreateFromNonURLGood");
             this.etURL.setVisibility(View.INVISIBLE);
             this.bURLSubmit.setVisibility(View.INVISIBLE);
             this.ivOld.setImageBitmap(this.oldPicture);
@@ -303,7 +306,7 @@ public class CreateGriddlerActivity extends Activity implements OnClickListener,
                 }
                 Log.d(TAG, "ID: " + id);
                 // End parse-------------------------------------------
-
+                FlurryAgent.logEvent("PuzzleCreateDone");
                 this.finish();
             }
         }
@@ -389,7 +392,7 @@ public class CreateGriddlerActivity extends Activity implements OnClickListener,
                 this.ivOld.setImageBitmap(this.oldPicture);
             }
         }
-
+        FlurryAgent.logEvent("CreatingPuzzle");
         // SlideHolder.
         final SlideHolder sh = (SlideHolder) this.findViewById(R.id.shCreate);
 
@@ -419,6 +422,7 @@ public class CreateGriddlerActivity extends Activity implements OnClickListener,
                             public void run() {
                                 if (CreateGriddlerActivity.this.tutorial != null) {
                                     CreateGriddlerActivity.this.tutorial.hide();
+                                    FlurryAgent.logEvent("GestureTutorialPass");
                                 }
                             }
 
@@ -438,8 +442,7 @@ public class CreateGriddlerActivity extends Activity implements OnClickListener,
     @Override
     protected void onDestroy() {
         // Workaround until there's a way to detach the Activity from Crouton
-        // while
-        // there are still some in the Queue.
+        // while there are still some in the Queue.
         Crouton.clearCroutonsForActivity(this);
         super.onDestroy();
     }
@@ -470,6 +473,7 @@ public class CreateGriddlerActivity extends Activity implements OnClickListener,
         super.onResume();
         if (!this.isTabletDevice(this.getResources()))
         {
+            FlurryAgent.logEvent("GestureTutorialShow");
             this.tutorial = TutorialView.create(this, TutorialView.LeftToRight,
                     TutorialView.Center, this.findViewById(android.R.id.content)).show();
         }
@@ -573,6 +577,7 @@ public class CreateGriddlerActivity extends Activity implements OnClickListener,
     // http://tutorials-android.blogspot.co.il/2011/11/outofmemory-exception-when-decoding.html
     private void processURL()
     {
+        FlurryAgent.logEvent("CreateURLProcess");
         new Thread(new Runnable() {
             public void run() {
                 try {
@@ -630,12 +635,15 @@ public class CreateGriddlerActivity extends Activity implements OnClickListener,
     private boolean userValuesValid() {
         if (this.newPicture == null) {
             Crouton.makeText(this, "You must generate a valid game.", Style.INFO).show();
+        FlurryAgent.logEvent("CreateInvalidOptionsPicture");
         }
         else if (this.tags.getText().toString().length() == 0) {
             Crouton.makeText(this, "You must give some tags.", Style.INFO).show();
+            FlurryAgent.logEvent("CreateInvalidOptionsTags");
         }
         else if (this.name.getText().toString().length() == 0) {
             Crouton.makeText(this, "You must give a name.", Style.INFO).show();
+            FlurryAgent.logEvent("CreateInvalidOptionsName");
         } else {
             return true;
         }

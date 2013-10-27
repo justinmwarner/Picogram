@@ -124,6 +124,7 @@ public class UserGriddlers extends Activity implements OnTouchListener, OnItemCl
         // Also show the create a Griddler and Tutorial Griddler.
         sql = new SQLiteGriddlerAdapter(this.getApplicationContext(), "Griddlers", null, 1);
         this.lv.setOnItemClickListener(this);
+        FlurryAgent.logEvent("UserOpened");
     }
 
     @Override
@@ -200,6 +201,7 @@ public class UserGriddlers extends Activity implements OnTouchListener, OnItemCl
     private void startGame(final String solution, final String current, final String width,
             final String height, final String id,
             final String name) {
+    	FlurryAgent.logEvent("UserPlayGame");
         // Intent gameIntent = new Intent(this, AdvancedGameActivity.class);
         final Intent gameIntent = new Intent(this, AdvancedGameActivity.class);
         gameIntent.putExtra("solution", solution);

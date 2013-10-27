@@ -101,7 +101,7 @@ public class WorldGriddlers extends Activity implements OnClickListener, OnItemC
         this.sql = new SQLiteGriddlerAdapter(this.getApplicationContext(), "Griddlers", null, 1);
         this.lv = (ListView) this.findViewById(R.id.lvWorld);
         this.lv.setOnItemClickListener(this);
-
+        FlurryAgent.logEvent("WorldOpened");
     }
 
     @Override
@@ -120,6 +120,7 @@ public class WorldGriddlers extends Activity implements OnClickListener, OnItemC
             this.sql.close();
             // gameIntent.putExtra("info", griddlers.get(pos).getInfo());
             gameIntent.putExtra("id", this.griddlers.get(pos).getId());
+            FlurryAgent.logEvent("UserOpenedWorldPuzzle");
             this.startActivityForResult(gameIntent, 2);
         }
     }

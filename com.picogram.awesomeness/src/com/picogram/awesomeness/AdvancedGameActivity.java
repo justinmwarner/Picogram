@@ -64,6 +64,7 @@ public class AdvancedGameActivity extends Activity implements OnClickListener, W
                             // Facebook.
                             Crouton.makeText(parent, "Facebook post successful!", Style.ALERT)
                                     .show();
+                            FlurryAgent.logEvent("FacebookSuccess");
                             AdvancedGameActivity.this.returnIntent();
                         }
 
@@ -93,6 +94,7 @@ public class AdvancedGameActivity extends Activity implements OnClickListener, W
                             // Handle error
                             Crouton.makeText(context, "Couldn't post to Facebook.", Style.ALERT)
                                     .show();
+                            FlurryAgent.logEvent("FacebookFail");
                             Crittercism.logHandledException(error);
                             AdvancedGameActivity.this.returnIntent();
                         }
@@ -243,6 +245,7 @@ public class AdvancedGameActivity extends Activity implements OnClickListener, W
         final String name = this.getIntent().getExtras().getString("name");
         final String c = this.getIntent().getExtras().getString("current");
         final String s = this.getIntent().getExtras().getString("solution");
+        FlurryAgent.logEvent("UserPlayingGame");
         if (name != null) {
             EasyTracker.getTracker().trackEvent("Game", "GriddlerName", name, (long) 1);
             if (name.equals("Tutorial")) {

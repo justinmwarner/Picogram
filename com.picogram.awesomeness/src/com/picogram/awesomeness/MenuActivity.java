@@ -202,6 +202,7 @@ public class MenuActivity extends ActivityGroup implements FlurryAdListener {
     }
 
     public void switchTab(final int tab) {
+    	FlurryAgent.logEvent("Switched to tab " + tab);
         if ((tab == 1) && !isOnline())
         {
             Crouton.makeText(this, "Must be connected to the internet to use social aspects",
