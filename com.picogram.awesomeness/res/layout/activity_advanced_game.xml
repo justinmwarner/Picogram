@@ -1,0 +1,62 @@
+<com.agimind.widget.SlideHolder xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/shGame"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/app_background"
+    tools:context=".AdvancedGameActivity">
+
+    <LinearLayout
+        android:id="@+id/llToolbox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:clickable="true" >
+
+        <Button
+            android:id="@+id/bToolboxHand"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:text="Move" />
+
+        <Button
+            android:id="@+id/bToolboxWhite"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBaseline="@+id/bToolboxHand"
+            android:layout_alignParentTop="true"
+            android:layout_toRightOf="@+id/bToolboxHand"
+            android:text="White" />
+
+        <Button
+            android:id="@+id/bToolboxBlack"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBaseline="@+id/bToolboxHand"
+            android:layout_alignParentTop="true"
+            android:layout_toRightOf="@+id/bToolboxWhite"
+            android:text="Black" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/llToolbox"
+        android:clickable="true" >
+
+        <Button
+            android:id="@+id/openOptions"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=">" />
+
+        <com.picogram.awesomeness.TouchImageView
+            android:id="@+id/tivGame"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true" />
+    </LinearLayout>
+
+</com.agimind.widget.SlideHolder>

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+
+    <EditText
+        android:id="@+id/etSearch"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/bSearch"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="5dp"
+        android:layout_toLeftOf="@+id/bSearch"
+        android:ems="10"
+        android:hint="Keep Text Empty To Get Most Recent Or All Time Best"
+        android:maxLines="1" >
+
+        <requestFocus />
+    </EditText>
+
+    <ListView
+        android:id="@+id/lvWorld"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/bSearch"
+        android:numColumns="auto_fit" >
+    </ListView>
+
+    <Spinner
+        android:id="@+id/spinSort"
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/bSearch"
+        android:layout_alignParentRight="true"
+        android:layout_alignTop="@+id/bSearch"
+        android:layout_marginRight="5dp"
+        android:text="Top" />
+
+    <Button
+        android:id="@+id/bSearch"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_toLeftOf="@+id/spinSort"
+        android:maxLines="1"
+        android:text="Search" />
+ 
+
+</RelativeLayout>
