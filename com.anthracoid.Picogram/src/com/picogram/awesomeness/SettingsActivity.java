@@ -12,6 +12,7 @@ import android.widget.Toast;
 
 import com.actionbarsherlock.app.SherlockPreferenceActivity;
 import com.actionbarsherlock.view.Menu;
+import com.flurry.android.FlurryAgent;
 import com.google.analytics.tracking.android.EasyTracker;
 import com.google.analytics.tracking.android.GoogleAnalytics;
 import com.google.analytics.tracking.android.Tracker;
@@ -31,7 +32,6 @@ public class SettingsActivity extends SherlockPreferenceActivity implements
 
         this.prefs = this.getSharedPreferences("Picogram", 0);
         this.findPreference("nightmode").setOnPreferenceChangeListener(this);
-        FlurryAgent.logEvent("PreferencesOpened");
     }
 
     @Override
@@ -50,7 +50,7 @@ public class SettingsActivity extends SherlockPreferenceActivity implements
     }
 
     public boolean onPreferenceChange(final Preference preference, final Object newValue) {
-    	FlurryAgent.logEvent("PreferenceChange"+preference.getKey()+"To"+newValue.toString());
+        FlurryAgent.logEvent("PreferenceChange" + preference.getKey() + "To" + newValue.toString());
         if (preference.getKey().equals("nightmode")) {
             // Restart the app so that effects are in place...
             final PendingIntent intent = PendingIntent.getActivity(this.getParent(), 0, this
@@ -85,8 +85,25 @@ public class SettingsActivity extends SherlockPreferenceActivity implements
         EasyTracker.getInstance().setContext(this);
     }
 
+    @Override
+    public void onStart()
+    {
+        super.onStart();
+        FlurryAgent.onStartSession(this, this.getResources().getString(R.string.flurry));
+        FlurryAgent.logEvent("PreferencesOpened");
+        // Your code
+    }
+
+    @Override
+    public void onStop()
+    {
+        super.onStop();
+        FlurryAgent.onEndSession(this);
+        // Your code
+    }
+
     public void optOut() {
-    	FlurryAgent.logEvent("UserOptOut");
+        FlurryAgent.logEvent("UserOptOut");
         final Context mCtx = this; // Get current context.
         final GoogleAnalytics myInstance = GoogleAnalytics
                 .getInstance(mCtx.getApplicationContext());

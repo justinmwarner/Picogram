@@ -5,8 +5,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.AssetFileDescriptor;
-import android.content.res.Configuration;
-import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -34,6 +32,7 @@ import com.agimind.widget.SlideHolder;
 import com.agimind.widget.SlideHolder.OnSlideListener;
 import com.crashlytics.android.Crashlytics;
 import com.crittercism.app.Crittercism;
+import com.flurry.android.FlurryAgent;
 import com.gesturetutorial.awesomeness.TutorialView;
 import com.github.espiandev.showcaseview.ShowcaseView;
 import com.parse.Parse;
@@ -160,15 +159,6 @@ public class CreateGriddlerActivity extends Activity implements OnClickListener,
         };
     }
 
-    // http://stackoverflow.com/questions/5832368/tablet-or-phone-android
-    private boolean isTabletDevice(final Resources resources) {
-        final int screenLayout = resources.getConfiguration().screenLayout
-                & Configuration.SCREENLAYOUT_SIZE_MASK;
-        final boolean isScreenLarge = (screenLayout == Configuration.SCREENLAYOUT_SIZE_LARGE);
-        final boolean isScreenXlarge = (screenLayout == Configuration.SCREENLAYOUT_SIZE_XLARGE);
-        return (isScreenLarge || isScreenXlarge);
-    }
-
     @Override
     protected void onActivityResult(final int request, final int result, final Intent data) {
         if (request == CAMERA_REQUEST_CODE) {
@@ -250,7 +240,7 @@ public class CreateGriddlerActivity extends Activity implements OnClickListener,
                     cols += color + ",";
                 }
                 final Intent returnIntent = new Intent();
-                returnIntent.putExtra("author", MenuActivity.id(this));
+                returnIntent.putExtra("author", Util.id(this));
                 returnIntent.putExtra("colors", cols.substring(0, cols.length() - 1));
                 returnIntent.putExtra("difficulty", this.sDiff.getCurrentItem() + "");
                 returnIntent.putExtra("height", this.yNum + "");
@@ -267,7 +257,7 @@ public class CreateGriddlerActivity extends Activity implements OnClickListener,
                 Parse.initialize(this, "3j445kDaxQ3lelflRVMetszjtpaXo2S1mjMZYNcW",
                         "zaorBzbtWhdwMdJ0sIgBJjYvowpueuCzstLTwq1A");
                 ParseObject po = new ParseObject("Puzzle");
-                po.put("author", MenuActivity.id(this));
+                po.put("author", Util.id(this));
                 po.put("colors", cols);
                 po.put("difficulty", this.sDiff.getCurrentItem());
                 po.put("height", this.yNum);
@@ -278,7 +268,7 @@ public class CreateGriddlerActivity extends Activity implements OnClickListener,
                 po.put("rank", 5);
                 po.put("solution", this.solution);
                 po.put("width", this.xNum);
-                po.saveInBackground(new SaveCallback() {
+                po.saveEventually(new SaveCallback() {
 
                     @Override
                     public void done(final ParseException e) {
@@ -293,7 +283,7 @@ public class CreateGriddlerActivity extends Activity implements OnClickListener,
                     po = new ParseObject("PuzzleTag");
                     po.put("tag", tag);
                     po.put("PuzzleIde", id);
-                    po.saveInBackground(new SaveCallback() {
+                    po.saveEventually(new SaveCallback() {
 
                         @Override
                         public void done(final ParseException e) {
@@ -392,11 +382,10 @@ public class CreateGriddlerActivity extends Activity implements OnClickListener,
                 this.ivOld.setImageBitmap(this.oldPicture);
             }
         }
-        FlurryAgent.logEvent("CreatingPuzzle");
         // SlideHolder.
-        final SlideHolder sh = (SlideHolder) this.findViewById(R.id.slideHolder);
+        final SlideHolder sh = (SlideHolder) this.findViewById(R.id.shCreate);
 
-        if (this.isTabletDevice(this.getResources())) {
+        if (Util.isTabletDevice(this.getResources())) {
             sh.setAlwaysOpened(true);
         }
         else
@@ -471,7 +460,7 @@ public class CreateGriddlerActivity extends Activity implements OnClickListener,
     protected void onResume()
     {
         super.onResume();
-        if (!this.isTabletDevice(this.getResources()))
+        if (!Util.isTabletDevice(this.getResources()))
         {
             FlurryAgent.logEvent("GestureTutorialShow");
             this.tutorial = TutorialView.create(this, TutorialView.LeftToRight,
@@ -479,7 +468,25 @@ public class CreateGriddlerActivity extends Activity implements OnClickListener,
         }
     }
 
+    @Override
+    public void onStart()
+    {
+        super.onStart();
+        FlurryAgent.onStartSession(this, this.getResources().getString(R.string.flurry));
+        FlurryAgent.logEvent("CreatingPuzzle");
+        FlurryAgent.onPageView();
+        // Your code
+    }
+
     public void onStartTrackingTouch(final SeekBar seekBar) {
+    }
+
+    @Override
+    public void onStop()
+    {
+        super.onStop();
+        FlurryAgent.onEndSession(this);
+        // Your code
     }
 
     public void onStopTrackingTouch(final SeekBar seekBar) {
@@ -520,17 +527,10 @@ public class CreateGriddlerActivity extends Activity implements OnClickListener,
 
             final int touchedRGB = bitmap.getPixel(x, y);
 
-            // initialColor is the initially-selected color to be shown in the
-            // rectangle on the left of the arrow.
-            // for example, 0xff000000 is black, 0xff0000ff is blue. Please be
-            // aware
-            // of the initial 0xff which is the alpha.
             final AmbilWarnaDialog dialog = new AmbilWarnaDialog(this, touchedRGB,
                     new OnAmbilWarnaListener() {
 
                         public void onCancel(final AmbilWarnaDialog dialog) {
-                            // TODO Auto-generated method stub
-
                         }
 
                         public void onOk(final AmbilWarnaDialog dialog, int color) {
@@ -635,7 +635,7 @@ public class CreateGriddlerActivity extends Activity implements OnClickListener,
     private boolean userValuesValid() {
         if (this.newPicture == null) {
             Crouton.makeText(this, "You must generate a valid game.", Style.INFO).show();
-        FlurryAgent.logEvent("CreateInvalidOptionsPicture");
+            FlurryAgent.logEvent("CreateInvalidOptionsPicture");
         }
         else if (this.tags.getText().toString().length() == 0) {
             Crouton.makeText(this, "You must give some tags.", Style.INFO).show();

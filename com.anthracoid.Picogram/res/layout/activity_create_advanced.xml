@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <com.agimind.widget.SlideHolder xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/slideHolder"
+    android:id="@+id/shCreate"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/app_background">"

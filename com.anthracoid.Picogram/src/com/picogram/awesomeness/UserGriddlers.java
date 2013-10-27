@@ -14,6 +14,7 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 
+import com.flurry.android.FlurryAgent;
 import com.google.analytics.tracking.android.EasyTracker;
 
 import java.util.ArrayList;
@@ -124,7 +125,6 @@ public class UserGriddlers extends Activity implements OnTouchListener, OnItemCl
         // Also show the create a Griddler and Tutorial Griddler.
         sql = new SQLiteGriddlerAdapter(this.getApplicationContext(), "Griddlers", null, 1);
         this.lv.setOnItemClickListener(this);
-        FlurryAgent.logEvent("UserOpened");
     }
 
     @Override
@@ -164,6 +164,23 @@ public class UserGriddlers extends Activity implements OnTouchListener, OnItemCl
         EasyTracker.getInstance().activityStart(this);
     }
 
+    @Override
+    public void onStart()
+    {
+        super.onStart();
+        FlurryAgent.onStartSession(this, this.getResources().getString(R.string.flurry));
+        FlurryAgent.logEvent("UserOpened");
+        // Your code
+    }
+
+    @Override
+    public void onStop()
+    {
+        super.onStop();
+        FlurryAgent.onEndSession(this);
+        // Your code
+    }
+
     public boolean onTouch(final View v, final MotionEvent me) {
         Log.d(TAG, "Touched: " + this.lv.pointToPosition((int) me.getX(), (int) me.getY()));
         if (me.getAction() == MotionEvent.ACTION_DOWN) {
@@ -201,7 +218,7 @@ public class UserGriddlers extends Activity implements OnTouchListener, OnItemCl
     private void startGame(final String solution, final String current, final String width,
             final String height, final String id,
             final String name) {
-    	FlurryAgent.logEvent("UserPlayGame");
+        FlurryAgent.logEvent("UserPlayGame");
         // Intent gameIntent = new Intent(this, AdvancedGameActivity.class);
         final Intent gameIntent = new Intent(this, AdvancedGameActivity.class);
         gameIntent.putExtra("solution", solution);

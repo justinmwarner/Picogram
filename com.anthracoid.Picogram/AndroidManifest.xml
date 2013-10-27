@@ -8,15 +8,15 @@
         android:minSdkVersion="8"
         android:targetSdkVersion="15" />
 
+    <!-- Information for Picogram -->
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <!-- Crittercism -->
     <uses-permission android:name="android.permission.READ_LOGS" />
     <uses-permission android:name="android.permission.GET_TASKS" />
     <!-- Ads -->
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <!-- Floating Window -->
-    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
 
     <application
         android:icon="@drawable/ic_launcher"
@@ -63,19 +63,6 @@
         <activity
             android:name="com.google.ads.AdActivity"
             android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize" />
-        <activity
-            android:name="com.millennialmedia.android.MMAdViewOverlayActivity"
-            android:configChanges="orientation|keyboard|keyboardHidden"
-            android:theme="@android:style/Theme.NoTitleBar.Fullscreen" />
-        <activity
-            android:name="com.millennialmedia.android.VideoPlayer"
-            android:configChanges="keyboardHidden|orientation|keyboard"
-            android:theme="@android:style/Theme.NoTitleBar.Fullscreen" />
-        <activity
-            android:name="com.millennialmedia.android.MMActivity"
-            android:configChanges="keyboardHidden|orientation|keyboard"
-            android:theme="@android:style/Theme.Translucent.NoTitleBar" >
-        </activity>
         <!-- Facebook -->
         <meta-data
             android:name="com.facebook.sdk.ApplicationId"
@@ -93,9 +80,7 @@
 
         <!-- Activities Required by Facebook -->
         <activity android:name="com.facebook.LoginActivity" />
-        <!-- Floating Window -->
-        <service android:name="CreateWindowToolbox" >
-        </service>
+        <!-- Crashylitics -->
         <meta-data android:name="com.crashlytics.ApiKey" android:value="26cab79768d225df99b868382208fa9bce559df8"/>
         
     </application>

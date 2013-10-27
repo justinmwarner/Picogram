@@ -15,6 +15,7 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Spinner;
 
+import com.flurry.android.FlurryAgent;
 import com.google.analytics.tracking.android.EasyTracker;
 
 import java.util.ArrayList;
@@ -101,7 +102,6 @@ public class WorldGriddlers extends Activity implements OnClickListener, OnItemC
         this.sql = new SQLiteGriddlerAdapter(this.getApplicationContext(), "Griddlers", null, 1);
         this.lv = (ListView) this.findViewById(R.id.lvWorld);
         this.lv.setOnItemClickListener(this);
-        FlurryAgent.logEvent("WorldOpened");
     }
 
     @Override
@@ -135,5 +135,22 @@ public class WorldGriddlers extends Activity implements OnClickListener, OnItemC
     public void onResume() {
         super.onResume();
         EasyTracker.getInstance().activityStart(this);
+    }
+
+    @Override
+    public void onStart()
+    {
+        super.onStart();
+        FlurryAgent.onStartSession(this, this.getResources().getString(R.string.flurry));
+        FlurryAgent.logEvent("WorldOpened");
+        // Your code
+    }
+
+    @Override
+    public void onStop()
+    {
+        super.onStop();
+        FlurryAgent.onEndSession(this);
+        // Your code
     }
 }

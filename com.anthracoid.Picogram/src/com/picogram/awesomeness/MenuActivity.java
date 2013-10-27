@@ -2,89 +2,49 @@
 package com.picogram.awesomeness;
 
 import android.app.ActivityGroup;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
-import android.graphics.Color;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TabHost;
 import android.widget.TabHost.TabSpec;
 
 import com.crashlytics.android.Crashlytics;
 import com.crittercism.app.Crittercism;
-import com.millennialmedia.android.MMAdView;
-import com.millennialmedia.android.MMRequest;
-import com.millennialmedia.android.MMSDK;
+import com.flurry.android.FlurryAdListener;
+import com.flurry.android.FlurryAdSize;
+import com.flurry.android.FlurryAdType;
+import com.flurry.android.FlurryAds;
+import com.flurry.android.FlurryAgent;
 import com.parse.Parse;
 import com.parse.ParseAnalytics;
 
 import de.keyboardsurfer.android.widget.crouton.Crouton;
 import de.keyboardsurfer.android.widget.crouton.Style;
 
-import java.net.InetAddress;
-import java.net.NetworkInterface;
-import java.util.Enumeration;
-import java.util.UUID;
-
-public class MenuActivity extends ActivityGroup {
+public class MenuActivity extends ActivityGroup implements FlurryAdListener {
     protected static final String TAG = "MenuActivity";
     private TabHost th;
     int currentTab = 0;
     private LinearLayout llAds;
     public static int THEME = R.style.Theme_Sherlock_Light;
     public static String PREFS_FILE = "com.picogram.awesomeness_preferences";
+    FrameLayout adLayout;
 
-    // admob: a1516b691219c3b
-
-    private static String uniqueID = null;
-
-    private static final String PREF_UNIQUE_ID = "PREF_UNIQUE_ID";
-
-    public synchronized static String id(final Context context) {
-        final SharedPreferences prefs = context.getSharedPreferences(
-                MenuActivity.PREFS_FILE, MODE_PRIVATE);
-        if (prefs.contains("username")) {
-            uniqueID = prefs.getString("username", "DEFAULT_USER");
-            if (!uniqueID.equals("DEFAULT_USER")) {
-                return uniqueID;
-            }
-        }
-
-        final SharedPreferences sharedPrefs = context.getSharedPreferences(
-                PREF_UNIQUE_ID, Context.MODE_PRIVATE);
-        uniqueID = sharedPrefs.getString(PREF_UNIQUE_ID, null);
-        if (uniqueID == null) {
-            uniqueID = UUID.randomUUID().toString();
-            final Editor editor = sharedPrefs.edit();
-            editor.putString(PREF_UNIQUE_ID, uniqueID);
-            editor.commit();
-        }
-        return uniqueID;
+    public void onAdClicked(final String arg0) {
     }
 
-    public static boolean isOnline() {
-        try
-        {
-            for (final Enumeration<NetworkInterface> enumeration = NetworkInterface
-                    .getNetworkInterfaces(); enumeration.hasMoreElements();) {
-                final NetworkInterface networkInterface = enumeration.nextElement();
-                for (final Enumeration<InetAddress> enumIpAddress = networkInterface
-                        .getInetAddresses(); enumIpAddress
-                        .hasMoreElements();) {
-                    final InetAddress iNetAddress = enumIpAddress.nextElement();
-                    if (!iNetAddress.isLoopbackAddress()) {
-                        return true;
-                    }
-                }
-            }
-            return false;
-        } catch (final Exception e) {
-            return false;
-        }
+    public void onAdClosed(final String arg0) {
+    }
+
+    public void onAdOpened(final String arg0) {
+    }
+
+    public void onApplicationExit(final String arg0) {
     }
 
     @Override
@@ -139,33 +99,54 @@ public class MenuActivity extends ActivityGroup {
             this.th.addTab(worldSpec);
             this.th.addTab(settingsSpec);
         }
+        // Ads
+        this.adLayout = new FrameLayout(this);
+    }
 
-        MMSDK.initialize(this);
+    public void onRenderFailed(final String arg0) {
+    }
 
-        // Find the ad view for reference
-        final MMAdView adViewFromXml = (MMAdView) this
-                .findViewById(R.id.adView);
+    @Override
+    public void onStart()
+    {
+        super.onStart();
+        FlurryAgent.onStartSession(this, this.getResources().getString(R.string.flurry));
+        FlurryAds.enableTestAds(true);
+        FlurryAds.fetchAd(this, "MainScreen", this.adLayout, FlurryAdSize.BANNER_BOTTOM);
+        FlurryAgent.setLogEnabled(true);
+        FlurryAds.setAdListener(this);
+        FlurryAgent.setCaptureUncaughtExceptions(true);
+    }
 
-        // Replace YOUR_APID with the APID provided by Millennial Media
-        adViewFromXml.setApid("119832");
+    @Override
+    public void onStop()
+    {
+        super.onStop();
+        FlurryAds.removeAd(this, "MainScreen", this.adLayout);
+        FlurryAgent.onEndSession(this);
+        // Your code
+    }
 
-        // MMRequest object
-        final MMRequest request = new MMRequest();
-        adViewFromXml.setMMRequest(request);
-        adViewFromXml.setTransitionType(MMAdView.TRANSITION_RANDOM);
-        adViewFromXml.getAd();
-        adViewFromXml.addBlackView();
-        // Change ad view.
-        if (prefs.getBoolean("nightmode", false)) {
-            adViewFromXml.setBackgroundColor(Color.BLACK);
-        } else {
-            adViewFromXml.setBackgroundColor(Color.WHITE);
-        }
+    public void onVideoCompleted(final String arg0) {
+    }
+
+    public boolean shouldDisplayAd(final String arg0, final FlurryAdType arg1) {
+        return true;
+    }
+
+    public void spaceDidFailToReceiveAd(final String arg0) {
+        Log.d(TAG, "Failed receive)");
+    }
+
+    public void spaceDidReceiveAd(final String arg0) {
+        Log.d(TAG, "Success receive)");
+        FlurryAds.displayAd(this, "MainScreen", this.adLayout);
     }
 
     public void switchTab(final int tab) {
-    	FlurryAgent.logEvent("Switched to tab " + tab);
-        if ((tab == 1) && !isOnline())
+        FlurryAgent.logEvent("Switched to tab " + tab);
+        FlurryAgent.onPageView();
+        if ((tab == 1) && !Util.isOnline())
         {
             Crouton.makeText(this, "Must be connected to the internet to use social aspects",
                     Style.INFO).show();
@@ -175,5 +156,4 @@ public class MenuActivity extends ActivityGroup {
         this.currentTab = tab;
 
     }
-
 }

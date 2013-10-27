@@ -31,23 +31,6 @@
             android:layout_weight="0.36" >
         </TabWidget>
 
-        <LinearLayout
-            android:id="@+id/llAds"
-            android:layout_width="wrap_content"
-            android:layout_height="100dp"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentRight="true" >
-
-            <com.millennialmedia.android.MMAdView
-                android:id="@+id/adView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentTop="true"
-                android:layout_centerHorizontal="true"
-                android:alpha="10"
-            android:gravity="center" />
-        </LinearLayout>
     </RelativeLayout>
 
 </TabHost>

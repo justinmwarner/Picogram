@@ -8,13 +8,16 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.Menu;
+import android.view.MotionEvent;
 import android.view.View;
-import android.view.View.OnClickListener;
+import android.view.View.OnTouchListener;
 import android.view.Window;
 import android.view.WindowManager;
-import android.widget.Button;
+import android.widget.ImageView;
 
+import com.agimind.widget.SlideHolder;
 import com.crittercism.app.Crittercism;
+import com.flurry.android.FlurryAgent;
 import com.github.espiandev.showcaseview.ShowcaseView;
 import com.google.analytics.tracking.android.EasyTracker;
 import com.picogram.awesomeness.TouchImageView.WinnerListener;
@@ -33,7 +36,7 @@ import de.keyboardsurfer.android.widget.crouton.Style;
 
 import org.json.JSONObject;
 
-public class AdvancedGameActivity extends Activity implements OnClickListener, WinnerListener,
+public class AdvancedGameActivity extends Activity implements OnTouchListener, WinnerListener,
         ShowcaseView.OnShowcaseEventListener {
     private static final String TAG = "AdvancedGameActivity";
     TouchImageView tiv;
@@ -42,6 +45,8 @@ public class AdvancedGameActivity extends Activity implements OnClickListener, W
     int tutorialStep = 0;
     private static SQLiteGriddlerAdapter sql;
     Handler handler = new Handler();
+
+    ImageView pallet;
 
     private void doFacebookStuff() {
         if (FacebookUtils.isLinked(this)) {
@@ -206,18 +211,6 @@ public class AdvancedGameActivity extends Activity implements OnClickListener, W
         this.finish();
     }
 
-    public void onClick(final View v) {
-        if (v.getId() == R.id.bToolboxHand) {
-            this.tiv.isGameplay = false;
-        } else if (v.getId() == R.id.bToolboxBlack) {
-            this.tiv.colorCharacter = '1';
-            this.tiv.isGameplay = true;
-        } else if (v.getId() == R.id.bToolboxWhite) {
-            this.tiv.colorCharacter = '0';
-            this.tiv.isGameplay = true;
-        }
-    }
-
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -225,19 +218,13 @@ public class AdvancedGameActivity extends Activity implements OnClickListener, W
         this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
         this.setContentView(R.layout.activity_advanced_game);
-        final Button bHand = (Button) this.findViewById(R.id.bToolboxHand);
-        final Button bWhite = (Button) this.findViewById(R.id.bToolboxWhite);
-        final Button bBlack = (Button) this.findViewById(R.id.bToolboxBlack);
-        bHand.setOnClickListener(this);
-        bWhite.setOnClickListener(this);
-        bBlack.setOnClickListener(this);
+        this.pallet = (ImageView) this.findViewById(R.id.ivPallet);
         this.tiv = (TouchImageView) this.findViewById(R.id.tivGame);
         this.tiv.setWinListener(this);
         this.tiv.setGriddlerInfo(this.getIntent().getExtras());
         final String name = this.getIntent().getExtras().getString("name");
         final String c = this.getIntent().getExtras().getString("current");
         final String s = this.getIntent().getExtras().getString("solution");
-        FlurryAgent.logEvent("UserPlayingGame");
         if (name != null) {
             EasyTracker.getTracker().trackEvent("Game", "GriddlerName", name, (long) 1);
             if (name.equals("Tutorial")) {
@@ -246,6 +233,14 @@ public class AdvancedGameActivity extends Activity implements OnClickListener, W
                     this.showStepOne();
                 }
             }
+        }
+        final SlideHolder sh = (SlideHolder) this.findViewById(R.id.shGame);
+        if (Util.isTabletDevice(this.getResources())) {
+            sh.setAlwaysOpened(true);
+        }
+        else
+        {
+            sh.open();
         }
     }
 
@@ -312,6 +307,29 @@ public class AdvancedGameActivity extends Activity implements OnClickListener, W
 
     }
 
+    @Override
+    public void onStart()
+    {
+        super.onStart();
+        FlurryAgent.onStartSession(this, this.getResources().getString(R.string.flurry));
+        FlurryAgent.logEvent("UserPlayingGame");
+        FlurryAgent.onPageView();
+        // Your code
+    }
+
+    @Override
+    public void onStop()
+    {
+        super.onStop();
+        FlurryAgent.onEndSession(this);
+        // Your code
+    }
+
+    public boolean onTouch(final View arg0, final MotionEvent arg1) {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
     private void returnIntent() {
 
         final Intent returnIntent2 = new Intent();
@@ -364,7 +382,6 @@ public class AdvancedGameActivity extends Activity implements OnClickListener, W
         this.sv.setOnShowcaseEventListener(this);
 
     }
-
     private void showStepTwo() {
 
         final ShowcaseView.ConfigOptions co = new ShowcaseView.ConfigOptions();
@@ -420,4 +437,5 @@ public class AdvancedGameActivity extends Activity implements OnClickListener, W
                 .setNegativeButton("No", dialogClickListener).show();
         // Leaked window, it quits too fast.
     }
+
 }
