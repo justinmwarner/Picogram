@@ -243,23 +243,23 @@ public class TouchImageView extends ImageView {
 
         for (int i = this.longestSide; i != ((this.gWidth + this.longestSide) + 1); ++i) {
             if ((i % 5) == 0) {
-                this.paintBitmap.setStrokeWidth(this.paintBitmap.getStrokeWidth() + 2);
+                this.paintBitmap.setStrokeWidth(this.paintBitmap.getStrokeWidth() + 4);
             }
             this.canvasBitmap.drawLine(widthOffset * i, 0, widthOffset * i,
                     this.canvasBitmap.getHeight(), this.paintBitmap);
             if ((i % 5) == 0) {
-                this.paintBitmap.setStrokeWidth(this.paintBitmap.getStrokeWidth() - 2);
+                this.paintBitmap.setStrokeWidth(this.paintBitmap.getStrokeWidth() - 4);
             }
         }
         // Side side.
         for (int i = this.longestTop; i != ((this.gHeight + this.longestTop) + 1); ++i) {
             if ((i % 5) == 0) {
-                this.paintBitmap.setStrokeWidth(this.paintBitmap.getStrokeWidth() + 2);
+                this.paintBitmap.setStrokeWidth(this.paintBitmap.getStrokeWidth() + 4);
             }
             this.canvasBitmap.drawLine(0, heightOffset * i, this.canvasBitmap.getWidth(),
                     heightOffset * i, this.paintBitmap);
             if ((i % 5) == 0) {
-                this.paintBitmap.setStrokeWidth(this.paintBitmap.getStrokeWidth() - 2);
+                this.paintBitmap.setStrokeWidth(this.paintBitmap.getStrokeWidth() - 4);
             }
         }
     }

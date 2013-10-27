@@ -14,6 +14,7 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 
+import com.flurry.android.FlurryAgent;
 import com.google.analytics.tracking.android.EasyTracker;
 
 import java.util.ArrayList;
@@ -201,7 +202,7 @@ public class UserGriddlers extends Activity implements OnTouchListener, OnItemCl
     private void startGame(final String solution, final String current, final String width,
             final String height, final String id,
             final String name) {
-    	FlurryAgent.logEvent("UserPlayGame");
+        FlurryAgent.logEvent("UserPlayGame");
         // Intent gameIntent = new Intent(this, AdvancedGameActivity.class);
         final Intent gameIntent = new Intent(this, AdvancedGameActivity.class);
         gameIntent.putExtra("solution", solution);

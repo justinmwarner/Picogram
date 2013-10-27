@@ -15,7 +15,10 @@ import android.view.WindowManager;
 import android.widget.Button;
 
 import com.agimind.widget.SlideHolder;
+import com.agimind.widget.SlideHolder.OnSlideListener;
 import com.crittercism.app.Crittercism;
+import com.flurry.android.FlurryAgent;
+import com.gesturetutorial.awesomeness.TutorialView;
 import com.github.espiandev.showcaseview.ShowcaseView;
 import com.google.analytics.tracking.android.EasyTracker;
 import com.picogram.awesomeness.TouchImageView.WinnerListener;
@@ -35,7 +38,7 @@ import de.keyboardsurfer.android.widget.crouton.Style;
 import org.json.JSONObject;
 
 public class AdvancedGameActivity extends Activity implements OnClickListener, WinnerListener,
-        ShowcaseView.OnShowcaseEventListener {
+        ShowcaseView.OnShowcaseEventListener, OnSlideListener {
     private static final String TAG = "AdvancedGameActivity";
     TouchImageView tiv;
     ShowcaseView sv;
@@ -255,6 +258,14 @@ public class AdvancedGameActivity extends Activity implements OnClickListener, W
                 }
             }
         }
+        if (Util.isTabletDevice(this.getResources()))
+        {
+            this.sh.setAlwaysOpened(true);
+        } else {
+            TutorialView.create(this, TutorialView.LeftToRight, TutorialView.Center,
+                    this.findViewById(android.R.id.content));
+            this.sh.setOnSlideListener(this);
+        }
     }
 
     @Override
@@ -318,6 +329,13 @@ public class AdvancedGameActivity extends Activity implements OnClickListener, W
     public void onShowcaseViewShow(final ShowcaseView showcaseView) {
         // TODO Auto-generated method stub
 
+    }
+
+    public void onSlideCompleted(final boolean isOpen) {
+        if (isOpen)
+        {
+            // remove tutorial.
+        }
     }
 
     private void returnIntent() {

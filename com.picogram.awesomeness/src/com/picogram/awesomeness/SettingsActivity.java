@@ -9,11 +9,11 @@ import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.Preference.OnPreferenceClickListener;
-import android.util.Log;
 import android.widget.Toast;
 
 import com.actionbarsherlock.app.SherlockPreferenceActivity;
 import com.actionbarsherlock.view.Menu;
+import com.flurry.android.FlurryAgent;
 import com.google.analytics.tracking.android.EasyTracker;
 import com.google.analytics.tracking.android.GoogleAnalytics;
 import com.google.analytics.tracking.android.Tracker;
@@ -33,8 +33,8 @@ public class SettingsActivity extends SherlockPreferenceActivity implements
 
         this.prefs = this.getSharedPreferences("Picogram", 0);
         this.findPreference("nightmode").setOnPreferenceChangeListener(this);
-	this.findPreference("changelog").setOnPreferenceClickListener(this);
-	FlurryAgent.logEvent("PreferencesOpened");
+        this.findPreference("changelog").setOnPreferenceClickListener(this);
+        FlurryAgent.logEvent("PreferencesOpened");
     }
 
     @Override
@@ -98,7 +98,7 @@ public class SettingsActivity extends SherlockPreferenceActivity implements
     }
 
     public void optOut() {
-    	FlurryAgent.logEvent("UserOptOut");
+        FlurryAgent.logEvent("UserOptOut");
         final Context mCtx = this; // Get current context.
         final GoogleAnalytics myInstance = GoogleAnalytics
                 .getInstance(mCtx.getApplicationContext());

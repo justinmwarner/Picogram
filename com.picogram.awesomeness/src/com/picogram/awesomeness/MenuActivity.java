@@ -2,10 +2,8 @@
 package com.picogram.awesomeness;
 
 import android.app.ActivityGroup;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.Window;
@@ -28,11 +26,6 @@ import com.parse.ParseAnalytics;
 import de.keyboardsurfer.android.widget.crouton.Crouton;
 import de.keyboardsurfer.android.widget.crouton.Style;
 
-import java.net.InetAddress;
-import java.net.NetworkInterface;
-import java.util.Enumeration;
-import java.util.UUID;
-
 public class MenuActivity extends ActivityGroup implements FlurryAdListener {
     protected static final String TAG = "MenuActivity";
     private TabHost th;
@@ -43,49 +36,6 @@ public class MenuActivity extends ActivityGroup implements FlurryAdListener {
     private static String uniqueID = null;
 
     private static final String PREF_UNIQUE_ID = "PREF_UNIQUE_ID";
-
-    public synchronized static String id(final Context context) {
-        final SharedPreferences prefs = context.getSharedPreferences(
-                MenuActivity.PREFS_FILE, MODE_PRIVATE);
-        if (prefs.contains("username")) {
-            uniqueID = prefs.getString("username", "DEFAULT_USER");
-            if (!uniqueID.equals("DEFAULT_USER")) {
-                return uniqueID;
-            }
-        }
-
-        final SharedPreferences sharedPrefs = context.getSharedPreferences(
-                PREF_UNIQUE_ID, Context.MODE_PRIVATE);
-        uniqueID = sharedPrefs.getString(PREF_UNIQUE_ID, null);
-        if (uniqueID == null) {
-            uniqueID = UUID.randomUUID().toString();
-            final Editor editor = sharedPrefs.edit();
-            editor.putString(PREF_UNIQUE_ID, uniqueID);
-            editor.commit();
-        }
-        return uniqueID;
-    }
-
-    public static boolean isOnline() {
-        try
-        {
-            for (final Enumeration<NetworkInterface> enumeration = NetworkInterface
-                    .getNetworkInterfaces(); enumeration.hasMoreElements();) {
-                final NetworkInterface networkInterface = enumeration.nextElement();
-                for (final Enumeration<InetAddress> enumIpAddress = networkInterface
-                        .getInetAddresses(); enumIpAddress
-                        .hasMoreElements();) {
-                    final InetAddress iNetAddress = enumIpAddress.nextElement();
-                    if (!iNetAddress.isLoopbackAddress()) {
-                        return true;
-                    }
-                }
-            }
-            return false;
-        } catch (final Exception e) {
-            return false;
-        }
-    }
 
     Handler h = new Handler();
 
@@ -202,8 +152,8 @@ public class MenuActivity extends ActivityGroup implements FlurryAdListener {
     }
 
     public void switchTab(final int tab) {
-    	FlurryAgent.logEvent("Switched to tab " + tab);
-        if ((tab == 1) && !isOnline())
+        FlurryAgent.logEvent("Switched to tab " + tab);
+        if ((tab == 1) && !Util.isOnline())
         {
             Crouton.makeText(this, "Must be connected to the internet to use social aspects",
                     Style.INFO).show();
