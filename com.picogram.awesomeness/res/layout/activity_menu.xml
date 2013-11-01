@@ -16,7 +16,7 @@
             android:id="@android:id/tabcontent"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
-            android:layout_above="@+id/llAds"
+            android:layout_above="@+id/flurryBanner"
             android:layout_marginTop="70dp"
             android:descendantFocusability="beforeDescendants" >
         </FrameLayout>
@@ -30,13 +30,16 @@
             android:layout_alignParentTop="true"
             android:layout_weight="0.36" >
         </TabWidget>
- <FrameLayout
-        android:id="@+id/flurryBanner"
-        android:layout_width="320dp"
-        android:layout_height="50dp"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true" >
-  </FrameLayout>
+
+        <LinearLayout
+            android:id="@+id/flurryBanner"
+            android:layout_width="320dp"
+            android:layout_height="50dp"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:orientation="horizontal" >
+
+        </LinearLayout>
     </RelativeLayout>
 
 </TabHost>

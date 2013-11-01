@@ -1,62 +1,33 @@
-<com.agimind.widget.SlideHolder xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/shGame"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/app_background"
-    tools:context=".AdvancedGameActivity">
+    android:background="@drawable/grid"
+        android:tileMode="repeat" >
 
-    <LinearLayout
-        android:id="@+id/llToolbox"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:clickable="true" >
-
-        <Button
-            android:id="@+id/bToolboxHand"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentTop="true"
-            android:text="Move" />
-
-        <Button
-            android:id="@+id/bToolboxWhite"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignBaseline="@+id/bToolboxHand"
-            android:layout_alignParentTop="true"
-            android:layout_toRightOf="@+id/bToolboxHand"
-            android:text="White" />
-
-        <Button
-            android:id="@+id/bToolboxBlack"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignBaseline="@+id/bToolboxHand"
-            android:layout_alignParentTop="true"
-            android:layout_toRightOf="@+id/bToolboxWhite"
-            android:text="Black" />
-    </LinearLayout>
-
-    <LinearLayout
+    <com.picogram.awesomeness.TouchImageView
+        android:id="@+id/tivGame"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@+id/llToolbox"
-        android:clickable="true" >
+        android:layout_above="@+id/llPallet"
+        android:paddingLeft="10dp"
+        android:paddingTop="10dp"
+        android:paddingRight="10dp"
+        android:paddingBottom="10dp"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true" />
 
-        <Button
-            android:id="@+id/openOptions"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text=">" />
+    <LinearLayout
+        android:id="@+id/llPallet"
+        android:layout_width="match_parent"
+        android:layout_height="75dp"
+        android:layout_alignParentBottom="true"
+        android:clickable="true"
+        android:background="@drawable/border" >
 
-        <com.picogram.awesomeness.TouchImageView
-            android:id="@+id/tivGame"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentTop="true" />
+        <ImageView
+            android:id="@+id/ivOne"
+            android:layout_width="50dp"
+            android:layout_height="50dp" />
     </LinearLayout>
 
-</com.agimind.widget.SlideHolder>
+</RelativeLayout>

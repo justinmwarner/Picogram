@@ -12,7 +12,8 @@
         android:focusable="true"
         android:focusableInTouchMode="true"
         android:orientation="vertical"
-        android:padding="15dp" >
+        android:padding="15dp"
+        android:scrollbars="vertical" >
 
         <LinearLayout
             android:id="@+id/llFirst"
@@ -117,21 +118,21 @@
                     <kankan.wheel.widget.WheelView
                         android:id="@+id/spinWidth"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
+                        android:layout_height="20dp"
                         android:layout_weight="1"
                         android:padding="2dp" />
 
                     <kankan.wheel.widget.WheelView
                         android:id="@+id/spinHeight"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
+                        android:layout_height="15dp"
                         android:layout_weight="1"
                         android:padding="2dp" />
 
                     <kankan.wheel.widget.WheelView
                         android:id="@+id/spinColor"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
+                        android:layout_height="10dp"
                         android:layout_weight="1"
                         android:padding="2dp" />
                 </LinearLayout>
