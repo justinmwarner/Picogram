@@ -20,6 +20,8 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
+import android.view.Window;
+import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.Button;
@@ -306,7 +308,11 @@ public class CreateGriddlerActivity extends Activity implements OnClickListener,
 	@Override
 	public void onCreate(final Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		this.requestWindowFeature(Window.FEATURE_NO_TITLE);
+		this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+				WindowManager.LayoutParams.FLAG_FULLSCREEN);
 		this.setContentView(R.layout.activity_create_advanced);
+		Util.setTheme(this);
 		final Button photoButton = (Button) this.findViewById(R.id.bCameraA);
 		final Button fileButton = (Button) this.findViewById(R.id.bFileA);
 		final Button urlButton = (Button) this.findViewById(R.id.bURLA);

@@ -393,6 +393,7 @@ public class TouchImageView extends ImageView {
 			}
 		}
 		// Draw side hints.
+		final Align oldAlign = this.paintBitmap.getTextAlign();
 		this.paintBitmap.setTextAlign(Align.RIGHT);
 		this.paintBitmap.setTextSize(widthOffset / 2);
 		for (int i = 0; i != this.sideHints.size(); ++i) {
@@ -402,6 +403,7 @@ public class TouchImageView extends ImageView {
 							+ ((2 * heightOffset) / 3), this.paintBitmap);
 
 		}
+		this.paintBitmap.setTextAlign(oldAlign);
 	}
 
 	private void drawOnCanvas() {

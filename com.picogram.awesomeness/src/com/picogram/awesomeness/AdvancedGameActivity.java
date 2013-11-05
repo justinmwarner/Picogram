@@ -238,6 +238,7 @@ public class AdvancedGameActivity extends Activity implements OnTouchListener,
 		this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
 				WindowManager.LayoutParams.FLAG_FULLSCREEN);
 		this.setContentView(R.layout.activity_advanced_game);
+		Util.setTheme(this);
 		this.tiv = (TouchImageView) this.findViewById(R.id.tivGame);
 		this.tiv.setWinListener(this);
 		this.tiv.setGriddlerInfo(this.getIntent().getExtras());

@@ -29,8 +29,6 @@ import de.keyboardsurfer.android.widget.crouton.Style;
 public class MenuActivity extends ActivityGroup implements FlurryAdListener {
 	protected static final String TAG = "MenuActivity";
 	private TabHost th;
-	int currentTab = 0;
-	public static int THEME = R.style.Theme_Sherlock_Light;
 	public static String PREFS_FILE = "com.picogram.awesomeness_preferences";
 	Handler h = new Handler();
 	LinearLayout mBanner;
@@ -53,16 +51,10 @@ public class MenuActivity extends ActivityGroup implements FlurryAdListener {
 		Crashlytics.start(this);
 		this.requestWindowFeature(Window.FEATURE_NO_TITLE);
 		this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-				WindowManager.LayoutParams.FLAG_FULLSCREEN); // Full
-
+				WindowManager.LayoutParams.FLAG_FULLSCREEN);
 		final SharedPreferences prefs = this.getSharedPreferences(
 				MenuActivity.PREFS_FILE, MODE_PRIVATE);
-		if (prefs.getBoolean("nightmode", false)) {
-			THEME = R.style.Theme_Sherlock;
-		} else {
-			THEME = R.style.Theme_Sherlock_Light;
-		}
-		this.setTheme(THEME);
+		Util.setTheme(this);
 		this.setContentView(R.layout.activity_menu);
 		final String user = prefs.getString("username", "N/A");
 		Parse.initialize(this, "3j445kDaxQ3lelflRVMetszjtpaXo2S1mjMZYNcW",
@@ -149,12 +141,9 @@ public class MenuActivity extends ActivityGroup implements FlurryAdListener {
 		{
 			Crouton.makeText(this, "Must be connected to the internet to use social aspects",
 					Style.INFO).show();
-
 			return;
 		}
 		this.th.setCurrentTab(tab);
-		this.currentTab = tab;
-
 	}
 
 }
