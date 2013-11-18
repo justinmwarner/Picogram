@@ -12,15 +12,12 @@ import android.widget.LinearLayout;
 import android.widget.TabHost;
 import android.widget.TabHost.TabSpec;
 
-import com.crashlytics.android.Crashlytics;
-import com.crittercism.app.Crittercism;
 import com.flurry.android.FlurryAdListener;
 import com.flurry.android.FlurryAdSize;
 import com.flurry.android.FlurryAdType;
 import com.flurry.android.FlurryAds;
 import com.flurry.android.FlurryAgent;
-import com.parse.Parse;
-import com.parse.ParseAnalytics;
+import com.stackmob.android.sdk.common.StackMobAndroid;
 
 import de.keyboardsurfer.android.widget.crouton.Crouton;
 import de.keyboardsurfer.android.widget.crouton.Style;
@@ -48,7 +45,6 @@ public class MenuActivity extends ActivityGroup implements FlurryAdListener {
 	@Override
 	public void onCreate(final Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		Crashlytics.start(this);
 		this.requestWindowFeature(Window.FEATURE_NO_TITLE);
 		this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
 				WindowManager.LayoutParams.FLAG_FULLSCREEN);
@@ -57,13 +53,8 @@ public class MenuActivity extends ActivityGroup implements FlurryAdListener {
 		Util.setTheme(this);
 		this.setContentView(R.layout.activity_menu);
 		final String user = prefs.getString("username", "N/A");
-		Parse.initialize(this, "3j445kDaxQ3lelflRVMetszjtpaXo2S1mjMZYNcW",
-				"zaorBzbtWhdwMdJ0sIgBJjYvowpueuCzstLTwq1A");
-		ParseAnalytics.trackAppOpened(this.getIntent());
-
-		Crittercism.init(this.getApplicationContext(),
-				"5132a7682d09b61bfd000020");
-		Crittercism.setUsername(user);
+		StackMobAndroid.init(this.getApplicationContext(), 0,
+				"f077e098-c678-4256-b7a2-c3061d9ff0c2");// Change to production.
 
 		this.th = (TabHost) this.findViewById(R.id.thMain);
 		this.th.setup(this.getLocalActivityManager());

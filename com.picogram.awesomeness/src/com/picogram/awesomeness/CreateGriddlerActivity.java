@@ -32,15 +32,9 @@ import android.widget.SeekBar.OnSeekBarChangeListener;
 
 import com.agimind.widget.SlideHolder;
 import com.agimind.widget.SlideHolder.OnSlideListener;
-import com.crashlytics.android.Crashlytics;
-import com.crittercism.app.Crittercism;
 import com.flurry.android.FlurryAgent;
 import com.gesturetutorial.awesomeness.TutorialView;
 import com.github.espiandev.showcaseview.ShowcaseView;
-import com.parse.Parse;
-import com.parse.ParseException;
-import com.parse.ParseObject;
-import com.parse.SaveCallback;
 
 import de.keyboardsurfer.android.widget.crouton.Crouton;
 import de.keyboardsurfer.android.widget.crouton.Style;
@@ -231,7 +225,6 @@ public class CreateGriddlerActivity extends Activity implements OnClickListener,
 			if (this.userValuesValid())
 			{
 				final String id = this.solution.hashCode() + "";
-				// For local database-----------------------------------
 				String cols = "";
 				for (final int color : this.colors) {
 					cols += color + ",";
@@ -248,52 +241,8 @@ public class CreateGriddlerActivity extends Activity implements OnClickListener,
 				returnIntent.putExtra("rank", 5 + "");
 				returnIntent.putExtra("solution", this.solution);
 				returnIntent.putExtra("width", this.xNum + "");
+				returnIntent.putExtra("tags", this.tags.getText().toString());
 				this.setResult(RESULT_OK, returnIntent);
-				// End Local------------------------------------------
-				// For parse------------------------------------------
-				Parse.initialize(this, "3j445kDaxQ3lelflRVMetszjtpaXo2S1mjMZYNcW",
-						"zaorBzbtWhdwMdJ0sIgBJjYvowpueuCzstLTwq1A");
-				ParseObject po = new ParseObject("Puzzle");
-				po.put("author", Util.id(this));
-				po.put("colors", cols);
-				po.put("difficulty", this.sDiff.getCurrentItem());
-				po.put("height", this.yNum);
-				po.put("PuzzleId", id);
-				po.put("name", this.name.getText().toString());
-				po.put("numberColors", this.numColors);
-				po.put("numRank", 1);
-				po.put("rank", 5);
-				po.put("solution", this.solution);
-				po.put("width", this.xNum);
-				po.saveEventually(new SaveCallback() {
-
-					@Override
-					public void done(final ParseException e) {
-						if (e != null) {
-							Crittercism.logHandledException(e);
-							Crashlytics.logException(e);
-						}
-					}
-				});
-				for (final String tag : this.tags.getText().toString().split(" "))
-				{
-					po = new ParseObject("PuzzleTag");
-					po.put("tag", tag);
-					po.put("PuzzleIde", id);
-					po.saveEventually(new SaveCallback() {
-
-						@Override
-						public void done(final ParseException e) {
-							if (e != null) {
-								Crittercism.logHandledException(e);
-								Crashlytics.logException(e);
-							}
-						}
-					});
-				}
-				Log.d(TAG, "ID: " + id);
-				// End parse-------------------------------------------
-				FlurryAgent.logEvent("PuzzleCreateDone");
 				this.finish();
 			}
 		}
@@ -418,7 +367,6 @@ public class CreateGriddlerActivity extends Activity implements OnClickListener,
 							public void run() {
 								if (CreateGriddlerActivity.this.tutorial != null) {
 									CreateGriddlerActivity.this.tutorial.hide();
-									FlurryAgent.logEvent("GestureTutorialPass");
 								}
 							}
 

@@ -36,10 +36,10 @@ public class SQLiteGriddlerAdapter extends SQLiteOpenHelper {
 		// Do stuff. Unknown so far. Implement later.
 		final SQLiteDatabase db = this.getWritableDatabase();
 		final ContentValues cv = new ContentValues();
-		cv.put(SQLiteGriddlerAdapter.id, g.getId());
+		cv.put(SQLiteGriddlerAdapter.id, g.getID());
 		cv.put(SQLiteGriddlerAdapter.author, g.getAuthor());
 		cv.put(SQLiteGriddlerAdapter.name, g.getName());
-		cv.put(SQLiteGriddlerAdapter.rank, g.getRank());
+		cv.put(SQLiteGriddlerAdapter.rank, g.getRate());
 		cv.put(SQLiteGriddlerAdapter.solution, g.getSolution());
 		cv.put(SQLiteGriddlerAdapter.difficulty, g.getDiff());
 		cv.put(SQLiteGriddlerAdapter.width, g.getWidth());
@@ -56,7 +56,8 @@ public class SQLiteGriddlerAdapter extends SQLiteOpenHelper {
 	}
 
 	public long addUserGriddler(final String id, final String author, final String name,
-			final String rank, final String solution, final String difficulty, final String width,
+			final String rank, final String solution, String current, final String difficulty,
+			final String width,
 			final String height, final String status, final String numberOfColors,
 			final String colors) {
 		// Do stuff. Unknown so far. Implement later.
@@ -73,14 +74,17 @@ public class SQLiteGriddlerAdapter extends SQLiteOpenHelper {
 		cv.put(SQLiteGriddlerAdapter.status, status);
 		cv.put(SQLiteGriddlerAdapter.numberOfColors, numberOfColors);
 		cv.put(SQLiteGriddlerAdapter.colors, colors);
-		// All 0's.
-		String curr = "";
-		for (int i = 0; i < Integer.parseInt(width); i++) {
-			for (int j = 0; j < Integer.parseInt(height); j++) {
-				curr += "0";
+		// All 0's, if not assigned.
+		if (current == null)
+		{
+			current = "";
+			for (int i = 0; i < Integer.parseInt(width); i++) {
+				for (int j = 0; j < Integer.parseInt(height); j++) {
+					current += "0";
+				}
 			}
 		}
-		cv.put(SQLiteGriddlerAdapter.current, curr);
+		cv.put(SQLiteGriddlerAdapter.current, current);
 		return db.insert(griddlerTable, null, cv);
 	}
 

@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MotionEvent;
@@ -15,30 +16,32 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 
 import com.flurry.android.FlurryAgent;
-import com.google.analytics.tracking.android.EasyTracker;
+import com.stackmob.sdk.callback.StackMobModelCallback;
+import com.stackmob.sdk.exception.StackMobException;
 
 import java.util.ArrayList;
 import java.util.Date;
 
 public class UserGriddlers extends Activity implements OnTouchListener, OnItemClickListener {
 	protected static final String TAG = "UserGriddlers";
-	private final ArrayList<Griddler> griddlers = new ArrayList<Griddler>();
+	ArrayList<Griddler> griddlers = new ArrayList<Griddler>();
 	private ListView lv;
 	private static SQLiteGriddlerAdapter sql;
 	int yPrev;
+	Handler h = new Handler();
 
 	public void loadGriddlers() {
+		UserGriddlers.this.griddlers.clear();
 		final GriddlerListAdapter adapter = new GriddlerListAdapter(this, R.id.lvUser);
 		this.griddlers.clear(); // Clear all old info.
 		adapter.setGriddlers(this.griddlers);
 
 		this.lv.setAdapter(null);
-		final String[][] griddlers = sql.getGriddlers();
-		Griddler tempGriddler = new Griddler();
+		final String[][] griddlersArray = sql.getGriddlers();
 		final SharedPreferences prefs = this.getSharedPreferences(MenuActivity.PREFS_FILE,
 				MODE_PRIVATE);
-		for (int i = 0; i < griddlers.length; i++) {
-			final String temp[] = griddlers[i];
+		for (int i = 0; i < griddlersArray.length; i++) {
+			final String temp[] = griddlersArray[i];
 			final String id = temp[0];
 			final String name = temp[2];
 			final String rate = temp[3];
@@ -55,7 +58,16 @@ public class UserGriddlers extends Activity implements OnTouchListener, OnItemCl
 				numColors = Integer.parseInt(temp[10]);
 				colors = new int[numColors];
 				for (int j = 0; j != colors.length; ++j) {
-					colors[j] = Integer.parseInt(temp[11].split(",")[j]);
+					try {
+						if (temp[11].contains(",")) {
+							colors[j] = Integer.parseInt(temp[11].split(",")[j]);
+						} else {
+							colors[j] = Integer.parseInt(temp[11].split(" ")[j]);
+						}
+					} catch (final Exception e)
+					{
+						Log.d(TAG, e.toString());
+					}
 				}
 			}
 			String status;
@@ -81,11 +93,59 @@ public class UserGriddlers extends Activity implements OnTouchListener, OnItemCl
 				}
 			}
 			if (isAdd) {
-				tempGriddler = new Griddler(id, status, name, diff, rate, author, width, height,
-						solution, current, numColors, colors);
-				this.griddlers.add(tempGriddler);
+				if (status.equals("2") || !Util.isOnline())
+				{
+					final Griddler tempGriddler = new Griddler(status, name, diff,
+							rate, 0, author, width, height,
+							solution, current, numColors, colors);
+					this.griddlers.add(tempGriddler);
+				} else
+				{
+					// Get data from online about the Griddler for its updated rating.
+					// These variables should be removed.
+					final int[] colored = colors;
+					final int nc = numColors;
+					final String oldStatus = status; // Don't get rid of this.
+					final Griddler g = new Griddler();
+					g.setID(id);
+					Log.d(TAG, "id: " + id);
+
+					g.fetch(new StackMobModelCallback() {
+
+						@Override
+						public void failure(final StackMobException arg0) {
+							Log.d(TAG, "Failed to find: " + id);
+							UserGriddlers.this.h.post(new Runnable() {
+
+								public void run() {
+									final Griddler tempGriddler = new Griddler(oldStatus, name,
+											diff,
+											rate, 0, author, width, height,
+											solution, current, nc, colored);
+									tempGriddler.setID(id);
+									UserGriddlers.this.griddlers.add(tempGriddler);
+								}
+							});
+						}
+
+						@Override
+						public void success() {
+							Log.d(TAG, "Succeeded to find: " + id);
+							UserGriddlers.this.h.post(new Runnable() {
+
+								public void run() {
+									g.setStatus(oldStatus);
+									UserGriddlers.this.griddlers.add(g);
+									adapter.setGriddlers(UserGriddlers.this.griddlers);
+									UserGriddlers.this.lv.setAdapter(adapter);
+								}
+							});
+						}
+					});
+				}
 			}
 		}
+		adapter.setGriddlers(this.griddlers);
 		this.lv.setAdapter(adapter);
 	}
 
@@ -95,20 +155,36 @@ public class UserGriddlers extends Activity implements OnTouchListener, OnItemCl
 		// for simplicity.
 		if (resultCode == RESULT_OK) {
 			// New Girddler, add to database.
+			final String cs = data.getStringExtra("colors");
 			final String id = data.getStringExtra("solution").hashCode() + "";
 			final String status = "0";
 			final String author = data.getStringExtra("author");
-			final String colors = data.getStringExtra("colors");
+
+			final int[] colors = new int[cs.split(",").length];
+			for (int i = 0; i != colors.length; ++i) {
+				colors[i] = Integer.parseInt(cs.split(",")[i]);
+			}
 			final String difficulty = data.getStringExtra("difficulty");
 			final String height = data.getStringExtra("height");
 			final String name = data.getStringExtra("name");
-			final String numberOfColors = data.getStringExtra("numberColors");
+			final int numberOfColors = colors.length;
 			final String rank = data.getStringExtra("rank");
 			final String solution = data.getStringExtra("solution");
 			final String width = data.getStringExtra("width");
-			sql.addUserGriddler(id, author, name, rank, solution, difficulty, width, height,
-					status, numberOfColors, colors);
-			this.loadGriddlers();
+			final Griddler g = new Griddler(status, name, difficulty, rank, 1, author, width,
+					height, solution, null, numberOfColors, colors);
+			g.setID(id);
+			// TODO Check if Picogram already exists. If it does, just add that to the users sql database.
+			sql.addUserGriddler(g);
+			// TODO If save failed, save offline to upload later on.
+			g.save();
+			final String[] tags = data.getStringExtra("tags").split(" ");
+			for (final String tag : tags)
+			{
+				final GriddlerTag gt = new GriddlerTag(tag);
+				gt.setID(id);
+				gt.save();
+			}
 
 		} else if (resultCode == 2) {
 			// Back button pushed or won.
@@ -116,7 +192,6 @@ public class UserGriddlers extends Activity implements OnTouchListener, OnItemCl
 			final String status = data.getStringExtra("status");
 			final String current = data.getStringExtra("current");
 			sql.updateCurrentGriddler(id, status, current);
-			this.loadGriddlers();
 		} else {
 			// Nothing added.
 		}
@@ -126,8 +201,6 @@ public class UserGriddlers extends Activity implements OnTouchListener, OnItemCl
 	public void onCreate(final Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		this.setContentView(R.layout.activity_user_griddlers);
-		EasyTracker.getInstance().setContext(this);
-		EasyTracker.getInstance().activityStart(this);
 		this.lv = (ListView) this.findViewById(R.id.lvUser);
 		// Grab all the Griddlers on local drive.
 		// IE: The ones the user started on.
@@ -155,7 +228,7 @@ public class UserGriddlers extends Activity implements OnTouchListener, OnItemCl
 				this.startGame(this.griddlers.get(pos).getSolution(), this.griddlers.get(pos)
 						.getCurrent(),
 						this.griddlers.get(pos).getWidth(), this.griddlers.get(pos).getHeight(),
-						this.griddlers.get(pos).getId(), this.griddlers.get(pos).getName(),
+						this.griddlers.get(pos).getID(), this.griddlers.get(pos).getName(),
 						this.griddlers.get(pos).getColors());
 			}
 		}
@@ -164,14 +237,12 @@ public class UserGriddlers extends Activity implements OnTouchListener, OnItemCl
 	@Override
 	public void onPause() {
 		super.onPause();
-		EasyTracker.getInstance().activityStop(this);
 	}
 
 	@Override
 	public void onResume() {
 		super.onResume();
 		this.loadGriddlers();
-		EasyTracker.getInstance().activityStart(this);
 	}
 
 	public boolean onTouch(final View v, final MotionEvent me) {
@@ -195,7 +266,7 @@ public class UserGriddlers extends Activity implements OnTouchListener, OnItemCl
 								this.griddlers.get(pos).getCurrent(), this.griddlers.get(pos)
 										.getWidth(),
 								this.griddlers.get(pos).getHeight(), this.griddlers.get(pos)
-										.getId(),
+										.getID(),
 								this.griddlers.get(pos).getName(), this.griddlers.get(pos)
 										.getColors());
 					}

@@ -51,8 +51,15 @@ public class GriddlerListAdapter extends ArrayAdapter<Griddler> {
 				.getHeight());
 		final int width = Integer.parseInt(this.griddlers.get(position)
 				.getWidth());
-		final String curr = this.griddlers.get(position).getCurrent();
+		String curr = this.griddlers.get(position).getCurrent();
 		int run = 0;
+		if (curr == null) {
+			curr = "";
+			for (int i = 0; i != this.griddlers.get(position).getSolution()
+					.length(); ++i) {
+				curr += "0";
+			}
+		}
 		if ((height > 0) && (width > 0)) {
 			Bitmap bm = BitmapFactory.decodeResource(
 					this.context.getResources(), R.drawable.ic_launcher);
@@ -72,7 +79,7 @@ public class GriddlerListAdapter extends ArrayAdapter<Griddler> {
 			iv.setImageBitmap(bm);
 			iv.setVisibility(View.VISIBLE);
 		}
-		rate.setText("Rating: " + this.griddlers.get(position).getRank());
+		rate.setText("Rating: " + this.griddlers.get(position).getRate());
 		diff.setText("Difficulty: " + this.griddlers.get(position).getDiff());
 		name.setText(this.griddlers.get(position).getName());
 		// Change color if user has beaten level.

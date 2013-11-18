@@ -6,13 +6,8 @@
 
         <CheckBoxPreference
             android:key="nightmode"
-            android:summary="Night/Dark Mode"
-            android:title="Turn the lights off with me! If you like it dark ;)." />
-    </PreferenceCategory>
-    <PreferenceCategory android:title="View Preferences" >
-
-        <!-- Preferences about what to see. -->
-
+            android:summary="If you like it dark ;)."
+            android:title="Night/Dark Mode" />
         <CheckBoxPreference
             android:key="wonvisible"
             android:summary="Remove Won Games"
@@ -27,35 +22,78 @@
         <!-- User preferences -->
 
         <EditTextPreference
-            android:dialogTitle="Please enter a username?"
+            android:dialogTitle="Please enter a username."
             android:key="username"
-            android:summary="Username"
-            android:title="If you have an error, we&apos;re reported this, so if you message us, we can cross check to see =)." />
+            android:summary="We can track your errors. We can add an author to your picture.  And maybe sync between devices.  You must have password set."
+            android:title="Username" />
+        <EditTextPreference
+            android:dialogTitle="Please enter a password."
+            android:key="password"
+            android:summary="Required to sync data. Must have username field set too."
+            android:title="Password" />
 
-        <PreferenceScreen
-            android:summary="Remove Data"
-            android:title="Remove all the data on your device we&apos;re using, cuz you know, it&apos;s a lot." >
-        </PreferenceScreen>
+        <Preference
+            android:key="deletedata"
+            android:summary="We&apos;ll delete the data from your device.  We don&apos;t use a lot, but it&apos;s an option."
+            android:title="Remove Data" />
     </PreferenceCategory>
+    <!-- Simple changelog.  Remember to update when we release/update. -->
     <PreferenceCategory android:title="Changelog" >
         <Preference
             android:key="changelog"
             android:summary="View the changelog."
             android:title="View the changelog." />
     </PreferenceCategory>
+    <!-- Privacy, let the user control anything we can/will collect. -->
     <PreferenceCategory android:title="Privacy Preferences" >
-        <CheckBoxPreference
-            android:key="google_tracking"
-            android:summary="Hey, we know, tracking people is lame. But it&apos;s more to know that people use our app.  Please let us."
-            android:title="Google Tracking?" />
         <CheckBoxPreference
             android:key="advertisements"
             android:summary="I hate adverts as much as the next person, but it costs money to keep the servers up for multiplayer."
             android:title="Advertisements" />
         <CheckBoxPreference
-            android:key="crittercism"
-            android:summary="This helps us help you.  We&apos;re allowing you to disable it, but if you disable it, please know we can&apos;t help you as easily."
-            android:title="Track My Crashes" />
+            android:key="analytics"
+            android:summary="Hey, we know, tracking people is lame. But it&apos;s so we know that people use our app.  I need to brag to my mom about something during our weekly chats ;)."
+            android:title="Analytics" />
+        <CheckBoxPreference
+            android:key="logging"
+            android:summary="We collect what you do so if the app crashes, we know how to reproduce what you did.  We can also fix more problematic bugs."
+            android:title="Events and Crashes" />
+    </PreferenceCategory>
+    <PreferenceCategory android:title="Social Networks" >
+        <Preference
+            android:key="facebook"
+            android:summary="Connect your Facebook account.  Can be used to sync items too."
+            android:title="Facebook" />
+        <Preference
+            android:key="twitter"
+            android:summary="Connect your Twitter account.  Can be used to sync items too."
+            android:title="Twitter" />
+    </PreferenceCategory>
+    <PreferenceCategory android:title="Extra Information - For Advertisements" >
+        <Preference
+            android:key="age"
+            android:summary="Age for targeted ads."
+            android:title="Age" />
+        <Preference
+            android:key="gender"
+            android:summary="Gender for targeted ads."
+            android:title="Gender" />
+    </PreferenceCategory>
+    <PreferenceCategory android:title="Logout" >
+        <Preference
+            android:key="logoutsave"
+            android:summary="Logout but save all existing data."
+            android:title="Logout - Save" />
+        <Preference
+            android:key="logoutdelete"
+            android:summary="Logout and delete all existing data."
+            android:title="Logout - Delete" />
+    </PreferenceCategory>
+    <PreferenceCategory android:title="Contact" >
+        <Preference
+            android:key="email"
+            android:summary="Email me your problems, concerns, suggestions, request, or even a thank you."
+            android:title="Email" />
     </PreferenceCategory>
 
 </PreferenceScreen>

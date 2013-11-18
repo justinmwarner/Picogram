@@ -2,8 +2,7 @@
 package com.picogram.awesomeness;
 
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.content.DialogInterface;
+import android.app.Dialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -11,7 +10,6 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MotionEvent;
@@ -22,26 +20,14 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RatingBar;
+import android.widget.RatingBar.OnRatingBarChangeListener;
 
-import com.crittercism.app.Crittercism;
 import com.flurry.android.FlurryAgent;
 import com.github.espiandev.showcaseview.ShowcaseView;
-import com.google.analytics.tracking.android.EasyTracker;
 import com.picogram.awesomeness.TouchImageView.WinnerListener;
-import com.socialize.api.SocializeSession;
-import com.socialize.api.action.share.SocialNetworkShareListener;
-import com.socialize.entity.Entity;
-import com.socialize.error.SocializeException;
-import com.socialize.listener.SocializeAuthListener;
-import com.socialize.networks.PostData;
-import com.socialize.networks.SocialNetwork;
-import com.socialize.networks.facebook.FacebookUtils;
-import com.socialize.networks.twitter.TwitterUtils;
-
-import de.keyboardsurfer.android.widget.crouton.Crouton;
-import de.keyboardsurfer.android.widget.crouton.Style;
-
-import org.json.JSONObject;
+import com.stackmob.sdk.callback.StackMobModelCallback;
+import com.stackmob.sdk.exception.StackMobException;
 
 import java.util.ArrayList;
 
@@ -53,160 +39,15 @@ public class AdvancedGameActivity extends Activity implements OnTouchListener,
 	Handler handle = new Handler();
 	int tutorialStep = 0;
 	private static SQLiteGriddlerAdapter sql;
-	Handler handler = new Handler();
 	int colors[];
 	ArrayList<ImageView> ivs = new ArrayList<ImageView>();
 
+	String puzzleId;
+
 	private void doFacebookStuff() {
-		if (FacebookUtils.isLinked(this)) {
-			final String name = this.getIntent().getExtras().getString("name");
-			final Entity entity = Entity.newInstance("http://www.google.com", name);
-
-			// The "this" argument refers to the current Activity
-			FacebookUtils.postEntity(this, entity, "I just beat " + name + " on Picogram!",
-					new SocialNetworkShareListener() {
-
-						@Override
-						public void onAfterPost(final Activity parent,
-								final SocialNetwork socialNetwork,
-								final JSONObject responseObject) {
-							// Called after the post returned from Facebook.
-							// responseObject contains the raw JSON response
-							// from
-							// Facebook.
-							Crouton.makeText(parent, "Facebook post successful!", Style.ALERT)
-									.show();
-							FlurryAgent.logEvent("FacebookSuccess");
-							AdvancedGameActivity.this.returnIntent();
-						}
-
-						@Override
-						public boolean onBeforePost(final Activity parent,
-								final SocialNetwork socialNetwork,
-								final PostData postData) {
-							// Called just prior to the post.
-							// postData contains the dictionary (map) of data to
-							// be
-							// posted.
-							// You can change this here to customize the post.
-							// Return true to prevent the post from occurring.
-							return false;
-						}
-
-						@Override
-						public void onCancel() {
-							// The user cancelled the operation.
-							AdvancedGameActivity.this.returnIntent();
-						}
-
-						@Override
-						public void onNetworkError(final Activity context,
-								final SocialNetwork network,
-								final Exception error) {
-							// Handle error
-							Crouton.makeText(context, "Couldn't post to Facebook.", Style.ALERT)
-									.show();
-							FlurryAgent.logEvent("FacebookFail");
-							Crittercism.logHandledException(error);
-							AdvancedGameActivity.this.returnIntent();
-						}
-					});
-		} else {
-			// Request write access
-			FacebookUtils.link(this, new SocializeAuthListener() {
-
-				public void onAuthFail(final SocializeException error) {
-					Crittercism.logHandledException(error);
-					AdvancedGameActivity.this.returnIntent();
-				}
-
-				public void onAuthSuccess(final SocializeSession session) {
-					// Perform direct Facebook operation.
-					AdvancedGameActivity.this.doFacebookStuff();
-				}
-
-				public void onCancel() {
-					// The user cancelled the operation.
-					AdvancedGameActivity.this.returnIntent();
-				}
-
-				public void onError(final SocializeException error) {
-					Crittercism.logHandledException(error);
-					AdvancedGameActivity.this.returnIntent();
-				}
-			}, "publish_stream");
-		}
 	}
 
 	private void doTwitterStuff() {
-		final Activity a = this;
-		if (TwitterUtils.isLinked(this)) {
-			final String name = this.getIntent().getExtras().getString("name");
-			final Entity entity = Entity.newInstance("http://www.google.com", name);
-
-			TwitterUtils.tweetEntity(this, entity, "I just beat " + name + " on Picogram!",
-					new SocialNetworkShareListener() {
-
-						@Override
-						public void onAfterPost(final Activity parent,
-								final SocialNetwork socialNetwork,
-								final JSONObject responseObject) {
-							// Called after the post returned from Twitter.
-							// responseObject contains the raw JSON response
-							// from Twitter.
-							Crouton.makeText(parent, "Successfully posted to Twitter.", Style.ALERT)
-									.show();
-						}
-
-						@Override
-						public boolean onBeforePost(final Activity parent,
-								final SocialNetwork socialNetwork,
-								final PostData postData) {
-							// Called just prior to the post. postData contains
-							// the dictionary (map) of data to be posted.
-							// You can change this here to customize the post.
-							// Return true to prevent the post from occurring.
-							return false;
-						}
-
-						@Override
-						public void onCancel() {
-							// The user cancelled the operation.
-						}
-
-						@Override
-						public void onNetworkError(final Activity context,
-								final SocialNetwork network,
-								final Exception error) {
-							// Handle error
-							Crouton.makeText(context, "Couldn't post to Twitter", Style.ALERT)
-									.show();
-							Crittercism.logHandledException(error);
-						}
-					});
-		} else {
-			// The "this" argument refers to the current Activity
-			TwitterUtils.link(this, new SocializeAuthListener() {
-
-				public void onAuthFail(final SocializeException error) {
-					Crittercism.logHandledException(error);
-				}
-
-				public void onAuthSuccess(final SocializeSession session) {
-					// User was authed.
-					AdvancedGameActivity.this.doTwitterStuff();
-				}
-
-				public void onCancel() {
-					// The user cancelled the operation.
-				}
-
-				public void onError(final SocializeException error) {
-					Crittercism.logHandledException(error);
-				}
-			});
-
-		}
 	}
 
 	private int[] getRGB(final int i) {
@@ -245,9 +86,9 @@ public class AdvancedGameActivity extends Activity implements OnTouchListener,
 		final String name = this.getIntent().getExtras().getString("name");
 		final String c = this.getIntent().getExtras().getString("current");
 		final String s = this.getIntent().getExtras().getString("solution");
+		this.puzzleId = this.getIntent().getExtras().getString("id");
 		FlurryAgent.logEvent("UserPlayingGame");
 		if (name != null) {
-			EasyTracker.getTracker().trackEvent("Game", "GriddlerName", name, (long) 1);
 			if (name.equals("Tutorial")) {
 				// We're in a tutorial.
 				if (!c.equals(s)) {
@@ -319,7 +160,6 @@ public class AdvancedGameActivity extends Activity implements OnTouchListener,
 	@Override
 	public void onPause() {
 		super.onPause();
-		EasyTracker.getInstance().activityStop(this); // Add this method.
 		sql.updateCurrentGriddler(this.tiv.gSolution.hashCode() + "", "0", this.tiv.gCurrent);
 		sql.close();
 	}
@@ -327,7 +167,6 @@ public class AdvancedGameActivity extends Activity implements OnTouchListener,
 	@Override
 	public void onResume() {
 		super.onResume();
-		EasyTracker.getInstance().activityStart(this); // Add this method.
 		sql = new SQLiteGriddlerAdapter(this.getApplicationContext(), "Griddlers", null, 1);
 	}
 
@@ -372,7 +211,6 @@ public class AdvancedGameActivity extends Activity implements OnTouchListener,
 
 	public boolean onTouch(final View v, final MotionEvent event) {
 		final int index = this.ivs.indexOf(v);
-		Log.d(TAG, "HERE: " + index + "");
 		if (index < 0) {
 			this.tiv.isGameplay = false;
 		} else
@@ -452,43 +290,46 @@ public class AdvancedGameActivity extends Activity implements OnTouchListener,
 	}
 
 	public void win() {
+		final Dialog dialog = new Dialog(AdvancedGameActivity.this);
+		dialog.setContentView(R.layout.ranking_dialogue);
+		dialog.setTitle("Rate this Picogram");
 
-		final DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
-			public void onClick(final DialogInterface dialog, final int which) {
-				switch (which) {
-					case DialogInterface.BUTTON_POSITIVE:
-						// Facebook.
-						AdvancedGameActivity.this.handler.post(new Runnable() {
+		final RatingBar rb = (RatingBar) dialog.findViewById(R.id.rbRate);
+		rb.setOnRatingBarChangeListener(new OnRatingBarChangeListener() {
 
-							public void run() {
-								AdvancedGameActivity.this.doFacebookStuff();
-							}
-						});
-						break;
+			public void onRatingChanged(final RatingBar ratingBar, final float rating,
+					final boolean fromUser) {
+				if (fromUser)
+				{
+					final Griddler g = new Griddler();
+					g.setID(AdvancedGameActivity.this.puzzleId);
+					g.fetch(new StackMobModelCallback() {
 
-					case DialogInterface.BUTTON_NEGATIVE:
-						// Nothing.
-						AdvancedGameActivity.this.returnIntent();
-						break;
-					case DialogInterface.BUTTON_NEUTRAL:
-						// Twitter.
-						AdvancedGameActivity.this.handler.post(new Runnable() {
+						@Override
+						public void failure(final StackMobException arg0) {
 
-							public void run() {
-								AdvancedGameActivity.this.doTwitterStuff();
-							}
-						});
-						break;
+							dialog.dismiss();
+							AdvancedGameActivity.this.returnIntent();
+						}
+
+						@Override
+						public void success() {
+
+							g.setRate(((Integer.parseInt(g.getRate()) * g.getNumberOfRatings()) + (int) rating)
+									+ "");
+							g.setNumberOfRatings(g.getNumberOfRatings() + 1);
+							// TODO: If save fails, let us do it next time app is online.
+							g.save();
+							dialog.dismiss();
+							AdvancedGameActivity.this.returnIntent();
+						}
+
+					});
 				}
 
 			}
+		});
 
-		};
-
-		final AlertDialog.Builder builder = new AlertDialog.Builder(this);
-		builder.setMessage("You won! Share?").setPositiveButton("Facebook", dialogClickListener)
-				.setNeutralButton("Twitter", dialogClickListener)
-				.setNegativeButton("No", dialogClickListener).show();
-		// Leaked window, it quits too fast.
+		dialog.show();
 	}
 }

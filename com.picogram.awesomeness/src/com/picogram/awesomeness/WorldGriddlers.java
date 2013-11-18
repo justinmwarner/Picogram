@@ -16,7 +16,6 @@ import android.widget.ListView;
 import android.widget.Spinner;
 
 import com.flurry.android.FlurryAgent;
-import com.google.analytics.tracking.android.EasyTracker;
 
 import java.util.ArrayList;
 
@@ -117,7 +116,7 @@ public class WorldGriddlers extends Activity implements OnClickListener, OnItemC
 			this.sql.addUserGriddler(this.griddlers.get(pos));
 			this.sql.close();
 			// gameIntent.putExtra("info", griddlers.get(pos).getInfo());
-			gameIntent.putExtra("id", this.griddlers.get(pos).getId());
+			gameIntent.putExtra("id", this.griddlers.get(pos).getID());
 			FlurryAgent.logEvent("UserOpenedWorldPuzzle");
 			this.startActivityForResult(gameIntent, 2);
 		}
@@ -126,12 +125,10 @@ public class WorldGriddlers extends Activity implements OnClickListener, OnItemC
 	@Override
 	public void onPause() {
 		super.onPause();
-		EasyTracker.getInstance().activityStop(this);
 	}
 
 	@Override
 	public void onResume() {
 		super.onResume();
-		EasyTracker.getInstance().activityStart(this);
 	}
 }

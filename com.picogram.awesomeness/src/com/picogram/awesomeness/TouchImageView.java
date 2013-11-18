@@ -244,6 +244,9 @@ public class TouchImageView extends ImageView {
 
 	};
 
+	ArrayList<Integer> topColors = new ArrayList();
+	ArrayList<Integer> sideColors = new ArrayList();
+
 	public TouchImageView(final Context context) {
 		super(context);
 		this.sharedConstructing(context);
@@ -265,6 +268,8 @@ public class TouchImageView extends ImageView {
 			this.columns = this.getColumns(current2D);
 			this.sideHints = this.getSideHints(this.rows);
 			this.topHints = this.getTopHints(this.columns);
+			this.topColors = this.getColors(this.columns);
+			this.sideColors = this.getColors(this.rows);
 			this.longestTop = this.topHints.size();
 			this.longestSide = this.getLongest(this.sideHints); // Get widest "layer"
 			// Since this is layered, we just need number of layers.
@@ -320,6 +325,15 @@ public class TouchImageView extends ImageView {
 		this.cellWidth = widthOffset;
 		this.cellHeight = heightOffset;
 		int row = -1, column = 0;
+		if (this.gCurrent == null)
+		{
+			// User hasn't played yet, make it a new game.
+			this.gCurrent = "";
+			for (int i = 0; i != this.gSolution.length(); ++i)
+			{
+				this.gCurrent += "0";
+			}
+		}
 		for (int i = 0; i != this.gCurrent.length(); ++i) {
 			if ((i % (this.gWidth)) == 0) {
 				column = 0;
@@ -383,8 +397,13 @@ public class TouchImageView extends ImageView {
 		final int heightOffset = this.canvasBitmap.getHeight() / (this.gHeight + this.longestTop);
 		this.paintBitmap.setTextSize(heightOffset / 2);
 		// Draw top hints.
+		int colorRun = 0;
 		for (int i = 0; i != this.longestTop; ++i) {
 			for (int j = 0; j != this.topHints.get(i).length; ++j) {
+				if (Character.isDigit(this.topHints.get(i)[j].charAt(0))) {
+					this.paintBitmap.setColor(this.gColors[this.topColors.get(colorRun)]);
+					colorRun++;
+				}
 				this.canvasBitmap
 						.drawText(this.topHints.get(i)[j], ((this.longestSide * widthOffset)
 								+ (widthOffset / 2) + (j * widthOffset)) - 5,
@@ -393,14 +412,22 @@ public class TouchImageView extends ImageView {
 			}
 		}
 		// Draw side hints.
+		colorRun = 0;
 		final Align oldAlign = this.paintBitmap.getTextAlign();
 		this.paintBitmap.setTextAlign(Align.RIGHT);
 		this.paintBitmap.setTextSize(widthOffset / 2);
 		for (int i = 0; i != this.sideHints.size(); ++i) {
 			// The 2 * heightOffset/3 is for balance issues.
-			this.canvasBitmap.drawText(this.sideHints.get(i), (this.longestSide * widthOffset) - 5,
-					(this.longestTop * heightOffset) + (i * heightOffset)
-							+ ((2 * heightOffset) / 3), this.paintBitmap);
+			for (int j = 0; j != this.sideHints.get(i).split(" ").length; ++j) {
+				this.paintBitmap.setColor(this.gColors[this.sideColors.get(colorRun)]);
+				colorRun++;
+				this.canvasBitmap.drawText(
+						this.sideHints.get(i).split(" ")[j] + " ",
+						(this.longestSide * widthOffset) - 5
+								- (j * this.paintBitmap.getFontSpacing()),
+						(this.longestTop * heightOffset) + (i * heightOffset)
+								+ ((2 * heightOffset) / 3), this.paintBitmap);
+			}
 
 		}
 		this.paintBitmap.setTextAlign(oldAlign);
@@ -441,6 +468,21 @@ public class TouchImageView extends ImageView {
 		if ((fixTransX != 0) || (fixTransY != 0)) {
 			this.matrix.postTranslate(fixTransX, fixTransY);
 		}
+	}
+
+	private ArrayList<Integer> getColors(final ArrayList<String> segments) {
+		final ArrayList<Integer> result = new ArrayList();
+		for (final String segment : segments)
+		{
+			final String middle = this.removeDuplicates(segment);
+			final String last = middle.replaceAll("0", "");
+			final char[] whole;
+			whole = new StringBuilder(last).reverse().toString().toCharArray();
+			for (final char sub : whole) {
+				result.add(Integer.parseInt(sub + ""));
+			}
+		}
+		return result;
 	}
 
 	private ArrayList<String> getColumns(final char[][] current2d) {
@@ -518,6 +560,12 @@ public class TouchImageView extends ImageView {
 		return result;
 	}
 
+	private ArrayList<Integer> getSideColors(final ArrayList<String> rows2) {
+		final ArrayList<Integer> result = new ArrayList();
+
+		return null;
+	}
+
 	// regex:
 	// http://stackoverflow.com/questions/15101577/split-string-when-character-changes-possible-regex-solution
 	private ArrayList<String> getSideHints(final ArrayList<String> rows) {
@@ -568,7 +616,9 @@ public class TouchImageView extends ImageView {
 				}
 			}
 			// Using a , split for double digit numbers, things can get big ;).
+
 			result.add(temp.split(","));
+
 		}
 		// Note: result needs to be flipped when actually printed, or printed
 		// upside down.
@@ -644,6 +694,31 @@ public class TouchImageView extends ImageView {
 		this.fixTrans();
 	}
 
+	String removeDuplicates(final String str) {
+		// 10001 -> 101
+		// 2233 -> 23
+
+		final StringBuilder noDupes = new StringBuilder();
+		char look = ' ';
+		for (int i = 0; i != str.length();) {
+			boolean isDone = false;
+			look = str.charAt(i);
+			for (int j = i + 1; j != str.length(); ++j) {
+				if (str.charAt(j) != look) {
+					noDupes.append(look);
+					isDone = true;
+					i = j;
+					break;
+				}
+			}
+			if (!isDone) {
+				i++;
+			}
+		}
+		noDupes.append(look);
+		return noDupes.toString();
+	}
+
 	// Just add on fluff area for the hints on the top and on the side.
 	private int[] resizeBitMapsForHints(final int[] colors, final int longestTop,
 			final int longestSide) {
@@ -675,9 +750,12 @@ public class TouchImageView extends ImageView {
 		this.gCurrent = savedInstanceState.getString("current");
 		this.gHeight = Integer.parseInt(savedInstanceState.getString("height"));
 		this.gWidth = Integer.parseInt(savedInstanceState.getString("width"));
-		this.gId = Integer.parseInt(savedInstanceState.getString("id"));
+		if (savedInstanceState.getString("id") != null) {
+			this.gId = Integer.parseInt(savedInstanceState.getString("id"));
+		}
 		this.gSolution = savedInstanceState.getString("solution");
 		this.gColors = savedInstanceState.getIntArray("colors");
+
 		this.bitmapFromCurrent();
 	}
 
