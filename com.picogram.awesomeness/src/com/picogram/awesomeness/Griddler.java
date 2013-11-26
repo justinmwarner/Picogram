@@ -5,8 +5,7 @@ import com.stackmob.sdk.model.StackMobModel;
 
 public class Griddler extends StackMobModel {
 	private String status, name, diff, rate, author, width, height, solution, current,
-			numberOfColors;
-	private int[] colors;
+			numberOfColors, colors;
 	private int numberOfRatings;
 
 	public Griddler() {
@@ -21,7 +20,7 @@ public class Griddler extends StackMobModel {
 			final String difficulty, final String rank, final int numberOfRatings,
 			final String author, final String width,
 			final String height, final String solution, final String current, final int numColors,
-			final int[] colors) {
+			final String colors) {
 		super(Griddler.class);
 		// this.id = id;
 		this.status = status;
@@ -42,7 +41,7 @@ public class Griddler extends StackMobModel {
 		return this.author;
 	}
 
-	public int[] getColors() {
+	public String getColors() {
 		return this.colors;
 	}
 
@@ -93,7 +92,7 @@ public class Griddler extends StackMobModel {
 		this.author = author;
 	}
 
-	public void setColors(final int[] colors) {
+	public void setColors(final String colors) {
 		this.colors = colors;
 	}
 

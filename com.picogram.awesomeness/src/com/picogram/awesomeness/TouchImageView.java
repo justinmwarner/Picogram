@@ -9,6 +9,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
+import android.graphics.Typeface;
 import android.graphics.Paint.Align;
 import android.graphics.PointF;
 import android.graphics.Rect;
@@ -268,10 +269,10 @@ public class TouchImageView extends ImageView {
 			this.columns = this.getColumns(current2D);
 			this.sideHints = this.getSideHints(this.rows);
 			this.topHints = this.getTopHints(this.columns);
-			this.topColors = this.getColors(this.columns);
-			this.sideColors = this.getColors(this.rows);
 			this.longestTop = this.topHints.size();
 			this.longestSide = this.getLongest(this.sideHints); // Get widest "layer"
+			this.topColors = this.getColors(this.columns, true);
+			this.sideColors = this.getColors(this.rows, false);
 			// Since this is layered, we just need number of layers.
 			this.lTop = this.longestTop;
 			this.lSide = this.longestSide;
@@ -279,6 +280,11 @@ public class TouchImageView extends ImageView {
 					(this.gHeight + this.longestTop) * 50, Bitmap.Config.RGB_565);
 			this.canvasBitmap = new Canvas(this.bm);
 			this.paintBitmap = new Paint();
+			// Reverse the side hints, just because. Sorry, this is really stupid, it's for colors somehow.
+			for (int i = 0; i != this.sideHints.size(); ++i) {
+				this.sideHints
+						.set(i, new StringBuilder(this.sideHints.get(i)).reverse().toString());
+			}
 		}
 		this.drawOnCanvas();
 		// Change canvas and it'll reflect on the bm.
@@ -396,6 +402,7 @@ public class TouchImageView extends ImageView {
 		final int widthOffset = this.canvasBitmap.getWidth() / (this.longestSide + this.gWidth);
 		final int heightOffset = this.canvasBitmap.getHeight() / (this.gHeight + this.longestTop);
 		this.paintBitmap.setTextSize(heightOffset / 2);
+		this.paintBitmap.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
 		// Draw top hints.
 		int colorRun = 0;
 		for (int i = 0; i != this.longestTop; ++i) {
@@ -420,7 +427,9 @@ public class TouchImageView extends ImageView {
 			// The 2 * heightOffset/3 is for balance issues.
 			for (int j = 0; j != this.sideHints.get(i).split(" ").length; ++j) {
 				this.paintBitmap.setColor(this.gColors[this.sideColors.get(colorRun)]);
+
 				colorRun++;
+
 				this.canvasBitmap.drawText(
 						this.sideHints.get(i).split(" ")[j] + " ",
 						(this.longestSide * widthOffset) - 5
@@ -428,7 +437,6 @@ public class TouchImageView extends ImageView {
 						(this.longestTop * heightOffset) + (i * heightOffset)
 								+ ((2 * heightOffset) / 3), this.paintBitmap);
 			}
-
 		}
 		this.paintBitmap.setTextAlign(oldAlign);
 	}
@@ -470,16 +478,59 @@ public class TouchImageView extends ImageView {
 		}
 	}
 
-	private ArrayList<Integer> getColors(final ArrayList<String> segments) {
+	private ArrayList<Integer> getColors(final ArrayList<String> segments, final boolean isTop) {
 		final ArrayList<Integer> result = new ArrayList();
+		final ArrayList<char[]> chars = new ArrayList();
 		for (final String segment : segments)
 		{
+			if (segment.matches("[0]+"))
+			{
+				chars.add(new char[] {
+						'0'
+				});
+				continue;
+			}
 			final String middle = this.removeDuplicates(segment);
 			final String last = middle.replaceAll("0", "");
 			final char[] whole;
-			whole = new StringBuilder(last).reverse().toString().toCharArray();
-			for (final char sub : whole) {
-				result.add(Integer.parseInt(sub + ""));
+			if (true) {
+				whole = new StringBuilder(last).reverse().toString().toCharArray();
+			} else {
+				whole = last.toCharArray();
+			}
+			chars.add(whole);
+		}
+		int longest;
+		longest = (isTop) ? this.longestTop : this.longestSide;
+		if (isTop) {
+			for (int i = 0; i != longest; ++i)
+			{
+				for (final char[] c : chars)
+				{
+					if (i < c.length)
+					{
+						if (c[i] != '0')
+						{
+							result.add(Integer.parseInt(c[i] + ""));
+						} else {
+							result.add(1);
+						}
+					}
+				}
+			}
+		}
+		else
+		{
+			for (final char[] c : chars)
+			{
+				// c = new StringBuilder(new String(c)).reverse().toString().toCharArray();
+				for (int i = 0; i != c.length; ++i) {
+					if (c[i] != '0') {
+						result.add(Integer.parseInt(c[i] + ""));
+					} else {
+						result.add(1);
+					}
+				}
 			}
 		}
 		return result;
@@ -754,7 +805,11 @@ public class TouchImageView extends ImageView {
 			this.gId = Integer.parseInt(savedInstanceState.getString("id"));
 		}
 		this.gSolution = savedInstanceState.getString("solution");
-		this.gColors = savedInstanceState.getIntArray("colors");
+		final String[] cols = savedInstanceState.getString("colors").split(",");
+		this.gColors = new int[cols.length];
+		for (int i = 0; i != cols.length; ++i) {
+			this.gColors[i] = Integer.parseInt(cols[i]);
+		}
 
 		this.bitmapFromCurrent();
 	}

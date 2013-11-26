@@ -97,8 +97,12 @@ public class AdvancedGameActivity extends Activity implements OnTouchListener,
 			}
 		}
 		// Create colors for pallet.
-		this.colors = this.getIntent().getExtras().getIntArray("colors");
-
+		final String thing = this.getIntent().getExtras().getString("colors");
+		final String[] cols = this.getIntent().getExtras().getString("colors").split(",");
+		this.colors = new int[cols.length];
+		for (int i = 0; i != cols.length; ++i) {
+			this.colors[i] = Integer.parseInt(cols[i]);
+		}
 		ImageView colorChange = new ImageView(this);
 		final LinearLayout ll = new LinearLayout(this);
 		ll.setOrientation(LinearLayout.HORIZONTAL);

@@ -53,22 +53,10 @@ public class UserGriddlers extends Activity implements OnTouchListener, OnItemCl
 			final String author = temp[1];
 
 			int numColors = 0;
-			int[] colors = null;
+			String colors = null;
 			if ((temp[10] != null) && (temp[11] != null)) {
 				numColors = Integer.parseInt(temp[10]);
-				colors = new int[numColors];
-				for (int j = 0; j != colors.length; ++j) {
-					try {
-						if (temp[11].contains(",")) {
-							colors[j] = Integer.parseInt(temp[11].split(",")[j]);
-						} else {
-							colors[j] = Integer.parseInt(temp[11].split(" ")[j]);
-						}
-					} catch (final Exception e)
-					{
-						Log.d(TAG, e.toString());
-					}
-				}
+				colors = temp[11];
 			}
 			String status;
 			if (temp[4].equals(temp[5])) {
@@ -103,7 +91,7 @@ public class UserGriddlers extends Activity implements OnTouchListener, OnItemCl
 				{
 					// Get data from online about the Griddler for its updated rating.
 					// These variables should be removed.
-					final int[] colored = colors;
+					final String cols = colors;
 					final int nc = numColors;
 					final String oldStatus = status; // Don't get rid of this.
 					final Griddler g = new Griddler();
@@ -121,7 +109,7 @@ public class UserGriddlers extends Activity implements OnTouchListener, OnItemCl
 									final Griddler tempGriddler = new Griddler(oldStatus, name,
 											diff,
 											rate, 0, author, width, height,
-											solution, current, nc, colored);
+											solution, current, nc, cols);
 									tempGriddler.setID(id);
 									UserGriddlers.this.griddlers.add(tempGriddler);
 								}
@@ -155,25 +143,21 @@ public class UserGriddlers extends Activity implements OnTouchListener, OnItemCl
 		// for simplicity.
 		if (resultCode == RESULT_OK) {
 			// New Girddler, add to database.
-			final String cs = data.getStringExtra("colors");
+			final String colors = data.getStringExtra("colors");
 			final String id = data.getStringExtra("solution").hashCode() + "";
 			final String status = "0";
 			final String author = data.getStringExtra("author");
-
-			final int[] colors = new int[cs.split(",").length];
-			for (int i = 0; i != colors.length; ++i) {
-				colors[i] = Integer.parseInt(cs.split(",")[i]);
-			}
 			final String difficulty = data.getStringExtra("difficulty");
 			final String height = data.getStringExtra("height");
 			final String name = data.getStringExtra("name");
-			final int numberOfColors = colors.length;
+			final int numberOfColors = colors.split(",").length;
 			final String rank = data.getStringExtra("rank");
 			final String solution = data.getStringExtra("solution");
 			final String width = data.getStringExtra("width");
 			final Griddler g = new Griddler(status, name, difficulty, rank, 1, author, width,
 					height, solution, null, numberOfColors, colors);
 			g.setID(id);
+			Log.d(TAG, "Saving to web as: " + colors);
 			// TODO Check if Picogram already exists. If it does, just add that to the users sql database.
 			sql.addUserGriddler(g);
 			// TODO If save failed, save offline to upload later on.
@@ -281,7 +265,7 @@ public class UserGriddlers extends Activity implements OnTouchListener, OnItemCl
 	}
 
 	private void startGame(final String solution, final String current, final String width,
-			final String height, final String id, final String name, final int[] colors) {
+			final String height, final String id, final String name, final String colors) {
 		FlurryAgent.logEvent("UserPlayGame");
 		// Intent gameIntent = new Intent(this, AdvancedGameActivity.class);
 		final Intent gameIntent = new Intent(this, AdvancedGameActivity.class);

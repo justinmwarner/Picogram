@@ -72,6 +72,8 @@ public class CreateGriddlerActivity extends Activity implements OnClickListener,
 			Color.CYAN, Color.MAGENTA, Color.DKGRAY, Color.LTGRAY, Color.WHITE
 	};
 
+	long oldTime = 0;
+
 	private void alterPhoto() {
 		if (this.oldPicture != null) {
 			// Touch this up. It's a bit messy.
@@ -82,7 +84,8 @@ public class CreateGriddlerActivity extends Activity implements OnClickListener,
 					.getItemText(this.sY.getCurrentItem()).toString());
 			this.xNum = Integer.parseInt(((NumericWheelAdapter) this.sX.getViewAdapter())
 					.getItemText(this.sX.getCurrentItem()).toString());
-			Bitmap alter = Bitmap.createScaledBitmap(this.oldPicture, this.xNum, this.yNum, false);
+			Bitmap alter = this.oldPicture.copy(Bitmap.Config.ARGB_8888, true);
+			alter = Bitmap.createScaledBitmap(this.oldPicture, this.xNum, this.yNum, false);
 			// Set pixels = to each pixel in the scaled image (Easier to find
 			// values, and smaller!)
 			final int pixels[] = new int[this.xNum * this.yNum];
@@ -91,6 +94,7 @@ public class CreateGriddlerActivity extends Activity implements OnClickListener,
 				final int rgb[] = this.getRGB(pixels[i]);
 				pixels[i] = (rgb[0] + rgb[1] + rgb[2]) / 3; // Greyscale
 			}
+			alter = alter.copy(Bitmap.Config.ARGB_8888, true);
 			alter.setPixels(pixels, 0, alter.getWidth(), 0, 0, alter.getWidth(), alter.getHeight());
 
 			final int pix[][] = new int[this.yNum][this.xNum];
@@ -102,6 +106,7 @@ public class CreateGriddlerActivity extends Activity implements OnClickListener,
 			}
 
 			run = 0;
+			alter = alter.copy(Bitmap.Config.ARGB_8888, true);
 			final char[] sol = new char[alter.getWidth() * alter.getHeight()];
 			for (int i = 0; i != alter.getHeight(); ++i) {
 				for (int j = 0; j != alter.getWidth(); ++j) {
@@ -125,7 +130,9 @@ public class CreateGriddlerActivity extends Activity implements OnClickListener,
 			}
 			this.solution = new String(sol);
 			Log.d(TAG, this.solution);
+			alter = alter.copy(Bitmap.Config.ARGB_8888, true);
 			alter = Bitmap.createScaledBitmap(alter, this.xNum * 10, this.yNum * 10, false);
+			this.newPicture = alter.copy(Bitmap.Config.ARGB_8888, true);
 			this.newPicture = alter;
 			this.ivOld.setImageBitmap(Bitmap.createScaledBitmap(this.oldPicture, this.xNum * 10,
 					this.yNum * 10, true));
@@ -133,6 +140,7 @@ public class CreateGriddlerActivity extends Activity implements OnClickListener,
 		} else {
 			Crouton.makeText(this, "=( We need a picture first.", Style.INFO).show();
 		}
+		Log.d(TAG, this.solution);
 	}
 
 	public void colorChanged(final String key, final int color) {
@@ -243,6 +251,7 @@ public class CreateGriddlerActivity extends Activity implements OnClickListener,
 				returnIntent.putExtra("width", this.xNum + "");
 				returnIntent.putExtra("tags", this.tags.getText().toString());
 				this.setResult(RESULT_OK, returnIntent);
+				Log.d(TAG, "Back to Menu as: " + cols);
 				this.finish();
 			}
 		}
@@ -431,8 +440,21 @@ public class CreateGriddlerActivity extends Activity implements OnClickListener,
 	}
 
 	public boolean onTouch(final View v, final MotionEvent event) {
+		Log.d(TAG, "Action: " + event.getAction());
+		if (event.getAction() == MotionEvent.ACTION_DOWN) {
+			this.oldTime = System.currentTimeMillis();
+			Log.d(TAG, "Old: " + this.oldTime);
+		}
+		long newTime, diff = 1000;
+		if (event.getAction() == MotionEvent.ACTION_UP) {
+			newTime = System.currentTimeMillis();
+			diff = newTime - this.oldTime;
+			Log.d(TAG, "New: " + newTime);
+			Log.d(TAG, "Diff: " + diff);
+		}
 		// We're changing a color.
-		if ((this.newPicture != null) && (event.getAction() == MotionEvent.ACTION_DOWN))
+		if ((this.newPicture != null) && (event.getAction() == MotionEvent.ACTION_DOWN)
+				&& (diff < 100))
 		{
 			final float eventX = event.getX();
 			final float eventY = event.getY();

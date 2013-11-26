@@ -47,11 +47,7 @@ public class SQLiteGriddlerAdapter extends SQLiteOpenHelper {
 		cv.put(SQLiteGriddlerAdapter.status, g.getStatus());
 		cv.put(SQLiteGriddlerAdapter.current, g.getCurrent());
 		cv.put(SQLiteGriddlerAdapter.numberOfColors, g.getNumberOfColors());
-		String result = "";
-		for (final int i : g.getColors()) {
-			result += g.getColors()[i] + " ";
-		}
-		cv.put(SQLiteGriddlerAdapter.colors, result);
+		cv.put(SQLiteGriddlerAdapter.colors, g.getColors());
 		return db.insert(griddlerTable, null, cv);
 	}
 

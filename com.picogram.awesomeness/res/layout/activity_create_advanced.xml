@@ -59,7 +59,7 @@
                 android:hint="http://195.83.128.55/~src10f19/c_e/pixelart2.jpg"
                 android:inputType="textUri"
                 android:padding="5dp"
-                android:text="http://2.bp.blogspot.com/-EgLy8m90GQs/UK8hDcfui5I/AAAAAAAAFko/Mq_8xnIe74o/s1600/Photograph+Silhouette+by.jpg" />
+                android:text="http://i.imgur.com/NX0GpX9.png" />
 
             <Button
                 android:id="@+id/bURLSubmit"
@@ -231,14 +231,16 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_alignParentLeft="true"
-            android:layout_alignParentTop="true" />
+            android:layout_alignParentTop="true"
+            android:background="#00000000" />
 
         <ImageView
             android:id="@+id/ivOld"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_alignParentLeft="true"
-            android:layout_alignParentTop="true" />
+            android:layout_alignParentTop="true"
+            android:background="#00000000" />
     </RelativeLayout>
 
 </com.agimind.widget.SlideHolder>

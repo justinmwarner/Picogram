@@ -14,8 +14,8 @@
             android:title="Hardcore griddler master?  Remove all those pesky games to find new challenges faster!" />
         <CheckBoxPreference
             android:key="rating"
-            android:summary="Rated G"
-            android:title="Some Griddlers may be NSFW (Not safe for work), remove them from your eyes if you feel it&apos;s needed." />
+            android:title="Rated G"
+            android:summary="Some Griddlers may be NSFW (Not safe for work), remove them from your eyes if you feel it&apos;s needed." />
     </PreferenceCategory>
     <PreferenceCategory android:title="User Preferences" >
 

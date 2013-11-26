@@ -72,6 +72,18 @@ public class SettingsActivity extends SherlockPreferenceActivity implements
 			Toast.makeText(this, "We're restarting the app to apply the new theme.",
 					Toast.LENGTH_LONG).show();
 		}
+		else if (preference.getKey().equals(""))
+		{}
+		else if (preference.getKey().equals(""))
+		{}
+		else if (preference.getKey().equals(""))
+		{}
+		else if (preference.getKey().equals(""))
+		{}
+		else if (preference.getKey().equals(""))
+		{}
+		else if (preference.getKey().equals(""))
+		{}
 		return true;
 	}
 
@@ -81,6 +93,52 @@ public class SettingsActivity extends SherlockPreferenceActivity implements
 			// Launch change log dialog
 			final ChangeLogDialog _ChangelogDialog = new ChangeLogDialog(this);
 			_ChangelogDialog.show();
+		}
+		else if (preference.getKey().equals("wonvisible"))
+		{
+			//Currently no need to do anything.
+		}
+		else if (preference.getKey().equals("rating"))
+		{
+			//Currently no need to do anything.
+		}		
+		else if (preference.getKey().equals("username"))
+		{
+			//Set username on StackMob
+		}
+		else if (preference.getKey().equals("password"))
+		{
+			//Set password on StackMob
+		}
+		else if (preference.getKey().equals("deletedata"))
+		{
+			//Delete cache
+		}
+		else if (preference.getKey().equals("advertisements"))
+		{}
+		else if (preference.getKey().equals("analytics"))
+		{}
+		else if (preference.getKey().equals("logging"))
+		{}
+		else if (preference.getKey().equals("facebook"))
+		{
+			//Login to Facebook.
+		}
+		else if (preference.getKey().equals("twitter"))
+		{
+			//Login to Twitter.
+		}
+		else if (preference.getKey().equals("age"))
+		{}
+		else if (preference.getKey().equals("gender"))
+		{}
+		else if (preference.getKey().equals("logoutsave"))
+		{}
+		else if (preference.getKey().equals("logoutdelete"))
+		{}
+		else if (preference.getKey().equals("contact"))
+		{
+			//Contact me.
 		}
 		return false;
 	}
