@@ -32,14 +32,14 @@ public class SQLiteGriddlerAdapter extends SQLiteOpenHelper {
 		super(context, name, factory, version);
 	}
 
-	public long addUserGriddler(final Griddler g) {
+	public long addUserGriddler(final GriddlerOne g) {
 		// Do stuff. Unknown so far. Implement later.
 		final SQLiteDatabase db = this.getWritableDatabase();
 		final ContentValues cv = new ContentValues();
 		cv.put(SQLiteGriddlerAdapter.id, g.getID());
 		cv.put(SQLiteGriddlerAdapter.author, g.getAuthor());
 		cv.put(SQLiteGriddlerAdapter.name, g.getName());
-		cv.put(SQLiteGriddlerAdapter.rank, g.getRate());
+		cv.put(SQLiteGriddlerAdapter.rank, g.getRating());
 		cv.put(SQLiteGriddlerAdapter.solution, g.getSolution());
 		cv.put(SQLiteGriddlerAdapter.difficulty, g.getDiff());
 		cv.put(SQLiteGriddlerAdapter.width, g.getWidth());

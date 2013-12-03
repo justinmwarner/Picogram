@@ -19,7 +19,6 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
@@ -194,11 +193,6 @@ public class TouchImageView extends ImageView {
 						// If we're on the hints, just get out of there.
 						// Don't do anything.
 						if (TouchImageView.this.lastTouchY > ((TouchImageView.this.lTop + TouchImageView.this.gHeight) * TouchImageView.this.cellHeight)) {
-							Log.d(TAG,
-									"4 "
-											+ TouchImageView.this.lastTouchY
-											+ " "
-											+ ((TouchImageView.this.lTop + TouchImageView.this.gHeight) * TouchImageView.this.cellHeight));
 						}
 						return true;
 					}
@@ -224,7 +218,6 @@ public class TouchImageView extends ImageView {
 						}
 					}
 					if (TouchImageView.this.gCurrent.equals(TouchImageView.this.gSolution)) {
-						Log.d(TAG, "WIN!");
 						if (TouchImageView.this.winListener != null) {
 							TouchImageView.this.winListener.win();
 						} else {
@@ -722,8 +715,6 @@ public class TouchImageView extends ImageView {
 			}
 			final int bmWidth = drawable.getIntrinsicWidth();
 			final int bmHeight = drawable.getIntrinsicHeight();
-
-			Log.d("bmSize", "bmWidth: " + bmWidth + " bmHeight : " + bmHeight);
 
 			final float scaleX = (float) this.viewWidth / (float) bmWidth;
 			final float scaleY = (float) this.viewHeight / (float) bmHeight;

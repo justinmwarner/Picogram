@@ -16,10 +16,10 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
-public class GriddlerListAdapter extends ArrayAdapter<Griddler> {
+public class GriddlerListAdapter extends ArrayAdapter<GriddlerOne> {
 	private static final String TAG = "GriddlerListAdapter";
 	private Context context;
-	ArrayList<Griddler> griddlers = new ArrayList<Griddler>();
+	ArrayList<GriddlerOne> griddlers = new ArrayList<GriddlerOne>();
 
 	public GriddlerListAdapter(final Context context,
 			final int textViewResourceId) {
@@ -79,7 +79,9 @@ public class GriddlerListAdapter extends ArrayAdapter<Griddler> {
 			iv.setImageBitmap(bm);
 			iv.setVisibility(View.VISIBLE);
 		}
-		rate.setText("Rating: " + this.griddlers.get(position).getRate());
+		rate.setText("Rating: "
+				+ (Integer.parseInt(this.griddlers.get(position).getRating()) / this.griddlers.get(
+						position).getNumberOfRatings()));
 		diff.setText("Difficulty: " + this.griddlers.get(position).getDiff());
 		name.setText(this.griddlers.get(position).getName());
 		// Change color if user has beaten level.
@@ -117,7 +119,7 @@ public class GriddlerListAdapter extends ArrayAdapter<Griddler> {
 		return item;
 	}
 
-	public void setGriddlers(final ArrayList<Griddler> g) {
+	public void setGriddlers(final ArrayList<GriddlerOne> g) {
 		this.griddlers = g;
 	}
 

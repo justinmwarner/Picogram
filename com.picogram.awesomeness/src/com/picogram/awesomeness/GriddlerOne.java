@@ -3,25 +3,25 @@ package com.picogram.awesomeness;
 
 import com.stackmob.sdk.model.StackMobModel;
 
-public class Griddler extends StackMobModel {
+public class GriddlerOne extends StackMobModel {
 	private String status, name, diff, rate, author, width, height, solution, current,
 			numberOfColors, colors;
 	private int numberOfRatings;
 
-	public Griddler() {
-		super(Griddler.class);
+	public GriddlerOne() {
+		super(GriddlerOne.class);
 
 	}
 
 	/*
 	 * // Constructor for test. public Griddler(final int i) { super(Griddler.class); //this.id = "" + i; this.status = "" + 0; this.name = "Name: " + i; }
 	 */
-	public Griddler(final String status, final String name,
+	public GriddlerOne(final String status, final String name,
 			final String difficulty, final String rank, final int numberOfRatings,
 			final String author, final String width,
 			final String height, final String solution, final String current, final int numColors,
 			final String colors) {
-		super(Griddler.class);
+		super(GriddlerOne.class);
 		// this.id = id;
 		this.status = status;
 		this.name = name;
@@ -72,7 +72,7 @@ public class Griddler extends StackMobModel {
 		return this.numberOfRatings;
 	}
 
-	public String getRate() {
+	public String getRating() {
 		return this.rate;
 	}
 
@@ -123,7 +123,7 @@ public class Griddler extends StackMobModel {
 		this.numberOfRatings = numberOfRatings;
 	}
 
-	public void setRate(final String rank) {
+	public void setRating(final String rank) {
 		this.rate = rank;
 	}
 
@@ -139,4 +139,15 @@ public class Griddler extends StackMobModel {
 		this.width = width;
 	}
 
+	@Override
+	public String toString()
+	{
+		return this.id + " " + this.status + " " + this.name + " " + this.diff + " " + this.rate
+				+ " " + this.author + " " + this.width + " " + this.height + " " + this.solution
+				+ " " + this.current + " " + this.numberOfColors + " " + this.colors + " "
+				+ this.numberOfRatings;
+		/*
+		 * id status name diff rating - null author width height solution current - null numColors colors numberOfRatings - 5
+		 */
+	}
 }

@@ -25,14 +25,15 @@ public class WorldGriddlers extends Activity implements OnClickListener, OnItemC
 	Spinner spinSort;
 	private ListView lv;
 	EditText etQ;
-	private final ArrayList<Griddler> griddlers = new ArrayList<Griddler>();
+	private final ArrayList<GriddlerOne> griddlers = new ArrayList<GriddlerOne>();
 
 	private SQLiteGriddlerAdapter sql;
 
 	private void loadGriddlers(final String parse) {
+
 		final String[] me = parse.split("\n");
 
-		final Griddler temp = null;
+		final GriddlerOne temp = null;
 		for (int i = 0; i < me.length; i++) {
 			final String[] now = me[i].replace("{", "").replace("}", "").split(" ");
 			if (now.length == 8) {
@@ -89,8 +90,8 @@ public class WorldGriddlers extends Activity implements OnClickListener, OnItemC
 		this.etQ = (EditText) this.findViewById(R.id.etSearch);
 		this.spinSort = (Spinner) this.findViewById(R.id.spinSort);
 		final String[] array_spinner = new String[2];
-		array_spinner[0] = "Date";
-		array_spinner[1] = "Rank";
+		array_spinner[0] = "Rank";
+		array_spinner[1] = "Date";
 		final ArrayAdapter adapter = new ArrayAdapter(this, android.R.layout.simple_spinner_item,
 				array_spinner);
 		this.spinSort.setAdapter(adapter);

@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MotionEvent;
 import android.view.View;
@@ -24,7 +23,7 @@ import java.util.Date;
 
 public class UserGriddlers extends Activity implements OnTouchListener, OnItemClickListener {
 	protected static final String TAG = "UserGriddlers";
-	ArrayList<Griddler> griddlers = new ArrayList<Griddler>();
+	ArrayList<GriddlerOne> griddlers = new ArrayList<GriddlerOne>();
 	private ListView lv;
 	private static SQLiteGriddlerAdapter sql;
 	int yPrev;
@@ -83,7 +82,7 @@ public class UserGriddlers extends Activity implements OnTouchListener, OnItemCl
 			if (isAdd) {
 				if (status.equals("2") || !Util.isOnline())
 				{
-					final Griddler tempGriddler = new Griddler(status, name, diff,
+					final GriddlerOne tempGriddler = new GriddlerOne(status, name, diff,
 							rate, 0, author, width, height,
 							solution, current, numColors, colors);
 					this.griddlers.add(tempGriddler);
@@ -94,19 +93,19 @@ public class UserGriddlers extends Activity implements OnTouchListener, OnItemCl
 					final String cols = colors;
 					final int nc = numColors;
 					final String oldStatus = status; // Don't get rid of this.
-					final Griddler g = new Griddler();
+					final String oldCurrent = current;
+					final GriddlerOne g = new GriddlerOne();
 					g.setID(id);
-					Log.d(TAG, "id: " + id);
 
 					g.fetch(new StackMobModelCallback() {
 
 						@Override
 						public void failure(final StackMobException arg0) {
-							Log.d(TAG, "Failed to find: " + id);
 							UserGriddlers.this.h.post(new Runnable() {
 
 								public void run() {
-									final Griddler tempGriddler = new Griddler(oldStatus, name,
+									final GriddlerOne tempGriddler = new GriddlerOne(oldStatus,
+											name,
 											diff,
 											rate, 0, author, width, height,
 											solution, current, nc, cols);
@@ -118,14 +117,14 @@ public class UserGriddlers extends Activity implements OnTouchListener, OnItemCl
 
 						@Override
 						public void success() {
-							Log.d(TAG, "Succeeded to find: " + id);
 							UserGriddlers.this.h.post(new Runnable() {
 
 								public void run() {
 									g.setStatus(oldStatus);
+									g.setCurrent(oldCurrent);
 									UserGriddlers.this.griddlers.add(g);
-									adapter.setGriddlers(UserGriddlers.this.griddlers);
-									UserGriddlers.this.lv.setAdapter(adapter);
+									// adapter.setGriddlers(UserGriddlers.this.griddlers);
+									// UserGriddlers.this.lv.setAdapter(adapter);
 								}
 							});
 						}
@@ -154,14 +153,25 @@ public class UserGriddlers extends Activity implements OnTouchListener, OnItemCl
 			final String rank = data.getStringExtra("rank");
 			final String solution = data.getStringExtra("solution");
 			final String width = data.getStringExtra("width");
-			final Griddler g = new Griddler(status, name, difficulty, rank, 1, author, width,
+			final GriddlerOne g = new GriddlerOne(status, name, difficulty, rank, 1, author, width,
 					height, solution, null, numberOfColors, colors);
 			g.setID(id);
-			Log.d(TAG, "Saving to web as: " + colors);
 			// TODO Check if Picogram already exists. If it does, just add that to the users sql database.
 			sql.addUserGriddler(g);
 			// TODO If save failed, save offline to upload later on.
-			g.save();
+			g.save(new StackMobModelCallback() {
+
+				@Override
+				public void failure(final StackMobException arg0) {
+
+				}
+
+				@Override
+				public void success() {
+					// TODO Auto-generated method stub
+
+				}
+			});
 			final String[] tags = data.getStringExtra("tags").split(" ");
 			for (final String tag : tags)
 			{
@@ -230,7 +240,6 @@ public class UserGriddlers extends Activity implements OnTouchListener, OnItemCl
 	}
 
 	public boolean onTouch(final View v, final MotionEvent me) {
-		Log.d(TAG, "Touched: " + this.lv.pointToPosition((int) me.getX(), (int) me.getY()));
 		if (me.getAction() == MotionEvent.ACTION_DOWN) {
 			this.yPrev = new Date().getSeconds();
 		}

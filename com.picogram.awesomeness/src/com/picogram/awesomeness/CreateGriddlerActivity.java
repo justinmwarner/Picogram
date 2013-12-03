@@ -14,7 +14,6 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MotionEvent;
 import android.view.View;
@@ -129,7 +128,6 @@ public class CreateGriddlerActivity extends Activity implements OnClickListener,
 				}
 			}
 			this.solution = new String(sol);
-			Log.d(TAG, this.solution);
 			alter = alter.copy(Bitmap.Config.ARGB_8888, true);
 			alter = Bitmap.createScaledBitmap(alter, this.xNum * 10, this.yNum * 10, false);
 			this.newPicture = alter.copy(Bitmap.Config.ARGB_8888, true);
@@ -140,12 +138,10 @@ public class CreateGriddlerActivity extends Activity implements OnClickListener,
 		} else {
 			Crouton.makeText(this, "=( We need a picture first.", Style.INFO).show();
 		}
-		Log.d(TAG, this.solution);
 	}
 
 	public void colorChanged(final String key, final int color) {
 		// TODO Auto-generated method stub
-		Log.d(TAG, key + " " + color);
 	}
 
 	private int[] getRGB(final int i) {
@@ -251,7 +247,6 @@ public class CreateGriddlerActivity extends Activity implements OnClickListener,
 				returnIntent.putExtra("width", this.xNum + "");
 				returnIntent.putExtra("tags", this.tags.getText().toString());
 				this.setResult(RESULT_OK, returnIntent);
-				Log.d(TAG, "Back to Menu as: " + cols);
 				this.finish();
 			}
 		}
@@ -402,7 +397,6 @@ public class CreateGriddlerActivity extends Activity implements OnClickListener,
 
 	public void onItemSelected(final AdapterView<?> p, final View v, final int pos, final long id) {
 		// When item is changed, update.'
-		Log.d(TAG, pos + "");
 		if (pos >= 1) {
 			if (this.oldPicture != null) {
 				this.alterPhoto();
@@ -440,17 +434,13 @@ public class CreateGriddlerActivity extends Activity implements OnClickListener,
 	}
 
 	public boolean onTouch(final View v, final MotionEvent event) {
-		Log.d(TAG, "Action: " + event.getAction());
 		if (event.getAction() == MotionEvent.ACTION_DOWN) {
 			this.oldTime = System.currentTimeMillis();
-			Log.d(TAG, "Old: " + this.oldTime);
 		}
 		long newTime, diff = 1000;
 		if (event.getAction() == MotionEvent.ACTION_UP) {
 			newTime = System.currentTimeMillis();
 			diff = newTime - this.oldTime;
-			Log.d(TAG, "New: " + newTime);
-			Log.d(TAG, "Diff: " + diff);
 		}
 		// We're changing a color.
 		if ((this.newPicture != null) && (event.getAction() == MotionEvent.ACTION_DOWN)
