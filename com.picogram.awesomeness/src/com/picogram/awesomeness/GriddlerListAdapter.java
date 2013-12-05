@@ -26,6 +26,13 @@ public class GriddlerListAdapter extends ArrayAdapter<GriddlerOne> {
 		super(context, textViewResourceId);
 	}
 
+	public GriddlerListAdapter(final Context context, final int resource,
+			final ArrayList<GriddlerOne> items) {
+		super(context, resource, items);
+		this.context = context;
+		this.griddlers = items;
+	}
+
 	@Override
 	public int getCount() {
 		return this.griddlers.size();
@@ -79,9 +86,12 @@ public class GriddlerListAdapter extends ArrayAdapter<GriddlerOne> {
 			iv.setImageBitmap(bm);
 			iv.setVisibility(View.VISIBLE);
 		}
-		rate.setText("Rating: "
-				+ (Integer.parseInt(this.griddlers.get(position).getRating()) / this.griddlers.get(
-						position).getNumberOfRatings()));
+		if (this.griddlers.get(position).getNumberOfRatings() != 0) {
+			rate.setText("Rating: "
+					+ (Integer.parseInt(this.griddlers.get(position).getRating()) / this.griddlers
+							.get(
+									position).getNumberOfRatings()));
+		}
 		diff.setText("Difficulty: " + this.griddlers.get(position).getDiff());
 		name.setText(this.griddlers.get(position).getName());
 		// Change color if user has beaten level.

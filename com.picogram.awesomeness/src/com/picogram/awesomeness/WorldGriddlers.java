@@ -4,6 +4,8 @@ package com.picogram.awesomeness;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -16,8 +18,15 @@ import android.widget.ListView;
 import android.widget.Spinner;
 
 import com.flurry.android.FlurryAgent;
+import com.stackmob.sdk.api.StackMobQuery;
+import com.stackmob.sdk.callback.StackMobQueryCallback;
+import com.stackmob.sdk.exception.StackMobException;
+
+import de.keyboardsurfer.android.widget.crouton.Crouton;
+import de.keyboardsurfer.android.widget.crouton.Style;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class WorldGriddlers extends Activity implements OnClickListener, OnItemClickListener {
 
@@ -25,32 +34,132 @@ public class WorldGriddlers extends Activity implements OnClickListener, OnItemC
 	Spinner spinSort;
 	private ListView lv;
 	EditText etQ;
-	private final ArrayList<GriddlerOne> griddlers = new ArrayList<GriddlerOne>();
+	Handler h = new Handler();
 
+	private final ArrayList<GriddlerOne> griddlers = new ArrayList<GriddlerOne>();
 	private SQLiteGriddlerAdapter sql;
 
-	private void loadGriddlers(final String parse) {
+	private void loadByTag(final String tag) {
+		final Activity a = this;
+		final StackMobQuery smq = new StackMobQuery().fieldIsEqualTo("tag", tag);
+		GriddlerTag.query(
+				GriddlerTag.class, smq,
+				new StackMobQueryCallback<GriddlerTag>() {
 
-		final String[] me = parse.split("\n");
+					@Override
+					public void failure(final StackMobException arg0) {
+						Log.d(TAG, "ERROR: " + arg0.toString());
+						Crouton.makeText(a, "Error fetching data: " + arg0.toString(), Style.ALERT);
 
-		final GriddlerOne temp = null;
-		for (int i = 0; i < me.length; i++) {
-			final String[] now = me[i].replace("{", "").replace("}", "").split(" ");
-			if (now.length == 8) {
-				final String author = now[1];
-				final String name = now[2];
-				final String rank = now[3];
-				final String diff = now[4];
-				final String width = now[5];
-				final String height = now[6];
-				final String solution = now[7];
-				final String current = now[7].replaceAll("[1-9]", "0"); // Make it an empty start.
-				final String id = now[7].hashCode() + "";
-				// temp = new Griddler(id, "0", name, diff, rank, author, width, height, solution,
-				// current);
-				this.griddlers.add(temp);
-			}
-		}
+					}
+
+					@Override
+					public void success(final List<GriddlerTag> gts) {
+						final ArrayList<String> ids = new ArrayList();
+						for (final GriddlerTag gt : gts) {
+							ids.add(gt.getID());
+						}
+
+						final StackMobQuery smqInner = new StackMobQuery().isInRange(0, 9)
+								.fieldIsIn("griddlerone_id", ids);
+
+						if (WorldGriddlers.this.spinSort.getSelectedItem().toString()
+								.equals("Rank")) {
+							smq.fieldIsOrderedBy("rate", StackMobQuery.Ordering.DESCENDING);
+						} else if (WorldGriddlers.this.spinSort.getSelectedItem().toString()
+								.equals("Date")) {
+							smq.fieldIsOrderedBy("createddate", StackMobQuery.Ordering.DESCENDING);
+						}
+						GriddlerOne.query(GriddlerOne.class, smqInner,
+								new StackMobQueryCallback<GriddlerOne>() {
+
+									@Override
+									public void failure(final StackMobException arg0) {
+										Crouton.makeText(a,
+												"Error fetching data: " + arg0.toString(),
+												Style.ALERT);
+									}
+
+									@Override
+									public void success(final List<GriddlerOne> gs) {
+
+										for (final GriddlerOne g : gs) {
+											WorldGriddlers.this.griddlers.add(g);
+										}
+										WorldGriddlers.this.h.post(new Runnable() {
+
+											public void run() {
+												WorldGriddlers.this.updateListView();
+
+											}
+										});
+									}
+								});
+
+					}
+				});
+	}
+
+	private void loadMostRecent() {
+		final Activity a = this;
+		GriddlerOne.query(
+				GriddlerOne.class,
+				new StackMobQuery().isInRange(0, 9).fieldIsOrderedBy("createddate",
+						StackMobQuery.Ordering.DESCENDING),
+				new StackMobQueryCallback<GriddlerOne>() {
+
+					@Override
+					public void failure(final StackMobException arg0) {
+						Log.d(TAG, "ERROR: " + arg0.toString());
+						Crouton.makeText(a, "Error fetching data: " + arg0.toString(), Style.ALERT);
+
+					}
+
+					@Override
+					public void success(final List<GriddlerOne> gs) {
+						for (final GriddlerOne g : gs) {
+							WorldGriddlers.this.griddlers.add(g);
+						}
+						WorldGriddlers.this.h.post(new Runnable() {
+
+							public void run() {
+								WorldGriddlers.this.updateListView();
+
+							}
+						});
+					}
+				});
+	}
+
+	private void loadTopAllTime() {
+		final Activity a = this;
+		GriddlerOne.query(
+				GriddlerOne.class,
+				new StackMobQuery().isInRange(0, 9).fieldIsOrderedBy("rate",
+						StackMobQuery.Ordering.DESCENDING),
+				new StackMobQueryCallback<GriddlerOne>() {
+
+					@Override
+					public void failure(final StackMobException arg0) {
+						Log.d(TAG, "ERROR: " + arg0.toString());
+						Crouton.makeText(a, "Error fetching data: " + arg0.toString(), Style.ALERT);
+
+					}
+
+					@Override
+					public void success(final List<GriddlerOne> gs) {
+						for (final GriddlerOne g : gs) {
+							WorldGriddlers.this.griddlers.add(g);
+						}
+						WorldGriddlers.this.h.post(new Runnable() {
+
+							public void run() {
+								WorldGriddlers.this.updateListView();
+
+							}
+						});
+					}
+				});
 	}
 
 	@Override
@@ -71,10 +180,18 @@ public class WorldGriddlers extends Activity implements OnClickListener, OnItemC
 
 	public void onClick(final View v) {
 		if (v.getId() == R.id.bSearch) {
-			final GriddlerListAdapter adapter = new GriddlerListAdapter(this, R.id.lvWorld);
-			adapter.setGriddlers(this.griddlers);
-			this.lv.setOnItemClickListener(this);
-			this.lv.setAdapter(adapter);
+			WorldGriddlers.this.griddlers.clear();
+			if (this.etQ.getText().toString().length() == 0)
+			{
+				if (this.spinSort.getSelectedItem().toString().equals("Date")) {
+					this.loadMostRecent();
+				} else if (this.spinSort.getSelectedItem().toString().equals("Rank")) {
+					this.loadTopAllTime();
+				}
+			}
+			else {
+				this.loadByTag(this.etQ.getText().toString());
+			}
 		}
 	}
 
@@ -100,6 +217,8 @@ public class WorldGriddlers extends Activity implements OnClickListener, OnItemC
 		this.lv = (ListView) this.findViewById(R.id.lvWorld);
 		this.lv.setOnItemClickListener(this);
 		FlurryAgent.logEvent("WorldOpened");
+		// Click the search button to get the top puzzles at start.
+		search.performClick();
 	}
 
 	@Override
@@ -131,5 +250,13 @@ public class WorldGriddlers extends Activity implements OnClickListener, OnItemC
 	@Override
 	public void onResume() {
 		super.onResume();
+	}
+
+	private void updateListView()
+	{
+		final GriddlerListAdapter adapter = new GriddlerListAdapter(this,
+				R.id.lvWorld, WorldGriddlers.this.griddlers);
+		adapter.setGriddlers(WorldGriddlers.this.griddlers);
+		this.lv.setAdapter(adapter);
 	}
 }

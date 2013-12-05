@@ -3,7 +3,7 @@ package com.picogram.awesomeness;
 
 import com.stackmob.sdk.model.StackMobModel;
 
-public class GriddlerOne extends StackMobModel {
+public class GriddlerOne extends StackMobModel implements Comparable {
 	private String status, name, diff, rate, author, width, height, solution, current,
 			numberOfColors, colors;
 	private int numberOfRatings;
@@ -35,6 +35,12 @@ public class GriddlerOne extends StackMobModel {
 		this.colors = colors;
 		this.numberOfColors = numColors + "";
 		this.numberOfRatings = numberOfRatings;
+	}
+
+	public int compareTo(final Object g) {
+		// equal is equivlant to making it less than, so no 0 needed.
+		return (Integer.parseInt(this.rate) >= Integer.parseInt(((GriddlerOne) g).rate)) == true ? 1
+				: -1;
 	}
 
 	public String getAuthor() {
@@ -150,4 +156,5 @@ public class GriddlerOne extends StackMobModel {
 		 * id status name diff rating - null author width height solution current - null numColors colors numberOfRatings - 5
 		 */
 	}
+
 }
