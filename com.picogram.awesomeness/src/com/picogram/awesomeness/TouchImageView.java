@@ -269,8 +269,9 @@ public class TouchImageView extends ImageView {
 			// Since this is layered, we just need number of layers.
 			this.lTop = this.longestTop;
 			this.lSide = this.longestSide;
+			// this.bm = Bitmap.createBitmap((this.gWidth + this.longestSide) * 50,(this.gHeight + this.longestTop) * 50, Bitmap.Config.RGB_565);
 			this.bm = Bitmap.createBitmap((this.gWidth + this.longestSide) * 50,
-					(this.gHeight + this.longestTop) * 50, Bitmap.Config.RGB_565);
+					(this.gHeight + this.longestTop) * 50, Bitmap.Config.ARGB_4444);
 			this.canvasBitmap = new Canvas(this.bm);
 			this.paintBitmap = new Paint();
 			// Reverse the side hints, just because. Sorry, this is really stupid, it's for colors somehow.
@@ -447,10 +448,12 @@ public class TouchImageView extends ImageView {
 	}
 
 	private void drawWhiteCanvas() {
-		final Bitmap draw = BitmapFactory.decodeResource(this.getResources(), R.drawable.grid);
+		final Bitmap draw = BitmapFactory
+				.decodeResource(this.getResources(), R.drawable.light_grid);
 		final Shader old = this.paintBitmap.getShader();
 		this.paintBitmap.setShader(new BitmapShader(draw, TileMode.REPEAT, TileMode.REPEAT));
 		this.paintBitmap.setColor(this.getResources().getColor(R.color.background));
+		this.paintBitmap.setColor(Color.TRANSPARENT);
 		this.canvasBitmap.drawRect(0, 0, this.canvasBitmap.getWidth(),
 				this.canvasBitmap.getHeight(), this.paintBitmap);
 		this.paintBitmap.setShader(old);

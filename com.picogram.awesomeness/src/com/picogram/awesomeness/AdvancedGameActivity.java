@@ -126,7 +126,7 @@ public class AdvancedGameActivity extends Activity implements OnTouchListener,
 			colorChange = new ImageView(this);
 			final int[] rgb = this.getRGB(this.colors[i]);
 			if (rgb[0] == 0) {
-				final Drawable drawable = this.getResources().getDrawable(R.drawable.grid);
+				final Drawable drawable = this.getResources().getDrawable(R.drawable.light_grid);
 				fullColor = Bitmap.createScaledBitmap(((BitmapDrawable) drawable).getBitmap(), 100,
 						100, true);
 			} else {

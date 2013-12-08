@@ -28,14 +28,17 @@ public class UserGriddlers extends Activity implements OnTouchListener, OnItemCl
 	private static SQLiteGriddlerAdapter sql;
 	int yPrev;
 	Handler h = new Handler();
+	GriddlerListAdapter adapter = null;
 
 	public void loadGriddlers() {
-		UserGriddlers.this.griddlers.clear();
-		final GriddlerListAdapter adapter = new GriddlerListAdapter(this, R.id.lvUser);
-		this.griddlers.clear(); // Clear all old info.
-		adapter.setGriddlers(this.griddlers);
+		if (this.adapter == null) {
+			this.adapter = new GriddlerListAdapter(this, R.id.lvUser);
+		}
+		this.griddlers.clear();
+		this.adapter.clear(); // Clear all old info.
+		this.adapter.setGriddlers(this.griddlers);
 
-		this.lv.setAdapter(null);
+		this.lv.setAdapter(this.adapter);
 		final String[][] griddlersArray = sql.getGriddlers();
 		final SharedPreferences prefs = this.getSharedPreferences(MenuActivity.PREFS_FILE,
 				MODE_PRIVATE);
@@ -85,7 +88,10 @@ public class UserGriddlers extends Activity implements OnTouchListener, OnItemCl
 					final GriddlerOne tempGriddler = new GriddlerOne(status, name, diff,
 							rate, 0, author, width, height,
 							solution, current, numColors, colors);
+					this.adapter.add(tempGriddler);
 					this.griddlers.add(tempGriddler);
+					this.adapter.notifyDataSetChanged();
+
 				} else
 				{
 					// Get data from online about the Griddler for its updated rating.
@@ -110,7 +116,9 @@ public class UserGriddlers extends Activity implements OnTouchListener, OnItemCl
 											rate, 0, author, width, height,
 											solution, current, nc, cols);
 									tempGriddler.setID(id);
+									UserGriddlers.this.adapter.add(tempGriddler);
 									UserGriddlers.this.griddlers.add(tempGriddler);
+									UserGriddlers.this.adapter.notifyDataSetChanged();
 								}
 							});
 						}
@@ -122,7 +130,9 @@ public class UserGriddlers extends Activity implements OnTouchListener, OnItemCl
 								public void run() {
 									g.setStatus(oldStatus);
 									g.setCurrent(oldCurrent);
+									UserGriddlers.this.adapter.add(g);
 									UserGriddlers.this.griddlers.add(g);
+									UserGriddlers.this.adapter.notifyDataSetChanged();
 									// adapter.setGriddlers(UserGriddlers.this.griddlers);
 									// UserGriddlers.this.lv.setAdapter(adapter);
 								}
@@ -131,9 +141,10 @@ public class UserGriddlers extends Activity implements OnTouchListener, OnItemCl
 					});
 				}
 			}
+			this.adapter.notifyDataSetChanged();
 		}
-		adapter.setGriddlers(this.griddlers);
-		this.lv.setAdapter(adapter);
+		this.adapter.setGriddlers(this.griddlers);
+		this.lv.setAdapter(this.adapter);
 	}
 
 	@Override
