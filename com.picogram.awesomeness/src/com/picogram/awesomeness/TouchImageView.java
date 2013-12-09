@@ -488,12 +488,7 @@ public class TouchImageView extends ImageView {
 			}
 			final String middle = this.removeDuplicates(segment);
 			final String last = middle.replaceAll("0", "");
-			final char[] whole;
-			if (true) {
-				whole = new StringBuilder(last).reverse().toString().toCharArray();
-			} else {
-				whole = last.toCharArray();
-			}
+			final char[] whole = new StringBuilder(last).reverse().toString().toCharArray();
 			chars.add(whole);
 		}
 		int longest;
@@ -605,12 +600,6 @@ public class TouchImageView extends ImageView {
 			result.add(temp);
 		}
 		return result;
-	}
-
-	private ArrayList<Integer> getSideColors(final ArrayList<String> rows2) {
-		final ArrayList<Integer> result = new ArrayList();
-
-		return null;
 	}
 
 	// regex:

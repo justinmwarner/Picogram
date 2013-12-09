@@ -31,11 +31,17 @@ public class UserGriddlers extends Activity implements OnTouchListener, OnItemCl
 	GriddlerListAdapter adapter = null;
 
 	public void loadGriddlers() {
+		final Activity a = this;
 		if (this.adapter == null) {
 			this.adapter = new GriddlerListAdapter(this, R.id.lvUser);
 		}
-		this.griddlers.clear();
-		this.adapter.clear(); // Clear all old info.
+		a.runOnUiThread(new Runnable() {
+
+			public void run() {
+				UserGriddlers.this.griddlers.clear();
+				UserGriddlers.this.adapter.clear(); // Clear all old info.
+			}
+		});
 		this.adapter.setGriddlers(this.griddlers);
 
 		this.lv.setAdapter(this.adapter);
@@ -88,9 +94,15 @@ public class UserGriddlers extends Activity implements OnTouchListener, OnItemCl
 					final GriddlerOne tempGriddler = new GriddlerOne(status, name, diff,
 							rate, 0, author, width, height,
 							solution, current, numColors, colors);
-					this.adapter.add(tempGriddler);
-					this.griddlers.add(tempGriddler);
-					this.adapter.notifyDataSetChanged();
+					a.runOnUiThread(new Runnable() {
+
+						public void run() {
+							UserGriddlers.this.adapter.add(tempGriddler);
+							UserGriddlers.this.griddlers.add(tempGriddler);
+							// this.adapter.notifyDataSetChanged();
+						}
+
+					});
 
 				} else
 				{
@@ -141,10 +153,15 @@ public class UserGriddlers extends Activity implements OnTouchListener, OnItemCl
 					});
 				}
 			}
-			this.adapter.notifyDataSetChanged();
+
+			a.runOnUiThread(new Runnable() {
+
+				public void run() {
+					UserGriddlers.this.adapter.notifyDataSetChanged();
+				}
+
+			});
 		}
-		this.adapter.setGriddlers(this.griddlers);
-		this.lv.setAdapter(this.adapter);
 	}
 
 	@Override
@@ -247,7 +264,11 @@ public class UserGriddlers extends Activity implements OnTouchListener, OnItemCl
 	@Override
 	public void onResume() {
 		super.onResume();
-		this.loadGriddlers();
+		new Thread(new Runnable() {
+			public void run() {
+				UserGriddlers.this.loadGriddlers();
+			}
+		}).start();
 	}
 
 	public boolean onTouch(final View v, final MotionEvent me) {

@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
+import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.LinearLayout;
@@ -29,6 +30,7 @@ public class MenuActivity extends ActivityGroup implements FlurryAdListener {
 	public static String PREFS_FILE = "com.picogram.awesomeness_preferences";
 	Handler h = new Handler();
 	LinearLayout mBanner;
+	SharedPreferences prefs = null;
 
 	public void onAdClicked(final String arg0) {
 	}
@@ -48,11 +50,11 @@ public class MenuActivity extends ActivityGroup implements FlurryAdListener {
 		this.requestWindowFeature(Window.FEATURE_NO_TITLE);
 		this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
 				WindowManager.LayoutParams.FLAG_FULLSCREEN);
-		final SharedPreferences prefs = this.getSharedPreferences(
-				MenuActivity.PREFS_FILE, MODE_PRIVATE);
 		Util.setTheme(this);
 		this.setContentView(R.layout.activity_menu);
-		final String user = prefs.getString("username", "N/A");
+		this.prefs = this.getSharedPreferences(
+				MenuActivity.PREFS_FILE, MODE_PRIVATE);
+		final String user = this.prefs.getString("username", "N/A");
 		StackMobAndroid.init(this.getApplicationContext(), 0,
 				"f077e098-c678-4256-b7a2-c3061d9ff0c2");// Change to production.
 
@@ -84,14 +86,14 @@ public class MenuActivity extends ActivityGroup implements FlurryAdListener {
 		}
 		FlurryAgent.onStartSession(this, this.getResources().getString(R.string.flurry));
 		FlurryAgent.setCaptureUncaughtExceptions(true);
-		FlurryAgent.setLogEnabled(true);
-		FlurryAgent.setLogEvents(true);
+		FlurryAgent.setLogEnabled(!this.prefs.getBoolean("analytics", false));
+		FlurryAgent.setLogEvents(!this.prefs.getBoolean("logging", false));
 
 		FlurryAgent.logEvent("App Started");
 		this.mBanner = (LinearLayout) this.findViewById(R.id.flurryBanner);
 		// allow us to get callbacks for ad events
 		FlurryAds.setAdListener(this);
-		FlurryAds.enableTestAds(false);
+		FlurryAds.enableTestAds(true);
 
 	}
 
@@ -103,7 +105,11 @@ public class MenuActivity extends ActivityGroup implements FlurryAdListener {
 		super.onStart();
 		FlurryAgent.onStartSession(this, this.getResources().getString(R.string.flurry));
 		// fetch and prepare ad for this ad space. won’t render one yet
-		FlurryAds.fetchAd(this, "MainScreen", this.mBanner, FlurryAdSize.BANNER_BOTTOM);
+		this.mBanner.setVisibility(!this.prefs.getBoolean("advertisements", false) ? View.VISIBLE
+				: View.GONE);
+		if (!this.prefs.getBoolean("advertisements", false)) {
+			FlurryAds.fetchAd(this, "MainScreen", this.mBanner, FlurryAdSize.BANNER_BOTTOM);
+		}
 	}
 
 	@Override

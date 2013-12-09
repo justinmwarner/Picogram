@@ -8,6 +8,7 @@ import android.content.SharedPreferences.Editor;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 
+import java.io.File;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.util.Enumeration;
@@ -17,6 +18,21 @@ public class Util {
 	private static final String PREF_UNIQUE_ID = "PREF_UNIQUE_ID";
 	public static String PREFS_FILE = "com.picogram.awesomeness_preferences";
 	public static int THEME = R.style.Theme_Sherlock_Light;
+
+	public static boolean deleteDir(final File dir) {
+		if ((dir != null) && dir.isDirectory()) {
+			final String[] children = dir.list();
+			for (int i = 0; i < children.length; i++) {
+				final boolean success = deleteDir(new File(dir, children[i]));
+				if (!success) {
+					return false;
+				}
+			}
+		}
+
+		// The directory is now empty so delete it
+		return dir.delete();
+	}
 
 	public synchronized static String id(final Context context) {
 		String uniqueID;
@@ -82,5 +98,16 @@ public class Util {
 			THEME = R.style.Theme_Sherlock_Light;
 		}
 		a.setTheme(THEME);
+	}
+
+	public static void trimCache(final Context context) {
+		try {
+			final File dir = context.getCacheDir();
+			if ((dir != null) && dir.isDirectory()) {
+				deleteDir(dir);
+			}
+		} catch (final Exception e) {
+			// TODO: handle exception
+		}
 	}
 }
