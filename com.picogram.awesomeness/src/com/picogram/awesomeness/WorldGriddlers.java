@@ -174,7 +174,8 @@ public class WorldGriddlers extends Activity implements OnClickListener, OnItemC
 			// Reset to User frame (Mini-tutorial to show that it adds
 			// previously played games).
 			this.sql.close();
-			((MenuActivity) this.getParent()).switchTab(0);
+			// TODO Update My Puzzle tab.
+			// ((MenuActivity) this.getParent()).switchTab(0);
 		}
 	}
 

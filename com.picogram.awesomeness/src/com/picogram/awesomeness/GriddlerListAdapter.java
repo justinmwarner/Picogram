@@ -34,6 +34,14 @@ public class GriddlerListAdapter extends ArrayAdapter<GriddlerOne> {
 	}
 
 	@Override
+	public void add(final GriddlerOne object) {
+		super.add(object);
+		this.griddlers.add(object);
+		// this.notifyDataSetChanged();
+		// this.notifyDataSetInvalidated();
+	}
+
+	@Override
 	public int getCount() {
 		return this.griddlers.size();
 	}
@@ -125,7 +133,7 @@ public class GriddlerListAdapter extends ArrayAdapter<GriddlerOne> {
 		item.invalidate();
 		rl.invalidate();
 		((ViewGroup) item)
-				.setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
+		.setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
 		return item;
 	}
 

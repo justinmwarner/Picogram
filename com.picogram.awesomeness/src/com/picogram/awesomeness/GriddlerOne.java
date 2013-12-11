@@ -12,10 +12,7 @@ public class GriddlerOne extends StackMobModel implements Comparable {
 		super(GriddlerOne.class);
 
 	}
-
-	/*
-	 * // Constructor for test. public Griddler(final int i) { super(Griddler.class); //this.id = "" + i; this.status = "" + 0; this.name = "Name: " + i; }
-	 */
+	 
 	public GriddlerOne(final String status, final String name,
 			final String difficulty, final String rank, final int numberOfRatings,
 			final String author, final String width,

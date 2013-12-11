@@ -1,0 +1,988 @@
+package com.github.espiandev.showcaseview;
+
+import java.lang.reflect.Field;
+
+import android.app.Activity;
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.content.res.TypedArray;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffXfermode;
+import android.graphics.Rect;
+import android.graphics.drawable.Drawable;
+import android.os.Build;
+import android.os.Handler;
+import android.text.DynamicLayout;
+import android.text.Layout;
+import android.text.TextPaint;
+import android.text.TextUtils;
+import android.util.AttributeSet;
+import android.view.LayoutInflater;
+import android.view.MotionEvent;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.ViewParent;
+import android.widget.Button;
+import android.widget.RelativeLayout;
+
+import com.nineoldandroids.animation.Animator;
+import com.nineoldandroids.animation.AnimatorSet;
+import com.nineoldandroids.animation.ObjectAnimator;
+import com.nineoldandroids.view.ViewHelper;
+
+/**
+ * A view which allows you to showcase areas of your app with an explanation.
+ */
+public class ShowcaseView extends RelativeLayout implements
+		View.OnClickListener, View.OnTouchListener {
+
+	public static class ConfigOptions {
+		public boolean block = true, noButton = false;
+		public int showcaseId = 0;
+		public int shotType = TYPE_NO_LIMIT;
+		public int insert = INSERT_TO_DECOR;
+		public boolean hideOnClickOutside = false;
+	}
+
+	public interface OnShowcaseEventListener {
+
+		public void onShowcaseViewHide(ShowcaseView showcaseView);
+
+		public void onShowcaseViewShow(ShowcaseView showcaseView);
+
+	}
+
+	public static final int TYPE_NO_LIMIT = 0;
+	public static final int TYPE_ONE_SHOT = 1;
+
+	public static final int INSERT_TO_DECOR = 0;
+	public static final int INSERT_TO_VIEW = 1;
+	public static final int ITEM_ACTION_HOME = 0;
+	public static final int ITEM_TITLE_OR_SPINNER = 1;
+	public static final int ITEM_ACTION_ITEM = 2;
+	public static final int ITEM_ACTION_OVERFLOW = 6;
+
+	public static ShowcaseView insertShowcaseView(final float x, final float y,
+			final Activity activity) {
+		return insertShowcaseView(x, y, activity, null, null, null);
+	}
+
+	public static ShowcaseView insertShowcaseView(final float x, final float y,
+			final Activity activity, final int title, final int detailText,
+			final ConfigOptions options) {
+		final ShowcaseView sv = new ShowcaseView(activity);
+		if (options != null) {
+			sv.setConfigOptions(options);
+		}
+		if (sv.getConfigOptions().insert == INSERT_TO_DECOR) {
+			((ViewGroup) activity.getWindow().getDecorView()).addView(sv);
+		} else {
+			((ViewGroup) activity.findViewById(android.R.id.content))
+					.addView(sv);
+		}
+		sv.setShowcasePosition(x, y);
+		sv.setText(title, detailText);
+		return sv;
+	}
+
+	public static ShowcaseView insertShowcaseView(final float x, final float y,
+			final Activity activity, final String title,
+			final String detailText, final ConfigOptions options) {
+		final ShowcaseView sv = new ShowcaseView(activity);
+		if (options != null) {
+			sv.setConfigOptions(options);
+		}
+		if (sv.getConfigOptions().insert == INSERT_TO_DECOR) {
+			((ViewGroup) activity.getWindow().getDecorView()).addView(sv);
+		} else {
+			((ViewGroup) activity.findViewById(android.R.id.content))
+					.addView(sv);
+		}
+		sv.setShowcasePosition(x, y);
+		sv.setText(title, detailText);
+		return sv;
+	}
+
+	public static ShowcaseView insertShowcaseView(final int showcaseViewId,
+			final Activity activity, final int title, final int detailText,
+			final ConfigOptions options) {
+		final View v = activity.findViewById(showcaseViewId);
+		if (v != null) {
+			return insertShowcaseView(v, activity, title, detailText, options);
+		}
+		return null;
+	}
+
+	public static ShowcaseView insertShowcaseView(final int showcaseViewId,
+			final Activity activity, final String title,
+			final String detailText, final ConfigOptions options) {
+		final View v = activity.findViewById(showcaseViewId);
+		if (v != null) {
+			return insertShowcaseView(v, activity, title, detailText, options);
+		}
+		return null;
+	}
+
+	public static ShowcaseView insertShowcaseView(final View showcase,
+			final Activity activity) {
+		return insertShowcaseView(showcase, activity, null, null, null);
+	}
+
+	/**
+	 * Quick method to insert a ShowcaseView into an Activity
+	 * 
+	 * @param viewToShowcase
+	 *            View to showcase
+	 * @param activity
+	 *            Activity to insert into
+	 * @param title
+	 *            Text to show as a title. Can be null.
+	 * @param detailText
+	 *            More detailed text. Can be null.
+	 * @param options
+	 *            A set of options to customise the ShowcaseView
+	 * @return the created ShowcaseView instance
+	 */
+	public static ShowcaseView insertShowcaseView(final View viewToShowcase,
+			final Activity activity, final int title, final int detailText,
+			final ConfigOptions options) {
+		final ShowcaseView sv = new ShowcaseView(activity);
+		if (options != null) {
+			sv.setConfigOptions(options);
+		}
+		if (sv.getConfigOptions().insert == INSERT_TO_DECOR) {
+			((ViewGroup) activity.getWindow().getDecorView()).addView(sv);
+		} else {
+			((ViewGroup) activity.findViewById(android.R.id.content))
+					.addView(sv);
+		}
+		sv.setShowcaseView(viewToShowcase);
+		sv.setText(title, detailText);
+		return sv;
+	}
+
+	/**
+	 * Quick method to insert a ShowcaseView into an Activity
+	 * 
+	 * @param viewToShowcase
+	 *            View to showcase
+	 * @param activity
+	 *            Activity to insert into
+	 * @param title
+	 *            Text to show as a title. Can be null.
+	 * @param detailText
+	 *            More detailed text. Can be null.
+	 * @param options
+	 *            A set of options to customise the ShowcaseView
+	 * @return the created ShowcaseView instance
+	 */
+	public static ShowcaseView insertShowcaseView(final View viewToShowcase,
+			final Activity activity, final String title,
+			final String detailText, final ConfigOptions options) {
+		final ShowcaseView sv = new ShowcaseView(activity);
+		if (options != null) {
+			sv.setConfigOptions(options);
+		}
+		if (sv.getConfigOptions().insert == INSERT_TO_DECOR) {
+			((ViewGroup) activity.getWindow().getDecorView()).addView(sv);
+		} else {
+			((ViewGroup) activity.findViewById(android.R.id.content))
+					.addView(sv);
+		}
+		sv.setShowcaseView(viewToShowcase);
+		sv.setText(title, detailText);
+		return sv;
+	}
+
+	/**
+	 * Quickly insert a ShowcaseView into an Activity, highlighting an item.
+	 * 
+	 * @param type
+	 *            the type of item to showcase (can be ITEM_ACTION_HOME,
+	 *            ITEM_TITLE_OR_SPINNER, ITEM_ACTION_ITEM or
+	 *            ITEM_ACTION_OVERFLOW)
+	 * @param itemId
+	 *            the ID of an Action item to showcase (only required for
+	 *            ITEM_ACTION_ITEM
+	 * @param activity
+	 *            Activity to insert the ShowcaseView into
+	 * @param title
+	 *            Text to show as a title. Can be null.
+	 * @param detailText
+	 *            More detailed text. Can be null.
+	 * @param options
+	 *            A set of options to customise the ShowcaseView
+	 * @return the created ShowcaseView instance
+	 */
+	public static ShowcaseView insertShowcaseViewWithType(final int type,
+			final int itemId, final Activity activity, final int title,
+			final int detailText, final ConfigOptions options) {
+		final ShowcaseView sv = new ShowcaseView(activity);
+		if (options != null) {
+			sv.setConfigOptions(options);
+		}
+		if (sv.getConfigOptions().insert == INSERT_TO_DECOR) {
+			((ViewGroup) activity.getWindow().getDecorView()).addView(sv);
+		} else {
+			((ViewGroup) activity.findViewById(android.R.id.content))
+					.addView(sv);
+		}
+		sv.setShowcaseItem(type, itemId, activity);
+		sv.setText(title, detailText);
+		return sv;
+	}
+
+	/**
+	 * Quickly insert a ShowcaseView into an Activity, highlighting an item.
+	 * 
+	 * @param type
+	 *            the type of item to showcase (can be ITEM_ACTION_HOME,
+	 *            ITEM_TITLE_OR_SPINNER, ITEM_ACTION_ITEM or
+	 *            ITEM_ACTION_OVERFLOW)
+	 * @param itemId
+	 *            the ID of an Action item to showcase (only required for
+	 *            ITEM_ACTION_ITEM
+	 * @param activity
+	 *            Activity to insert the ShowcaseView into
+	 * @param title
+	 *            Text to show as a title. Can be null.
+	 * @param detailText
+	 *            More detailed text. Can be null.
+	 * @param options
+	 *            A set of options to customise the ShowcaseView
+	 * @return the created ShowcaseView instance
+	 */
+	public static ShowcaseView insertShowcaseViewWithType(final int type,
+			final int itemId, final Activity activity, final String title,
+			final String detailText, final ConfigOptions options) {
+		final ShowcaseView sv = new ShowcaseView(activity);
+		if (options != null) {
+			sv.setConfigOptions(options);
+		}
+		if (sv.getConfigOptions().insert == INSERT_TO_DECOR) {
+			((ViewGroup) activity.getWindow().getDecorView()).addView(sv);
+		} else {
+			((ViewGroup) activity.findViewById(android.R.id.content))
+					.addView(sv);
+		}
+		sv.setShowcaseItem(type, itemId, activity);
+		sv.setText(title, detailText);
+		return sv;
+	}
+
+	private float showcaseX = -1, showcaseY = -1, showcaseRadius = -1,
+			metricScale = 1.0f, legacyShowcaseX = -1, legacyShowcaseY = -1;
+	private boolean isRedundant = false, hasCustomClickListener = false;
+	private ConfigOptions mOptions;
+	private Paint mPaintTitle, mEraser;
+	private TextPaint mPaintDetail;
+
+	private final int backColor;
+
+	private Drawable showcase;
+
+	private View mHandy;
+
+	private final Button mEndButton;
+
+	private OnShowcaseEventListener mEventListener;
+
+	private Rect voidedArea;
+
+	private String mTitleText, mSubText;
+
+	private Context mContext;
+
+	private int detailTextColor = -1, titleTextColor = -1;
+
+	private DynamicLayout mDynamicDetailLayout;
+
+	private float[] mBestTextPosition;
+
+	private boolean mAlteredText = false;
+
+	private final String buttonText;
+
+	public ShowcaseView(final Context context) {
+		this(context, null, R.styleable.CustomTheme_showcaseViewStyle);
+		this.mContext = context;
+	}
+
+	public ShowcaseView(final Context context, final AttributeSet attrs) {
+		this(context, attrs, R.styleable.CustomTheme_showcaseViewStyle);
+		this.mContext = context;
+	}
+
+	public ShowcaseView(final Context context, final AttributeSet attrs,
+			final int defStyle) {
+		super(context, attrs, defStyle);
+		this.mContext = context;
+
+		// Get the attributes for the ShowcaseView
+		final TypedArray styled = context.getTheme().obtainStyledAttributes(
+				attrs, R.styleable.ShowcaseView, R.attr.showcaseViewStyle,
+				R.style.ShowcaseView);
+		this.backColor = styled.getInt(
+				R.styleable.ShowcaseView_backgroundColor,
+				Color.argb(128, 80, 80, 80));
+		this.detailTextColor = styled.getColor(
+				R.styleable.ShowcaseView_detailTextColor, Color.WHITE);
+		this.titleTextColor = styled.getColor(
+				R.styleable.ShowcaseView_titleTextColor,
+				Color.parseColor("#49C0EC"));
+		this.buttonText = styled.getString(R.styleable.ShowcaseView_buttonText);
+		styled.recycle();
+
+		this.metricScale = this.getContext().getResources().getDisplayMetrics().density;
+		this.mEndButton = (Button) LayoutInflater.from(context).inflate(
+				R.layout.showcase_button, null);
+		this.setConfigOptions(new ConfigOptions());
+	}
+
+	public void animateGesture(final float offsetStartX,
+			final float offsetStartY, final float offsetEndX,
+			final float offsetEndY) {
+		this.mHandy = ((LayoutInflater) this.getContext().getSystemService(
+				Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.handy, null);
+		this.addView(this.mHandy);
+		ViewHelper.setAlpha(this.mHandy, 0f);
+
+		final ObjectAnimator alphaIn = ObjectAnimator.ofFloat(this.mHandy,
+				"alpha", 0f, 1f).setDuration(500);
+
+		final ObjectAnimator setUpX = ObjectAnimator.ofFloat(this.mHandy, "x",
+				this.showcaseX + offsetStartX).setDuration(0);
+		final ObjectAnimator setUpY = ObjectAnimator.ofFloat(this.mHandy, "y",
+				this.showcaseY + offsetStartY).setDuration(0);
+
+		final ObjectAnimator moveX = ObjectAnimator.ofFloat(this.mHandy, "x",
+				this.showcaseX + offsetEndX).setDuration(1000);
+		final ObjectAnimator moveY = ObjectAnimator.ofFloat(this.mHandy, "y",
+				this.showcaseY + offsetEndY).setDuration(1000);
+		moveX.setStartDelay(1000);
+		moveY.setStartDelay(1000);
+
+		final ObjectAnimator alphaOut = ObjectAnimator.ofFloat(this.mHandy,
+				"alpha", 0f).setDuration(500);
+		alphaOut.setStartDelay(2500);
+
+		final AnimatorSet as = new AnimatorSet();
+		as.play(setUpX).with(setUpY).before(alphaIn).before(moveX).with(moveY)
+				.before(alphaOut);
+		as.start();
+
+		final Handler handler = new Handler();
+		final Runnable runnable = new Runnable() {
+			@Override
+			public void run() {
+				ShowcaseView.this.removeView(ShowcaseView.this.mHandy);
+			}
+		};
+		handler.postDelayed(runnable, 3000);
+	}
+
+	/**
+	 * Decide whether touches outside the showcased circle should be ignored or
+	 * not
+	 * 
+	 * @param block
+	 *            true to block touches, false otherwise. By default, this is
+	 *            true.
+	 * @deprecated Use the option in {@link ConfigOptions} instead.
+	 */
+	@Deprecated
+	public void blockNonShowcasedTouches(final boolean block) {
+		this.mOptions.block = block;
+	}
+
+	@Override
+	protected void dispatchDraw(final Canvas canvas) {
+		if ((this.showcaseX < 0) || (this.showcaseY < 0) || this.isRedundant) {
+			super.dispatchDraw(canvas);
+			return;
+		}
+
+		Bitmap b = Bitmap.createBitmap(this.getMeasuredWidth(),
+				this.getMeasuredHeight(), Bitmap.Config.ARGB_8888);
+		final Canvas c = new Canvas(b);
+
+		// Draw the semi-transparent background
+		c.drawColor(this.backColor);
+
+		// Erase the area for the ring
+		c.drawCircle(this.showcaseX, this.showcaseY, this.showcaseRadius,
+				this.mEraser);
+
+		final boolean recalculateText = this.makeVoidedRect()
+				|| this.mAlteredText;
+		this.mAlteredText = false;
+
+		this.showcase.setBounds(this.voidedArea);
+		this.showcase.draw(c);
+
+		canvas.drawBitmap(b, 0, 0, null);
+
+		// Clean up, as we no longer require these items.
+		try {
+			c.setBitmap(null);
+		} catch (final NullPointerException npe) {
+			// TODO why does this NPE happen?
+			npe.printStackTrace();
+		}
+		b.recycle();
+		b = null;
+
+		if (!TextUtils.isEmpty(this.mTitleText)
+				|| !TextUtils.isEmpty(this.mSubText)) {
+			if (recalculateText) {
+				this.mBestTextPosition = this.getBestTextPosition(
+						canvas.getWidth(), canvas.getHeight());
+			}
+
+			if (!TextUtils.isEmpty(this.mTitleText)) {
+				canvas.drawText(this.mTitleText, this.mBestTextPosition[0],
+						this.mBestTextPosition[1], this.mPaintTitle);
+			}
+
+			if (!TextUtils.isEmpty(this.mSubText)) {
+				canvas.save();
+				if (recalculateText) {
+					this.mDynamicDetailLayout = new DynamicLayout(
+							this.mSubText, this.mPaintDetail,
+							((Number) this.mBestTextPosition[2]).intValue(),
+							Layout.Alignment.ALIGN_NORMAL, 1.2f, 1.0f, true);
+				}
+				canvas.translate(this.mBestTextPosition[0],
+						this.mBestTextPosition[1] + (12 * this.metricScale));
+				this.mDynamicDetailLayout.draw(canvas);
+				canvas.restore();
+
+			}
+		}
+
+		super.dispatchDraw(canvas);
+
+	}
+
+	private float[] getBestTextPosition(final int canvasW, final int canvasH) {
+
+		// if the width isn't much bigger than the voided area, just consider
+		// top & bottom
+		final float spaceTop = this.voidedArea.top;
+		final float spaceBottom = canvasH - this.voidedArea.bottom
+				- (64 * this.metricScale); // 64dip considers the OK button
+		// float spaceLeft = voidedArea.left;
+		// float spaceRight = canvasW - voidedArea.right;
+
+		// TODO currently only considers above or below showcase, deal with left
+		// or right
+		return new float[] {
+				24 * this.metricScale,
+				spaceTop > spaceBottom ? 128 * this.metricScale
+						: (24 * this.metricScale) + this.voidedArea.bottom,
+				canvasW - (48 * this.metricScale) };
+
+	}
+
+	private ConfigOptions getConfigOptions() {
+		// Make sure that this method never returns null
+		if (this.mOptions == null) {
+			return this.mOptions = new ConfigOptions();
+		}
+		return this.mOptions;
+	}
+
+	/**
+	 * Get the ghostly gesture hand for custom gestures
+	 * 
+	 * @return a View representing the ghostly hand
+	 */
+	public View getHand() {
+		final View mHandy = ((LayoutInflater) this.getContext()
+				.getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(
+				R.layout.handy, null);
+		this.addView(mHandy);
+		ViewHelper.setAlpha(mHandy, 0f);
+
+		return mHandy;
+	}
+
+	public void hide() {
+		if (this.mEventListener != null) {
+			this.mEventListener.onShowcaseViewHide(this);
+		}
+		this.setVisibility(View.GONE);
+	}
+
+	private void init() {
+		final boolean hasShot = this
+				.getContext()
+				.getSharedPreferences("showcase_internal", Context.MODE_PRIVATE)
+				.getBoolean("hasShot" + this.getConfigOptions().showcaseId,
+						false);
+		if (hasShot && (this.mOptions.shotType == TYPE_ONE_SHOT)) {
+			// The showcase has already been shot once, so we don't need to do
+			// anything
+			this.setVisibility(View.GONE);
+			this.isRedundant = true;
+			return;
+		}
+		this.showcase = this.getContext().getResources()
+				.getDrawable(R.drawable.cling);
+
+		this.showcaseRadius = this.metricScale * 94;
+		final PorterDuffXfermode mBlender = new PorterDuffXfermode(
+				PorterDuff.Mode.MULTIPLY);
+		this.setOnTouchListener(this);
+
+		this.mPaintTitle = new Paint();
+		this.mPaintTitle.setColor(this.titleTextColor);
+		this.mPaintTitle.setShadowLayer(2.0f, 0f, 2.0f, Color.DKGRAY);
+		this.mPaintTitle.setTextSize(24 * this.metricScale);
+		this.mPaintTitle.setAntiAlias(true);
+
+		this.mPaintDetail = new TextPaint();
+		this.mPaintDetail.setColor(this.detailTextColor);
+		this.mPaintDetail.setShadowLayer(2.0f, 0f, 2.0f, Color.DKGRAY);
+		this.mPaintDetail.setTextSize(16 * this.metricScale);
+		this.mPaintDetail.setAntiAlias(true);
+
+		this.mEraser = new Paint();
+		this.mEraser.setColor(0xFFFFFF);
+		this.mEraser.setAlpha(0);
+		this.mEraser.setXfermode(mBlender);
+
+		if (!this.mOptions.noButton) {
+			final RelativeLayout.LayoutParams lps = (LayoutParams) this
+					.generateDefaultLayoutParams();
+			lps.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+			lps.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+			final int margin = ((Number) (this.metricScale * 12)).intValue();
+			lps.setMargins(margin, margin, margin, margin);
+			lps.height = LayoutParams.WRAP_CONTENT;
+			lps.width = LayoutParams.WRAP_CONTENT;
+			this.mEndButton.setLayoutParams(lps);
+			this.mEndButton.setText(this.buttonText != null ? this.buttonText
+					: this.getResources().getString(R.string.ok));
+			if (!this.hasCustomClickListener) {
+				this.mEndButton.setOnClickListener(this);
+			}
+			this.addView(this.mEndButton);
+		}
+	}
+
+	/**
+	 * Creates a {@link Rect} which represents the area the showcase covers.
+	 * Used to calculate where best to place the text
+	 * 
+	 * @return true if voidedArea has changed, false otherwise.
+	 */
+	private boolean makeVoidedRect() {
+
+		// This if statement saves resources by not recalculating voidedArea
+		// if the X & Y coordinates haven't changed
+		if ((this.voidedArea == null)
+				|| ((this.showcaseX != this.legacyShowcaseX) || (this.showcaseY != this.legacyShowcaseY))) {
+
+			final int cx = (int) this.showcaseX, cy = (int) this.showcaseY;
+			final int dw = this.showcase.getIntrinsicWidth();
+			final int dh = this.showcase.getIntrinsicHeight();
+
+			this.voidedArea = new Rect(cx - (dw / 2), cy - (dh / 2), cx
+					+ (dw / 2), cy + (dh / 2));
+
+			this.legacyShowcaseX = this.showcaseX;
+			this.legacyShowcaseY = this.showcaseY;
+
+			return true;
+
+		}
+		return false;
+
+	}
+
+	@Override
+	public void onClick(final View view) {
+		// If the type is set to one-shot, store that it has shot
+		if (this.mOptions.shotType == TYPE_ONE_SHOT) {
+			final SharedPreferences internal = this.getContext()
+					.getSharedPreferences("showcase_internal",
+							Context.MODE_PRIVATE);
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
+				internal.edit()
+						.putBoolean(
+								"hasShot" + this.getConfigOptions().showcaseId,
+								true).commit();
+			} else {
+				internal.edit()
+						.putBoolean(
+								"hasShot" + this.getConfigOptions().showcaseId,
+								true).commit();
+			}
+		}
+		this.hide();
+	}
+
+	@Override
+	public boolean onTouch(final View view, final MotionEvent motionEvent) {
+
+		final float xDelta = Math.abs(motionEvent.getRawX() - this.showcaseX);
+		final float yDelta = Math.abs(motionEvent.getRawY() - this.showcaseY);
+		final double distanceFromFocus = Math.sqrt(Math.pow(xDelta, 2)
+				+ Math.pow(yDelta, 2));
+
+		if (this.mOptions.hideOnClickOutside
+				&& (distanceFromFocus > this.showcaseRadius)) {
+			this.hide();
+			return true;
+		}
+
+		if (!this.mOptions.block) {
+			return false;
+		}
+
+		return distanceFromFocus > this.showcaseRadius;
+
+	}
+
+	/**
+	 * Override the standard button click event
+	 * 
+	 * @param listener
+	 *            Listener to listen to on click events
+	 */
+	public void overrideButtonClick(final OnClickListener listener) {
+		if (this.isRedundant) {
+			return;
+		}
+		if (this.mEndButton != null) {
+			this.mEndButton.setOnClickListener(listener != null ? listener
+					: this);
+		}
+		this.hasCustomClickListener = true;
+	}
+
+	/**
+	 * Point to a specific point on the screen
+	 * 
+	 * @param x
+	 *            X-coordinate to point to
+	 * @param y
+	 *            Y-coordinate to point to
+	 */
+	public void pointTo(final float x, final float y) {
+
+		final ObjectAnimator alphaIn = ObjectAnimator.ofFloat(this.mHandy,
+				"alpha", 0f, 1f).setDuration(500);
+
+		final ObjectAnimator setUpX = ObjectAnimator.ofFloat(this.mHandy, "x",
+				x).setDuration(0);
+		final ObjectAnimator setUpY = ObjectAnimator.ofFloat(this.mHandy, "y",
+				y).setDuration(0);
+
+		final AnimatorSet as = new AnimatorSet();
+		as.play(setUpX).with(setUpY).before(alphaIn);
+		as.start();
+
+	}
+
+	/**
+	 * Point to a specific view
+	 * 
+	 * @param view
+	 *            The {@link View} to Showcase
+	 */
+	public void pointTo(final View view) {
+
+		final ObjectAnimator alphaIn = ObjectAnimator.ofFloat(this.mHandy,
+				"alpha", 0f, 1f).setDuration(500);
+
+		final ObjectAnimator setUpX = ObjectAnimator.ofFloat(this.mHandy, "x",
+				ViewHelper.getX(view) + (view.getWidth() / 2)).setDuration(0);
+		final ObjectAnimator setUpY = ObjectAnimator.ofFloat(this.mHandy, "y",
+				ViewHelper.getY(view) + (view.getHeight() / 2)).setDuration(0);
+
+		final AnimatorSet as = new AnimatorSet();
+		as.play(setUpX).with(setUpY).before(alphaIn);
+		as.start();
+	}
+
+	private void setConfigOptions(final ConfigOptions options) {
+		this.mOptions = options;
+	}
+
+	public void setOnShowcaseEventListener(
+			final OnShowcaseEventListener listener) {
+		this.mEventListener = listener;
+	}
+
+	/**
+	 * Set the shot method of the showcase - only once or no limit
+	 * 
+	 * @param shotType
+	 *            either TYPE_ONE_SHOT or TYPE_NO_LIMIT
+	 * @deprecated Use the option in {@link ConfigOptions} instead.
+	 */
+	@Deprecated
+	public void setShotType(final int shotType) {
+		if ((shotType == TYPE_NO_LIMIT) || (shotType == TYPE_ONE_SHOT)) {
+			this.mOptions.shotType = shotType;
+		}
+	}
+
+	public void setShowcaseItem(final int itemType, final int actionItemId,
+			final Activity activity) {
+		this.post(new Runnable() {
+			@Override
+			public void run() {
+				View homeButton = activity.findViewById(android.R.id.home);
+				if (homeButton == null) {
+					// Thanks to @hameno for this
+					final int homeId = activity.getResources().getIdentifier(
+							"abs__home", "id", activity.getPackageName());
+					if (homeId != 0) {
+						homeButton = activity.findViewById(homeId);
+					}
+				}
+				if (homeButton == null) {
+					throw new RuntimeException(
+							"insertShowcaseViewWithType cannot be used when the theme "
+									+ "has no ActionBar");
+				}
+				ViewParent p = homeButton.getParent().getParent(); // ActionBarView
+
+				if (!p.getClass().getName().contains("ActionBarView")) {
+					final String previousP = p.getClass().getName();
+					p = p.getParent();
+					final String throwP = p.getClass().getName();
+					if (!p.getClass().getName().contains("ActionBarView")) {
+						throw new IllegalStateException(
+								"Cannot find ActionBarView for "
+										+ "Activity, instead found "
+										+ previousP + " and " + throwP);
+					}
+				}
+
+				final Class abv = p.getClass(); // ActionBarView class
+				final Class absAbv = abv.getSuperclass(); // AbsActionBarView
+															// class
+
+				switch (itemType) {
+
+				case ITEM_ACTION_HOME:
+					ShowcaseView.this.setShowcaseView(homeButton);
+					break;
+
+				case ITEM_TITLE_OR_SPINNER:
+					try {
+						final Field mTitleViewField = abv
+								.getDeclaredField("mTitleView");
+						mTitleViewField.setAccessible(true);
+						final View titleView = (View) mTitleViewField.get(p);
+						if (titleView != null) {
+							ShowcaseView.this.setShowcaseView(titleView);
+							break;
+						}
+						final Field mSpinnerField = abv
+								.getDeclaredField("mSpinner");
+						mSpinnerField.setAccessible(true);
+						final View mSpinnerView = (View) mSpinnerField.get(p);
+						if (mSpinnerView != null) {
+							ShowcaseView.this.setShowcaseView(mSpinnerView);
+							break;
+						}
+					} catch (final NoSuchFieldException e) {
+						e.printStackTrace();
+					} catch (final IllegalAccessException e) {
+						e.printStackTrace();
+					}
+					break;
+
+				case ITEM_ACTION_ITEM:
+				case ITEM_ACTION_OVERFLOW:
+					try {
+						final Field mAmpField = absAbv
+								.getDeclaredField("mActionMenuPresenter");
+						mAmpField.setAccessible(true);
+						final Object mAmp = mAmpField.get(p);
+						if (itemType == ITEM_ACTION_OVERFLOW) {
+							// Finds the overflow button associated with the
+							// ActionMenuPresenter
+							final Field mObField = mAmp.getClass()
+									.getDeclaredField("mOverflowButton");
+							mObField.setAccessible(true);
+							final View mOb = (View) mObField.get(mAmp);
+							if (mOb != null) {
+								ShowcaseView.this.setShowcaseView(mOb);
+							}
+						} else {
+							// Want an ActionItem, so find it
+							final Field mAmvField = mAmp.getClass()
+									.getSuperclass()
+									.getDeclaredField("mMenuView");
+							mAmvField.setAccessible(true);
+							final Object mAmv = mAmvField.get(mAmp);
+
+							Field mChField;
+							if (mAmv.getClass().toString()
+									.contains("com.actionbarsherlock")) {
+								// There are thousands of superclasses to
+								// traverse up
+								// Have to get superclasses because mChildren is
+								// private
+								mChField = mAmv.getClass().getSuperclass()
+										.getSuperclass().getSuperclass()
+										.getSuperclass()
+										.getDeclaredField("mChildren");
+							} else {
+								mChField = mAmv.getClass().getSuperclass()
+										.getSuperclass()
+										.getDeclaredField("mChildren");
+							}
+							mChField.setAccessible(true);
+							final Object[] mChs = (Object[]) mChField.get(mAmv);
+							for (final Object mCh : mChs) {
+								if (mCh != null) {
+									final View v = (View) mCh;
+									if (v.getId() == actionItemId) {
+										ShowcaseView.this.setShowcaseView(v);
+									}
+								}
+							}
+						}
+					} catch (final IllegalAccessException e) {
+						e.printStackTrace();
+					} catch (final NoSuchFieldException e) {
+						e.printStackTrace();
+					} catch (final NullPointerException npe) {
+						throw new RuntimeException(
+								"insertShowcaseViewWithType() must be called "
+										+ "after or during onCreateOptionsMenu() of the host Activity");
+					}
+
+				}
+			}
+		});
+
+	}
+
+	/**
+	 * Set a specific position to showcase
+	 * 
+	 * @param x
+	 *            X co-ordinate
+	 * @param y
+	 *            Y co-ordinate
+	 */
+	public void setShowcasePosition(final float x, final float y) {
+		if (this.isRedundant) {
+			return;
+		}
+		this.showcaseX = x;
+		this.showcaseY = y;
+		this.init();
+		this.invalidate();
+	}
+
+	/**
+	 * Set the view to showcase
+	 * 
+	 * @param view
+	 *            The {@link View} to showcase.
+	 */
+	public void setShowcaseView(final View view) {
+		if (this.isRedundant || (view == null)) {
+			this.isRedundant = true;
+			return;
+		}
+		this.isRedundant = false;
+
+		view.post(new Runnable() {
+			@Override
+			public void run() {
+				ShowcaseView.this.init();
+				if (ShowcaseView.this.mOptions.insert == INSERT_TO_VIEW) {
+					ShowcaseView.this.showcaseX = view.getLeft()
+							+ (view.getWidth() / 2);
+					ShowcaseView.this.showcaseY = view.getTop()
+							+ (view.getHeight() / 2);
+				} else {
+					final int[] coordinates = new int[2];
+					view.getLocationInWindow(coordinates);
+					ShowcaseView.this.showcaseX = coordinates[0]
+							+ (view.getWidth() / 2);
+					ShowcaseView.this.showcaseY = coordinates[1]
+							+ (view.getHeight() / 2);
+				}
+				ShowcaseView.this.invalidate();
+			}
+		});
+	}
+
+	public void setText(final int titleText, final int subText) {
+
+		this.mTitleText = this.mContext.getResources().getString(titleText);
+		this.mSubText = this.mContext.getResources().getString(subText);
+		this.mAlteredText = true;
+		this.invalidate();
+
+	}
+
+	public void setText(final String titleText, final String subText) {
+
+		this.mTitleText = titleText;
+		this.mSubText = subText;
+		this.mAlteredText = true;
+		this.invalidate();
+
+	}
+
+	public ShowcaseView setTextColors(final int titleTextColor,
+			final int detailTextColor) {
+		this.titleTextColor = titleTextColor;
+		this.detailTextColor = detailTextColor;
+		if (this.mPaintTitle != null) {
+			this.mPaintTitle.setColor(titleTextColor);
+		}
+		if (this.mPaintDetail != null) {
+			this.mPaintDetail.setColor(detailTextColor);
+		}
+		this.invalidate();
+		return this;
+	}
+
+	public void show() {
+		if (this.mEventListener != null) {
+			this.mEventListener.onShowcaseViewShow(this);
+		}
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+			final ObjectAnimator oa = ObjectAnimator.ofFloat(this, "alpha", 1f);
+			oa.setDuration(300).addListener(new Animator.AnimatorListener() {
+				@Override
+				public void onAnimationCancel(final Animator animator) {
+				}
+
+				@Override
+				public void onAnimationEnd(final Animator animator) {
+				}
+
+				@Override
+				public void onAnimationRepeat(final Animator animator) {
+				}
+
+				@Override
+				public void onAnimationStart(final Animator animator) {
+					ShowcaseView.this.setVisibility(View.VISIBLE);
+				}
+			});
+			oa.start();
+		} else {
+			this.setVisibility(View.VISIBLE);
+		}
+	}
+
+}

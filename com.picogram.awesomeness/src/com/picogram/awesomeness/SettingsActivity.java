@@ -1,9 +1,6 @@
 
 package com.picogram.awesomeness;
 
-import android.app.AlarmManager;
-import android.app.PendingIntent;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -61,11 +58,9 @@ public class SettingsActivity extends SherlockPreferenceActivity implements
 	public boolean onPreferenceChange(final Preference preference, final Object newValue) {
 		if (preference.getKey().equals("nightmode")) {
 			// Restart the app so that effects are in place...
-			final PendingIntent intent = PendingIntent.getActivity(this.getParent(), 0, this
-					.getParent().getIntent(), 0);
-			final AlarmManager manager = (AlarmManager) this
-					.getSystemService(Context.ALARM_SERVICE);
-			manager.set(AlarmManager.RTC, System.currentTimeMillis() + 3000, intent);
+			final Intent i = this.getBaseContext().getPackageManager()
+					.getLaunchIntentForPackage(this.getBaseContext().getPackageName());
+			i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 			new Thread(new Runnable() {
 
 				public void run() {
@@ -73,16 +68,18 @@ public class SettingsActivity extends SherlockPreferenceActivity implements
 						Thread.sleep(1000); // Wait for this to return true,
 											// thus completing the change of
 											// preferences.
+						SettingsActivity.this.startActivity(i);
 					} catch (final InterruptedException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
-					System.exit(2);
+					// System.exit(2);
 				}
 
 			}).start();
 			Toast.makeText(this, "We're restarting the app to apply the new theme.",
 					Toast.LENGTH_LONG).show();
+			return true;
 		}
 		else if (preference.getKey().equals("nsfw"))
 		{
