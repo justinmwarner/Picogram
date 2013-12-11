@@ -25,7 +25,6 @@ import android.widget.RatingBar;
 import android.widget.RatingBar.OnRatingBarChangeListener;
 
 import com.flurry.android.FlurryAgent;
-import com.github.espiandev.showcaseview.ShowcaseView;
 import com.picogram.awesomeness.TouchImageView.WinnerListener;
 import com.stackmob.sdk.callback.StackMobModelCallback;
 import com.stackmob.sdk.exception.StackMobException;
@@ -33,10 +32,9 @@ import com.stackmob.sdk.exception.StackMobException;
 import java.util.ArrayList;
 
 public class AdvancedGameActivity extends Activity implements OnTouchListener,
-		WinnerListener, ShowcaseView.OnShowcaseEventListener {
+WinnerListener {
 	private static final String TAG = "AdvancedGameActivity";
 	TouchImageView tiv;
-	ShowcaseView sv;
 	Handler handle = new Handler();
 	int tutorialStep = 0;
 	private static SQLiteGriddlerAdapter sql;
@@ -91,14 +89,6 @@ public class AdvancedGameActivity extends Activity implements OnTouchListener,
 		final String s = this.getIntent().getExtras().getString("solution");
 		this.puzzleId = this.getIntent().getExtras().getString("id");
 		FlurryAgent.logEvent("UserPlayingGame");
-		if (name != null) {
-			if (name.equals("Tutorial")) {
-				// We're in a tutorial.
-				if (!c.equals(s)) {
-					this.showStepOne();
-				}
-			}
-		}
 		// Create colors for pallet.
 		final String thing = this.getIntent().getExtras().getString("colors");
 		final String[] cols = this.getIntent().getExtras().getString("colors").split(",");
@@ -177,44 +167,7 @@ public class AdvancedGameActivity extends Activity implements OnTouchListener,
 		sql = new SQLiteGriddlerAdapter(this.getApplicationContext(), "Griddlers", null, 1);
 	}
 
-	public void onShowcaseViewHide(final ShowcaseView showcaseView) {
 
-		if (this.tutorialStep == 0) {
-			this.tutorialStep++;
-			this.showStepTwo();
-		} else if (this.tutorialStep == 1) {
-			this.tutorialStep++;
-			this.showStepThree();
-		} else if (this.tutorialStep == 2) {
-			// This is our final step, and we must wait until the top row is
-			// filled to continue. Run a thread and wait until the game is
-			// either finished, or they complete the top row to show the
-			// next step.
-			new Thread(new Runnable() {
-
-				public void run() {
-					while (true) {
-						if (AdvancedGameActivity.this.tiv.gCurrent.startsWith("1111")) {
-							AdvancedGameActivity.this.tutorialStep++;
-							AdvancedGameActivity.this.handle.post(new Runnable() {
-
-								public void run() {
-									AdvancedGameActivity.this.showStepFour();
-								}
-
-							});
-							break;
-						}
-					}
-				}
-
-			}).start();
-		} else if (this.tutorialStep == 3) {
-		}
-	}
-
-	public void onShowcaseViewShow(final ShowcaseView showcaseView) {
-	}
 
 	public boolean onTouch(final View v, final MotionEvent event) {
 		final int index = this.ivs.indexOf(v);
@@ -230,70 +183,12 @@ public class AdvancedGameActivity extends Activity implements OnTouchListener,
 
 	private void returnIntent() {
 
-		final Intent returnIntent2 = new Intent();
-		returnIntent2.putExtra("current", this.tiv.gCurrent);
-		returnIntent2.putExtra("status", "1");
-		returnIntent2.putExtra("ID", this.tiv.gSolution.hashCode() + "");
-		this.setResult(2, returnIntent2);
+		final Intent returnIntent = new Intent();
+		returnIntent.putExtra("current", this.tiv.gCurrent);
+		returnIntent.putExtra("status", "1");
+		returnIntent.putExtra("ID", this.tiv.gSolution.hashCode() + "");
+		this.setResult(Activity.RESULT_OK, returnIntent);
 		this.finish();
-	}
-
-	private void showStepFour() {
-		final ShowcaseView.ConfigOptions co = new ShowcaseView.ConfigOptions();
-		co.hideOnClickOutside = true;
-		this.sv = ShowcaseView
-				.insertShowcaseView(
-						R.id.tivGame,
-						this,
-						"Finish her!",
-						"Good, now you just gotta finish the two. If we check the side hints, we can see 1 1.  This means that we have one black, with some white space between the next.  Use the top hints to figure out where the remainding pieces go.",
-						co);
-		this.sv.setOnShowcaseEventListener(this);
-
-	}
-
-	private void showStepOne() {
-		final ShowcaseView.ConfigOptions co = new ShowcaseView.ConfigOptions();
-		co.hideOnClickOutside = true;
-		this.sv = ShowcaseView
-				.insertShowcaseView(
-						R.id.llPallet,
-						this,
-						"Movement and Brush Color",
-						"Here are your tools to use during your griddler-ing.  The Move is used to move and zoom.  You can zoom in via-pinching, and from there, you may slide around.\n\nAs you may know, Griddlers use colors to draw pictures.  This is also the location of your brushes you may use.",
-						co);
-		this.sv.setOnShowcaseEventListener(this);
-
-	}
-
-	private void showStepThree() {
-
-		final ShowcaseView.ConfigOptions co = new ShowcaseView.ConfigOptions();
-		co.hideOnClickOutside = true;
-		this.sv = ShowcaseView
-				.insertShowcaseView(
-						R.id.tivGame,
-						this,
-						"First Row",
-						"As you can see, the board is a 4X4.  If we see the numbers on the side, we see two rows have 4.  This means, by deduction, the whole row must be filled.  So let's finish filling up the first row. \n\nRemember, Click the black up top to be able to draw.",
-						co);
-		this.sv.setOnShowcaseEventListener(this);
-
-	}
-
-	private void showStepTwo() {
-
-		final ShowcaseView.ConfigOptions co = new ShowcaseView.ConfigOptions();
-		co.hideOnClickOutside = true;
-		this.sv = ShowcaseView
-				.insertShowcaseView(
-						R.id.tivGame,
-						this,
-						"Game Board",
-						"This here is the heart and soul of the Griddler game.  This is your game board.\n\nAs you can see, the side and top numbers are your hints. You can use these to figure out this board.  If you already know how to win, just play.  If not, then follow the steps.",
-						co);
-		this.sv.setOnShowcaseEventListener(this);
-
 	}
 
 	public void win() {
@@ -314,8 +209,7 @@ public class AdvancedGameActivity extends Activity implements OnTouchListener,
 
 						@Override
 						public void failure(final StackMobException arg0) {
-							Log.d(TAG, "Failed: " + arg0.toString())
-							;
+							Log.d(TAG, "Failed: " + arg0.toString());
 							dialog.dismiss();
 							AdvancedGameActivity.this.isDialogueShowing = !AdvancedGameActivity.this.isDialogueShowing;
 							AdvancedGameActivity.this.returnIntent();
@@ -323,8 +217,7 @@ public class AdvancedGameActivity extends Activity implements OnTouchListener,
 
 						@Override
 						public void success() {
-							Log.d(TAG, "Success: " + g)
-							;
+							Log.d(TAG, "Success: " + g);
 							g.setRating(((Integer.parseInt(g.getRating()) * g.getNumberOfRatings()) + (int) rating)
 									+ "");
 							g.setNumberOfRatings(g.getNumberOfRatings() + 1);

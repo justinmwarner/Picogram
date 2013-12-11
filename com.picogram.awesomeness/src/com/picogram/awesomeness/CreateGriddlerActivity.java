@@ -33,7 +33,6 @@ import com.agimind.widget.SlideHolder;
 import com.agimind.widget.SlideHolder.OnSlideListener;
 import com.flurry.android.FlurryAgent;
 import com.gesturetutorial.awesomeness.TutorialView;
-import com.github.espiandev.showcaseview.ShowcaseView;
 
 import de.keyboardsurfer.android.widget.crouton.Crouton;
 import de.keyboardsurfer.android.widget.crouton.Style;
@@ -61,7 +60,6 @@ public class CreateGriddlerActivity extends Activity implements OnClickListener,
 	private String solution = "";
 	private WheelView sX, sY, sColor, sDiff;
 	private SeekBar sbTransparency;
-	ShowcaseView sv;
 	ImageView ivOld, ivNew;
 	Handler handler = new Handler();
 	Button bURLSubmit;
@@ -350,15 +348,6 @@ public class CreateGriddlerActivity extends Activity implements OnClickListener,
 		}
 		else
 		{
-			final ShowcaseView.ConfigOptions co = new ShowcaseView.ConfigOptions();
-			co.hideOnClickOutside = true;
-			this.sv = ShowcaseView
-					.insertShowcaseView(
-							R.id.ivOld,
-							this,
-							"Swipe left to right.",
-							"The toolbox contains all you'll need to create beautiful griddlers.  Click one of the three buttons at the top to start!",
-							co);
 			sh.setDirection(SlideHolder.DIRECTION_LEFT);
 			sh.setOnSlideListener(new OnSlideListener() {
 

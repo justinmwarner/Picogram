@@ -7,6 +7,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteDatabase.CursorFactory;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.graphics.Color;
 
 public class SQLiteGriddlerAdapter extends SQLiteOpenHelper {
 
@@ -114,8 +115,8 @@ public class SQLiteGriddlerAdapter extends SQLiteOpenHelper {
 		} else {
 			c.close();
 			return new String[][] {}; // Should never happen because tutorial
-										// and custom will be
-										// there.
+			// and custom will be
+			// there.
 		}
 	}
 
@@ -123,7 +124,7 @@ public class SQLiteGriddlerAdapter extends SQLiteOpenHelper {
 		// Create Custom and Tutorial blocks. Will ALWAYS be there.
 		final ContentValues cv = new ContentValues();
 		cv.put(id, "".hashCode()); // Odd, to me, but nothing will ever have
-									// this ;).
+		// this ;).
 		cv.put(author, "justinwarner");
 		cv.put(name, "Create a Griddler");
 		cv.put(rank, 0);
@@ -144,8 +145,8 @@ public class SQLiteGriddlerAdapter extends SQLiteOpenHelper {
 		cv.put(width, "4");
 		cv.put(height, "4");
 		cv.put(status, "0");
-		cv.put(colors, "000000");// Black
-		cv.put(numberOfColors, 1);
+		cv.put(colors, Color.TRANSPARENT + "," + Color.BLACK);// Black
+		cv.put(numberOfColors, 2);
 		db.insert(griddlerTable, null, cv); // Tutorial Griddler.
 	}
 

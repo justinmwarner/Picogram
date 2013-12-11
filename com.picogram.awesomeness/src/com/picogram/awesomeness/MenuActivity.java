@@ -37,7 +37,7 @@ OnPageChangeListener, OnClickListener {
 	public class MyPagerAdapter extends FragmentPagerAdapter {
 
 		private static final String TAG = "MainActivity";
-
+		public SuperAwesomeCardFragment frag[] = new SuperAwesomeCardFragment[this.getCount()];
 
 		public MyPagerAdapter(final FragmentManager fm) {
 			super(fm);
@@ -50,17 +50,13 @@ OnPageChangeListener, OnClickListener {
 
 		@Override
 		public Fragment getItem(final int position) {
-			return SuperAwesomeCardFragment.newInstance(position);
+			this.frag[position] = SuperAwesomeCardFragment.newInstance(position);
+			return this.frag[position];
 		}
 
 		@Override
 		public CharSequence getPageTitle(final int position) {
 			return MenuActivity.TITLES.get(position);
-		}
-
-		public void setTag(final String tag)
-		{
-			SuperAwesomeCardFragment.setTag(tag);
 		}
 
 	}
@@ -115,6 +111,8 @@ OnPageChangeListener, OnClickListener {
 		if (this.bSearch != null) {
 			if (v.getId() == this.bSearch.getId()) {
 				// SuperAwesomeCardFragment.getTagPuzzles(this, this.etTags.getText().toString(), true);
+				this.adapter.frag[this.currentTab].getTagPuzzles(this.adapter.frag[this.currentTab]
+						.getActivity(), this.etTags.getText().toString(), true);
 			}
 		}
 	}

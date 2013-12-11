@@ -17,6 +17,7 @@
 package com.picogram.awesomeness;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -28,10 +29,13 @@ import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.FrameLayout;
 import android.widget.FrameLayout.LayoutParams;
 import android.widget.ListView;
 
+import com.flurry.android.FlurryAgent;
 import com.stackmob.sdk.api.StackMobQuery;
 import com.stackmob.sdk.callback.StackMobModelCallback;
 import com.stackmob.sdk.callback.StackMobQueryCallback;
@@ -43,10 +47,12 @@ import de.keyboardsurfer.android.widget.crouton.Style;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SuperAwesomeCardFragment extends Fragment {
+public class SuperAwesomeCardFragment extends Fragment implements OnItemClickListener {
 
 	private static final String ARG_POSITION = "position";
 	private static final String TAG = "SuperAwesomeCardFragment";
+	public static final int CREATE_RESULT = 100;
+	public static final int GAME_RESULT = 1337;
 
 	public static SuperAwesomeCardFragment newInstance(final int position) {
 		final SuperAwesomeCardFragment f = new SuperAwesomeCardFragment();
@@ -113,7 +119,6 @@ public class SuperAwesomeCardFragment extends Fragment {
 					final GriddlerOne tempGriddler = new GriddlerOne(status, name, diff,
 							rate, 0, author, width, height,
 							solution, current, numColors, colors);
-					Log.d(TAG, "Adding Offline : " + tempGriddler.getName());
 					a.runOnUiThread(new Runnable() {
 
 						public void run() {
@@ -136,7 +141,6 @@ public class SuperAwesomeCardFragment extends Fragment {
 					g.fetch(new StackMobModelCallback() {
 						@Override
 						public void failure(final StackMobException arg0) {
-							Log.d(TAG, "Adding Failed : " + name);
 							a.runOnUiThread(new Runnable() {
 
 								public void run() {
@@ -155,7 +159,6 @@ public class SuperAwesomeCardFragment extends Fragment {
 							a.runOnUiThread(new Runnable() {
 
 								public void run() {
-									Log.d(TAG, "Adding Online: " + g.getName());
 									g.setStatus(oldStatus);
 									g.setCurrent(oldCurrent);
 									SuperAwesomeCardFragment.this.myAdapter.add(g);
@@ -179,7 +182,6 @@ public class SuperAwesomeCardFragment extends Fragment {
 
 					@Override
 					public void failure(final StackMobException arg0) {
-						Log.d(TAG, "ERROR: " + arg0.toString());
 						Crouton.makeText(a, "Error fetching data: " + arg0.toString(), Style.ALERT);
 
 					}
@@ -196,8 +198,6 @@ public class SuperAwesomeCardFragment extends Fragment {
 
 	public void getSortedPuzzles(final Activity a, final String sort) {
 		this.myAdapter.clear();
-		final boolean isDone = false;
-		Log.d(TAG, "Top");
 		GriddlerOne.query(
 				GriddlerOne.class,
 				new StackMobQuery().isInRange(0, 9).fieldIsOrderedBy(sort,
@@ -227,6 +227,10 @@ public class SuperAwesomeCardFragment extends Fragment {
 	}
 
 	public void getTagPuzzles(final Activity a, final String tag, final boolean isSortByRate) {
+		Log.d(TAG, "0. Tag: " + tag);
+		Log.d(TAG, "1. Size: " + this.myAdapter.getCount());
+		this.myAdapter.clear();
+		Log.d(TAG, "2. Size: " + this.myAdapter.getCount());
 		final StackMobQuery smq = new StackMobQuery().fieldIsEqualTo("tag", tag);
 		GriddlerTag.query(
 				GriddlerTag.class, smq,
@@ -234,13 +238,14 @@ public class SuperAwesomeCardFragment extends Fragment {
 
 					@Override
 					public void failure(final StackMobException arg0) {
-						Log.d(TAG, "ERROR: " + arg0.toString());
+						Log.d(TAG, "3. Fail: " + arg0.toString());
 						Crouton.makeText(a, "Error fetching data: " + arg0.toString(), Style.ALERT);
 
 					}
 
 					@Override
 					public void success(final List<GriddlerTag> gts) {
+						Log.d(TAG, "3. Succ: " + gts.size());
 						final ArrayList<String> ids = new ArrayList();
 						for (final GriddlerTag gt : gts) {
 							ids.add(gt.getID());
@@ -259,6 +264,8 @@ public class SuperAwesomeCardFragment extends Fragment {
 
 							@Override
 							public void failure(final StackMobException arg0) {
+
+								Log.d(TAG, "4. Err: " + arg0.toString());
 								Crouton.makeText(a,
 										"Error fetching data: " + arg0.toString(),
 										Style.ALERT);
@@ -267,16 +274,77 @@ public class SuperAwesomeCardFragment extends Fragment {
 							@Override
 							public void success(final List<GriddlerOne> gs) {
 
+								Log.d(TAG, "4. Size: " + gs.size());
 								for (final GriddlerOne g : gs) {
-									SuperAwesomeCardFragment.this.myAdapter.add(g);
-									SuperAwesomeCardFragment.this.myAdapter
-									.notifyDataSetChanged();
+									a.runOnUiThread(new Runnable() {
+
+										public void run() {
+											SuperAwesomeCardFragment.this.myAdapter.add(g);
+											SuperAwesomeCardFragment.this.myAdapter
+											.notifyDataSetChanged();
+										}
+									});
 								}
 							}
 						});
 
 					}
 				});
+	}
+
+	@Override
+	public void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
+		// These could be compiled in to one, but for now, just keep it as is
+		// for simplicity.
+		if ((resultCode == Activity.RESULT_OK) && (requestCode == CREATE_RESULT)) {
+			// New Girddler, add to database.
+			final String colors = data.getStringExtra("colors");
+			final String id = data.getStringExtra("solution").hashCode() + "";
+			final String status = "0";
+			final String author = data.getStringExtra("author");
+			final String difficulty = data.getStringExtra("difficulty");
+			final String height = data.getStringExtra("height");
+			final String name = data.getStringExtra("name");
+			final int numberOfColors = colors.split(",").length;
+			final String rank = data.getStringExtra("rank");
+			final String solution = data.getStringExtra("solution");
+			final String width = data.getStringExtra("width");
+			final GriddlerOne g = new GriddlerOne(status, name, difficulty, rank, 1, author, width,
+					height, solution, null, numberOfColors, colors);
+			g.setID(id);
+			// TODO Check if Picogram already exists. If it does, just add that to the users sql database.
+			this.sql.addUserGriddler(g);
+			// TODO If save failed, save offline to upload later on.
+			g.save(new StackMobModelCallback() {
+
+				@Override
+				public void failure(final StackMobException arg0) {
+
+				}
+
+				@Override
+				public void success() {
+					// TODO Auto-generated method stub
+
+				}
+			});
+			final String[] tags = data.getStringExtra("tags").split(" ");
+			for (final String tag : tags)
+			{
+				final GriddlerTag gt = new GriddlerTag(tag);
+				gt.setID(id);
+				gt.save();
+			}
+
+		} else if ((resultCode == Activity.RESULT_OK) && (requestCode == GAME_RESULT)) {
+			// Back button pushed or won.
+			final String id = data.getStringExtra("ID");
+			final String status = data.getStringExtra("status");
+			final String current = data.getStringExtra("current");
+			this.sql.updateCurrentGriddler(id, status, current);
+		} else {
+			// Nothing added.
+		}
 	}
 
 	@Override
@@ -317,8 +385,8 @@ public class SuperAwesomeCardFragment extends Fragment {
 		}
 		else if (this.position == MenuActivity.TITLES.indexOf("Search"))
 		{
-			// TODO get tag.
-			this.getTagPuzzles(this.getActivity(), "", true);
+			// Don't load anything on start.
+			// this.getTagPuzzles(this.getActivity(), "", true);
 		}
 		else if (this.position == MenuActivity.TITLES.indexOf("Prefs")) {
 			return new View(this.getActivity());
@@ -337,9 +405,8 @@ public class SuperAwesomeCardFragment extends Fragment {
 				// items.add(MenuActivity.TITLES.get(this.position) + " " + this.position + " " + i);
 			}
 		}
-		Log.d(TAG, "Size " + this.myAdapter.getCount());
 		v.setAdapter(this.myAdapter);
-		Log.d(TAG, "OnCreateView " + this.position);
+		v.setOnItemClickListener(this);
 
 		fl.addView(v);
 		return fl;
@@ -351,6 +418,41 @@ public class SuperAwesomeCardFragment extends Fragment {
 			this.sql.close();
 		}
 		super.onDestroy();
+	}
+
+	public void onItemClick(final AdapterView<?> parent, final View v, final int pos, final long id) {
+		if (pos >= 0) // If valid position to select.
+		{
+			if ((this.position == MenuActivity.TITLES.indexOf("My")) && (pos == 0)) // Can this be the Creating?
+			{
+				final Intent createIntent = new Intent(this.getActivity(),
+						CreateGriddlerActivity.class);
+				this.sql.close();
+				this.startActivityForResult(createIntent, CREATE_RESULT);
+			}
+			else
+			{
+				this.startGame(this.myAdapter.get(pos).getSolution(), this.myAdapter.get(pos)
+						.getCurrent(), this.myAdapter.get(pos).getWidth(), this.myAdapter.get(pos)
+						.getHeight(), this.myAdapter.get(pos).getID(), this.myAdapter.get(pos)
+						.getName(), this.myAdapter.get(pos).getColors());
+			}
+		}
+	}
+
+	private void startGame(final String solution, final String current, final String width,
+			final String height, final String id, final String name, final String colors) {
+		FlurryAgent.logEvent("UserPlayGame");
+		// Intent gameIntent = new Intent(this, AdvancedGameActivity.class);
+		final Intent gameIntent = new Intent(this.getActivity(), AdvancedGameActivity.class);
+		gameIntent.putExtra("solution", solution);
+		gameIntent.putExtra("current", current);
+		gameIntent.putExtra("width", width);
+		gameIntent.putExtra("height", height);
+		gameIntent.putExtra("id", id);
+		gameIntent.putExtra("name", name);
+		gameIntent.putExtra("colors", colors);
+		this.startActivityForResult(gameIntent, GAME_RESULT);
 	}
 }
 

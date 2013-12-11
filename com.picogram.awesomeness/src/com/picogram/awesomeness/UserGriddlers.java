@@ -289,11 +289,11 @@ public class UserGriddlers extends Activity implements OnTouchListener, OnItemCl
 						// Start game with info!
 						this.startGame(this.griddlers.get(pos).getSolution(),
 								this.griddlers.get(pos).getCurrent(), this.griddlers.get(pos)
-										.getWidth(),
+								.getWidth(),
 								this.griddlers.get(pos).getHeight(), this.griddlers.get(pos)
-										.getID(),
+								.getID(),
 								this.griddlers.get(pos).getName(), this.griddlers.get(pos)
-										.getColors());
+								.getColors());
 					}
 				}
 				return false;
@@ -317,9 +317,7 @@ public class UserGriddlers extends Activity implements OnTouchListener, OnItemCl
 		gameIntent.putExtra("id", id);
 		gameIntent.putExtra("name", name);
 		gameIntent.putExtra("colors", colors);
-		this.startActivityForResult(gameIntent, 2); // 2 because we need to know
-													// what the outcome of the
-													// game was.
+		this.startActivityForResult(gameIntent, 2);
 	}
 
 }
