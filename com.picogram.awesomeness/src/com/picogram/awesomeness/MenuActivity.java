@@ -1,7 +1,6 @@
 
 package com.picogram.awesomeness;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -59,6 +58,11 @@ OnPageChangeListener, OnClickListener {
 			return MenuActivity.TITLES.get(position);
 		}
 
+		public void setTag(final String tag)
+		{
+			SuperAwesomeCardFragment.setTag(tag);
+		}
+
 	}
 
 	static final ArrayList<String> TITLES = new ArrayList<String>(Arrays.asList(new String[] {
@@ -79,22 +83,16 @@ OnPageChangeListener, OnClickListener {
 	static ListView lv;
 	static GriddlerListAdapter lvAdapter;
 
-	private static SQLiteGriddlerAdapter sql;
-
 	public static void getRecentPuzzles() {
 	}
 
 	public static void getSearchedPuzzles(final String tag) {
 	}
 
-
-
-
 	@Override
 	protected void onActivityResult(final int requestCode, final int resultCode, final Intent data)
 	{
-		if (requestCode == 100)
-		{
+		if (requestCode == 100) {
 			// Preferences, just switch tab back to main.
 			this.pager.setCurrentItem(TITLES.indexOf("My"));
 		}
@@ -116,7 +114,7 @@ OnPageChangeListener, OnClickListener {
 		// Should be search.
 		if (this.bSearch != null) {
 			if (v.getId() == this.bSearch.getId()) {
-				// this.adapter.update(this.pager.getCurrentItem(), this.etTags.getText().toString());
+				// SuperAwesomeCardFragment.getTagPuzzles(this, this.etTags.getText().toString(), true);
 			}
 		}
 	}
@@ -127,8 +125,6 @@ OnPageChangeListener, OnClickListener {
 		lv = new ListView(this);
 		lvAdapter = new GriddlerListAdapter(this, R.id.tvName);
 		lv.setAdapter(lvAdapter);
-		sql = new SQLiteGriddlerAdapter(this.getApplicationContext(), "Griddlers",
-				null, 1);
 		this.requestWindowFeature(Window.FEATURE_NO_TITLE);
 		this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
 				WindowManager.LayoutParams.FLAG_FULLSCREEN);
@@ -164,13 +160,13 @@ OnPageChangeListener, OnClickListener {
 		this.pager.setPageMargin(pageMargin);
 
 		this.tabs.setViewPager(this.pager);
+		this.tabs.setOnPageChangeListener(this);
 	}
 
 	@Override
 	public void onDestroy()
 	{
 		super.onDestroy();
-		sql.close();
 	}
 
 	public void onPageScrolled(final int arg0, final float arg1, final int arg2) {
@@ -182,49 +178,11 @@ OnPageChangeListener, OnClickListener {
 	}
 
 	public void onPageSelected(final int tab) {
-		// Handle updating data.
-		if (tab == MenuActivity.TITLES.indexOf("My"))
-		{
-			// My Puzzles
-			final Activity a = this;
-			new Thread(new Runnable() {
-
-				public void run() {
-					// getUserPuzzles(a);
-				}
-			}).start();
-		}
-		else if (tab == MenuActivity.TITLES.indexOf("Top"))
-		{
-			// Top Puzzles
-			final Activity a = this;
-			new Thread(new Runnable() {
-
-				public void run() {
-					// getTopPuzzles(a);
-				}
-			}).start();
-		}
-		else if (tab == MenuActivity.TITLES.indexOf("Recent"))
-		{
-			// Recent puzzles
-			getRecentPuzzles();
-		}
-		else if (tab == MenuActivity.TITLES.indexOf("Search"))
-		{
-			// Search puzzles
-		}
-
-		// Handle preferences
-		if (tab == TITLES.indexOf("Prefs"))
-		{
-			// Preferences use the wizard.
+		// Handle bottom toolbar changes.
+		if (tab == TITLES.indexOf("Prefs")) {
 			final Intent i = new Intent(this, SettingsActivity.class);
 			this.startActivityForResult(i, 100);
-		}
-
-		// Handle bottom toolbar changes.
-		if (tab == TITLES.indexOf("Search"))
+		} else if (tab == TITLES.indexOf("Search"))
 		{
 			if (this.toolbar.getVisibility() == View.GONE) {
 				this.toolbar.setVisibility(View.VISIBLE);
@@ -241,11 +199,10 @@ OnPageChangeListener, OnClickListener {
 			this.bSearch.setOnClickListener(this);
 			rl.addView(this.bSearch, params);
 			params = new RelativeLayout.LayoutParams(
-					RelativeLayout.LayoutParams.MATCH_PARENT,
+					RelativeLayout.LayoutParams.WRAP_CONTENT,
 					RelativeLayout.LayoutParams.MATCH_PARENT);
-			params.addRule(RelativeLayout.ALIGN_PARENT_RIGHT, 0);
 			params.addRule(RelativeLayout.ALIGN_PARENT_LEFT, RelativeLayout.TRUE);
-			params.addRule(RelativeLayout.ALIGN_RIGHT, this.bSearch.getId());
+			params.addRule(RelativeLayout.LEFT_OF, this.bSearch.getId());
 			this.etTags = new EditText(this);
 			this.etTags.setHint("Tags...");
 			rl.addView(this.etTags, params);

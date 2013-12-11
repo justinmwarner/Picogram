@@ -40,6 +40,7 @@ import com.stackmob.sdk.exception.StackMobException;
 import de.keyboardsurfer.android.widget.crouton.Crouton;
 import de.keyboardsurfer.android.widget.crouton.Style;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class SuperAwesomeCardFragment extends Fragment {
@@ -56,11 +57,10 @@ public class SuperAwesomeCardFragment extends Fragment {
 	}
 
 	private int position;
+
 	GriddlerListAdapter myAdapter;
 	Handler h = new Handler();
-
 	SQLiteGriddlerAdapter sql = null;
-
 	private void getMyPuzzles(final FragmentActivity a) {
 		if (this.sql == null) {
 			this.sql = new SQLiteGriddlerAdapter(a, "Griddlers", null, 1);
@@ -170,18 +170,37 @@ public class SuperAwesomeCardFragment extends Fragment {
 
 	}
 
-	private void getRecentPuzzles(final FragmentActivity activity) {
-		// TODO Auto-generated method stub
+	public void getRecentPuzzles(final Activity a) {
+		GriddlerOne.query(
+				GriddlerOne.class,
+				new StackMobQuery().isInRange(0, 9).fieldIsOrderedBy("createddate",
+						StackMobQuery.Ordering.DESCENDING),
+						new StackMobQueryCallback<GriddlerOne>() {
 
+					@Override
+					public void failure(final StackMobException arg0) {
+						Log.d(TAG, "ERROR: " + arg0.toString());
+						Crouton.makeText(a, "Error fetching data: " + arg0.toString(), Style.ALERT);
+
+					}
+
+					@Override
+					public void success(final List<GriddlerOne> gs) {
+						for (final GriddlerOne g : gs) {
+							SuperAwesomeCardFragment.this.myAdapter.add(g);
+							SuperAwesomeCardFragment.this.myAdapter.notifyDataSetChanged();
+						}
+					}
+				});
 	}
 
-	public void getTopPuzzles(final Activity a) {
+	public void getSortedPuzzles(final Activity a, final String sort) {
 		this.myAdapter.clear();
 		final boolean isDone = false;
 		Log.d(TAG, "Top");
 		GriddlerOne.query(
 				GriddlerOne.class,
-				new StackMobQuery().isInRange(0, 9).fieldIsOrderedBy("rate",
+				new StackMobQuery().isInRange(0, 9).fieldIsOrderedBy(sort,
 						StackMobQuery.Ordering.DESCENDING),
 						new StackMobQueryCallback<GriddlerOne>() {
 
@@ -199,15 +218,63 @@ public class SuperAwesomeCardFragment extends Fragment {
 								public void run() {
 									SuperAwesomeCardFragment.this.myAdapter.add(g);
 									SuperAwesomeCardFragment.this.myAdapter.notifyDataSetChanged();
-									// SuperAwesomeCardFragment.this.griddlers.add(g);
-									Log.d(TAG,
-											"Size "
-													+ SuperAwesomeCardFragment.this.myAdapter
-													.getCount());
 								}
 
 							});
 						}
+					}
+				});
+	}
+
+	public void getTagPuzzles(final Activity a, final String tag, final boolean isSortByRate) {
+		final StackMobQuery smq = new StackMobQuery().fieldIsEqualTo("tag", tag);
+		GriddlerTag.query(
+				GriddlerTag.class, smq,
+				new StackMobQueryCallback<GriddlerTag>() {
+
+					@Override
+					public void failure(final StackMobException arg0) {
+						Log.d(TAG, "ERROR: " + arg0.toString());
+						Crouton.makeText(a, "Error fetching data: " + arg0.toString(), Style.ALERT);
+
+					}
+
+					@Override
+					public void success(final List<GriddlerTag> gts) {
+						final ArrayList<String> ids = new ArrayList();
+						for (final GriddlerTag gt : gts) {
+							ids.add(gt.getID());
+						}
+
+						final StackMobQuery smqInner = new StackMobQuery().isInRange(0, 9)
+								.fieldIsIn("griddlerone_id", ids);
+
+						if (isSortByRate) {
+							smq.fieldIsOrderedBy("rate", StackMobQuery.Ordering.DESCENDING);
+						} else {
+							smq.fieldIsOrderedBy("createddate", StackMobQuery.Ordering.DESCENDING);
+						}
+						GriddlerOne.query(GriddlerOne.class, smqInner,
+								new StackMobQueryCallback<GriddlerOne>() {
+
+							@Override
+							public void failure(final StackMobException arg0) {
+								Crouton.makeText(a,
+										"Error fetching data: " + arg0.toString(),
+										Style.ALERT);
+							}
+
+							@Override
+							public void success(final List<GriddlerOne> gs) {
+
+								for (final GriddlerOne g : gs) {
+									SuperAwesomeCardFragment.this.myAdapter.add(g);
+									SuperAwesomeCardFragment.this.myAdapter
+									.notifyDataSetChanged();
+								}
+							}
+						});
+
 					}
 				});
 	}
@@ -238,20 +305,29 @@ public class SuperAwesomeCardFragment extends Fragment {
 		v.setBackgroundResource(R.drawable.background_card);
 		// final List<String> items = new ArrayList();
 		this.myAdapter = new GriddlerListAdapter(this.getActivity(), R.id.tvName);
-		if(this.position == 0)
+		if (this.position == MenuActivity.TITLES.indexOf("My"))
 		{
 			this.getMyPuzzles(this.getActivity());
 		}
-		else if (this.position == 1) {
-			this.getTopPuzzles(this.getActivity());
-		}else if(this.position == 2)
+		else if (this.position == MenuActivity.TITLES.indexOf("Top")) {
+			this.getSortedPuzzles(this.getActivity(), "rate");
+		} else if (this.position == MenuActivity.TITLES.indexOf("Recent"))
 		{
-			this.getRecentPuzzles(this.getActivity());
+			this.getSortedPuzzles(this.getActivity(), "createddate");
+		}
+		else if (this.position == MenuActivity.TITLES.indexOf("Search"))
+		{
+			// TODO get tag.
+			this.getTagPuzzles(this.getActivity(), "", true);
+		}
+		else if (this.position == MenuActivity.TITLES.indexOf("Prefs")) {
+			return new View(this.getActivity());
 		}
 		else
 		{
 			for (int i = 0; i != 20; ++i) {
-				final GriddlerOne obj = new GriddlerOne("0", "Name " + i,
+				final GriddlerOne obj = new GriddlerOne("0",
+						"We had an error. You shouldn't see this " + i,
 						"0", "0", 1,
 						"Justin", "1",
 						"1", "1", "0", 2,
@@ -271,8 +347,10 @@ public class SuperAwesomeCardFragment extends Fragment {
 
 	@Override
 	public void onDestroy() {
+		if (this.sql != null) {
+			this.sql.close();
+		}
 		super.onDestroy();
-		this.sql.close();
 	}
 }
 
