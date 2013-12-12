@@ -8,7 +8,9 @@
         android:id="@+id/tabs"
         android:layout_width="match_parent"
         android:layout_height="48dip"
-        android:background="@drawable/background_tabs" />
+        android:background="@drawable/background_tabs"
+        android:isScrollContainer="false" 
+         android:windowSoftInputMode="adjustPan" />
 
     <android.support.v4.view.ViewPager
         android:id="@+id/pager"
@@ -16,7 +18,9 @@
         android:layout_height="wrap_content"
         android:layout_above="@+id/bottomToolbar"
         android:layout_below="@+id/tabs"
-        tools:context=".MainActivity" />
+        tools:context=".MainActivity"
+        android:isScrollContainer="false" 
+         android:windowSoftInputMode="adjustPan" />
 
     <LinearLayout
         android:id="@+id/bottomToolbar"
@@ -26,6 +30,8 @@
         android:layout_marginBottom="8dip"
         android:layout_marginLeft="4dip"
         android:layout_marginRight="4dip"
-        android:orientation="horizontal" />
+        android:orientation="horizontal"
+        android:isScrollContainer="false"
+         android:windowSoftInputMode="adjustPan"  />
 
 </RelativeLayout>

@@ -41,6 +41,12 @@ public class GriddlerListAdapter extends ArrayAdapter<GriddlerOne> {
 		// this.notifyDataSetInvalidated();
 	}
 
+	@Override
+	public void clear() {
+		super.clear();
+		this.griddlers.clear();
+	}
+
 	public GriddlerOne get(final int pos) {
 		return this.griddlers.get(pos);
 	}

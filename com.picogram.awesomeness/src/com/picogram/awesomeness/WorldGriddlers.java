@@ -5,7 +5,6 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -48,7 +47,6 @@ public class WorldGriddlers extends Activity implements OnClickListener, OnItemC
 
 					@Override
 					public void failure(final StackMobException arg0) {
-						Log.d(TAG, "ERROR: " + arg0.toString());
 						Crouton.makeText(a, "Error fetching data: " + arg0.toString(), Style.ALERT);
 
 					}
@@ -110,7 +108,6 @@ public class WorldGriddlers extends Activity implements OnClickListener, OnItemC
 
 					@Override
 					public void failure(final StackMobException arg0) {
-						Log.d(TAG, "ERROR: " + arg0.toString());
 						Crouton.makeText(a, "Error fetching data: " + arg0.toString(), Style.ALERT);
 
 					}
@@ -141,7 +138,6 @@ public class WorldGriddlers extends Activity implements OnClickListener, OnItemC
 
 					@Override
 					public void failure(final StackMobException arg0) {
-						Log.d(TAG, "ERROR: " + arg0.toString());
 						Crouton.makeText(a, "Error fetching data: " + arg0.toString(), Style.ALERT);
 
 					}

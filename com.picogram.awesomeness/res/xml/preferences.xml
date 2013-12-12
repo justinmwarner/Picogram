@@ -5,50 +5,13 @@
         <!-- Preferences about the game itself. -->
 
         <CheckBoxPreference
-            android:key="nightmode"
-            android:summary="If you like it dark ;)."
-            android:title="Night/Dark Mode" />
-        <CheckBoxPreference
             android:key="wonvisible"
             android:summary="Hardcore griddler master?  Remove all those pesky games to find new challenges faster!"
             android:title="Remove Won Games" />
         <CheckBoxPreference
-            android:key="nsfw"
-            android:summary="Some Griddlers may be NSFW (Not safe for work), remove them from your eyes if you feel it&apos;s needed."
-            android:title="Rated G" />
-
-        <CheckBoxPreference
             android:key="decorations"
             android:summary="Show the bar with the time and notifications while you play."
             android:title="Show Top Bar?" />
-            />
-    </PreferenceCategory>
-    <PreferenceCategory android:title="User Preferences" >
-
-        <!-- User preferences -->
-
-        <EditTextPreference
-            android:dialogTitle="Please enter a username."
-            android:key="username"
-            android:summary="We can track your errors. We can add an author to your picture.  And maybe sync between devices.  You must have password set."
-            android:title="Username" />
-        <EditTextPreference
-            android:dialogTitle="Please enter a password."
-            android:key="password"
-            android:summary="Required to sync data. Must have username field set too."
-            android:title="Password" />
-
-        <Preference
-            android:key="deletedata"
-            android:summary="We&apos;ll delete the data from your device.  We don&apos;t use a lot, but it&apos;s an option.  This includes preferences, puzzles, your (device) account info, etc."
-            android:title="Remove Data" />
-    </PreferenceCategory>
-    <!-- Simple changelog.  Remember to update when we release/update. -->
-    <PreferenceCategory android:title="Changelog" >
-        <Preference
-            android:key="changelog"
-            android:summary="View the changelog."
-            android:title="View the changelog." />
     </PreferenceCategory>
     <!-- Privacy, let the user control anything we can/will collect. -->
     <PreferenceCategory android:title="Privacy Preferences" >
@@ -65,41 +28,12 @@
             android:summary="We collect what you do so if the app crashes, we know how to reproduce what you did.  We can also fix more problematic bugs."
             android:title="Stop Events and Crashes" />
     </PreferenceCategory>
-    <PreferenceCategory android:title="Social Networks" >
+    <!-- Simple changelog.  Remember to update when we release/update. -->
+    <PreferenceCategory android:title="Changelog" >
         <Preference
-            android:key="facebook"
-            android:summary="Connect your Facebook account.  Can be used to sync items too."
-            android:title="Facebook" />
-        <Preference
-            android:key="twitter"
-            android:summary="Connect your Twitter account.  Can be used to sync items too."
-            android:title="Twitter" />
-    </PreferenceCategory>
-    <PreferenceCategory android:title="Extra Information - For Advertisements" >
-        <Preference
-            android:key="age"
-            android:summary="Age for targeted ads."
-            android:title="Age" />
-        <Preference
-            android:key="gender"
-            android:summary="Gender for targeted ads."
-            android:title="Gender" />
-        <ListPreference
-            android:title="Gender"
-            android:key="gender"
-            android:defaultValue="Unknown"
-            android:entries="@array/listGender"
-            android:entryValues="@array/listGender" />
-    </PreferenceCategory>
-    <PreferenceCategory android:title="Logout" >
-        <Preference
-            android:key="logoutsave"
-            android:summary="Logout but save all existing data."
-            android:title="Logout - Save" />
-        <Preference
-            android:key="logoutdelete"
-            android:summary="Logout and delete all existing data."
-            android:title="Logout - Delete" />
+            android:key="changelog"
+            android:summary="View the changelog."
+            android:title="View the changelog." />
     </PreferenceCategory>
     <PreferenceCategory android:title="Contact" >
         <Preference

@@ -1,19 +1,3 @@
-/*
- * Copyright (C) 2013 Andreas Stuetz <andreas.stuetz@gmail.com>
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package com.picogram.awesomeness;
 
 import android.app.Activity;
@@ -67,11 +51,19 @@ public class SuperAwesomeCardFragment extends Fragment implements OnItemClickLis
 	GriddlerListAdapter myAdapter;
 	Handler h = new Handler();
 	SQLiteGriddlerAdapter sql = null;
-	private void getMyPuzzles(final FragmentActivity a) {
+
+	public void clearAdapter()
+	{
+		this.myAdapter.clear();
+		this.myAdapter.notifyDataSetChanged();
+	}
+
+	public void getMyPuzzles(final FragmentActivity a) {
 		if (this.sql == null) {
 			this.sql = new SQLiteGriddlerAdapter(a, "Griddlers", null, 1);
 		}
 		final String[][] griddlersArray = this.sql.getGriddlers();
+		Log.d(TAG, "My Puzzles: " + griddlersArray.length);
 		final SharedPreferences prefs = Util.getPreferences(a);
 		for (int i = 0; i < griddlersArray.length; i++) {
 			final String temp[] = griddlersArray[i];
@@ -293,61 +285,6 @@ public class SuperAwesomeCardFragment extends Fragment implements OnItemClickLis
 	}
 
 	@Override
-	public void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
-		// These could be compiled in to one, but for now, just keep it as is
-		// for simplicity.
-		if ((resultCode == Activity.RESULT_OK) && (requestCode == CREATE_RESULT)) {
-			// New Girddler, add to database.
-			final String colors = data.getStringExtra("colors");
-			final String id = data.getStringExtra("solution").hashCode() + "";
-			final String status = "0";
-			final String author = data.getStringExtra("author");
-			final String difficulty = data.getStringExtra("difficulty");
-			final String height = data.getStringExtra("height");
-			final String name = data.getStringExtra("name");
-			final int numberOfColors = colors.split(",").length;
-			final String rank = data.getStringExtra("rank");
-			final String solution = data.getStringExtra("solution");
-			final String width = data.getStringExtra("width");
-			final GriddlerOne g = new GriddlerOne(status, name, difficulty, rank, 1, author, width,
-					height, solution, null, numberOfColors, colors);
-			g.setID(id);
-			// TODO Check if Picogram already exists. If it does, just add that to the users sql database.
-			this.sql.addUserGriddler(g);
-			// TODO If save failed, save offline to upload later on.
-			g.save(new StackMobModelCallback() {
-
-				@Override
-				public void failure(final StackMobException arg0) {
-
-				}
-
-				@Override
-				public void success() {
-					// TODO Auto-generated method stub
-
-				}
-			});
-			final String[] tags = data.getStringExtra("tags").split(" ");
-			for (final String tag : tags)
-			{
-				final GriddlerTag gt = new GriddlerTag(tag);
-				gt.setID(id);
-				gt.save();
-			}
-
-		} else if ((resultCode == Activity.RESULT_OK) && (requestCode == GAME_RESULT)) {
-			// Back button pushed or won.
-			final String id = data.getStringExtra("ID");
-			final String status = data.getStringExtra("status");
-			final String current = data.getStringExtra("current");
-			this.sql.updateCurrentGriddler(id, status, current);
-		} else {
-			// Nothing added.
-		}
-	}
-
-	@Override
 	public void onCreate(final Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		this.position = this.getArguments().getInt(ARG_POSITION);
@@ -428,7 +365,8 @@ public class SuperAwesomeCardFragment extends Fragment implements OnItemClickLis
 				final Intent createIntent = new Intent(this.getActivity(),
 						CreateGriddlerActivity.class);
 				this.sql.close();
-				this.startActivityForResult(createIntent, CREATE_RESULT);
+				Log.d(TAG, "Create code: " + MenuActivity.CREATE_CODE);
+				this.getActivity().startActivityForResult(createIntent, MenuActivity.CREATE_CODE);
 			}
 			else
 			{
@@ -455,4 +393,3 @@ public class SuperAwesomeCardFragment extends Fragment implements OnItemClickLis
 		this.startActivityForResult(gameIntent, GAME_RESULT);
 	}
 }
-

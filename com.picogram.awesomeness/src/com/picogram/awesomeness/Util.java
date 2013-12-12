@@ -7,6 +7,7 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.view.WindowManager;
 
 import java.io.File;
 import java.net.InetAddress;
@@ -60,7 +61,6 @@ public class Util {
 		}
 		return uniqueID;
 	}
-
 	public static boolean isOnline() {
 		try
 		{
@@ -104,14 +104,19 @@ public class Util {
 		a.setTheme(THEME);
 	}
 
-	public static void trimCache(final Context context) {
-		try {
-			final File dir = context.getCacheDir();
-			if ((dir != null) && dir.isDirectory()) {
-				deleteDir(dir);
-			}
-		} catch (final Exception e) {
-			// TODO: handle exception
+	public static void updateFullScreen(final Activity a)
+	{
+		if (!Util.getPreferences(a).getBoolean("decorations", false))
+		{
+			a.getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+			a.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
 		}
+		else
+		{
+			a.getWindow().addFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
+			a.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+		}
+
+		(a.findViewById(android.R.id.content)).requestLayout();
 	}
 }

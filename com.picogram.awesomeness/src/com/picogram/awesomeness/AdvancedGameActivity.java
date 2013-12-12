@@ -10,7 +10,6 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MotionEvent;
@@ -18,7 +17,6 @@ import android.view.View;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup.LayoutParams;
 import android.view.Window;
-import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RatingBar;
@@ -77,8 +75,6 @@ WinnerListener {
 	protected void onCreate(final Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		this.requestWindowFeature(Window.FEATURE_NO_TITLE);
-		this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-				WindowManager.LayoutParams.FLAG_FULLSCREEN);
 		this.setContentView(R.layout.activity_advanced_game);
 		Util.setTheme(this);
 		this.tiv = (TouchImageView) this.findViewById(R.id.tivGame);
@@ -164,6 +160,7 @@ WinnerListener {
 	@Override
 	public void onResume() {
 		super.onResume();
+		Util.updateFullScreen(this);
 		sql = new SQLiteGriddlerAdapter(this.getApplicationContext(), "Griddlers", null, 1);
 	}
 
@@ -209,7 +206,6 @@ WinnerListener {
 
 						@Override
 						public void failure(final StackMobException arg0) {
-							Log.d(TAG, "Failed: " + arg0.toString());
 							dialog.dismiss();
 							AdvancedGameActivity.this.isDialogueShowing = !AdvancedGameActivity.this.isDialogueShowing;
 							AdvancedGameActivity.this.returnIntent();
@@ -217,7 +213,6 @@ WinnerListener {
 
 						@Override
 						public void success() {
-							Log.d(TAG, "Success: " + g);
 							g.setRating(((Integer.parseInt(g.getRating()) * g.getNumberOfRatings()) + (int) rating)
 									+ "");
 							g.setNumberOfRatings(g.getNumberOfRatings() + 1);
