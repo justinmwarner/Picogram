@@ -47,6 +47,17 @@ public class GriddlerListAdapter extends ArrayAdapter<GriddlerOne> {
 		this.griddlers.clear();
 	}
 
+	public boolean existsById(final String id){
+		for(final GriddlerOne g : this.griddlers)
+		{
+			if(g.getID() == id) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
 	public GriddlerOne get(final int pos) {
 		return this.griddlers.get(pos);
 	}

@@ -76,7 +76,7 @@ public class SuperAwesomeCardFragment extends Fragment implements OnItemClickLis
 			final String solution = temp[4];
 			final String diff = temp[6];
 			final String author = temp[1];
-
+			Log.d(TAG, "Processing " + name);
 			int numColors = 0;
 			String colors = null;
 			if ((temp[10] != null) && (temp[11] != null)) {
@@ -114,6 +114,9 @@ public class SuperAwesomeCardFragment extends Fragment implements OnItemClickLis
 					a.runOnUiThread(new Runnable() {
 
 						public void run() {
+							Log.d(TAG,
+									"1Adding " + tempGriddler.getID() + " : "
+											+ tempGriddler.getName());
 							SuperAwesomeCardFragment.this.myAdapter.add(tempGriddler);
 							SuperAwesomeCardFragment.this.myAdapter.notifyDataSetChanged();
 						}
@@ -133,30 +136,39 @@ public class SuperAwesomeCardFragment extends Fragment implements OnItemClickLis
 					g.fetch(new StackMobModelCallback() {
 						@Override
 						public void failure(final StackMobException arg0) {
-							a.runOnUiThread(new Runnable() {
+							if (!SuperAwesomeCardFragment.this.myAdapter.existsById(g.getID()))
+							{
+								a.runOnUiThread(new Runnable() {
 
-								public void run() {
-									final GriddlerOne tempGriddler = new GriddlerOne(oldStatus,
-											name, diff, rate, 0, author, width, height,
-											solution, current, nc, cols);
-									tempGriddler.setID(id);
-									SuperAwesomeCardFragment.this.myAdapter.add(tempGriddler);
-									SuperAwesomeCardFragment.this.myAdapter.notifyDataSetChanged();
-								}
-							});
+									public void run() {
+										final GriddlerOne tempGriddler = new GriddlerOne(oldStatus,
+												name, diff, rate, 0, author, width, height,
+												solution, current, nc, cols);
+										tempGriddler.setID(id);
+										Log.d(TAG, "2Adding " + tempGriddler.getID() + " : "
+												+ tempGriddler.getName() + " Bad: " + arg0.toString());
+										SuperAwesomeCardFragment.this.myAdapter.add(tempGriddler);
+										SuperAwesomeCardFragment.this.myAdapter.notifyDataSetChanged();
+									}
+								});
+							}
 						}
 
 						@Override
 						public void success() {
-							a.runOnUiThread(new Runnable() {
-
-								public void run() {
-									g.setStatus(oldStatus);
-									g.setCurrent(oldCurrent);
-									SuperAwesomeCardFragment.this.myAdapter.add(g);
-									SuperAwesomeCardFragment.this.myAdapter.notifyDataSetChanged();
-								}
-							});
+							if (!SuperAwesomeCardFragment.this.myAdapter.existsById(g.getID()))
+							{
+								// TODO Update the ranking.
+								a.runOnUiThread(new Runnable() {
+									public void run() {
+										g.setStatus(oldStatus);
+										g.setCurrent(oldCurrent);
+										Log.d(TAG, "3Adding " + g.getID() + " : " + g.getName());
+										SuperAwesomeCardFragment.this.myAdapter.add(g);
+										SuperAwesomeCardFragment.this.myAdapter.notifyDataSetChanged();
+									}
+								});
+							}
 						}
 					});
 				}

@@ -7,8 +7,6 @@ import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.Preference.OnPreferenceClickListener;
-import android.view.Window;
-
 import com.actionbarsherlock.app.SherlockPreferenceActivity;
 import com.actionbarsherlock.view.Menu;
 import com.flurry.android.FlurryAgent;
@@ -18,12 +16,11 @@ OnPreferenceChangeListener, OnPreferenceClickListener {
 	private static final String TAG = "SettingsActivity";
 	SharedPreferences prefs;
 
-	@SuppressWarnings("deprecation")
 	@Override
 	public void onCreate(final Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		// this.requestWindowFeature(Window.FEATURE_NO_TITLE);
 		this.setContentView(R.layout.activity_settings);
-		this.requestWindowFeature(Window.FEATURE_NO_TITLE);
 
 		this.addPreferencesFromResource(R.xml.preferences);
 

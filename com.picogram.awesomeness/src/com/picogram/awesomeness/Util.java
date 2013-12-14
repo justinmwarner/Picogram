@@ -7,6 +7,7 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.util.Log;
 import android.view.WindowManager;
 
 import java.io.File;
@@ -89,6 +90,12 @@ public class Util {
 		final boolean isScreenLarge = (screenLayout == Configuration.SCREENLAYOUT_SIZE_LARGE);
 		final boolean isScreenXlarge = (screenLayout == Configuration.SCREENLAYOUT_SIZE_XLARGE);
 		return (isScreenLarge || isScreenXlarge);
+	}
+
+	public static void log(final Class c, final String msg)
+	{
+		final StackTraceElement[] ste = Thread.currentThread().getStackTrace();
+		Log.d(ste[0].getClassName(), msg);
 	}
 
 	public static void setTheme(final Activity a)
