@@ -1,6 +1,8 @@
 
 package com.picogram.awesomeness;
 
+import java.util.ArrayList;
+
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Intent;
@@ -26,8 +28,6 @@ import com.flurry.android.FlurryAgent;
 import com.picogram.awesomeness.TouchImageView.WinnerListener;
 import com.stackmob.sdk.callback.StackMobModelCallback;
 import com.stackmob.sdk.exception.StackMobException;
-
-import java.util.ArrayList;
 
 public class AdvancedGameActivity extends Activity implements OnTouchListener,
 WinnerListener {

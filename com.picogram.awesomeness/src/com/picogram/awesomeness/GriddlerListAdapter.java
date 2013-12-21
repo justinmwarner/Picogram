@@ -1,6 +1,8 @@
 
 package com.picogram.awesomeness;
 
+import java.util.ArrayList;
+
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -13,8 +15,6 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-
-import java.util.ArrayList;
 
 public class GriddlerListAdapter extends ArrayAdapter<GriddlerOne> {
 	private static final String TAG = "GriddlerListAdapter";
@@ -50,7 +50,7 @@ public class GriddlerListAdapter extends ArrayAdapter<GriddlerOne> {
 	public boolean existsById(final String id){
 		for(final GriddlerOne g : this.griddlers)
 		{
-			if(g.getID() == id) {
+			if(g.getID().equals(id)) {
 				return true;
 			}
 		}

@@ -1,6 +1,9 @@
 
 package com.picogram.awesomeness;
 
+import java.util.ArrayList;
+import java.util.Date;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -17,9 +20,6 @@ import android.widget.ListView;
 import com.flurry.android.FlurryAgent;
 import com.stackmob.sdk.callback.StackMobModelCallback;
 import com.stackmob.sdk.exception.StackMobException;
-
-import java.util.ArrayList;
-import java.util.Date;
 
 public class UserGriddlers extends Activity implements OnTouchListener, OnItemClickListener {
 	protected static final String TAG = "UserGriddlers";

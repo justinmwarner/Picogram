@@ -1,5 +1,10 @@
-
 package com.picogram.awesomeness;
+
+import java.io.File;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.util.Enumeration;
+import java.util.UUID;
 
 import android.app.Activity;
 import android.content.Context;
@@ -9,12 +14,6 @@ import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.util.Log;
 import android.view.WindowManager;
-
-import java.io.File;
-import java.net.InetAddress;
-import java.net.NetworkInterface;
-import java.util.Enumeration;
-import java.util.UUID;
 
 public class Util {
 	private static final String PREF_UNIQUE_ID = "PREF_UNIQUE_ID";
@@ -37,7 +36,8 @@ public class Util {
 	}
 
 	public static SharedPreferences getPreferences(final Activity a) {
-		return a.getSharedPreferences(MenuActivity.PREFS_FILE, Context.MODE_PRIVATE);
+		return a.getSharedPreferences(MenuActivity.PREFS_FILE,
+				Context.MODE_PRIVATE);
 	}
 
 	public synchronized static String id(final Context context) {
@@ -62,15 +62,15 @@ public class Util {
 		}
 		return uniqueID;
 	}
+
 	public static boolean isOnline() {
-		try
-		{
+		try {
 			for (final Enumeration<NetworkInterface> enumeration = NetworkInterface
 					.getNetworkInterfaces(); enumeration.hasMoreElements();) {
-				final NetworkInterface networkInterface = enumeration.nextElement();
+				final NetworkInterface networkInterface = enumeration
+						.nextElement();
 				for (final Enumeration<InetAddress> enumIpAddress = networkInterface
-						.getInetAddresses(); enumIpAddress
-						.hasMoreElements();) {
+						.getInetAddresses(); enumIpAddress.hasMoreElements();) {
 					final InetAddress iNetAddress = enumIpAddress.nextElement();
 					if (!iNetAddress.isLoopbackAddress()) {
 						return true;
@@ -92,14 +92,12 @@ public class Util {
 		return (isScreenLarge || isScreenXlarge);
 	}
 
-	public static void log(final Class c, final String msg)
-	{
+	public static void log(final String msg) {
 		final StackTraceElement[] ste = Thread.currentThread().getStackTrace();
-		Log.d(ste[0].getClassName(), msg);
+		Log.d(ste[3].getClassName(), msg);
 	}
 
-	public static void setTheme(final Activity a)
-	{
+	public static void setTheme(final Activity a) {
 
 		final SharedPreferences prefs = a.getSharedPreferences(
 				MenuActivity.PREFS_FILE, Context.MODE_PRIVATE);
@@ -111,17 +109,16 @@ public class Util {
 		a.setTheme(THEME);
 	}
 
-	public static void updateFullScreen(final Activity a)
-	{
-		if (!Util.getPreferences(a).getBoolean("decorations", false))
-		{
+	public static void updateFullScreen(final Activity a) {
+		if (!Util.getPreferences(a).getBoolean("decorations", false)) {
 			a.getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
-			a.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
-		}
-		else
-		{
-			a.getWindow().addFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
-			a.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+			a.getWindow().clearFlags(
+					WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
+		} else {
+			a.getWindow().addFlags(
+					WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
+			a.getWindow()
+					.clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
 		}
 
 		(a.findViewById(android.R.id.content)).requestLayout();

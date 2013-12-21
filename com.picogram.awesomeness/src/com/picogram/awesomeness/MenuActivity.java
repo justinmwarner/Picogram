@@ -1,6 +1,9 @@
 
 package com.picogram.awesomeness;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -18,6 +21,7 @@ import android.util.TypedValue;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup.LayoutParams;
 import android.view.Window;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
@@ -38,9 +42,6 @@ import com.flurry.android.FlurryAgent;
 import com.stackmob.android.sdk.common.StackMobAndroid;
 import com.stackmob.sdk.callback.StackMobModelCallback;
 import com.stackmob.sdk.exception.StackMobException;
-
-import java.util.ArrayList;
-import java.util.Arrays;
 
 public class MenuActivity extends FragmentActivity implements FlurryAdListener,
 OnPageChangeListener, OnClickListener {
@@ -103,8 +104,6 @@ OnPageChangeListener, OnClickListener {
 	@Override
 	protected void onActivityResult(final int requestCode, final int resultCode, final Intent data)
 	{
-		Log.d(TAG, "RC: " + requestCode + " rc: " + resultCode);
-		Log.d(TAG, "RC: " + MenuActivity.CREATE_CODE + " rc: " + Activity.RESULT_OK);
 		if (this.sql == null) {
 			this.sql = new SQLiteGriddlerAdapter(this, "Griddlers", null, 1);
 		}
@@ -261,8 +260,8 @@ OnPageChangeListener, OnClickListener {
 				this.toolbar.setVisibility(View.VISIBLE);
 			}
 			RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(
-					RelativeLayout.LayoutParams.WRAP_CONTENT,
-					RelativeLayout.LayoutParams.WRAP_CONTENT);
+					LayoutParams.WRAP_CONTENT,
+					LayoutParams.WRAP_CONTENT);
 			params.addRule(RelativeLayout.ALIGN_PARENT_RIGHT, RelativeLayout.TRUE);
 
 			final RelativeLayout rl = new RelativeLayout(this);
@@ -272,8 +271,8 @@ OnPageChangeListener, OnClickListener {
 			this.bSearch.setOnClickListener(this);
 			rl.addView(this.bSearch, params);
 			params = new RelativeLayout.LayoutParams(
-					RelativeLayout.LayoutParams.WRAP_CONTENT,
-					RelativeLayout.LayoutParams.MATCH_PARENT);
+					LayoutParams.WRAP_CONTENT,
+					LayoutParams.MATCH_PARENT);
 			params.addRule(RelativeLayout.ALIGN_PARENT_LEFT, RelativeLayout.TRUE);
 			params.addRule(RelativeLayout.LEFT_OF, this.bSearch.getId());
 			this.etTags = new EditText(this);

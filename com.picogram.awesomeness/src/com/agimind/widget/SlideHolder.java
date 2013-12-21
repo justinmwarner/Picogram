@@ -16,6 +16,9 @@
 
 package com.agimind.widget;
 
+import java.util.LinkedList;
+import java.util.Queue;
+
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -33,9 +36,6 @@ import android.view.animation.Animation;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.Transformation;
 import android.widget.FrameLayout;
-
-import java.util.LinkedList;
-import java.util.Queue;
 
 public class SlideHolder extends FrameLayout {
 

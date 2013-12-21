@@ -1,5 +1,8 @@
 package com.picogram.awesomeness;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -24,12 +27,10 @@ import com.stackmob.sdk.api.StackMobQuery;
 import com.stackmob.sdk.callback.StackMobModelCallback;
 import com.stackmob.sdk.callback.StackMobQueryCallback;
 import com.stackmob.sdk.exception.StackMobException;
+import com.stackmob.sdk.model.StackMobModel;
 
 import de.keyboardsurfer.android.widget.crouton.Crouton;
 import de.keyboardsurfer.android.widget.crouton.Style;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class SuperAwesomeCardFragment extends Fragment implements OnItemClickListener {
 
@@ -63,7 +64,6 @@ public class SuperAwesomeCardFragment extends Fragment implements OnItemClickLis
 			this.sql = new SQLiteGriddlerAdapter(a, "Griddlers", null, 1);
 		}
 		final String[][] griddlersArray = this.sql.getGriddlers();
-		Log.d(TAG, "My Puzzles: " + griddlersArray.length);
 		final SharedPreferences prefs = Util.getPreferences(a);
 		for (int i = 0; i < griddlersArray.length; i++) {
 			final String temp[] = griddlersArray[i];
@@ -76,7 +76,6 @@ public class SuperAwesomeCardFragment extends Fragment implements OnItemClickLis
 			final String solution = temp[4];
 			final String diff = temp[6];
 			final String author = temp[1];
-			Log.d(TAG, "Processing " + name);
 			int numColors = 0;
 			String colors = null;
 			if ((temp[10] != null) && (temp[11] != null)) {
@@ -114,9 +113,6 @@ public class SuperAwesomeCardFragment extends Fragment implements OnItemClickLis
 					a.runOnUiThread(new Runnable() {
 
 						public void run() {
-							Log.d(TAG,
-									"1Adding " + tempGriddler.getID() + " : "
-											+ tempGriddler.getName());
 							SuperAwesomeCardFragment.this.myAdapter.add(tempGriddler);
 							SuperAwesomeCardFragment.this.myAdapter.notifyDataSetChanged();
 						}
@@ -145,8 +141,6 @@ public class SuperAwesomeCardFragment extends Fragment implements OnItemClickLis
 												name, diff, rate, 0, author, width, height,
 												solution, current, nc, cols);
 										tempGriddler.setID(id);
-										Log.d(TAG, "2Adding " + tempGriddler.getID() + " : "
-												+ tempGriddler.getName() + " Bad: " + arg0.toString());
 										SuperAwesomeCardFragment.this.myAdapter.add(tempGriddler);
 										SuperAwesomeCardFragment.this.myAdapter.notifyDataSetChanged();
 									}
@@ -163,7 +157,6 @@ public class SuperAwesomeCardFragment extends Fragment implements OnItemClickLis
 									public void run() {
 										g.setStatus(oldStatus);
 										g.setCurrent(oldCurrent);
-										Log.d(TAG, "3Adding " + g.getID() + " : " + g.getName());
 										SuperAwesomeCardFragment.this.myAdapter.add(g);
 										SuperAwesomeCardFragment.this.myAdapter.notifyDataSetChanged();
 									}
@@ -178,7 +171,7 @@ public class SuperAwesomeCardFragment extends Fragment implements OnItemClickLis
 	}
 
 	public void getRecentPuzzles(final Activity a) {
-		GriddlerOne.query(
+		StackMobModel.query(
 				GriddlerOne.class,
 				new StackMobQuery().isInRange(0, 9).fieldIsOrderedBy("createddate",
 						StackMobQuery.Ordering.DESCENDING),
@@ -202,7 +195,7 @@ public class SuperAwesomeCardFragment extends Fragment implements OnItemClickLis
 
 	public void getSortedPuzzles(final Activity a, final String sort) {
 		this.myAdapter.clear();
-		GriddlerOne.query(
+		StackMobModel.query(
 				GriddlerOne.class,
 				new StackMobQuery().isInRange(0, 9).fieldIsOrderedBy(sort,
 						StackMobQuery.Ordering.DESCENDING),
@@ -231,25 +224,20 @@ public class SuperAwesomeCardFragment extends Fragment implements OnItemClickLis
 	}
 
 	public void getTagPuzzles(final Activity a, final String tag, final boolean isSortByRate) {
-		Log.d(TAG, "0. Tag: " + tag);
-		Log.d(TAG, "1. Size: " + this.myAdapter.getCount());
 		this.myAdapter.clear();
-		Log.d(TAG, "2. Size: " + this.myAdapter.getCount());
 		final StackMobQuery smq = new StackMobQuery().fieldIsEqualTo("tag", tag);
-		GriddlerTag.query(
+		StackMobModel.query(
 				GriddlerTag.class, smq,
 				new StackMobQueryCallback<GriddlerTag>() {
 
 					@Override
 					public void failure(final StackMobException arg0) {
-						Log.d(TAG, "3. Fail: " + arg0.toString());
 						Crouton.makeText(a, "Error fetching data: " + arg0.toString(), Style.ALERT);
 
 					}
 
 					@Override
 					public void success(final List<GriddlerTag> gts) {
-						Log.d(TAG, "3. Succ: " + gts.size());
 						final ArrayList<String> ids = new ArrayList();
 						for (final GriddlerTag gt : gts) {
 							ids.add(gt.getID());
@@ -263,13 +251,12 @@ public class SuperAwesomeCardFragment extends Fragment implements OnItemClickLis
 						} else {
 							smq.fieldIsOrderedBy("createddate", StackMobQuery.Ordering.DESCENDING);
 						}
-						GriddlerOne.query(GriddlerOne.class, smqInner,
+						StackMobModel.query(GriddlerOne.class, smqInner,
 								new StackMobQueryCallback<GriddlerOne>() {
 
 							@Override
 							public void failure(final StackMobException arg0) {
 
-								Log.d(TAG, "4. Err: " + arg0.toString());
 								Crouton.makeText(a,
 										"Error fetching data: " + arg0.toString(),
 										Style.ALERT);
@@ -278,7 +265,6 @@ public class SuperAwesomeCardFragment extends Fragment implements OnItemClickLis
 							@Override
 							public void success(final List<GriddlerOne> gs) {
 
-								Log.d(TAG, "4. Size: " + gs.size());
 								for (final GriddlerOne g : gs) {
 									a.runOnUiThread(new Runnable() {
 
@@ -305,8 +291,8 @@ public class SuperAwesomeCardFragment extends Fragment implements OnItemClickLis
 	@Override
 	public View onCreateView(final LayoutInflater inflater, final ViewGroup container,
 			final Bundle savedInstanceState) {
-		final LayoutParams params = new LayoutParams(LayoutParams.MATCH_PARENT,
-				LayoutParams.MATCH_PARENT);
+		final LayoutParams params = new LayoutParams(android.view.ViewGroup.LayoutParams.MATCH_PARENT,
+				android.view.ViewGroup.LayoutParams.MATCH_PARENT);
 
 		final FrameLayout fl = new FrameLayout(this.getActivity());
 		fl.setLayoutParams(params);
@@ -377,7 +363,6 @@ public class SuperAwesomeCardFragment extends Fragment implements OnItemClickLis
 				final Intent createIntent = new Intent(this.getActivity(),
 						CreateGriddlerActivity.class);
 				this.sql.close();
-				Log.d(TAG, "Create code: " + MenuActivity.CREATE_CODE);
 				this.getActivity().startActivityForResult(createIntent, MenuActivity.CREATE_CODE);
 			}
 			else

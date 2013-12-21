@@ -1,6 +1,9 @@
 
 package com.picogram.awesomeness;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -20,12 +23,10 @@ import com.flurry.android.FlurryAgent;
 import com.stackmob.sdk.api.StackMobQuery;
 import com.stackmob.sdk.callback.StackMobQueryCallback;
 import com.stackmob.sdk.exception.StackMobException;
+import com.stackmob.sdk.model.StackMobModel;
 
 import de.keyboardsurfer.android.widget.crouton.Crouton;
 import de.keyboardsurfer.android.widget.crouton.Style;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class WorldGriddlers extends Activity implements OnClickListener, OnItemClickListener {
 
@@ -41,7 +42,7 @@ public class WorldGriddlers extends Activity implements OnClickListener, OnItemC
 	private void loadByTag(final String tag) {
 		final Activity a = this;
 		final StackMobQuery smq = new StackMobQuery().fieldIsEqualTo("tag", tag);
-		GriddlerTag.query(
+		StackMobModel.query(
 				GriddlerTag.class, smq,
 				new StackMobQueryCallback<GriddlerTag>() {
 
@@ -68,7 +69,7 @@ public class WorldGriddlers extends Activity implements OnClickListener, OnItemC
 								.equals("Date")) {
 							smq.fieldIsOrderedBy("createddate", StackMobQuery.Ordering.DESCENDING);
 						}
-						GriddlerOne.query(GriddlerOne.class, smqInner,
+						StackMobModel.query(GriddlerOne.class, smqInner,
 								new StackMobQueryCallback<GriddlerOne>() {
 
 									@Override
@@ -100,7 +101,7 @@ public class WorldGriddlers extends Activity implements OnClickListener, OnItemC
 
 	private void loadMostRecent() {
 		final Activity a = this;
-		GriddlerOne.query(
+		StackMobModel.query(
 				GriddlerOne.class,
 				new StackMobQuery().isInRange(0, 9).fieldIsOrderedBy("createddate",
 						StackMobQuery.Ordering.DESCENDING),
@@ -130,7 +131,7 @@ public class WorldGriddlers extends Activity implements OnClickListener, OnItemC
 
 	private void loadTopAllTime() {
 		final Activity a = this;
-		GriddlerOne.query(
+		StackMobModel.query(
 				GriddlerOne.class,
 				new StackMobQuery().isInRange(0, 9).fieldIsOrderedBy("rate",
 						StackMobQuery.Ordering.DESCENDING),

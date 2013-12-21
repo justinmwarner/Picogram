@@ -19,7 +19,7 @@
         android:layout_alignParentTop="true"
         android:layout_toRightOf="@+id/textView3"
         android:ems="10"
-        android:hint="Griddler Name" >
+        android:hint="Puzzle Name" >
 
         <requestFocus />
     </EditText>
@@ -42,7 +42,7 @@
         android:layout_toRightOf="@+id/textView3"
         android:layout_weight="1"
         android:ems="10"
-        android:hint="Comma Separated (Spaces auto-comma&apos;d)" />
+        android:hint="Space seperated." />
 
     <TextView
         android:id="@+id/textView3"
@@ -53,15 +53,37 @@
         android:text="Difficulty"
         android:textAppearance="?android:attr/textAppearanceLarge" />
 
-    <SeekBar
-        android:id="@+id/sbDiff"
-        android:layout_width="match_parent"
+    <RadioGroup
+        android:id="@+id/radioDifficulty"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignRight="@+id/etTags"
-        android:layout_alignTop="@+id/textView3"
-        android:layout_toRightOf="@+id/textView3"
-        android:max="3"
-        android:paddingLeft="10dp"
-        android:progress="2" />
+        android:layout_alignLeft="@+id/etTags"
+        android:layout_below="@+id/etTags" >
+
+        <RadioButton
+            android:id="@+id/radioEasy"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:text="Easy" />
+
+        <RadioButton
+            android:id="@+id/radioNormal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Normal" />
+
+        <RadioButton
+            android:id="@+id/radioHard"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Hard" />
+
+        <RadioButton
+            android:id="@+id/radioExtreme"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="eXtreme!" />
+    </RadioGroup>
 
 </RelativeLayout>

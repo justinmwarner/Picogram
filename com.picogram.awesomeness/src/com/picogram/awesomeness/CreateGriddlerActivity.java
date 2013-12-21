@@ -1,98 +1,134 @@
-
 package com.picogram.awesomeness;
-
-import android.app.Activity;
-import android.content.Context;
-import android.content.Intent;
-import android.content.res.AssetFileDescriptor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Color;
-import android.graphics.Matrix;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
-import android.net.Uri;
-import android.os.Bundle;
-import android.os.Handler;
-import android.view.Menu;
-import android.view.MotionEvent;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.view.View.OnTouchListener;
-import android.view.Window;
-import android.view.WindowManager;
-import android.view.inputmethod.InputMethodManager;
-import android.widget.AdapterView;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ImageView;
-import android.widget.SeekBar;
-import android.widget.SeekBar.OnSeekBarChangeListener;
-
-import com.agimind.widget.SlideHolder;
-import com.agimind.widget.SlideHolder.OnSlideListener;
-import com.flurry.android.FlurryAgent;
-import com.gesturetutorial.awesomeness.TutorialView;
-
-import de.keyboardsurfer.android.widget.crouton.Crouton;
-import de.keyboardsurfer.android.widget.crouton.Style;
-import yuku.ambilwarna.AmbilWarnaDialog;
-import yuku.ambilwarna.AmbilWarnaDialog.OnAmbilWarnaListener;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Arrays;
 
-import kankan.wheel.widget.OnWheelChangedListener;
-import kankan.wheel.widget.WheelView;
-import kankan.wheel.widget.adapters.ArrayWheelAdapter;
-import kankan.wheel.widget.adapters.NumericWheelAdapter;
+import yuku.ambilwarna.AmbilWarnaDialog;
+import yuku.ambilwarna.AmbilWarnaDialog.OnAmbilWarnaListener;
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.res.AssetFileDescriptor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.LinearGradient;
+import android.graphics.Matrix;
+import android.graphics.Paint;
+import android.graphics.Rect;
+import android.graphics.Shader;
+import android.graphics.Shader.TileMode;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
+import android.net.Uri;
+import android.os.Bundle;
+import android.os.Handler;
+import android.support.v4.app.FragmentActivity;
+import android.text.Editable;
+import android.util.Log;
+import android.view.KeyEvent;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MotionEvent;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.View.OnTouchListener;
+import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
+import android.widget.AdapterView;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
+import android.widget.SeekBar;
+import android.widget.SeekBar.OnSeekBarChangeListener;
 
-public class CreateGriddlerActivity extends Activity implements OnClickListener,
-		OnWheelChangedListener, OnSeekBarChangeListener, OnTouchListener {
-	private static final int CAMERA_REQUEST_CODE = 1888, FILE_SELECT_CODE = 1337;
+import com.cameraview.awesomeness.CameraView;
+import com.cameraview.awesomeness.CameraView.OnPictureTakenListener;
+import com.doomonafireball.betterpickers.numberpicker.NumberPickerBuilder;
+import com.doomonafireball.betterpickers.numberpicker.NumberPickerDialogFragment.NumberPickerDialogHandler;
+import com.flurry.android.FlurryAgent;
+
+import de.keyboardsurfer.android.widget.crouton.Crouton;
+import de.keyboardsurfer.android.widget.crouton.Style;
+
+public class CreateGriddlerActivity extends FragmentActivity implements
+		OnClickListener, OnTouchListener, OnPictureTakenListener {
+	private static final int CAMERA_REQUEST_CODE = 1888,
+			FILE_SELECT_CODE = 1337;
 	private static final String TAG = "CreateGriddlerActivity";
-	private EditText etURL, name, tags;
-	private int numColors, yNum, xNum;
-	private Bitmap oldPicture, newPicture;
-	private String solution = "";
-	private WheelView sX, sY, sColor, sDiff;
-	private SeekBar sbTransparency;
-	ImageView ivOld, ivNew;
-	Handler handler = new Handler();
-	Button bURLSubmit;
-	TutorialView tutorial;
-	int colors[] = {
-			Color.TRANSPARENT, Color.BLACK, Color.RED, Color.YELLOW, Color.GRAY, Color.GREEN,
-			Color.CYAN, Color.MAGENTA, Color.DKGRAY, Color.LTGRAY, Color.WHITE
-	};
+	static String url = "";
 
+	private Bitmap bmOriginal, bmNew;
+	Button bURL, bGallery, bCustom, bPicture, bSearch, bDone, bColors, bWidth,
+			bHeight, bSwitch, bBack;
+	int currentView = 0;
+	CameraView cv;
+
+	private EditText etURL, name;
+	Handler handler = new Handler();
+	ImageView ivOriginal, ivNew;
+	int originalColors[] = { Color.TRANSPARENT, Color.BLACK, Color.RED,
+			Color.YELLOW, Color.GRAY, Color.GREEN, Color.CYAN, Color.MAGENTA,
+			Color.DKGRAY, Color.LTGRAY, Color.WHITE };
+	int newColors[] = originalColors;
+	private int numColors = 2, yNum = 20, xNum = 20;
 	long oldTime = 0;
 
+	private String solution = "";
+
+	TouchImageView tivGame;
+
+	private Bitmap addBorder(Bitmap bmp, int borderSize) {
+		Bitmap bmpWithBorder = Bitmap.createBitmap(bmp.getWidth() + borderSize
+				* 2, bmp.getHeight() + borderSize * 2, bmp.getConfig());
+		Canvas canvas = new Canvas(bmpWithBorder);
+		Paint paint = new Paint();
+		paint.setStyle(Paint.Style.STROKE);
+		paint.setStrokeWidth(borderSize * 2);
+		paint.setColor(Color.BLUE);
+		canvas.drawBitmap(bmp, borderSize, borderSize, null);
+		canvas.drawRect((borderSize / 2), (borderSize / 2), bmp.getWidth()
+				+ (borderSize), bmp.getHeight() + (borderSize), paint);
+		return bmpWithBorder;
+	}
+
 	private void alterPhoto() {
-		if (this.oldPicture != null) {
+		if (this.bmOriginal != null) {
+			// Subarray with the number, then reverse ;).
+			newColors = Arrays.copyOfRange(originalColors, 0, numColors);
+			for (int i = 0; i < newColors.length / 2; i++) {
+				int temp = newColors[i]; // TODO use bits.
+				newColors[i] = newColors[newColors.length - i - 1];
+				newColors[newColors.length - i - 1] = temp;
+			}
+
 			// Touch this up. It's a bit messy.
 			this.solution = ""; // Change back to nothing.
-			this.numColors = Integer.parseInt(((NumericWheelAdapter) this.sColor.getViewAdapter())
-					.getItemText(this.sColor.getCurrentItem()).toString());
-			this.yNum = Integer.parseInt(((NumericWheelAdapter) this.sY.getViewAdapter())
-					.getItemText(this.sY.getCurrentItem()).toString());
-			this.xNum = Integer.parseInt(((NumericWheelAdapter) this.sX.getViewAdapter())
-					.getItemText(this.sX.getCurrentItem()).toString());
-			Bitmap alter = this.oldPicture.copy(Bitmap.Config.ARGB_8888, true);
-			alter = Bitmap.createScaledBitmap(this.oldPicture, this.xNum, this.yNum, false);
+			Bitmap alter = this.bmOriginal.copy(Bitmap.Config.ARGB_8888, true);
+			alter = Bitmap.createScaledBitmap(this.bmOriginal, this.xNum,
+					this.yNum, false);
 			// Set pixels = to each pixel in the scaled image (Easier to find
 			// values, and smaller!)
 			final int pixels[] = new int[this.xNum * this.yNum];
-			alter.getPixels(pixels, 0, alter.getWidth(), 0, 0, alter.getWidth(), alter.getHeight());
+			alter.getPixels(pixels, 0, alter.getWidth(), 0, 0,
+					alter.getWidth(), alter.getHeight());
 			for (int i = 0; i < pixels.length; i++) {
 				final int rgb[] = this.getRGB(pixels[i]);
 				pixels[i] = (rgb[0] + rgb[1] + rgb[2]) / 3; // Greyscale
 			}
 			alter = alter.copy(Bitmap.Config.ARGB_8888, true);
-			alter.setPixels(pixels, 0, alter.getWidth(), 0, 0, alter.getWidth(), alter.getHeight());
+			alter.setPixels(pixels, 0, alter.getWidth(), 0, 0,
+					alter.getWidth(), alter.getHeight());
 
 			final int pix[][] = new int[this.yNum][this.xNum];
 			int run = 0;
@@ -107,13 +143,12 @@ public class CreateGriddlerActivity extends Activity implements OnClickListener,
 			final char[] sol = new char[alter.getWidth() * alter.getHeight()];
 			for (int i = 0; i != alter.getHeight(); ++i) {
 				for (int j = 0; j != alter.getWidth(); ++j) {
-					for (int k = 0; k <= this.numColors; ++k)
-					{
-						if (pix[i][j] <= ((256 * (k + 1)) / (this.numColors)))
-						{
+					for (int k = 0; k <= this.numColors; ++k) {
+						if (pix[i][j] <= ((256 * (k + 1)) / (this.numColors))) {
 							// pix[i][j] = this.colors[k];
-							alter.setPixel(j, i, this.colors[k]);
-							sol[(i * alter.getWidth()) + j] = (k + " ").charAt(0);
+							alter.setPixel(j, i, this.newColors[k]);
+							sol[(i * alter.getWidth()) + j] = (k + " ")
+									.charAt(0);
 							break;
 						}
 					}
@@ -127,14 +162,32 @@ public class CreateGriddlerActivity extends Activity implements OnClickListener,
 			}
 			this.solution = new String(sol);
 			alter = alter.copy(Bitmap.Config.ARGB_8888, true);
-			alter = Bitmap.createScaledBitmap(alter, this.xNum * 10, this.yNum * 10, false);
-			this.newPicture = alter.copy(Bitmap.Config.ARGB_8888, true);
-			this.newPicture = alter;
-			this.ivOld.setImageBitmap(Bitmap.createScaledBitmap(this.oldPicture, this.xNum * 10,
-					this.yNum * 10, true));
-			this.ivNew.setImageBitmap(this.newPicture);
+			alter = Bitmap.createScaledBitmap(alter, this.xNum * 10,
+					this.yNum * 10, false);
+			this.bmNew = alter.copy(Bitmap.Config.ARGB_8888, true);
+			this.bmNew.setHasAlpha(true);
+			this.bmNew = alter;
+			this.bmNew.setHasAlpha(true);
+			this.bmOriginal.setHasAlpha(true);
+			ivNew.setImageBitmap(addBorder(bmNew, 2));
+			ivOriginal.setImageBitmap(addBorder(Bitmap.createScaledBitmap(
+					bmOriginal, 100 * xNum, yNum * 100, false), 2));
+			Bundle bundle = new Bundle();
+			// current height width id solution colors(,)
+			bundle.putString("current", solution);
+			bundle.putString("height", yNum + "");
+			bundle.putString("width", xNum + "");
+			bundle.putString("id", solution.hashCode() + "");
+			bundle.putString("solution", solution);
+			String cols = "";
+			for (int i : newColors)
+				cols += i + ",";
+			cols = cols.substring(0, cols.length() - 1);
+			bundle.putString("colors", cols);
+			tivGame.setGriddlerInfo(bundle);
 		} else {
-			Crouton.makeText(this, "=( We need a picture first.", Style.INFO).show();
+			Crouton.makeText(this, "=( We need a picture first.", Style.INFO)
+					.show();
 		}
 	}
 
@@ -142,117 +195,165 @@ public class CreateGriddlerActivity extends Activity implements OnClickListener,
 		// TODO Auto-generated method stub
 	}
 
+	private void doDone() {
+		Util.log("I'm here!");
+		LayoutInflater inflater = getLayoutInflater();
+		final View dialoglayout = inflater.inflate(
+				R.layout.dialog_save_griddler, (ViewGroup) getCurrentFocus());
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		builder.setView(dialoglayout);
+		final Activity a = this;
+		builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+			public void onClick(DialogInterface dialog, int id) {
+				// get user input and set it to result
+				// edit text
+				EditText name = (EditText) dialoglayout
+						.findViewById(R.id.etName);
+				Log.d(TAG, "name: " + name.getText().toString());
+				EditText tags = (EditText) dialoglayout
+						.findViewById(R.id.etTags);
+				Log.d(TAG, "Tag: " + tags.getText().toString());
+				RadioGroup difficulty = (RadioGroup) dialoglayout
+						.findViewById(R.id.radioDifficulty);
+				Log.d(TAG, "Diff: " + difficulty.toString());
+				Log.d(TAG, "Pos: " + difficulty.getCheckedRadioButtonId() + "");
+
+				int radioButtonID = difficulty.getCheckedRadioButtonId();
+				RadioButton radioButton = (RadioButton) difficulty
+						.findViewById(radioButtonID);
+				String diff = radioButton.getText().toString();
+				if (userValuesValid()) {
+					final String puzzleId = solution.hashCode() + "";
+					String cols = "";
+					for (final int color : newColors) {
+						cols += color + ",";
+					}
+					final Intent returnIntent = new Intent();
+					returnIntent.putExtra("author", Util.id(a));
+					returnIntent.putExtra("colors",
+							cols.substring(0, cols.length() - 1));
+					returnIntent.putExtra("difficulty", diff);
+					returnIntent.putExtra("height", yNum + "");
+					returnIntent.putExtra("name", name.getText().toString());
+					returnIntent.putExtra("numberColors", numColors + "");
+					returnIntent.putExtra("numRank", 1 + "");
+					returnIntent.putExtra("id", puzzleId);
+					returnIntent.putExtra("rank", 5 + "");
+					returnIntent.putExtra("solution", solution);
+					returnIntent.putExtra("width", xNum + "");
+					returnIntent.putExtra("tags", tags.getText().toString());
+					resultAndFinish(returnIntent);
+					dialog.dismiss();
+				}
+			}
+		}).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+			public void onClick(DialogInterface dialog, int id) {
+				dialog.cancel();
+			}
+		}).show();
+
+	}
+
 	private int[] getRGB(final int i) {
 
 		final int r = (i >> 16) & 0xff;
 		final int g = (i >> 8) & 0xff;
 		final int b = (i & 0xff);
-		return new int[] {
-				r, g, b
-		};
+		return new int[] { r, g, b };
 	}
 
 	@Override
-	protected void onActivityResult(final int request, final int result, final Intent data) {
-		if (request == CAMERA_REQUEST_CODE) {
-			FlurryAgent.logEvent("CreateFromCamera");
-			if (result == Activity.RESULT_OK) {
-				final Bitmap photo = (Bitmap) data.getExtras().get("data");
-				this.oldPicture = photo;
-			}
-		} else if (request == FILE_SELECT_CODE) {
+	protected void onActivityResult(final int request, final int result,
+			final Intent data) {
+		if (request == FILE_SELECT_CODE) {
 			FlurryAgent.logEvent("CreateFromFile");
 			if (result == Activity.RESULT_OK) {
 				final Uri uri = data.getData();
 				final Bitmap bi = this.readBitmap(uri);
-				this.oldPicture = bi;
+				this.bmOriginal = bi;
+				this.updateBottomHolder(1);
 			}
 		}
-		if (result == Activity.RESULT_OK)
-		{
-			FlurryAgent.logEvent("CreateFromNonURLGood");
-			this.etURL.setVisibility(View.INVISIBLE);
-			this.bURLSubmit.setVisibility(View.INVISIBLE);
-			this.ivOld.setImageBitmap(this.oldPicture);
-			this.alterPhoto();
-		}
-		else
-		{
-			Crouton.makeText(this, "Awww, we wanted your picture ='(", Style.INFO).show();
-		}
-	}
-
-	public void onChanged(final WheelView wv, final int oldVal, final int newVal) {
-		if (this.oldPicture != null) {
-			// this.alterPhoto();
+		if (result != Activity.RESULT_OK) {
+			Crouton.makeText(this, "Awww, we wanted your picture ='(",
+					Style.INFO).show();
 		}
 	}
 
 	public void onClick(final View v) {
-		// "Hide" the keyboard when you move steps.
-		final InputMethodManager imm = (InputMethodManager) this
-				.getSystemService(Context.INPUT_METHOD_SERVICE);
-		imm.hideSoftInputFromWindow(((EditText) this.findViewById(R.id.etNameA)).getWindowToken(),
-				0);
-		if (v.getId() == R.id.bURLA)
-		{
-			// Make the EditText visible.
-			this.etURL.setVisibility(View.VISIBLE);
-			this.bURLSubmit.setVisibility(View.VISIBLE);
-		}
-		else if (v.getId() == R.id.bCameraA)
-		{
-			final Intent cameraIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
-			this.startActivityForResult(cameraIntent, CAMERA_REQUEST_CODE);
-		}
-		else if (v.getId() == R.id.bFileA)
-		{
+		// We're getting a photo to edit.
+		if (v.getId() == R.id.bCustom) {
+			// Start a drawing activity.
+			Log.d(TAG, "Custom");
+		} else if (v.getId() == R.id.bGallery) {
+			Log.d(TAG, "File");
 			// File stuff.
 			final Intent fileIntent = new Intent(Intent.ACTION_GET_CONTENT);
 			fileIntent.setType("image/*");
 			fileIntent.addCategory(Intent.CATEGORY_OPENABLE);
 			// Shows openable files! =)
 			this.startActivityForResult(fileIntent, FILE_SELECT_CODE);
-		}
-		else if (v.getId() == R.id.bURLSubmit)
-		{
-			this.processURL();
-		}
-		else if (v.getId() == R.id.bCancel)
-		{
-			this.finish();
-		}
-		else if (v.getId() == R.id.bSubmit)
-		{
-			if (this.userValuesValid())
-			{
-				final String id = this.solution.hashCode() + "";
-				String cols = "";
-				for (final int color : this.colors) {
-					cols += color + ",";
-				}
-				final Intent returnIntent = new Intent();
-				returnIntent.putExtra("author", Util.id(this));
-				returnIntent.putExtra("colors", cols.substring(0, cols.length() - 1));
-				returnIntent.putExtra("difficulty", this.sDiff.getCurrentItem() + "");
-				returnIntent.putExtra("height", this.yNum + "");
-				returnIntent.putExtra("name", this.name.getText().toString());
-				returnIntent.putExtra("numberColors", this.numColors + "");
-				returnIntent.putExtra("numRank", 1 + "");
-				returnIntent.putExtra("id", id);
-				returnIntent.putExtra("rank", 5 + "");
-				returnIntent.putExtra("solution", this.solution);
-				returnIntent.putExtra("width", this.xNum + "");
-				returnIntent.putExtra("tags", this.tags.getText().toString());
-				this.setResult(RESULT_OK, returnIntent);
-				this.finish();
-			}
-		}
-		else if (v.getId() == R.id.bChangeColor)
-		{
-			Crouton.makeText(this, "To change the color, please click on a color in the image.",
+		} else if (v.getId() == R.id.bPicture) {
+			// This is only here for commenting purposes.
+			// The onClick is now in the library.
+			// The Listener will take care of all the stuff
+			// that needs to happen.
+		} else if (v.getId() == R.id.bLink) {
+			Log.d(TAG, "Link");
+			final EditText input = new EditText(this);
+			input.setText("http://www.sandcarvedcreations.com/images/graphics/dogsilhouettes/bone.jpg");
+			new AlertDialog.Builder(CreateGriddlerActivity.this)
+					.setTitle("URL Sumittion")
+					.setMessage("Url Link to Image File...")
+					.setView(input)
+					.setPositiveButton("Ok",
+							new DialogInterface.OnClickListener() {
+								public void onClick(DialogInterface dialog,
+										int whichButton) {
+									Editable value = input.getText();
+									CreateGriddlerActivity.url = value
+											.toString();
+									handler.post(new Runnable() {
+
+										public void run() {
+											processURL();
+										}
+									});
+
+								}
+							})
+					.setNegativeButton("Cancel",
+							new DialogInterface.OnClickListener() {
+								public void onClick(DialogInterface dialog,
+										int whichButton) {
+									// Do nothing.
+								}
+							}).show();
+		} else if (v.getId() == R.id.bSearch) {
+			Log.d(TAG, "Searching");
+			Crouton.makeText(this, "This isn't supported due to limitations.",
 					Style.INFO).show();
 		}
+		// We're altering the sizes and stuff.
+		if (v.getId() == R.id.bWidth) {
+			showNumberDialog(v.getId());
+		} else if (v.getId() == R.id.bHeight) {
+			showNumberDialog(v.getId());
+		} else if (v.getId() == R.id.bColors) {
+			showNumberDialog(v.getId());
+		} else if (v.getId() == R.id.bSwitch) {
+			// Change
+			updateMainView();
+		} else if (v.getId() == R.id.bDone) {
+			// Done.
+			doDone();
+		} else if (v.getId() == R.id.bBack) {
+			currentView = -1;// Used for main view.
+			this.updateMainView();
+			this.updateBottomHolder(0);
+		}
+
+//TODO Tell user they can change colors by clicking on it.
 
 	}
 
@@ -264,110 +365,21 @@ public class CreateGriddlerActivity extends Activity implements OnClickListener,
 				WindowManager.LayoutParams.FLAG_FULLSCREEN);
 		this.setContentView(R.layout.activity_create_advanced);
 		Util.setTheme(this);
-		final Button photoButton = (Button) this.findViewById(R.id.bCameraA);
-		final Button fileButton = (Button) this.findViewById(R.id.bFileA);
-		final Button urlButton = (Button) this.findViewById(R.id.bURLA);
-		final Button submitButton = (Button) this.findViewById(R.id.bSubmit);
-		final Button cancelButton = (Button) this.findViewById(R.id.bCancel);
-		final Button ccButton = (Button) this.findViewById(R.id.bChangeColor);
-		this.bURLSubmit = (Button) this.findViewById(R.id.bURLSubmit);
-		photoButton.setOnClickListener(this);
-		fileButton.setOnClickListener(this);
-		urlButton.setOnClickListener(this);
-		submitButton.setOnClickListener(this);
-		cancelButton.setOnClickListener(this);
-		ccButton.setOnClickListener(this);
-		this.bURLSubmit.setOnClickListener(this);
-		// Initially invisible for URL.
-		this.etURL = (EditText) this.findViewById(R.id.etURLA);
-		this.tags = (EditText) this.findViewById(R.id.etTagA);
-		this.name = (EditText) this.findViewById(R.id.etNameA);
-		this.etURL.setVisibility(View.INVISIBLE);
-		this.bURLSubmit.setVisibility(View.INVISIBLE);
-
-		this.ivOld = (ImageView) this.findViewById(R.id.ivOld);
-		this.ivNew = (ImageView) this.findViewById(R.id.ivNew);
-		this.ivNew.setOnTouchListener(this);
-
-		this.sbTransparency = (SeekBar) this.findViewById(R.id.sbTransparency);
-		this.sbTransparency.setOnSeekBarChangeListener(this);
-
-		// Add items to spinners... Might be a better way to do this, seriously,
-		// this is idiotic.
-		this.sX = (WheelView) this.findViewById(R.id.spinWidth);
-		this.sY = (WheelView) this.findViewById(R.id.spinHeight);
-		this.sColor = (WheelView) this.findViewById(R.id.spinColor);
-		this.sDiff = (WheelView) this.findViewById(R.id.spinDiffA);
-		this.sX.setCyclic(true);
-		this.sY.setCyclic(true);
-		this.sColor.setCyclic(true);
-		this.sDiff.setCyclic(true);
-		this.sX.setVisibleItems(3);
-		this.sY.setVisibleItems(3);
-		this.sColor.setVisibleItems(3);
-		this.sDiff.setVisibleItems(2);
-		this.sX.addChangingListener(this);
-		this.sY.addChangingListener(this);
-		this.sColor.addChangingListener(this);
-		final String difficulties[] = {
-				"Easy", "Medium", "Hard", "Extreme"
-		};
-		this.sX.setViewAdapter(new NumericWheelAdapter(this, 1, 100));
-		this.sY.setViewAdapter(new NumericWheelAdapter(this, 1, 100));
-		this.sColor.setViewAdapter(new NumericWheelAdapter(this, 1, 9));// One color is only black
-
-		this.sX.setCurrentItem(3);
-		this.sY.setCurrentItem(3);
-		this.sColor.setCurrentItem(2);
-		final ArrayWheelAdapter<String> diffs = new ArrayWheelAdapter<String>(this, difficulties);
-		this.sDiff.setViewAdapter(diffs);
-
+		this.updateBottomHolder(0);
 		// Check if we're getting data from a share.
 		final Intent intent = this.getIntent();
 		final String action = intent.getAction();
 		final String type = intent.getType();
 		if (Intent.ACTION_SEND.equals(action) && (type != null)) {
 			if (type.startsWith("image/")) {
-				final Uri uri = (Uri) intent.getParcelableExtra(Intent.EXTRA_STREAM);
+				final Uri uri = (Uri) intent
+						.getParcelableExtra(Intent.EXTRA_STREAM);
 				final Bitmap bi = this.readBitmap(uri);
-				this.oldPicture = bi;
-				this.ivOld.setImageBitmap(this.oldPicture);
+				this.bmOriginal = bi;
+				this.ivOriginal.setImageBitmap(this.bmOriginal);
 			}
 		}
 		FlurryAgent.logEvent("CreatingPuzzle");
-		// SlideHolder.
-		final SlideHolder sh = (SlideHolder) this.findViewById(R.id.shCreate);
-		if (!Util.isTabletDevice(this.getResources()))
-		{
-			FlurryAgent.logEvent("GestureTutorialShow");
-			this.tutorial = TutorialView.create(this, TutorialView.LeftToRight,
-					TutorialView.Center, this.findViewById(android.R.id.content)).show();
-		}
-		if (Util.isTabletDevice(this.getResources())) {
-			sh.setAlwaysOpened(true);
-		}
-		else
-		{
-			sh.setDirection(SlideHolder.DIRECTION_LEFT);
-			sh.setOnSlideListener(new OnSlideListener() {
-
-				public void onSlideCompleted(final boolean isOpen) {
-					if (isOpen)
-					{
-						CreateGriddlerActivity.this.handler.post(new Runnable()
-						{
-
-							public void run() {
-								if (CreateGriddlerActivity.this.tutorial != null) {
-									CreateGriddlerActivity.this.tutorial.hide();
-								}
-							}
-
-						});
-					}
-				}
-			});
-		}
 	}
 
 	@Override
@@ -384,42 +396,32 @@ public class CreateGriddlerActivity extends Activity implements OnClickListener,
 		super.onDestroy();
 	}
 
-	public void onItemSelected(final AdapterView<?> p, final View v, final int pos, final long id) {
-		// When item is changed, update.'
-		if (pos >= 1) {
-			if (this.oldPicture != null) {
-				this.alterPhoto();
-			}
-		}
-	}
-
 	public void onNothingSelected(final AdapterView<?> arg0) {
 	}
 
 	@Override
-	protected void onPause()
-	{
+	protected void onPause() {
 		super.onPause();
 	}
 
-	public void onProgressChanged(final SeekBar seekBar, final int progress, final boolean fromUser) {
-		if (seekBar.getId() == R.id.sbTransparency)
-		{
-			this.ivOld.setAlpha(progress);
-		}
+	public void onPictureTaken(Bitmap bm) {
+		this.bmOriginal = bm;
+		this.updateBottomHolder(1);
+
+	}
+
+	public void onProgressChanged(final SeekBar seekBar, final int progress,
+			final boolean fromUser) {
+		// TODO Transparency
+		// TODO Height
+		// TODO Width
+		// TODO Number of colors.
 	}
 
 	@Override
-	protected void onResume()
-	{
+	protected void onResume() {
 		super.onResume();
 
-	}
-
-	public void onStartTrackingTouch(final SeekBar seekBar) {
-	}
-
-	public void onStopTrackingTouch(final SeekBar seekBar) {
 	}
 
 	public boolean onTouch(final View v, final MotionEvent event) {
@@ -432,14 +434,12 @@ public class CreateGriddlerActivity extends Activity implements OnClickListener,
 			diff = newTime - this.oldTime;
 		}
 		// We're changing a color.
-		if ((this.newPicture != null) && (event.getAction() == MotionEvent.ACTION_DOWN)
-				&& (diff < 100))
-		{
+		if ((this.bmNew != null)
+				&& (event.getAction() == MotionEvent.ACTION_DOWN)
+				&& (diff < 100)) {
 			final float eventX = event.getX();
 			final float eventY = event.getY();
-			final float[] eventXY = new float[] {
-					eventX, eventY
-			};
+			final float[] eventXY = new float[] { eventX, eventY };
 
 			final Matrix invertMatrix = new Matrix();
 			this.ivNew.getImageMatrix().invert(invertMatrix);
@@ -471,27 +471,24 @@ public class CreateGriddlerActivity extends Activity implements OnClickListener,
 			// for example, 0xff000000 is black, 0xff0000ff is blue. Please be
 			// aware
 			// of the initial 0xff which is the alpha.
-			final AmbilWarnaDialog dialog = new AmbilWarnaDialog(this, touchedRGB,
-					new OnAmbilWarnaListener() {
+			final AmbilWarnaDialog dialog = new AmbilWarnaDialog(this,
+					touchedRGB, new OnAmbilWarnaListener() {
 
 						public void onCancel(final AmbilWarnaDialog dialog) {
 							// TODO Auto-generated method stub
 
 						}
 
-						public void onOk(final AmbilWarnaDialog dialog, int color) {
+						public void onOk(final AmbilWarnaDialog dialog,
+								int color) {
 							// Change the value in the colors array.
-							for (int i = 0; i != CreateGriddlerActivity.this.colors.length; ++i)
-							{
-								if (CreateGriddlerActivity.this.colors[i] == touchedRGB)
-								{
+							for (int i = 0; i != CreateGriddlerActivity.this.originalColors.length; ++i) {
+								if (CreateGriddlerActivity.this.originalColors[i] == touchedRGB) {
 									// Make sure this color doesn't already
 									// exist, if it does, tweak the new color
 									// just a little bit.
-									for (int j = 0; j != CreateGriddlerActivity.this.numColors; ++j)
-									{
-										if (CreateGriddlerActivity.this.colors[j] == color)
-										{
+									for (int j = 0; j != CreateGriddlerActivity.this.numColors; ++j) {
+										if (CreateGriddlerActivity.this.originalColors[j] == color) {
 											final int[] rgb = CreateGriddlerActivity.this
 													.getRGB(color);
 											if (rgb[0] == 255) {
@@ -499,11 +496,12 @@ public class CreateGriddlerActivity extends Activity implements OnClickListener,
 											} else {
 												rgb[0] = rgb[0] + 1;
 											}
-											color = Color.rgb(rgb[0], rgb[1], rgb[2]);
+											color = Color.rgb(rgb[0], rgb[1],
+													rgb[2]);
 											break;
 										}
 									}
-									CreateGriddlerActivity.this.colors[i] = color;
+									CreateGriddlerActivity.this.originalColors[i] = color;
 									break;
 								}
 							}
@@ -521,36 +519,30 @@ public class CreateGriddlerActivity extends Activity implements OnClickListener,
 
 	// Read bitmap - From
 	// http://tutorials-android.blogspot.co.il/2011/11/outofmemory-exception-when-decoding.html
-	private void processURL()
-	{
+	private void processURL() {
 		FlurryAgent.logEvent("CreateURLProcess");
 		new Thread(new Runnable() {
 			public void run() {
 				try {
-					CreateGriddlerActivity.this.etURL = (EditText) CreateGriddlerActivity.this
-							.findViewById(R.id.etURLA);
-					final URL url = new URL(CreateGriddlerActivity.this.etURL.getText()
-							.toString());
-					final HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+					final URL url = new URL(CreateGriddlerActivity.url);
+					final HttpURLConnection conn = (HttpURLConnection) url
+							.openConnection();
 					conn.setDoInput(true);
 					conn.connect();
 					InputStream in;
 					in = conn.getInputStream();
 					final Bitmap bm = BitmapFactory.decodeStream(in);
-					CreateGriddlerActivity.this.oldPicture = bm;
-					CreateGriddlerActivity.this.ivOld.post(new Runnable() {
+					CreateGriddlerActivity.this.bmOriginal = bm;
+					handler.post(new Runnable() {
 						public void run() {
-							CreateGriddlerActivity.this.oldPicture = bm;
-							CreateGriddlerActivity.this.ivOld
-									.setImageBitmap(CreateGriddlerActivity.this.oldPicture);
-							CreateGriddlerActivity.this.alterPhoto();
-
+							Util.log("Golden");
+							bmOriginal = bm;
+							updateBottomHolder(1);
 						}
 
 					});
 				} catch (final IOException e) {
 					e.printStackTrace();
-					// print(e.toString());
 				}
 			}
 
@@ -563,13 +555,14 @@ public class CreateGriddlerActivity extends Activity implements OnClickListener,
 		options.inSampleSize = 5;
 		AssetFileDescriptor fileDescriptor = null;
 		try {
-			fileDescriptor = this.getContentResolver().openAssetFileDescriptor(selectedImage, "r");
+			fileDescriptor = this.getContentResolver().openAssetFileDescriptor(
+					selectedImage, "r");
 		} catch (final FileNotFoundException e) {
 			e.printStackTrace();
 		} finally {
 			try {
-				bm = BitmapFactory.decodeFileDescriptor(fileDescriptor.getFileDescriptor(), null,
-						options);
+				bm = BitmapFactory.decodeFileDescriptor(
+						fileDescriptor.getFileDescriptor(), null, options);
 				fileDescriptor.close();
 			} catch (final IOException e) {
 				e.printStackTrace();
@@ -578,21 +571,179 @@ public class CreateGriddlerActivity extends Activity implements OnClickListener,
 		return bm;
 	}
 
-	private boolean userValuesValid() {
-		if (this.newPicture == null) {
-			Crouton.makeText(this, "You must generate a valid game.", Style.INFO).show();
-			FlurryAgent.logEvent("CreateInvalidOptionsPicture");
-		}
-		else if (this.tags.getText().toString().length() == 0) {
-			Crouton.makeText(this, "You must give some tags.", Style.INFO).show();
-			FlurryAgent.logEvent("CreateInvalidOptionsTags");
-		}
-		else if (this.name.getText().toString().length() == 0) {
-			Crouton.makeText(this, "You must give a name.", Style.INFO).show();
-			FlurryAgent.logEvent("CreateInvalidOptionsName");
-		} else {
-			return true;
-		}
-		return false;
+	public void resultAndFinish(Intent i) {
+		setResult(RESULT_OK, i);
+		finish();
 	}
+
+	private void showNumberDialog(final int id) {
+		NumberPickerBuilder npb = new NumberPickerBuilder()
+				.setStyleResId(R.style.MyCustomBetterPickerTheme)
+				.setFragmentManager(this.getSupportFragmentManager())
+				.setPlusMinusVisibility(View.INVISIBLE)
+				.setDecimalVisibility(View.INVISIBLE);
+		if (id == R.id.bColors) {
+			npb.setMinNumber(2);
+			npb.setMaxNumber(10);
+		} else {
+			if (id == R.id.bWidth)
+				Crouton.makeText(this, "Give us a new width.", Style.INFO)
+						.show();
+			else
+				Crouton.makeText(this, "Give us a new height.", Style.INFO)
+						.show();
+			npb.setMaxNumber(20);
+			npb.setMinNumber(1);
+		}
+		npb.addNumberPickerDialogHandler(new NumberPickerDialogHandler() {
+
+			public void onDialogNumberSet(int reference, final int number,
+					double decimal, boolean isNegative, double fullNumber) {
+				Util.log("Reference:  " + reference + " Number: " + number
+						+ " Decimal: " + decimal + " Neg: " + isNegative
+						+ " FullNum: " + fullNumber);
+				handler.post(new Runnable() {
+					public void run() {
+						if (id == R.id.bColors) {
+							numColors = number;
+						} else if (id == R.id.bWidth) {
+							xNum = number;
+						} else if (id == R.id.bHeight) {
+							yNum = number;
+						}
+						alterPhoto();
+					}
+				});
+			}
+		});
+		npb.show();
+	}
+
+	private void updateBottomHolder(int step) {
+		if (step == 0) {
+			// We're getting a picture.
+			// Load the picture include.
+			LayoutInflater inflater = (LayoutInflater) this
+					.getSystemService(LAYOUT_INFLATER_SERVICE);
+			View childLayout = inflater.inflate(R.layout.include_picture_input,
+					(ViewGroup) findViewById(R.layout.include_picture_input));
+
+			LinearLayout ll = (LinearLayout) findViewById(R.id.buttonBottomHolder);
+			ll.removeAllViews();
+			ll.addView(childLayout);
+			// Set up listeners and everything.
+
+			cv = (CameraView) findViewById(R.id.cvPreview);
+			bURL = (Button) findViewById(R.id.bLink);
+			bGallery = (Button) findViewById(R.id.bGallery);
+			bPicture = (Button) findViewById(R.id.bPicture);
+			bCustom = (Button) findViewById(R.id.bCustom);
+			bSearch = (Button) findViewById(R.id.bSearch);
+
+			cv.setButton(bPicture);
+			cv.setOnPictureTakenListner(this);
+			bURL.setOnClickListener(this);
+			bGallery.setOnClickListener(this);
+			bCustom.setOnClickListener(this);
+			bSearch.setOnClickListener(this);
+
+			cv.setVisibility(View.VISIBLE);
+			// this.setContentView(R.layout.activity_create_advanced);
+		} else if (step == 1) {
+			// We're altering the photo.
+			LayoutInflater inflater = (LayoutInflater) this
+					.getSystemService(LAYOUT_INFLATER_SERVICE);
+			View childLayout = inflater
+					.inflate(
+							R.layout.include_width_height_num,
+							(ViewGroup) findViewById(R.layout.include_width_height_num));
+
+			LinearLayout ll = (LinearLayout) findViewById(R.id.buttonBottomHolder);
+			ll.removeAllViews();
+			ll.addView(childLayout);
+			// Hide CameraView, change the bottom bar, and update the new image.
+			cv.setVisibility(View.INVISIBLE);
+
+			bDone = (Button) findViewById(R.id.bDone);
+			bSwitch = (Button) findViewById(R.id.bSwitch);
+			bWidth = (Button) findViewById(R.id.bWidth);
+			bHeight = (Button) findViewById(R.id.bHeight);
+			bColors = (Button) findViewById(R.id.bColors);
+			bBack = (Button) findViewById(R.id.bBack);
+
+			bDone.setOnClickListener(this);
+			bSwitch.setOnClickListener(this);
+			bWidth.setOnClickListener(this);
+			bHeight.setOnClickListener(this);
+			bColors.setOnClickListener(this);
+			bBack.setOnClickListener(this);
+
+			// Add in ImageViews and GameView
+			ivNew = (ImageView) findViewById(R.id.ivNew);
+			ivOriginal = (ImageView) findViewById(R.id.ivOriginal);
+			tivGame = (TouchImageView) findViewById(R.id.tivGame);
+
+			ivNew.setVisibility(View.VISIBLE);
+			ivOriginal.setVisibility(View.INVISIBLE);
+			tivGame.setVisibility(View.INVISIBLE);
+			// Update via AlterPhoto
+			this.alterPhoto();
+			ivOriginal.setImageBitmap(this.bmOriginal);
+			ivNew.setImageBitmap(this.bmNew);
+			this.bmNew.setHasAlpha(true);
+			this.bmOriginal.setHasAlpha(true);
+
+			this.alterPhoto();
+		}
+	}
+
+	private void updateMainView() {
+		if (currentView == -1) {
+			// We're changing back to the get picture screen.
+			ivOriginal.setVisibility(View.INVISIBLE);
+			ivNew.setVisibility(View.INVISIBLE);
+			tivGame.setVisibility(View.INVISIBLE);
+			this.setContentView(R.layout.activity_create_advanced);
+			// CameraView
+			//View C = findViewById(cv.getId());
+			//ViewGroup parent = (ViewGroup) C.getParent();
+			// int index = parent.indexOfChild(C);
+			// parent.removeView(C);
+			// C = getLayoutInflater().inflate(R.id.cvPreview, parent, false);
+			// parent.addView(C, index);
+
+			// cv.setVisibility(View.VISIBLE);
+			cv = (CameraView) findViewById(R.id.cvPreview);
+			// cv.setVisibility(View.//);
+			// cv = new CameraView(this);
+
+			currentView = 0; // Go to the normal view after.
+		} else if (currentView == 0) {
+			ivOriginal.setVisibility(View.VISIBLE);
+			ivNew.setVisibility(View.INVISIBLE);
+			tivGame.setVisibility(View.INVISIBLE);
+			currentView = 1;
+		} else if (currentView == 1) {
+			ivOriginal.setVisibility(View.INVISIBLE);
+			ivNew.setVisibility(View.VISIBLE);
+			tivGame.setVisibility(View.INVISIBLE);
+			currentView = 2;
+		} else if (currentView == 2) {
+			ivOriginal.setVisibility(View.INVISIBLE);
+			ivNew.setVisibility(View.INVISIBLE);
+			tivGame.setVisibility(View.VISIBLE);
+			currentView = 0;
+		} else {
+			currentView = 0; // Reset if problems.
+		}
+		// int i = ivOriginal.getVisibility();
+		// ivOriginal.setVisibility(ivNew.getVisibility());
+		// ivNew.setVisibility(i);
+	}
+
+	private boolean userValuesValid() {
+		// TODO redo this method.
+		return true;
+	}
+
 }
