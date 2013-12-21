@@ -5,7 +5,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 import yuku.ambilwarna.AmbilWarnaDialog;
 import yuku.ambilwarna.AmbilWarnaDialog.OnAmbilWarnaListener;
@@ -104,14 +107,8 @@ public class CreateGriddlerActivity extends FragmentActivity implements
 
 	private void alterPhoto() {
 		if (this.bmOriginal != null) {
-			// Subarray with the number, then reverse ;).
+			// Subarray with the number.
 			newColors = Arrays.copyOfRange(originalColors, 0, numColors);
-			for (int i = 0; i < newColors.length / 2; i++) {
-				int temp = newColors[i]; // TODO use bits.
-				newColors[i] = newColors[newColors.length - i - 1];
-				newColors[newColors.length - i - 1] = temp;
-			}
-
 			// Touch this up. It's a bit messy.
 			this.solution = ""; // Change back to nothing.
 			Bitmap alter = this.bmOriginal.copy(Bitmap.Config.ARGB_8888, true);
@@ -184,6 +181,7 @@ public class CreateGriddlerActivity extends FragmentActivity implements
 				cols += i + ",";
 			cols = cols.substring(0, cols.length() - 1);
 			bundle.putString("colors", cols);
+			tivGame.isRefreshing = true;
 			tivGame.setGriddlerInfo(bundle);
 		} else {
 			Crouton.makeText(this, "=( We need a picture first.", Style.INFO)
@@ -353,7 +351,7 @@ public class CreateGriddlerActivity extends FragmentActivity implements
 			this.updateBottomHolder(0);
 		}
 
-//TODO Tell user they can change colors by clicking on it.
+		// TODO Tell user they can change colors by clicking on it.
 
 	}
 
@@ -704,41 +702,29 @@ public class CreateGriddlerActivity extends FragmentActivity implements
 			ivNew.setVisibility(View.INVISIBLE);
 			tivGame.setVisibility(View.INVISIBLE);
 			this.setContentView(R.layout.activity_create_advanced);
-			// CameraView
-			//View C = findViewById(cv.getId());
-			//ViewGroup parent = (ViewGroup) C.getParent();
-			// int index = parent.indexOfChild(C);
-			// parent.removeView(C);
-			// C = getLayoutInflater().inflate(R.id.cvPreview, parent, false);
-			// parent.addView(C, index);
-
-			// cv.setVisibility(View.VISIBLE);
 			cv = (CameraView) findViewById(R.id.cvPreview);
-			// cv.setVisibility(View.//);
-			// cv = new CameraView(this);
-
 			currentView = 0; // Go to the normal view after.
-		} else if (currentView == 0) {
+		} else if (currentView == 2) {
+			// Show Original
 			ivOriginal.setVisibility(View.VISIBLE);
 			ivNew.setVisibility(View.INVISIBLE);
 			tivGame.setVisibility(View.INVISIBLE);
 			currentView = 1;
 		} else if (currentView == 1) {
+			// Show New without grid.
 			ivOriginal.setVisibility(View.INVISIBLE);
 			ivNew.setVisibility(View.VISIBLE);
 			tivGame.setVisibility(View.INVISIBLE);
 			currentView = 2;
-		} else if (currentView == 2) {
+		} else if (currentView == 0) {
+			// Show Gameboard
 			ivOriginal.setVisibility(View.INVISIBLE);
 			ivNew.setVisibility(View.INVISIBLE);
 			tivGame.setVisibility(View.VISIBLE);
-			currentView = 0;
+			currentView = 2;
 		} else {
 			currentView = 0; // Reset if problems.
 		}
-		// int i = ivOriginal.getVisibility();
-		// ivOriginal.setVisibility(ivNew.getVisibility());
-		// ivNew.setVisibility(i);
 	}
 
 	private boolean userValuesValid() {
