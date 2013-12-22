@@ -33,33 +33,31 @@ public class TouchImageView extends ImageView {
 		@Override
 		public boolean onScale(final ScaleGestureDetector detector) {
 			float mScaleFactor = detector.getScaleFactor();
-			final float origScale = TouchImageView.this.saveScale;
-			TouchImageView.this.saveScale *= mScaleFactor;
-			if (TouchImageView.this.saveScale > TouchImageView.this.maxScale) {
-				TouchImageView.this.saveScale = TouchImageView.this.maxScale;
-				mScaleFactor = TouchImageView.this.maxScale / origScale;
-			} else if (TouchImageView.this.saveScale < TouchImageView.this.minScale) {
-				TouchImageView.this.saveScale = TouchImageView.this.minScale;
-				mScaleFactor = TouchImageView.this.minScale / origScale;
+			final float origScale = saveScale;
+			saveScale *= mScaleFactor;
+			if (saveScale > maxScale) {
+				saveScale = maxScale;
+				mScaleFactor = maxScale / origScale;
+			} else if (saveScale < minScale) {
+				saveScale = minScale;
+				mScaleFactor = minScale / origScale;
 			}
 
-			if (((TouchImageView.this.origWidth * TouchImageView.this.saveScale) <= TouchImageView.this.viewWidth)
-					|| ((TouchImageView.this.origHeight * TouchImageView.this.saveScale) <= TouchImageView.this.viewHeight)) {
-				TouchImageView.this.matrix.postScale(mScaleFactor,
-						mScaleFactor, TouchImageView.this.viewWidth / 2,
-						TouchImageView.this.viewHeight / 2);
+			if (((origWidth * saveScale) <= viewWidth)
+					|| ((origHeight * saveScale) <= viewHeight)) {
+				matrix.postScale(mScaleFactor, mScaleFactor, viewWidth / 2,
+						viewHeight / 2);
 			} else {
-				TouchImageView.this.matrix.postScale(mScaleFactor,
-						mScaleFactor, detector.getFocusX(),
-						detector.getFocusY());
+				matrix.postScale(mScaleFactor, mScaleFactor,
+						detector.getFocusX(), detector.getFocusY());
 			}
-			TouchImageView.this.fixTrans();
+			fixTrans();
 			return true;
 		}
 
 		@Override
 		public boolean onScaleBegin(final ScaleGestureDetector detector) {
-			TouchImageView.this.mode = ZOOM;
+			mode = ZOOM;
 			return true;
 		}
 	}
@@ -126,104 +124,109 @@ public class TouchImageView extends ImageView {
 	OnTouchListener touchListener = new OnTouchListener() {
 
 		public boolean onTouch(final View v, final MotionEvent event) {
-			if (!TouchImageView.this.isGameplay) {
-				TouchImageView.this.mScaleDetector.onTouchEvent(event);
+			if (!isGameplay) {
+				mScaleDetector.onTouchEvent(event);
 				final PointF curr = new PointF(event.getX(), event.getY());
 
 				switch (event.getAction()) {
 				case MotionEvent.ACTION_DOWN:
-					TouchImageView.this.last.set(curr);
-					TouchImageView.this.start.set(TouchImageView.this.last);
-					TouchImageView.this.mode = DRAG;
+					last.set(curr);
+					start.set(last);
+					mode = DRAG;
 					break;
 
 				case MotionEvent.ACTION_MOVE:
-					if (TouchImageView.this.mode == DRAG) {
-						final float deltaX = curr.x
-								- TouchImageView.this.last.x;
-						final float deltaY = curr.y
-								- TouchImageView.this.last.y;
+					if (mode == DRAG) {
+						final float deltaX = curr.x - last.x;
+						final float deltaY = curr.y - last.y;
 						final float fixTransX = TouchImageView.this
-								.getFixDragTrans(deltaX,
-										TouchImageView.this.viewWidth,
-										TouchImageView.this.origWidth
-												* TouchImageView.this.saveScale);
+								.getFixDragTrans(deltaX, viewWidth, origWidth
+										* saveScale);
 						final float fixTransY = TouchImageView.this
-								.getFixDragTrans(deltaY,
-										TouchImageView.this.viewHeight,
-										TouchImageView.this.origHeight
-												* TouchImageView.this.saveScale);
-						TouchImageView.this.matrix.postTranslate(fixTransX,
-								fixTransY);
-						TouchImageView.this.fixTrans();
-						TouchImageView.this.last.set(curr.x, curr.y);
+								.getFixDragTrans(deltaY, viewHeight, origHeight
+										* saveScale);
+						matrix.postTranslate(fixTransX, fixTransY);
+						fixTrans();
+						last.set(curr.x, curr.y);
 					}
 					break;
 
 				case MotionEvent.ACTION_UP:
-					TouchImageView.this.mode = NONE;
-					final int xDiff = (int) Math.abs(curr.x
-							- TouchImageView.this.start.x);
-					final int yDiff = (int) Math.abs(curr.y
-							- TouchImageView.this.start.y);
+					mode = NONE;
+					final int xDiff = (int) Math.abs(curr.x - start.x);
+					final int yDiff = (int) Math.abs(curr.y - start.y);
 					if ((xDiff < CLICK) && (yDiff < CLICK)) {
-						TouchImageView.this.performClick();
+						performClick();
 					}
 					break;
 
 				case MotionEvent.ACTION_POINTER_UP:
-					TouchImageView.this.mode = NONE;
+					mode = NONE;
 					break;
 				}
 
-				TouchImageView.this.setImageMatrix(TouchImageView.this.matrix);
-				TouchImageView.this.invalidate();
+				setImageMatrix(matrix);
+				invalidate();
 			} else {
 				if ((event.getAction() == MotionEvent.ACTION_MOVE)
 						|| (event.getAction() == MotionEvent.ACTION_DOWN)) {
-					TouchImageView.this.matrix.getValues(TouchImageView.this.m);
-					final float transX = TouchImageView.this.m[Matrix.MTRANS_X]
-							* -1;
-					final float transY = TouchImageView.this.m[Matrix.MTRANS_Y]
-							* -1;
-					final float scaleX = TouchImageView.this.m[Matrix.MSCALE_X];
-					final float scaleY = TouchImageView.this.m[Matrix.MSCALE_Y];
-					TouchImageView.this.lastTouchX = (int) ((event.getX() + transX) / scaleX);
-					TouchImageView.this.lastTouchY = (int) ((event.getY() + transY) / scaleY);
-					TouchImageView.this.lastTouchX = Math
-							.abs(TouchImageView.this.lastTouchX);
-					TouchImageView.this.lastTouchY = Math
-							.abs(TouchImageView.this.lastTouchY);
+					matrix.getValues(m);
+					final float transX = m[Matrix.MTRANS_X] * -1;
+					final float transY = m[Matrix.MTRANS_Y] * -1;
+					final float scaleX = m[Matrix.MSCALE_X];
+					final float scaleY = m[Matrix.MSCALE_Y];
+					lastTouchX = (int) ((event.getX() + transX) / scaleX);
+					lastTouchY = (int) ((event.getY() + transY) / scaleY);
+					lastTouchX = Math.abs(lastTouchX);
+					lastTouchY = Math.abs(lastTouchY);
 					final int indexX = (int) Math
-							.floor((TouchImageView.this.lastTouchX - (TouchImageView.this.cellWidth * TouchImageView.this.lSide))
-									/ TouchImageView.this.cellWidth);
+							.floor((lastTouchX - (cellWidth * lSide))
+									/ cellWidth);
 					final int indexY = (int) Math
-							.floor((TouchImageView.this.lastTouchY - (TouchImageView.this.cellHeight * TouchImageView.this.lTop))
-									/ TouchImageView.this.cellHeight);
-					if ((TouchImageView.this.lastTouchX < (TouchImageView.this.cellWidth * TouchImageView.this.lSide))
-							|| (TouchImageView.this.lastTouchY < (TouchImageView.this.cellHeight * TouchImageView.this.lTop))
-							|| (TouchImageView.this.lastTouchX > TouchImageView.this
-									.getWidth())
-							|| (TouchImageView.this.lastTouchY > ((TouchImageView.this.lTop + TouchImageView.this.gHeight) * TouchImageView.this.cellHeight))) {
+							.floor((lastTouchY - (cellHeight * lTop))
+									/ cellHeight);
+					Log.d(TAG, "Leaving 3");
+					if ((lastTouchX < (cellWidth * lSide))
+							|| (lastTouchY < (cellHeight * lTop))
+							|| (lastTouchX > bm.getWidth())
+							|| (lastTouchY > ((lTop + gHeight) * cellHeight))) {
 						// If we're on the hints, just get out of there.
 						// Don't do anything.
-						if (TouchImageView.this.lastTouchY > ((TouchImageView.this.lTop + TouchImageView.this.gHeight) * TouchImageView.this.cellHeight)) {
+						Log.d(TAG, "We're here as of these settings:");
+						Log.d(TAG, "1: " + (lastTouchX < (cellWidth * lSide)));
+						Log.d(TAG, "2: " + (lastTouchY < (cellHeight * lTop)));
+						Log.d(TAG,
+								"3: "
+										+ (lastTouchX > TouchImageView.this
+												.getWidth()));
+						Log.d(TAG,
+								"ltX: " + lastTouchX + " View Width: "
+										+ bm.getWidth());
+						Log.d(TAG,
+								"4: "
+										+ (lastTouchY > ((lTop + gHeight) * cellHeight)));
+
+						if (lastTouchY > ((lTop + gHeight) * cellHeight)) {
+							Log.d(TAG, "Leaving 2");
 						}
+						Log.d(TAG, "Leaving 1");
 						return true;
 					}
-					final char[] temp = TouchImageView.this.gCurrent
-							.toCharArray();
-					final String past = TouchImageView.this.gCurrent;
-					if (((indexY * TouchImageView.this.gWidth) + indexX) < temp.length) {
-						temp[(indexY * TouchImageView.this.gWidth) + indexX] = TouchImageView.this.colorCharacter;
-						TouchImageView.this.gCurrent = String.valueOf(temp);
-						if (!past.equals(TouchImageView.this.gCurrent)) {
+					Log.d(TAG, "Leaving 4");
+					final char[] temp = gCurrent.toCharArray();
+					final String past = gCurrent;
+					if (((indexY * gWidth) + indexX) < temp.length) {
+						temp[(indexY * gWidth) + indexX] = colorCharacter;
+						gCurrent = String.valueOf(temp);
+						if (!past.equals(gCurrent)) {
+							Log.d(TAG, "Leaving 5");
 							new Thread(new Runnable() {
 
 								public void run() {
-									TouchImageView.this.h.post(new Runnable() {
+									h.post(new Runnable() {
 
 										public void run() {
+											Log.d(TAG, "Leaving 6");
 											TouchImageView.this
 													.bitmapFromCurrent();
 										}
@@ -234,10 +237,9 @@ public class TouchImageView extends ImageView {
 							}).start();
 						}
 					}
-					if (TouchImageView.this.gCurrent
-							.equals(TouchImageView.this.gSolution)) {
-						if (TouchImageView.this.winListener != null) {
-							TouchImageView.this.winListener.win();
+					if (gCurrent.equals(gSolution)) {
+						if (winListener != null) {
+							winListener.win();
 						} else {
 							try {
 								throw new Exception("No WinListener!");
@@ -406,32 +408,35 @@ public class TouchImageView extends ImageView {
 				/ (this.longestSide + this.gWidth);
 		final int heightOffset = (this.canvasBitmap.getHeight() - heightTrim)
 				/ (this.gHeight + this.longestTop);
-
+		int runner = 0;
 		for (int i = this.longestSide; i != ((this.gWidth + this.longestSide) + 1); ++i) {
-			if ((i % 5) == 0) {
+			if ((runner % 5) == 0) {
 				this.paintBitmap.setStrokeWidth(this.paintBitmap
 						.getStrokeWidth() + 4);
 			}
 			this.canvasBitmap.drawLine(widthOffset * i, 0, widthOffset * i,
 					this.canvasBitmap.getHeight(), this.paintBitmap);
-			if ((i % 5) == 0) {
+			if ((runner % 5) == 0) {
 				this.paintBitmap.setStrokeWidth(this.paintBitmap
 						.getStrokeWidth() - 4);
 			}
+			runner++;
 		}
 		// Side side.
+		runner = 0;
 		for (int i = this.longestTop; i != ((this.gHeight + this.longestTop) + 1); ++i) {
-			if ((i % 5) == 0) {
+			if ((runner % 5) == 0) {
 				this.paintBitmap.setStrokeWidth(this.paintBitmap
 						.getStrokeWidth() + 4);
 			}
 			this.canvasBitmap.drawLine(0, heightOffset * i,
 					this.canvasBitmap.getWidth(), heightOffset * i,
 					this.paintBitmap);
-			if ((i % 5) == 0) {
+			if ((runner % 5) == 0) {
 				this.paintBitmap.setStrokeWidth(this.paintBitmap
 						.getStrokeWidth() - 4);
 			}
+			runner++;
 		}
 	}
 

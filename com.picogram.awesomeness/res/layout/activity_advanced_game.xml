@@ -11,10 +11,18 @@
         android:layout_above="@+id/buttonBottomHolder"
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
-        android:paddingBottom="10dp"
-        android:paddingLeft="10dp"
-        android:paddingRight="10dp"
-        android:paddingTop="10dp" />
+        android:layout_marginBottom="10dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginTop="10dp" />
+
+    <com.capricorn.RayMenu
+        android:id="@+id/ray_menu"
+        android:layout_width="fill_parent"
+        android:layout_height="60dp"
+        android:paddingLeft="5dp"
+        android:paddingRight="5dp" >
+    </com.capricorn.RayMenu>
 
     <RelativeLayout
         android:id="@+id/buttonBottomHolder"

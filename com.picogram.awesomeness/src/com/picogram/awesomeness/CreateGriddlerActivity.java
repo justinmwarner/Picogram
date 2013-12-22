@@ -439,14 +439,16 @@ public class CreateGriddlerActivity extends FragmentActivity implements
 			final float eventY = event.getY();
 			final float[] eventXY = new float[] { eventX, eventY };
 
+			ImageView ivAlter = ((ivNew.getVisibility() == View.VISIBLE) ? ivNew
+					: tivGame);
 			final Matrix invertMatrix = new Matrix();
-			this.ivNew.getImageMatrix().invert(invertMatrix);
+			ivAlter.getImageMatrix().invert(invertMatrix);
 
 			invertMatrix.mapPoints(eventXY);
 			int x = Integer.valueOf((int) eventXY[0]);
 			int y = Integer.valueOf((int) eventXY[1]);
 
-			final Drawable imgDrawable = this.ivNew.getDrawable();
+			final Drawable imgDrawable = ivAlter.getDrawable();
 			final Bitmap bitmap = ((BitmapDrawable) imgDrawable).getBitmap();
 
 			// Limit x, y range within bitmap
@@ -485,7 +487,7 @@ public class CreateGriddlerActivity extends FragmentActivity implements
 								cols += i + " ";
 							Log.d(TAG, "Before" + cols);
 							// Change the value in the colors array.
-							for (int i = 0; i != CreateGriddlerActivity.this.originalColors.length; ++i) {
+							for (int i = 0; i != CreateGriddlerActivity.this.newColors.length; ++i) {
 								if (CreateGriddlerActivity.this.newColors[i] == touchedRGB) {
 									// Make sure this color doesn't already
 									// exist, if it does, tweak the new color
@@ -609,7 +611,7 @@ public class CreateGriddlerActivity extends FragmentActivity implements
 			else
 				Crouton.makeText(this, "Give us a new height.", Style.INFO)
 						.show();
-			npb.setMaxNumber(50);
+			npb.setMaxNumber(25);
 			npb.setMinNumber(1);
 		}
 		npb.addNumberPickerDialogHandler(new NumberPickerDialogHandler() {

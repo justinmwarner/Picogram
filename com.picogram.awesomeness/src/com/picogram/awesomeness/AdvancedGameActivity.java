@@ -1,4 +1,3 @@
-
 package com.picogram.awesomeness;
 
 import java.util.ArrayList;
@@ -16,6 +15,7 @@ import android.view.Gravity;
 import android.view.Menu;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup.LayoutParams;
 import android.view.Window;
@@ -24,13 +24,18 @@ import android.widget.LinearLayout;
 import android.widget.RatingBar;
 import android.widget.RatingBar.OnRatingBarChangeListener;
 
+import com.capricorn.ArcMenu;
+import com.capricorn.RayMenu;
 import com.flurry.android.FlurryAgent;
 import com.picogram.awesomeness.TouchImageView.WinnerListener;
 import com.stackmob.sdk.callback.StackMobModelCallback;
 import com.stackmob.sdk.exception.StackMobException;
 
+import de.keyboardsurfer.android.widget.crouton.Crouton;
+import de.keyboardsurfer.android.widget.crouton.Style;
+
 public class AdvancedGameActivity extends Activity implements OnTouchListener,
-WinnerListener {
+		WinnerListener {
 	private static final String TAG = "AdvancedGameActivity";
 	TouchImageView tiv;
 	Handler handle = new Handler();
@@ -55,9 +60,7 @@ WinnerListener {
 		final int r = (i >> 16) & 0xff;
 		final int g = (i >> 8) & 0xff;
 		final int b = (i & 0xff);
-		return new int[] {
-				a, r, g, b
-		};
+		return new int[] { a, r, g, b };
 	}
 
 	@Override
@@ -87,7 +90,8 @@ WinnerListener {
 		FlurryAgent.logEvent("UserPlayingGame");
 		// Create colors for pallet.
 		final String thing = this.getIntent().getExtras().getString("colors");
-		final String[] cols = this.getIntent().getExtras().getString("colors").split(",");
+		final String[] cols = this.getIntent().getExtras().getString("colors")
+				.split(",");
 		this.colors = new int[cols.length];
 		for (int i = 0; i != cols.length; ++i) {
 			this.colors[i] = Integer.parseInt(cols[i]);
@@ -98,7 +102,8 @@ WinnerListener {
 		final LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
 				LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
 		lp.gravity = Gravity.CENTER;
-		final Drawable drawableBitmap = this.getResources().getDrawable(R.drawable.icon);
+		final Drawable drawableBitmap = this.getResources().getDrawable(
+				R.drawable.icon);
 		final Bitmap moveBitmap = Bitmap.createScaledBitmap(
 				((BitmapDrawable) drawableBitmap).getBitmap(), 100, 100, true);
 		colorChange.setImageBitmap(moveBitmap);
@@ -106,25 +111,28 @@ WinnerListener {
 		colorChange.setLayoutParams(lp);
 		colorChange.setPadding(13, 13, 13, 13);
 		ll.addView(colorChange);
-		for (int i = 0; i != this.colors.length; ++i)
-		{
-			Bitmap fullColor = Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888);
+		for (int i = 0; i != this.colors.length; ++i) {
+			Bitmap fullColor = Bitmap.createBitmap(100, 100,
+					Bitmap.Config.ARGB_8888);
 			colorChange = new ImageView(this);
 			final int[] rgb = this.getRGB(this.colors[i]);
 			if (rgb[0] == 0) {
-				final Drawable drawable = this.getResources().getDrawable(R.drawable.light_grid);
-				fullColor = Bitmap.createScaledBitmap(((BitmapDrawable) drawable).getBitmap(), 100,
-						100, true);
+				final Drawable drawable = this.getResources().getDrawable(
+						R.drawable.light_grid);
+				fullColor = Bitmap
+						.createScaledBitmap(
+								((BitmapDrawable) drawable).getBitmap(), 100,
+								100, true);
 			} else {
 				for (int x = 0; x != fullColor.getWidth(); ++x) {
 					for (int y = 0; y != fullColor.getHeight(); ++y) {
-						if ((x < 3) || (y < 3) || (x > (fullColor.getWidth() - 3))
+						if ((x < 3) || (y < 3)
+								|| (x > (fullColor.getWidth() - 3))
 								|| (y > (fullColor.getHeight() - 3))) {
 							fullColor.setPixel(x, y, Color.BLACK);
-						}
-						else
-						{
-							fullColor.setPixel(x, y, Color.rgb(rgb[1], rgb[2], rgb[3]));
+						} else {
+							fullColor.setPixel(x, y,
+									Color.rgb(rgb[1], rgb[2], rgb[3]));
 						}
 					}
 				}
@@ -138,9 +146,44 @@ WinnerListener {
 			ll.addView(colorChange);
 			this.ivs.add(colorChange);
 		}
-		final LinearLayout pallet = (LinearLayout) this.findViewById(R.id.llPallet);
+		final LinearLayout pallet = (LinearLayout) this
+				.findViewById(R.id.llPallet);
 		pallet.addView(ll);
 
+		int[] ITEM_DRAWABLES = { R.drawable.one, R.drawable.two,
+				R.drawable.three, R.drawable.five, R.drawable.four };
+
+		RayMenu rayMenu = (RayMenu) findViewById(R.id.ray_menu);
+        final int itemCount = ITEM_DRAWABLES.length;
+		for (int i = 0; i < itemCount; i++) {
+			ImageView item = new ImageView(this);
+			item.setImageResource(ITEM_DRAWABLES[i]);
+
+			final int position = i;
+			rayMenu.addItem(item, new OnClickListener() {
+
+				public void onClick(View v) {
+					
+				}
+			});// Add a menu item
+		}
+	}
+
+	private void initArcMenu(ArcMenu menu, int[] itemDrawables) {
+		final int itemCount = itemDrawables.length;
+		for (int i = 0; i < itemCount; i++) {
+			ImageView item = new ImageView(this);
+			item.setImageResource(itemDrawables[i]);
+
+			final int position = i;
+			menu.addItem(item, new OnClickListener() {
+
+				public void onClick(View v) {
+					Crouton.makeText(AdvancedGameActivity.this, "position:" + position,
+							Style.INFO).show();
+				}
+			});
+		}
 	}
 
 	@Override
@@ -153,7 +196,8 @@ WinnerListener {
 	@Override
 	public void onPause() {
 		super.onPause();
-		sql.updateCurrentGriddler(this.tiv.gSolution.hashCode() + "", "0", this.tiv.gCurrent);
+		sql.updateCurrentGriddler(this.tiv.gSolution.hashCode() + "", "0",
+				this.tiv.gCurrent);
 		sql.close();
 	}
 
@@ -161,17 +205,15 @@ WinnerListener {
 	public void onResume() {
 		super.onResume();
 		Util.updateFullScreen(this);
-		sql = new SQLiteGriddlerAdapter(this.getApplicationContext(), "Griddlers", null, 1);
+		sql = new SQLiteGriddlerAdapter(this.getApplicationContext(),
+				"Griddlers", null, 1);
 	}
-
-
 
 	public boolean onTouch(final View v, final MotionEvent event) {
 		final int index = this.ivs.indexOf(v);
 		if (index < 0) {
 			this.tiv.isGameplay = false;
-		} else
-		{
+		} else {
 			this.tiv.isGameplay = true;
 			this.tiv.colorCharacter = (index + "").charAt(0);
 		}
@@ -196,10 +238,9 @@ WinnerListener {
 		final RatingBar rb = (RatingBar) dialog.findViewById(R.id.rbRate);
 		rb.setOnRatingBarChangeListener(new OnRatingBarChangeListener() {
 
-			public void onRatingChanged(final RatingBar ratingBar, final float rating,
-					final boolean fromUser) {
-				if (fromUser)
-				{
+			public void onRatingChanged(final RatingBar ratingBar,
+					final float rating, final boolean fromUser) {
+				if (fromUser) {
 					final GriddlerOne g = new GriddlerOne();
 					g.setID(AdvancedGameActivity.this.puzzleId);
 					g.fetch(new StackMobModelCallback() {
@@ -213,10 +254,11 @@ WinnerListener {
 
 						@Override
 						public void success() {
-							g.setRating(((Integer.parseInt(g.getRating()) * g.getNumberOfRatings()) + (int) rating)
-									+ "");
+							g.setRating(((Integer.parseInt(g.getRating()) * g
+									.getNumberOfRatings()) + (int) rating) + "");
 							g.setNumberOfRatings(g.getNumberOfRatings() + 1);
-							// TODO: If save fails, let us do it next time app is online.
+							// TODO: If save fails, let us do it next time app
+							// is online.
 							g.save();
 							dialog.dismiss();
 							AdvancedGameActivity.this.isDialogueShowing = !AdvancedGameActivity.this.isDialogueShowing;
