@@ -61,7 +61,7 @@ public class SettingsActivity extends SherlockPreferenceActivity implements
 			_ChangelogDialog.show();
 		} else if (preference.getKey().equals("licenses")) {
 			// Launch the licenses stuff.
-	        new LicensesDialog(this, R.raw.licenses, false, false).show();
+			new LicensesDialog(this, R.raw.licenses, false, false).show();
 		} else if (preference.getKey().equals("email")) {
 			final String email = "warner.73+Picogram@wright.edu";
 			final String subject = "Picogram - <SUBJECT>";
