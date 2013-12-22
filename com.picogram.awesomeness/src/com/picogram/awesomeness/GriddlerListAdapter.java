@@ -106,11 +106,15 @@ public class GriddlerListAdapter extends ArrayAdapter<GriddlerOne> {
 					.split(",");
 			for (int i = 0; i < height; i++) {
 				for (int j = 0; j < width; j++) {
-					bm.setPixel(
-							j,
-							i,
-							Integer.parseInt(colors[Integer.parseInt(""
-									+ curr.charAt(run))]));
+					if (curr.charAt(run) == 'x') {
+						bm.setPixel(j, i, Color.WHITE);
+					} else {
+						bm.setPixel(
+								j,
+								i,
+								Integer.parseInt(colors[Integer.parseInt(""
+										+ curr.charAt(run))]));
+					}
 					run++;
 				}
 			}

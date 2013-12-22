@@ -12,10 +12,12 @@ import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Paint.Align;
 import android.graphics.PointF;
+import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.graphics.Shader;
 import android.graphics.Shader.TileMode;
 import android.graphics.Typeface;
+import android.graphics.Xfermode;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
@@ -185,7 +187,6 @@ public class TouchImageView extends ImageView {
 					final int indexY = (int) Math
 							.floor((lastTouchY - (cellHeight * lTop))
 									/ cellHeight);
-					Log.d(TAG, "Leaving 3");
 					if ((lastTouchX < (cellWidth * lSide))
 							|| (lastTouchY < (cellHeight * lTop))
 							|| (lastTouchX > bm.getWidth())
@@ -218,7 +219,7 @@ public class TouchImageView extends ImageView {
 							}).start();
 						}
 					}
-					if (gCurrent.equals(gSolution)) {
+					if (gCurrent.replaceAll("x","0").equals(gSolution)) {
 						if (winListener != null) {
 							winListener.win();
 						} else {
@@ -347,6 +348,7 @@ public class TouchImageView extends ImageView {
 				this.gCurrent += "0";
 			}
 		}
+		int bah = 0;
 		for (int i = 0; i != this.gCurrent.length(); ++i) {
 			if ((i % (this.gWidth)) == 0) {
 				column = 0;
@@ -357,12 +359,34 @@ public class TouchImageView extends ImageView {
 							* (this.longestSide + column + 1), heightOffset
 							* (this.longestTop + row + 1));
 			// INFO: This is where we draw the board.
-			this.paintBitmap.setColor(this.gColors[Integer
-					.parseInt(this.gCurrent.charAt(i) + "")]);
-			if (this.gColors[Integer.parseInt(this.gCurrent.charAt(i) + "")] == Color.TRANSPARENT) {
-				this.paintBitmap.setColor(Color.WHITE);
+
+			Xfermode old = paintBitmap.getXfermode();
+			if (gCurrent.charAt(i) == 'x') {
+				if (bah == 0)
+					Log.d(TAG, gCurrent);
+				bah = 1;
+				// We have an x.
+				paintBitmap.setColor(Color.TRANSPARENT);
+				paintBitmap.setTextSize(this.cellHeight);
+				this.paintBitmap.setXfermode(new PorterDuffXfermode(
+						android.graphics.PorterDuff.Mode.SRC));
+				this.canvasBitmap.drawRect(r, this.paintBitmap);// White out
+																// this spot
+				this.paintBitmap.setXfermode(old);
+				this.paintBitmap.setColor(Color.BLACK);
+				canvasBitmap.drawText("X", r.left, r.top + cellHeight,
+						paintBitmap);
+			} else {
+				this.paintBitmap.setColor(this.gColors[Integer
+						.parseInt(this.gCurrent.charAt(i) + "")]);
+				if (this.gColors[Integer.parseInt(this.gCurrent.charAt(i) + "")] == Color.TRANSPARENT) {
+					// Draw white ontop for transparency.
+					this.paintBitmap.setXfermode(new PorterDuffXfermode(
+							android.graphics.PorterDuff.Mode.SRC));
+				}
+				this.canvasBitmap.drawRect(r, this.paintBitmap);
+				paintBitmap.setXfermode(old);
 			}
-			this.canvasBitmap.drawRect(r, this.paintBitmap);
 			/*
 			 * if (i != 0) { if (this.gCurrent.charAt(i) !=
 			 * this.gCurrent.charAt(i - 1)) { if (this.gCurrent.charAt(i) ==

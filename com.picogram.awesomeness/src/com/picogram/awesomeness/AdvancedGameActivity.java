@@ -6,11 +6,13 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MotionEvent;
@@ -96,78 +98,69 @@ public class AdvancedGameActivity extends Activity implements OnTouchListener,
 		for (int i = 0; i != cols.length; ++i) {
 			this.colors[i] = Integer.parseInt(cols[i]);
 		}
-		ImageView colorChange = new ImageView(this);
-		final LinearLayout ll = new LinearLayout(this);
-		ll.setOrientation(LinearLayout.HORIZONTAL);
-		final LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-				LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-		lp.gravity = Gravity.CENTER;
-		final Drawable drawableBitmap = this.getResources().getDrawable(
-				R.drawable.icon);
-		final Bitmap moveBitmap = Bitmap.createScaledBitmap(
-				((BitmapDrawable) drawableBitmap).getBitmap(), 100, 100, true);
-		colorChange.setImageBitmap(moveBitmap);
-		colorChange.setOnTouchListener(this);
-		colorChange.setLayoutParams(lp);
-		colorChange.setPadding(13, 13, 13, 13);
-		ll.addView(colorChange);
-		for (int i = 0; i != this.colors.length; ++i) {
-			Bitmap fullColor = Bitmap.createBitmap(100, 100,
-					Bitmap.Config.ARGB_8888);
-			colorChange = new ImageView(this);
-			final int[] rgb = this.getRGB(this.colors[i]);
-			if (rgb[0] == 0) {
-				final Drawable drawable = this.getResources().getDrawable(
-						R.drawable.light_grid);
-				fullColor = Bitmap
-						.createScaledBitmap(
-								((BitmapDrawable) drawable).getBitmap(), 100,
-								100, true);
-			} else {
-				for (int x = 0; x != fullColor.getWidth(); ++x) {
-					for (int y = 0; y != fullColor.getHeight(); ++y) {
-						if ((x < 3) || (y < 3)
-								|| (x > (fullColor.getWidth() - 3))
-								|| (y > (fullColor.getHeight() - 3))) {
-							fullColor.setPixel(x, y, Color.BLACK);
-						} else {
-							fullColor.setPixel(x, y,
-									Color.rgb(rgb[1], rgb[2], rgb[3]));
-						}
-					}
-				}
-			}
-			colorChange.setImageBitmap(fullColor);
-			colorChange.setOnTouchListener(this);
-			colorChange.setVisibility(View.VISIBLE);
-			colorChange.setLayoutParams(lp);
-			colorChange.setPadding(13, 13, 13, 13);
 
-			ll.addView(colorChange);
-			this.ivs.add(colorChange);
-		}
-		final LinearLayout pallet = (LinearLayout) this
-				.findViewById(R.id.llPallet);
-		pallet.addView(ll);
-
-		//Movement, X's, transparent, then colors.
-		int[] ITEM_DRAWABLES = { R.drawable.one, R.drawable.two,
-				R.drawable.three, R.drawable.five, R.drawable.four };
-
+		Bitmap[] bmColors = getMenuBitmaps();
+		// Movement, X's, transparent, then colors.
 		RayMenu rayMenu = (RayMenu) findViewById(R.id.ray_menu);
-        final int itemCount = ITEM_DRAWABLES.length;
-		for (int i = 0; i < itemCount; i++) {
+		final ArrayList<View> ivs = new ArrayList();
+		for (int i = 0; i < bmColors.length; i++) {
 			ImageView item = new ImageView(this);
-			item.setImageResource(ITEM_DRAWABLES[i]);
-
+			item.setImageBitmap(bmColors[i]);
+			item.setBackgroundDrawable(this.getResources().getDrawable(
+					R.drawable.dropshadows));
+			ivs.add(item);
 			final int position = i;
 			rayMenu.addItem(item, new OnClickListener() {
 
 				public void onClick(View v) {
-					
+					Log.d(TAG, "Clicked: " + ivs.indexOf(v));
+					if (ivs.indexOf(v) == 0) {
+						// Moving.
+						tiv.isGameplay = false;
+					} else if (ivs.indexOf(v) == 1) {
+						tiv.isGameplay = true;
+						tiv.colorCharacter = 'x';
+					} else {
+						tiv.isGameplay = true;
+						//Minus 2 for the X's and movement.
+						tiv.colorCharacter = ((ivs.indexOf(v)-2) + "")
+								.charAt(0);
+					}
 				}
 			});// Add a menu item
 		}
+	}
+
+	private Bitmap[] getMenuBitmaps() {
+		// +2 for movement and x's.
+		Bitmap[] result = new Bitmap[this.colors.length + 2];
+		final Drawable moveDrawable = this.getResources().getDrawable(
+				R.drawable.icon);
+		final Bitmap moveBitmap = Bitmap.createScaledBitmap(
+				((BitmapDrawable) moveDrawable).getBitmap(), 100, 100, true);
+		final Drawable xDrawable = this.getResources().getDrawable(
+				R.drawable.icon);
+		final Bitmap xBitmap = Bitmap.createScaledBitmap(
+				((BitmapDrawable) xDrawable).getBitmap(), 100, 100, true);
+		result[0] = moveBitmap;
+		result[1] = xBitmap;
+		for (int i = 0; i != colors.length; ++i) {
+			Bitmap fullColor = Bitmap.createBitmap(1, 1,
+					Bitmap.Config.ARGB_8888);
+			final int[] rgb = this.getRGB(this.colors[i]);
+			if (rgb[0] == 0) {// This is alpha.
+				// For transparency.
+				fullColor = BitmapFactory.decodeResource(this.getResources(),
+						R.drawable.light_grid);
+			} else {
+				Log.d(TAG, "Making: " + colors[i]);
+				fullColor.setPixel(0, 0, Color.rgb(rgb[1], rgb[2], rgb[3]));
+
+			}
+			// +2 for the X's and movement.
+			result[i + 2] = fullColor;
+		}
+		return result;
 	}
 
 	private void initArcMenu(ArcMenu menu, int[] itemDrawables) {
@@ -180,8 +173,8 @@ public class AdvancedGameActivity extends Activity implements OnTouchListener,
 			menu.addItem(item, new OnClickListener() {
 
 				public void onClick(View v) {
-					Crouton.makeText(AdvancedGameActivity.this, "position:" + position,
-							Style.INFO).show();
+					Crouton.makeText(AdvancedGameActivity.this,
+							"position:" + position, Style.INFO).show();
 				}
 			});
 		}
