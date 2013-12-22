@@ -262,7 +262,6 @@ public class RateMeMaybe implements RMMFragInterface {
 
 		int totalLaunchCount = mPreferences.getInt(PREF.TOTAL_LAUNCH_COUNT, 0) + 1;
 		editor.putInt(PREF.TOTAL_LAUNCH_COUNT, totalLaunchCount);
-
 		long currentMillis = System.currentTimeMillis();
 
 		long timeOfAbsoluteFirstLaunch = mPreferences.getLong(
@@ -373,10 +372,10 @@ public class RateMeMaybe implements RMMFragInterface {
 		}
 	}
 
-	static class PREF {
+	public static class PREF {
 		public static final String NAME = "rate_me_maybe";
 
-		private static final String DONT_SHOW_AGAIN = "PREF_DONT_SHOW_AGAIN";
+		public static final String DONT_SHOW_AGAIN = "PREF_DONT_SHOW_AGAIN";
 		/**
 		 * How many times the app was launched in total
 		 */

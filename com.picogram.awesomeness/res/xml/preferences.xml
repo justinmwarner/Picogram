@@ -10,7 +10,7 @@
             android:title="Remove Won Games" />
         <CheckBoxPreference
             android:key="decorations"
-            android:summary="Show the bar with the time and notifications while you play."
+            android:summary="Show the bar with the time, battery, and notifications while you play."
             android:title="Show Top Bar?" />
     </PreferenceCategory>
     <!-- Privacy, let the user control anything we can/will collect. -->

@@ -190,7 +190,7 @@ WinnerListener {
 
 	public void win() {
 		final Dialog dialog = new Dialog(AdvancedGameActivity.this);
-		dialog.setContentView(R.layout.ranking_dialogue);
+		dialog.setContentView(R.layout.dialog_ranking);
 		dialog.setTitle("Rate this Picogram");
 
 		final RatingBar rb = (RatingBar) dialog.findViewById(R.id.rbRate);

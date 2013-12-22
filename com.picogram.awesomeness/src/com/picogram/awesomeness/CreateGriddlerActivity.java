@@ -93,17 +93,17 @@ public class CreateGriddlerActivity extends FragmentActivity implements
 	TouchImageView tivGame;
 
 	private Bitmap addBorder(Bitmap bmp, int borderSize) {
-		Bitmap bmpWithBorder = Bitmap.createBitmap(bmp.getWidth() + borderSize
-				* 2, bmp.getHeight() + borderSize * 2, bmp.getConfig());
-		Canvas canvas = new Canvas(bmpWithBorder);
-		Paint paint = new Paint();
-		paint.setStyle(Paint.Style.STROKE);
-		paint.setStrokeWidth(borderSize * 2);
-		paint.setColor(Color.BLUE);
-		canvas.drawBitmap(bmp, borderSize, borderSize, null);
-		canvas.drawRect((borderSize / 2), (borderSize / 2), bmp.getWidth()
-				+ (borderSize), bmp.getHeight() + (borderSize), paint);
-		return bmpWithBorder;
+		return bmp;
+		/*
+		 * Bitmap bmpWithBorder = Bitmap.createBitmap(bmp.getWidth() +
+		 * borderSize 2, bmp.getHeight() + borderSize * 2, bmp.getConfig());
+		 * Canvas canvas = new Canvas(bmpWithBorder); Paint paint = new Paint();
+		 * paint.setStyle(Paint.Style.STROKE); paint.setStrokeWidth(borderSize *
+		 * 2); paint.setColor(Color.BLUE); canvas.drawBitmap(bmp, borderSize,
+		 * borderSize, null); canvas.drawRect((borderSize / 2), (borderSize /
+		 * 2), bmp.getWidth() + (borderSize), bmp.getHeight() + (borderSize),
+		 * paint); return bmpWithBorder;
+		 */
 	}
 
 	private void alterPhoto() {
@@ -168,8 +168,9 @@ public class CreateGriddlerActivity extends FragmentActivity implements
 			this.bmNew.setHasAlpha(true);
 			this.bmOriginal.setHasAlpha(true);
 			ivNew.setImageBitmap(addBorder(bmNew, 2));
-			ivOriginal.setImageBitmap(addBorder(Bitmap.createScaledBitmap(
-					bmOriginal, 100 * xNum, yNum * 100, false), 2));
+			ivOriginal
+					.setImageBitmap(addBorder(Bitmap.createScaledBitmap(
+							bmOriginal, xNum, yNum, false), 2));
 			Bundle bundle = new Bundle();
 			// current height width id solution colors(,)
 			bundle.putString("current", solution);
@@ -283,6 +284,7 @@ public class CreateGriddlerActivity extends FragmentActivity implements
 		// We're getting a photo to edit.
 		if (v.getId() == R.id.bCustom) {
 			// Start a drawing activity.
+			// TODO
 			Log.d(TAG, "Custom");
 		} else if (v.getId() == R.id.bGallery) {
 			Log.d(TAG, "File");
@@ -300,7 +302,7 @@ public class CreateGriddlerActivity extends FragmentActivity implements
 		} else if (v.getId() == R.id.bLink) {
 			Log.d(TAG, "Link");
 			final EditText input = new EditText(this);
-			input.setText("http://www.sandcarvedcreations.com/images/graphics/dogsilhouettes/bone.jpg");
+			input.setText("http://static.tumblr.com/b81c7dadf0e20919a038a85c933062a6/4w8r7zy/2ifmvnsrg/tumblr_static_tumblr_static_tumblr_inline_mkqs46qvu21qz4rgp.gif");
 			new AlertDialog.Builder(CreateGriddlerActivity.this)
 					.setTitle("URL Sumittion")
 					.setMessage("Url Link to Image File...")
@@ -461,7 +463,8 @@ public class CreateGriddlerActivity extends FragmentActivity implements
 			}
 
 			final int touchedRGB = bitmap.getPixel(x, y);
-
+			if (touchedRGB == Color.TRANSPARENT)
+				return true; // Ignore if we're touching a transparent color.
 			// initialColor is the initially-selected color to be shown in the
 			// rectangle on the left of the arrow.
 			// for example, 0xff000000 is black, 0xff0000ff is blue. Please be
@@ -606,7 +609,7 @@ public class CreateGriddlerActivity extends FragmentActivity implements
 			else
 				Crouton.makeText(this, "Give us a new height.", Style.INFO)
 						.show();
-			npb.setMaxNumber(20);
+			npb.setMaxNumber(50);
 			npb.setMinNumber(1);
 		}
 		npb.addNumberPickerDialogHandler(new NumberPickerDialogHandler() {

@@ -2,6 +2,7 @@ package com.picogram.awesomeness;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.Preference;
@@ -11,6 +12,8 @@ import android.preference.Preference.OnPreferenceClickListener;
 import com.actionbarsherlock.app.SherlockPreferenceActivity;
 import com.actionbarsherlock.view.Menu;
 import com.flurry.android.FlurryAgent;
+import com.kopfgeldjaeger.ratememaybe.RateMeMaybe;
+import com.kopfgeldjaeger.ratememaybe.RateMeMaybe.PREF;
 
 import de.psdev.licensesdialog.LicensesDialog;
 
@@ -80,6 +83,10 @@ public class SettingsActivity extends SherlockPreferenceActivity implements
 			// TODO fix this when we publish.
 			startActivity(new Intent(Intent.ACTION_VIEW,
 					Uri.parse("market://details?id=Picogram")));
+
+			Editor editor = prefs.edit();
+			editor.putBoolean(RateMeMaybe.PREF.DONT_SHOW_AGAIN, true);
+			editor.commit();
 		}
 		return false;
 	}

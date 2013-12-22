@@ -254,16 +254,13 @@ public class MenuActivity extends FragmentActivity implements FlurryAdListener,
 
 		// Rate me Maybe
 		RateMeMaybe rmm = new RateMeMaybe(this);
-		rmm.setPromptMinimums(10, 5, 3, 7);
+		rmm.setPromptMinimums(10, 1, 3, 7);
 		rmm.setRunWithoutPlayStore(false);
 		rmm.setDialogMessage("You really seem to like this app, "
 				+ "since you have already used it %totalLaunchCount% times! "
 				+ "It would be great if you took a moment to rate it.");
-		rmm.setDialogTitle("Rate this app");
-		rmm.setPositiveBtn("Yeeha!");
-		if (!prefs.getBoolean("apprate", false))
-			rmm.run();
-
+		rmm.setDialogTitle("Rate Picogram!");
+		rmm.run();
 	}
 
 	@Override
