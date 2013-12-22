@@ -192,41 +192,22 @@ public class TouchImageView extends ImageView {
 							|| (lastTouchY > ((lTop + gHeight) * cellHeight))) {
 						// If we're on the hints, just get out of there.
 						// Don't do anything.
-						Log.d(TAG, "We're here as of these settings:");
-						Log.d(TAG, "1: " + (lastTouchX < (cellWidth * lSide)));
-						Log.d(TAG, "2: " + (lastTouchY < (cellHeight * lTop)));
-						Log.d(TAG,
-								"3: "
-										+ (lastTouchX > TouchImageView.this
-												.getWidth()));
-						Log.d(TAG,
-								"ltX: " + lastTouchX + " View Width: "
-										+ bm.getWidth());
-						Log.d(TAG,
-								"4: "
-										+ (lastTouchY > ((lTop + gHeight) * cellHeight)));
-
 						if (lastTouchY > ((lTop + gHeight) * cellHeight)) {
-							Log.d(TAG, "Leaving 2");
 						}
-						Log.d(TAG, "Leaving 1");
 						return true;
 					}
-					Log.d(TAG, "Leaving 4");
 					final char[] temp = gCurrent.toCharArray();
 					final String past = gCurrent;
 					if (((indexY * gWidth) + indexX) < temp.length) {
 						temp[(indexY * gWidth) + indexX] = colorCharacter;
 						gCurrent = String.valueOf(temp);
 						if (!past.equals(gCurrent)) {
-							Log.d(TAG, "Leaving 5");
 							new Thread(new Runnable() {
 
 								public void run() {
 									h.post(new Runnable() {
 
 										public void run() {
-											Log.d(TAG, "Leaving 6");
 											TouchImageView.this
 													.bitmapFromCurrent();
 										}
@@ -378,6 +359,9 @@ public class TouchImageView extends ImageView {
 			// INFO: This is where we draw the board.
 			this.paintBitmap.setColor(this.gColors[Integer
 					.parseInt(this.gCurrent.charAt(i) + "")]);
+			if (this.gColors[Integer.parseInt(this.gCurrent.charAt(i) + "")] == Color.TRANSPARENT) {
+				this.paintBitmap.setColor(Color.WHITE);
+			}
 			this.canvasBitmap.drawRect(r, this.paintBitmap);
 			/*
 			 * if (i != 0) { if (this.gCurrent.charAt(i) !=

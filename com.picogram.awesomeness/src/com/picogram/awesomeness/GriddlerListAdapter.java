@@ -1,4 +1,3 @@
-
 package com.picogram.awesomeness;
 
 import java.util.ArrayList;
@@ -8,13 +7,17 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnLongClickListener;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.AdapterView.OnItemLongClickListener;
 
 public class GriddlerListAdapter extends ArrayAdapter<GriddlerOne> {
 	private static final String TAG = "GriddlerListAdapter";
@@ -47,10 +50,9 @@ public class GriddlerListAdapter extends ArrayAdapter<GriddlerOne> {
 		this.griddlers.clear();
 	}
 
-	public boolean existsById(final String id){
-		for(final GriddlerOne g : this.griddlers)
-		{
-			if(g.getID().equals(id)) {
+	public boolean existsById(final String id) {
+		for (final GriddlerOne g : this.griddlers) {
+			if (g.getID().equals(id)) {
 				return true;
 			}
 		}
@@ -100,14 +102,15 @@ public class GriddlerListAdapter extends ArrayAdapter<GriddlerOne> {
 			Bitmap bm = BitmapFactory.decodeResource(
 					this.context.getResources(), R.drawable.ic_launcher);
 			bm = Bitmap.createScaledBitmap(bm, width, height, true);
+			String[] colors = this.griddlers.get(position).getColors()
+					.split(",");
 			for (int i = 0; i < height; i++) {
 				for (int j = 0; j < width; j++) {
-
-					if (curr.charAt(run) == '0') {
-						bm.setPixel(j, i, Color.WHITE);
-					} else {
-						bm.setPixel(j, i, Color.BLACK);
-					}
+					bm.setPixel(
+							j,
+							i,
+							Integer.parseInt(colors[Integer.parseInt(""
+									+ curr.charAt(run))]));
 					run++;
 				}
 			}
@@ -117,9 +120,9 @@ public class GriddlerListAdapter extends ArrayAdapter<GriddlerOne> {
 		}
 		if (this.griddlers.get(position).getNumberOfRatings() != 0) {
 			rate.setText("Rating: "
-					+ (Integer.parseInt(this.griddlers.get(position).getRating()) / this.griddlers
-							.get(
-									position).getNumberOfRatings()));
+					+ (Integer.parseInt(this.griddlers.get(position)
+							.getRating()) / this.griddlers.get(position)
+							.getNumberOfRatings()));
 		}
 		diff.setText("Difficulty: " + this.griddlers.get(position).getDiff());
 		name.setText(this.griddlers.get(position).getName());
@@ -154,7 +157,8 @@ public class GriddlerListAdapter extends ArrayAdapter<GriddlerOne> {
 		item.invalidate();
 		rl.invalidate();
 		((ViewGroup) item)
-		.setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
+				.setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
+
 		return item;
 	}
 

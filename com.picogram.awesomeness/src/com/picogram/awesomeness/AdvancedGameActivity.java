@@ -150,6 +150,7 @@ public class AdvancedGameActivity extends Activity implements OnTouchListener,
 				.findViewById(R.id.llPallet);
 		pallet.addView(ll);
 
+		//Movement, X's, transparent, then colors.
 		int[] ITEM_DRAWABLES = { R.drawable.one, R.drawable.two,
 				R.drawable.three, R.drawable.five, R.drawable.four };
 

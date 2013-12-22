@@ -15,9 +15,11 @@ import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnLongClickListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.FrameLayout;
 import android.widget.FrameLayout.LayoutParams;
 import android.widget.ListView;
@@ -33,7 +35,7 @@ import de.keyboardsurfer.android.widget.crouton.Crouton;
 import de.keyboardsurfer.android.widget.crouton.Style;
 
 public class SuperAwesomeCardFragment extends Fragment implements
-		OnItemClickListener {
+		OnItemClickListener, OnItemLongClickListener {
 
 	private static final String ARG_POSITION = "position";
 	private static final String TAG = "SuperAwesomeCardFragment";
@@ -360,6 +362,8 @@ public class SuperAwesomeCardFragment extends Fragment implements
 		}
 		v.setAdapter(this.myAdapter);
 		v.setOnItemClickListener(this);
+		v.setLongClickable(true);
+		v.setOnItemLongClickListener(this);
 
 		fl.addView(v);
 		return fl;
@@ -411,5 +415,19 @@ public class SuperAwesomeCardFragment extends Fragment implements
 		gameIntent.putExtra("name", name);
 		gameIntent.putExtra("colors", colors);
 		this.startActivityForResult(gameIntent, GAME_RESULT);
+	}
+
+	public boolean onItemLongClick(AdapterView<?> arg0, View arg1,
+			int position, long arg3) {
+		if (position == 0) {
+			// Create, should just ignore this?
+			return false;
+		} else {
+			// Clear, delete, re-rank.
+			// TODO
+			
+		}
+		Log.d(TAG, "Hereeee: " + " " + position);
+		return true;
 	}
 }

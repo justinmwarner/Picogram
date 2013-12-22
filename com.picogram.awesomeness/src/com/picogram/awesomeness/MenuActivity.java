@@ -18,13 +18,20 @@ import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.util.Log;
 import android.util.TypedValue;
+import android.view.ContextMenu;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.view.KeyEvent;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup.LayoutParams;
 import android.view.Window;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -222,7 +229,22 @@ public class MenuActivity extends FragmentActivity implements FlurryAdListener,
 		lv.setAdapter(lvAdapter);
 		Util.setTheme(this);
 		this.setContentView(R.layout.activity_menu);
-		final String user = this.prefs.getString("username", "N/A");
+		this.tabs = (PagerSlidingTabStrip) this.findViewById(R.id.tabs);
+		this.pager = (ViewPager) this.findViewById(R.id.pager);
+		this.adapter = new MyPagerAdapter(this.getSupportFragmentManager());
+		this.pager.setAdapter(this.adapter);
+		final int pageMargin = (int) TypedValue.applyDimension(
+				TypedValue.COMPLEX_UNIT_DIP, 4, this.getResources()
+						.getDisplayMetrics());
+		this.pager.setPageMargin(pageMargin);
+
+		this.tabs.setViewPager(this.pager);
+		this.tabs.setOnPageChangeListener(this);
+		setUpAds();
+		setUpRater();
+	}
+
+	private void setUpAds() {
 		StackMobAndroid.init(this.getApplicationContext(), 0,
 				"f077e098-c678-4256-b7a2-c3061d9ff0c2");// Change to production.
 
@@ -238,20 +260,9 @@ public class MenuActivity extends FragmentActivity implements FlurryAdListener,
 		FlurryAds.setAdListener(this);
 		FlurryAds.enableTestAds(true);
 
-		this.tabs = (PagerSlidingTabStrip) this.findViewById(R.id.tabs);
-		this.pager = (ViewPager) this.findViewById(R.id.pager);
-		this.adapter = new MyPagerAdapter(this.getSupportFragmentManager());
+	}
 
-		this.pager.setAdapter(this.adapter);
-
-		final int pageMargin = (int) TypedValue.applyDimension(
-				TypedValue.COMPLEX_UNIT_DIP, 4, this.getResources()
-						.getDisplayMetrics());
-		this.pager.setPageMargin(pageMargin);
-
-		this.tabs.setViewPager(this.pager);
-		this.tabs.setOnPageChangeListener(this);
-
+	private void setUpRater() {
 		// Rate me Maybe
 		RateMeMaybe rmm = new RateMeMaybe(this);
 		rmm.setPromptMinimums(10, 1, 3, 7);
