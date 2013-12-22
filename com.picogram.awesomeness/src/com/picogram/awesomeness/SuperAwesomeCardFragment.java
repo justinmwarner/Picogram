@@ -32,7 +32,8 @@ import com.stackmob.sdk.model.StackMobModel;
 import de.keyboardsurfer.android.widget.crouton.Crouton;
 import de.keyboardsurfer.android.widget.crouton.Style;
 
-public class SuperAwesomeCardFragment extends Fragment implements OnItemClickListener {
+public class SuperAwesomeCardFragment extends Fragment implements
+		OnItemClickListener {
 
 	private static final String ARG_POSITION = "position";
 	private static final String TAG = "SuperAwesomeCardFragment";
@@ -53,8 +54,7 @@ public class SuperAwesomeCardFragment extends Fragment implements OnItemClickLis
 	Handler h = new Handler();
 	SQLiteGriddlerAdapter sql = null;
 
-	public void clearAdapter()
-	{
+	public void clearAdapter() {
 		this.myAdapter.clear();
 		this.myAdapter.notifyDataSetChanged();
 	}
@@ -105,23 +105,26 @@ public class SuperAwesomeCardFragment extends Fragment implements OnItemClickLis
 				}
 			}
 			if (isAdd) {
-				if (status.equals("2") || !Util.isOnline())
-				{
-					final GriddlerOne tempGriddler = new GriddlerOne(status, name, diff,
-							rate, 0, author, width, height,
-							solution, current, numColors, colors);
+				final GriddlerOne tempGriddler = new GriddlerOne(status, name,
+						diff, rate, 0, author, width, height, solution,
+						current, numColors, colors);
+				if (status.equals("2") || !Util.isOnline()) {
+					Log.d(TAG, "6: " + name);
 					a.runOnUiThread(new Runnable() {
 
 						public void run() {
-							SuperAwesomeCardFragment.this.myAdapter.add(tempGriddler);
-							SuperAwesomeCardFragment.this.myAdapter.notifyDataSetChanged();
+							Log.d(TAG, "Adding: " + tempGriddler);
+							SuperAwesomeCardFragment.this.myAdapter
+									.add(tempGriddler);
+							SuperAwesomeCardFragment.this.myAdapter
+									.notifyDataSetChanged();
 						}
 
 					});
 
-				} else
-				{
-					// Get data from online about the Griddler for its updated rating.
+				} else {
+					// Get data from online about the Griddler for its updated
+					// rating.
 					// These variables should be removed.
 					final String cols = colors;
 					final int nc = numColors;
@@ -129,36 +132,39 @@ public class SuperAwesomeCardFragment extends Fragment implements OnItemClickLis
 					final String oldCurrent = current;
 					final GriddlerOne g = new GriddlerOne();
 					g.setID(id);
+
+					// Add the Puzzle, then update in the adapter later on.
+					myAdapter.add(tempGriddler);
+
+					Log.d(TAG, "1: " + name + " " + id);
 					g.fetch(new StackMobModelCallback() {
 						@Override
 						public void failure(final StackMobException arg0) {
-							if (!SuperAwesomeCardFragment.this.myAdapter.existsById(g.getID()))
-							{
-								a.runOnUiThread(new Runnable() {
-
-									public void run() {
-										final GriddlerOne tempGriddler = new GriddlerOne(oldStatus,
-												name, diff, rate, 0, author, width, height,
-												solution, current, nc, cols);
-										tempGriddler.setID(id);
-										SuperAwesomeCardFragment.this.myAdapter.add(tempGriddler);
-										SuperAwesomeCardFragment.this.myAdapter.notifyDataSetChanged();
-									}
-								});
-							}
+							// Don't do anything, we already added it.
 						}
 
 						@Override
 						public void success() {
-							if (!SuperAwesomeCardFragment.this.myAdapter.existsById(g.getID()))
-							{
+							Log.d(TAG, "3: " + name);
+							if (!SuperAwesomeCardFragment.this.myAdapter
+									.existsById(g.getID())) {
 								// TODO Update the ranking.
 								a.runOnUiThread(new Runnable() {
 									public void run() {
-										g.setStatus(oldStatus);
-										g.setCurrent(oldCurrent);
-										SuperAwesomeCardFragment.this.myAdapter.add(g);
-										SuperAwesomeCardFragment.this.myAdapter.notifyDataSetChanged();
+										// TODO Test this, should update rating.
+										for (int i = 0; i != myAdapter
+												.getCount(); ++i) {
+											if (myAdapter.get(i).getID() == g
+													.getID()) {
+												myAdapter.remove(tempGriddler);
+												g.setStatus(oldStatus);
+												g.setCurrent(oldCurrent);
+												myAdapter.add(g);
+												return;
+											}
+										}
+										SuperAwesomeCardFragment.this.myAdapter
+												.notifyDataSetChanged();
 									}
 								});
 							}
@@ -173,13 +179,15 @@ public class SuperAwesomeCardFragment extends Fragment implements OnItemClickLis
 	public void getRecentPuzzles(final Activity a) {
 		StackMobModel.query(
 				GriddlerOne.class,
-				new StackMobQuery().isInRange(0, 9).fieldIsOrderedBy("createddate",
-						StackMobQuery.Ordering.DESCENDING),
-						new StackMobQueryCallback<GriddlerOne>() {
+				new StackMobQuery().isInRange(0, 9).fieldIsOrderedBy(
+						"createddate", StackMobQuery.Ordering.DESCENDING),
+				new StackMobQueryCallback<GriddlerOne>() {
 
 					@Override
 					public void failure(final StackMobException arg0) {
-						Crouton.makeText(a, "Error fetching data: " + arg0.toString(), Style.ALERT);
+						Crouton.makeText(a,
+								"Error fetching data: " + arg0.toString(),
+								Style.ALERT);
 
 					}
 
@@ -187,7 +195,8 @@ public class SuperAwesomeCardFragment extends Fragment implements OnItemClickLis
 					public void success(final List<GriddlerOne> gs) {
 						for (final GriddlerOne g : gs) {
 							SuperAwesomeCardFragment.this.myAdapter.add(g);
-							SuperAwesomeCardFragment.this.myAdapter.notifyDataSetChanged();
+							SuperAwesomeCardFragment.this.myAdapter
+									.notifyDataSetChanged();
 						}
 					}
 				});
@@ -199,12 +208,15 @@ public class SuperAwesomeCardFragment extends Fragment implements OnItemClickLis
 				GriddlerOne.class,
 				new StackMobQuery().isInRange(0, 9).fieldIsOrderedBy(sort,
 						StackMobQuery.Ordering.DESCENDING),
-						new StackMobQueryCallback<GriddlerOne>() {
+				new StackMobQueryCallback<GriddlerOne>() {
 
 					@Override
 					public void failure(final StackMobException arg0) {
-						Crouton.makeText(a, "Error fetching data: " + arg0.toString(), Style.ALERT);
-						SuperAwesomeCardFragment.this.myAdapter.notifyDataSetChanged();
+						Crouton.makeText(a,
+								"Error fetching data: " + arg0.toString(),
+								Style.ALERT);
+						SuperAwesomeCardFragment.this.myAdapter
+								.notifyDataSetChanged();
 					}
 
 					@Override
@@ -213,8 +225,10 @@ public class SuperAwesomeCardFragment extends Fragment implements OnItemClickLis
 							a.runOnUiThread(new Runnable() {
 
 								public void run() {
-									SuperAwesomeCardFragment.this.myAdapter.add(g);
-									SuperAwesomeCardFragment.this.myAdapter.notifyDataSetChanged();
+									SuperAwesomeCardFragment.this.myAdapter
+											.add(g);
+									SuperAwesomeCardFragment.this.myAdapter
+											.notifyDataSetChanged();
 								}
 
 							});
@@ -223,16 +237,19 @@ public class SuperAwesomeCardFragment extends Fragment implements OnItemClickLis
 				});
 	}
 
-	public void getTagPuzzles(final Activity a, final String tag, final boolean isSortByRate) {
+	public void getTagPuzzles(final Activity a, final String tag,
+			final boolean isSortByRate) {
 		this.myAdapter.clear();
-		final StackMobQuery smq = new StackMobQuery().fieldIsEqualTo("tag", tag);
-		StackMobModel.query(
-				GriddlerTag.class, smq,
+		final StackMobQuery smq = new StackMobQuery()
+				.fieldIsEqualTo("tag", tag);
+		StackMobModel.query(GriddlerTag.class, smq,
 				new StackMobQueryCallback<GriddlerTag>() {
 
 					@Override
 					public void failure(final StackMobException arg0) {
-						Crouton.makeText(a, "Error fetching data: " + arg0.toString(), Style.ALERT);
+						Crouton.makeText(a,
+								"Error fetching data: " + arg0.toString(),
+								Style.ALERT);
 
 					}
 
@@ -243,40 +260,48 @@ public class SuperAwesomeCardFragment extends Fragment implements OnItemClickLis
 							ids.add(gt.getID());
 						}
 
-						final StackMobQuery smqInner = new StackMobQuery().isInRange(0, 9)
-								.fieldIsIn("griddlerone_id", ids);
+						final StackMobQuery smqInner = new StackMobQuery()
+								.isInRange(0, 9).fieldIsIn("griddlerone_id",
+										ids);
 
 						if (isSortByRate) {
-							smq.fieldIsOrderedBy("rate", StackMobQuery.Ordering.DESCENDING);
+							smq.fieldIsOrderedBy("rate",
+									StackMobQuery.Ordering.DESCENDING);
 						} else {
-							smq.fieldIsOrderedBy("createddate", StackMobQuery.Ordering.DESCENDING);
+							smq.fieldIsOrderedBy("createddate",
+									StackMobQuery.Ordering.DESCENDING);
 						}
 						StackMobModel.query(GriddlerOne.class, smqInner,
 								new StackMobQueryCallback<GriddlerOne>() {
 
-							@Override
-							public void failure(final StackMobException arg0) {
+									@Override
+									public void failure(
+											final StackMobException arg0) {
 
-								Crouton.makeText(a,
-										"Error fetching data: " + arg0.toString(),
-										Style.ALERT);
-							}
+										Crouton.makeText(
+												a,
+												"Error fetching data: "
+														+ arg0.toString(),
+												Style.ALERT);
+									}
 
-							@Override
-							public void success(final List<GriddlerOne> gs) {
+									@Override
+									public void success(
+											final List<GriddlerOne> gs) {
 
-								for (final GriddlerOne g : gs) {
-									a.runOnUiThread(new Runnable() {
+										for (final GriddlerOne g : gs) {
+											a.runOnUiThread(new Runnable() {
 
-										public void run() {
-											SuperAwesomeCardFragment.this.myAdapter.add(g);
-											SuperAwesomeCardFragment.this.myAdapter
-											.notifyDataSetChanged();
+												public void run() {
+													SuperAwesomeCardFragment.this.myAdapter
+															.add(g);
+													SuperAwesomeCardFragment.this.myAdapter
+															.notifyDataSetChanged();
+												}
+											});
 										}
-									});
-								}
-							}
-						});
+									}
+								});
 
 					}
 				});
@@ -289,17 +314,18 @@ public class SuperAwesomeCardFragment extends Fragment implements OnItemClickLis
 	}
 
 	@Override
-	public View onCreateView(final LayoutInflater inflater, final ViewGroup container,
-			final Bundle savedInstanceState) {
-		final LayoutParams params = new LayoutParams(android.view.ViewGroup.LayoutParams.MATCH_PARENT,
+	public View onCreateView(final LayoutInflater inflater,
+			final ViewGroup container, final Bundle savedInstanceState) {
+		final LayoutParams params = new LayoutParams(
+				android.view.ViewGroup.LayoutParams.MATCH_PARENT,
 				android.view.ViewGroup.LayoutParams.MATCH_PARENT);
 
 		final FrameLayout fl = new FrameLayout(this.getActivity());
 		fl.setLayoutParams(params);
 
-		final int margin = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 8, this
-				.getResources()
-				.getDisplayMetrics());
+		final int margin = (int) TypedValue.applyDimension(
+				TypedValue.COMPLEX_UNIT_DIP, 8, this.getResources()
+						.getDisplayMetrics());
 
 		final ListView v = new ListView(this.getActivity());
 		params.setMargins(margin, margin, margin, margin);
@@ -307,37 +333,29 @@ public class SuperAwesomeCardFragment extends Fragment implements OnItemClickLis
 		v.setLayoutParams(params);
 		v.setBackgroundResource(R.drawable.background_card);
 		// final List<String> items = new ArrayList();
-		this.myAdapter = new GriddlerListAdapter(this.getActivity(), R.id.tvName);
-		if (this.position == MenuActivity.TITLES.indexOf("My"))
-		{
+		this.myAdapter = new GriddlerListAdapter(this.getActivity(),
+				R.id.tvName);
+		if (this.position == MenuActivity.TITLES.indexOf("My")) {
 			this.getMyPuzzles(this.getActivity());
-		}
-		else if (this.position == MenuActivity.TITLES.indexOf("Top")) {
+		} else if (this.position == MenuActivity.TITLES.indexOf("Top")) {
 			this.getSortedPuzzles(this.getActivity(), "rate");
-		} else if (this.position == MenuActivity.TITLES.indexOf("Recent"))
-		{
+		} else if (this.position == MenuActivity.TITLES.indexOf("Recent")) {
 			this.getSortedPuzzles(this.getActivity(), "createddate");
-		}
-		else if (this.position == MenuActivity.TITLES.indexOf("Search"))
-		{
+		} else if (this.position == MenuActivity.TITLES.indexOf("Search")) {
 			// Don't load anything on start.
 			// this.getTagPuzzles(this.getActivity(), "", true);
-		}
-		else if (this.position == MenuActivity.TITLES.indexOf("Prefs")) {
+		} else if (this.position == MenuActivity.TITLES.indexOf("Prefs")) {
 			return new View(this.getActivity());
-		}
-		else
-		{
+		} else {
 			for (int i = 0; i != 20; ++i) {
 				final GriddlerOne obj = new GriddlerOne("0",
-						"We had an error. You shouldn't see this " + i,
-						"0", "0", 1,
-						"Justin", "1",
-						"1", "1", "0", 2,
-						Color.BLACK + " " + Color.RED);
+						"We had an error. You shouldn't see this " + i, "0",
+						"0", 1, "Justin", "1", "1", "1", "0", 2, Color.BLACK
+								+ " " + Color.RED);
 				obj.setID(i + "" + this.position);
 				this.myAdapter.add(obj);
-				// items.add(MenuActivity.TITLES.get(this.position) + " " + this.position + " " + i);
+				// items.add(MenuActivity.TITLES.get(this.position) + " " +
+				// this.position + " " + i);
 			}
 		}
 		v.setAdapter(this.myAdapter);
@@ -355,31 +373,36 @@ public class SuperAwesomeCardFragment extends Fragment implements OnItemClickLis
 		super.onDestroy();
 	}
 
-	public void onItemClick(final AdapterView<?> parent, final View v, final int pos, final long id) {
+	public void onItemClick(final AdapterView<?> parent, final View v,
+			final int pos, final long id) {
 		if (pos >= 0) // If valid position to select.
 		{
-			if ((this.position == MenuActivity.TITLES.indexOf("My")) && (pos == 0)) // Can this be the Creating?
+			if ((this.position == MenuActivity.TITLES.indexOf("My"))
+					&& (pos == 0)) // Can this be the Creating?
 			{
 				final Intent createIntent = new Intent(this.getActivity(),
 						CreateGriddlerActivity.class);
 				this.sql.close();
-				this.getActivity().startActivityForResult(createIntent, MenuActivity.CREATE_CODE);
-			}
-			else
-			{
-				this.startGame(this.myAdapter.get(pos).getSolution(), this.myAdapter.get(pos)
-						.getCurrent(), this.myAdapter.get(pos).getWidth(), this.myAdapter.get(pos)
-						.getHeight(), this.myAdapter.get(pos).getID(), this.myAdapter.get(pos)
-						.getName(), this.myAdapter.get(pos).getColors());
+				this.getActivity().startActivityForResult(createIntent,
+						MenuActivity.CREATE_CODE);
+			} else {
+				this.startGame(this.myAdapter.get(pos).getSolution(),
+						this.myAdapter.get(pos).getCurrent(), this.myAdapter
+								.get(pos).getWidth(), this.myAdapter.get(pos)
+								.getHeight(), this.myAdapter.get(pos).getID(),
+						this.myAdapter.get(pos).getName(),
+						this.myAdapter.get(pos).getColors());
 			}
 		}
 	}
 
-	private void startGame(final String solution, final String current, final String width,
-			final String height, final String id, final String name, final String colors) {
+	private void startGame(final String solution, final String current,
+			final String width, final String height, final String id,
+			final String name, final String colors) {
 		FlurryAgent.logEvent("UserPlayGame");
 		// Intent gameIntent = new Intent(this, AdvancedGameActivity.class);
-		final Intent gameIntent = new Intent(this.getActivity(), AdvancedGameActivity.class);
+		final Intent gameIntent = new Intent(this.getActivity(),
+				AdvancedGameActivity.class);
 		gameIntent.putExtra("solution", solution);
 		gameIntent.putExtra("current", current);
 		gameIntent.putExtra("width", width);

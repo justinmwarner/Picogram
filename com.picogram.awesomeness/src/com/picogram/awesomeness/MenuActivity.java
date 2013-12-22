@@ -1,4 +1,3 @@
-
 package com.picogram.awesomeness;
 
 import java.util.ArrayList;
@@ -44,11 +43,12 @@ import com.stackmob.sdk.callback.StackMobModelCallback;
 import com.stackmob.sdk.exception.StackMobException;
 
 public class MenuActivity extends FragmentActivity implements FlurryAdListener,
-OnPageChangeListener, OnClickListener {
+		OnPageChangeListener, OnClickListener {
 	public class MyPagerAdapter extends FragmentPagerAdapter {
 
 		private static final String TAG = "MainActivity";
-		public SuperAwesomeCardFragment frag[] = new SuperAwesomeCardFragment[this.getCount()];
+		public SuperAwesomeCardFragment frag[] = new SuperAwesomeCardFragment[this
+				.getCount()];
 
 		public MyPagerAdapter(final FragmentManager fm) {
 			super(fm);
@@ -61,7 +61,8 @@ OnPageChangeListener, OnClickListener {
 
 		@Override
 		public Fragment getItem(final int position) {
-			this.frag[position] = SuperAwesomeCardFragment.newInstance(position);
+			this.frag[position] = SuperAwesomeCardFragment
+					.newInstance(position);
 			return this.frag[position];
 		}
 
@@ -72,9 +73,9 @@ OnPageChangeListener, OnClickListener {
 
 	}
 
-	static final ArrayList<String> TITLES = new ArrayList<String>(Arrays.asList(new String[] {
-			"My", "Top", "Recent", "Search", "Prefs"
-	}));
+	static final ArrayList<String> TITLES = new ArrayList<String>(
+			Arrays.asList(new String[] { "My", "Top", "Recent", "Search",
+					"Prefs" }));
 
 	protected static final String TAG = "MenuActivity";
 
@@ -82,10 +83,13 @@ OnPageChangeListener, OnClickListener {
 	public static final int GAME_CODE = 1337;
 	public static final int PREFERENCES_CODE = 69;
 	public static String PREFS_FILE = "com.picogram.awesomeness_preferences";
+
 	public static void getRecentPuzzles() {
 	}
+
 	public static void getSearchedPuzzles(final String tag) {
 	}
+
 	Handler h = new Handler();
 	LinearLayout toolbar;
 	SharedPreferences prefs = null;
@@ -102,8 +106,9 @@ OnPageChangeListener, OnClickListener {
 	SQLiteGriddlerAdapter sql = null;
 
 	@Override
-	protected void onActivityResult(final int requestCode, final int resultCode, final Intent data)
-	{
+	protected void onActivityResult(final int requestCode,
+			final int resultCode, final Intent data) {
+		updateBottomBar();
 		if (this.sql == null) {
 			this.sql = new SQLiteGriddlerAdapter(this, "Griddlers", null, 1);
 		}
@@ -111,8 +116,8 @@ OnPageChangeListener, OnClickListener {
 			// Preferences, just switch tab back to main.
 			this.pager.setCurrentItem(TITLES.indexOf("My"));
 			this.updateCurrentTab();
-		}
-		else if ((resultCode == Activity.RESULT_OK) && (requestCode == CREATE_CODE)) {
+		} else if ((resultCode == Activity.RESULT_OK)
+				&& (requestCode == CREATE_CODE)) {
 			// New Girddler, add to database.
 			final String colors = data.getStringExtra("colors");
 			final String id = data.getStringExtra("solution").hashCode() + "";
@@ -125,10 +130,12 @@ OnPageChangeListener, OnClickListener {
 			final String rank = data.getStringExtra("rank");
 			final String solution = data.getStringExtra("solution");
 			final String width = data.getStringExtra("width");
-			final GriddlerOne g = new GriddlerOne(status, name, difficulty, rank, 1, author, width,
-					height, solution, null, numberOfColors, colors);
+			final GriddlerOne g = new GriddlerOne(status, name, difficulty,
+					rank, 1, author, width, height, solution, null,
+					numberOfColors, colors);
 			g.setID(id);
-			// TODO Check if Picogram already exists. If it does, just add that to the users sql database.
+			// TODO Check if Picogram already exists. If it does, just add that
+			// to the users sql database.
 			this.sql.addUserGriddler(g);
 			// TODO If save failed, save offline to upload later on.
 			g.save(new StackMobModelCallback() {
@@ -145,14 +152,14 @@ OnPageChangeListener, OnClickListener {
 				}
 			});
 			final String[] tags = data.getStringExtra("tags").split(" ");
-			for (final String tag : tags)
-			{
+			for (final String tag : tags) {
 				final GriddlerTag gt = new GriddlerTag(tag);
 				gt.setID(id);
 				gt.save();
 			}
 
-		} else if ((resultCode == Activity.RESULT_OK) && (requestCode == GAME_CODE)) {
+		} else if ((resultCode == Activity.RESULT_OK)
+				&& (requestCode == GAME_CODE)) {
 			// Back button pushed or won.
 			final String id = data.getStringExtra("ID");
 			final String status = data.getStringExtra("status");
@@ -169,6 +176,7 @@ OnPageChangeListener, OnClickListener {
 
 	public void onAdClicked(final String arg0) {
 	}
+
 	public void onAdClosed(final String arg0) {
 	}
 
@@ -186,9 +194,8 @@ OnPageChangeListener, OnClickListener {
 				// Hide keyboard.
 				final InputMethodManager inputManager = (InputMethodManager) this
 						.getSystemService(Context.INPUT_METHOD_SERVICE);
-				inputManager.hideSoftInputFromWindow(
-						this.getCurrentFocus().getWindowToken(),
-						InputMethodManager.HIDE_NOT_ALWAYS);
+				inputManager.hideSoftInputFromWindow(this.getCurrentFocus()
+						.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
 			}
 		}
 	}
@@ -202,13 +209,14 @@ OnPageChangeListener, OnClickListener {
 		lv.setAdapter(lvAdapter);
 		Util.setTheme(this);
 		this.setContentView(R.layout.activity_menu);
-		this.prefs = this.getSharedPreferences(
-				MenuActivity.PREFS_FILE, MODE_PRIVATE);
+		this.prefs = this.getSharedPreferences(MenuActivity.PREFS_FILE,
+				MODE_PRIVATE);
 		final String user = this.prefs.getString("username", "N/A");
 		StackMobAndroid.init(this.getApplicationContext(), 0,
 				"f077e098-c678-4256-b7a2-c3061d9ff0c2");// Change to production.
 
-		FlurryAgent.onStartSession(this, this.getResources().getString(R.string.flurry));
+		FlurryAgent.onStartSession(this,
+				this.getResources().getString(R.string.flurry));
 		FlurryAgent.setCaptureUncaughtExceptions(true);
 		FlurryAgent.setLogEnabled(!this.prefs.getBoolean("analytics", false));
 		FlurryAgent.setLogEvents(!this.prefs.getBoolean("logging", false));
@@ -219,16 +227,15 @@ OnPageChangeListener, OnClickListener {
 		FlurryAds.setAdListener(this);
 		FlurryAds.enableTestAds(true);
 
-
 		this.tabs = (PagerSlidingTabStrip) this.findViewById(R.id.tabs);
 		this.pager = (ViewPager) this.findViewById(R.id.pager);
 		this.adapter = new MyPagerAdapter(this.getSupportFragmentManager());
 
 		this.pager.setAdapter(this.adapter);
 
-		final int pageMargin = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 4, this
-				.getResources()
-				.getDisplayMetrics());
+		final int pageMargin = (int) TypedValue.applyDimension(
+				TypedValue.COMPLEX_UNIT_DIP, 4, this.getResources()
+						.getDisplayMetrics());
 		this.pager.setPageMargin(pageMargin);
 
 		this.tabs.setViewPager(this.pager);
@@ -236,8 +243,7 @@ OnPageChangeListener, OnClickListener {
 	}
 
 	@Override
-	public void onDestroy()
-	{
+	public void onDestroy() {
 		super.onDestroy();
 	}
 
@@ -254,15 +260,14 @@ OnPageChangeListener, OnClickListener {
 		if (tab == TITLES.indexOf("Prefs")) {
 			final Intent i = new Intent(this, SettingsActivity.class);
 			this.startActivityForResult(i, PREFERENCES_CODE);
-		} else if (tab == TITLES.indexOf("Search"))
-		{
+		} else if (tab == TITLES.indexOf("Search")) {
 			if (this.toolbar.getVisibility() == View.GONE) {
 				this.toolbar.setVisibility(View.VISIBLE);
 			}
 			RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(
-					LayoutParams.WRAP_CONTENT,
-					LayoutParams.WRAP_CONTENT);
-			params.addRule(RelativeLayout.ALIGN_PARENT_RIGHT, RelativeLayout.TRUE);
+					LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+			params.addRule(RelativeLayout.ALIGN_PARENT_RIGHT,
+					RelativeLayout.TRUE);
 
 			final RelativeLayout rl = new RelativeLayout(this);
 			// Search, get rid of ad, and replace with search stuff.
@@ -270,15 +275,16 @@ OnPageChangeListener, OnClickListener {
 			this.bSearch.setText("Search");
 			this.bSearch.setOnClickListener(this);
 			rl.addView(this.bSearch, params);
-			params = new RelativeLayout.LayoutParams(
-					LayoutParams.WRAP_CONTENT,
+			params = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT,
 					LayoutParams.MATCH_PARENT);
-			params.addRule(RelativeLayout.ALIGN_PARENT_LEFT, RelativeLayout.TRUE);
+			params.addRule(RelativeLayout.ALIGN_PARENT_LEFT,
+					RelativeLayout.TRUE);
 			params.addRule(RelativeLayout.LEFT_OF, this.bSearch.getId());
 			this.etTags = new EditText(this);
 			this.etTags.setOnEditorActionListener(new OnEditorActionListener() {
 
-				public boolean onEditorAction(final TextView v, final int actionId, final KeyEvent event) {
+				public boolean onEditorAction(final TextView v,
+						final int actionId, final KeyEvent event) {
 					if ((actionId == EditorInfo.IME_NULL)
 							&& (event.getAction() == KeyEvent.ACTION_DOWN)) {
 						return MenuActivity.this.bSearch.performClick();
@@ -291,20 +297,26 @@ OnPageChangeListener, OnClickListener {
 			rl.addView(this.etTags, params);
 			this.toolbar.removeAllViews();
 			this.toolbar.addView(rl);
-		}
-		else
-		{
-			if (this.currentTab == TITLES.indexOf("Search")) { // If previous tab was search.
-				this.toolbar.removeAllViews();
-				this.toolbar
-				.setVisibility(!this.prefs.getBoolean("advertisements", false) ? View.VISIBLE
-						: View.GONE);
-				if (!this.prefs.getBoolean("advertisements", false)) {
-					FlurryAds.fetchAd(this, "MainScreen", this.toolbar, FlurryAdSize.BANNER_BOTTOM);
-				}
-			}
+		} else {
+			updateBottomBar();
 		}
 		this.currentTab = tab;
+	}
+
+	private void updateBottomBar() {
+		Log.d(TAG, "Tab: " + currentTab);
+		if (this.currentTab == TITLES.indexOf("Search")
+				|| currentTab == TITLES.indexOf("Prefs")) { // If previous tab
+															// was search or
+															// prefs.
+			this.toolbar.removeAllViews();
+			this.toolbar.setVisibility(!this.prefs.getBoolean("advertisements",
+					false) ? View.VISIBLE : View.GONE);
+			if (!this.prefs.getBoolean("advertisements", false)) {
+				FlurryAds.fetchAd(this, "MainScreen", this.toolbar,
+						FlurryAdSize.BANNER_BOTTOM);
+			}
+		}
 	}
 
 	public void onRenderFailed(final String arg0) {
@@ -314,14 +326,17 @@ OnPageChangeListener, OnClickListener {
 	public void onStart() {
 		super.onStart();
 		Util.updateFullScreen(this);
-		FlurryAgent.onStartSession(this, this.getResources().getString(R.string.flurry));
+		FlurryAgent.onStartSession(this,
+				this.getResources().getString(R.string.flurry));
 		// fetch and prepare ad for this ad space. won’t render one yet
-		this.toolbar.setVisibility(!this.prefs.getBoolean("advertisements", false) ? View.VISIBLE
-				: View.GONE);
+		this.toolbar.setVisibility(!this.prefs.getBoolean("advertisements",
+				false) ? View.VISIBLE : View.GONE);
 		if (!this.prefs.getBoolean("advertisements", false)) {
-			FlurryAds.fetchAd(this, "MainScreen", this.toolbar, FlurryAdSize.BANNER_BOTTOM);
+			FlurryAds.fetchAd(this, "MainScreen", this.toolbar,
+					FlurryAdSize.BANNER_BOTTOM);
 		}
 	}
+
 	@Override
 	public void onStop() {
 		super.onStop();
@@ -342,34 +357,27 @@ OnPageChangeListener, OnClickListener {
 		FlurryAds.displayAd(this, adSpace, this.toolbar);
 	}
 
-
-	public void updateCurrentTab()
-	{
+	public void updateCurrentTab() {
 		this.adapter.frag[this.currentTab].clearAdapter();
-		if (this.currentTab == MenuActivity.TITLES.indexOf("My"))
-		{
-			this.adapter.frag[this.currentTab].getMyPuzzles(this.adapter.frag[this.currentTab]
-					.getActivity());
-		}
-		else if (this.currentTab == MenuActivity.TITLES.indexOf("Top"))
-		{
-			this.adapter.frag[this.currentTab].getSortedPuzzles(this.adapter.frag[this.currentTab]
-					.getActivity(), "rate");
-		}
-		else if (this.currentTab == MenuActivity.TITLES.indexOf("Recent"))
-		{
-			this.adapter.frag[this.currentTab].getSortedPuzzles(this.adapter.frag[this.currentTab]
-					.getActivity(), "createddate");
-		}
-		else if (this.currentTab == MenuActivity.TITLES.indexOf("Search"))
-		{
-			this.adapter.frag[this.currentTab].getTagPuzzles(this.adapter.frag[this.currentTab]
-					.getActivity(), this.etTags.getText().toString(), true);
-		}
-		else if (this.currentTab == MenuActivity.TITLES.indexOf("Prefs"))
-		{
-			this.adapter.frag[this.currentTab].getMyPuzzles(this.adapter.frag[this.currentTab]
-					.getActivity());
+		if (this.currentTab == MenuActivity.TITLES.indexOf("My")) {
+			this.adapter.frag[this.currentTab]
+					.getMyPuzzles(this.adapter.frag[this.currentTab]
+							.getActivity());
+		} else if (this.currentTab == MenuActivity.TITLES.indexOf("Top")) {
+			this.adapter.frag[this.currentTab].getSortedPuzzles(
+					this.adapter.frag[this.currentTab].getActivity(), "rate");
+		} else if (this.currentTab == MenuActivity.TITLES.indexOf("Recent")) {
+			this.adapter.frag[this.currentTab].getSortedPuzzles(
+					this.adapter.frag[this.currentTab].getActivity(),
+					"createddate");
+		} else if (this.currentTab == MenuActivity.TITLES.indexOf("Search")) {
+			this.adapter.frag[this.currentTab].getTagPuzzles(
+					this.adapter.frag[this.currentTab].getActivity(),
+					this.etTags.getText().toString(), true);
+		} else if (this.currentTab == MenuActivity.TITLES.indexOf("Prefs")) {
+			this.adapter.frag[this.currentTab]
+					.getMyPuzzles(this.adapter.frag[this.currentTab]
+							.getActivity());
 		}
 	}
 }
