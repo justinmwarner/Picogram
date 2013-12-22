@@ -219,7 +219,7 @@ public class TouchImageView extends ImageView {
 							}).start();
 						}
 					}
-					if (gCurrent.replaceAll("x","0").equals(gSolution)) {
+					if (gCurrent.replaceAll("x", "0").equals(gSolution)) {
 						if (winListener != null) {
 							winListener.win();
 						} else {
@@ -374,8 +374,11 @@ public class TouchImageView extends ImageView {
 																// this spot
 				this.paintBitmap.setXfermode(old);
 				this.paintBitmap.setColor(Color.BLACK);
-				canvasBitmap.drawText("X", r.left, r.top + cellHeight,
-						paintBitmap);
+				Paint.Align first = paintBitmap.getTextAlign();
+				this.paintBitmap.setTextAlign(Paint.Align.CENTER);
+				canvasBitmap.drawText("X", r.left + cellWidth / 2, r.top
+						+ cellHeight * 9 / 10, paintBitmap);
+				this.paintBitmap.setTextAlign(first);
 			} else {
 				this.paintBitmap.setColor(this.gColors[Integer
 						.parseInt(this.gCurrent.charAt(i) + "")]);
