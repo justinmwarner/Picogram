@@ -1,68 +1,53 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
+    android:layout_width="wrap_content"
     android:layout_height="match_parent"
+    android:layout_gravity="center_horizontal"
     android:orientation="horizontal" >
-    
-        <Button
-            android:id="@+id/bLink"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginBottom="6dp"
-            android:layout_marginLeft="6dp"
-            android:layout_marginRight="6dp"
-            android:layout_marginTop="6dp"
-            android:layout_weight="1"
-            android:text="URL" />
 
-        <Button
-            android:id="@+id/bSearch"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginBottom="6dp"
-            android:layout_marginLeft="6dp"
-            android:layout_marginRight="6dp"
-            android:layout_marginTop="6dp"
-            android:layout_weight="1"
-            android:text="Search" />
+    <Button
+        android:id="@+id/bLink"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_weight="1"
+        android:text="URL"
+        android:textSize="10dp" />
 
-        <Button
-            android:id="@+id/bPicture"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginBottom="6dp"
-            android:layout_marginLeft="6dp"
-            android:layout_marginRight="6dp"
-            android:layout_marginTop="6dp"
-            android:layout_weight="1"
-            android:text="Pic" />
+    <Button
+        android:id="@+id/bSearch"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_weight="1"
+        android:text="Search"
+        android:textSize="10dp" />
 
-        <Button
-            android:id="@+id/bGallery"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginBottom="6dp"
-            android:layout_marginLeft="6dp"
-            android:layout_marginRight="6dp"
-            android:layout_marginTop="6dp"
-            android:layout_weight="1"
-            android:text="File" />
+    <Button
+        android:id="@+id/bPicture"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_weight="1"
+        android:text="Pic"
+        android:textSize="10dp" />
 
-        <Button
-            android:id="@+id/bCustom"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginBottom="6dp"
-            android:layout_marginLeft="6dp"
-            android:layout_marginRight="6dp"
-            android:layout_marginTop="6dp"
-            android:layout_weight="1"
-            android:text="Draw" />
-    
+    <Button
+        android:id="@+id/bGallery"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_weight="1"
+        android:text="File"
+        android:textSize="10dp" />
+
+    <Button
+        android:id="@+id/bCustom"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_weight="1"
+        android:text="Draw"
+        android:textSize="10dp" />
 
 </LinearLayout>

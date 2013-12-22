@@ -7,6 +7,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
@@ -39,12 +40,17 @@ import com.flurry.android.FlurryAdSize;
 import com.flurry.android.FlurryAdType;
 import com.flurry.android.FlurryAds;
 import com.flurry.android.FlurryAgent;
+import com.kopfgeldjaeger.ratememaybe.RateMeMaybe;
+import com.kopfgeldjaeger.ratememaybe.RateMeMaybe.OnRMMUserChoiceListener;
 import com.stackmob.android.sdk.common.StackMobAndroid;
 import com.stackmob.sdk.callback.StackMobModelCallback;
 import com.stackmob.sdk.exception.StackMobException;
 
+import de.keyboardsurfer.android.widget.crouton.Crouton;
+import de.keyboardsurfer.android.widget.crouton.Style;
+
 public class MenuActivity extends FragmentActivity implements FlurryAdListener,
-		OnPageChangeListener, OnClickListener {
+		OnPageChangeListener, OnClickListener, OnRMMUserChoiceListener {
 	public class MyPagerAdapter extends FragmentPagerAdapter {
 
 		private static final String TAG = "MainActivity";
@@ -245,6 +251,19 @@ public class MenuActivity extends FragmentActivity implements FlurryAdListener,
 
 		this.tabs.setViewPager(this.pager);
 		this.tabs.setOnPageChangeListener(this);
+
+		// Rate me Maybe
+		RateMeMaybe rmm = new RateMeMaybe(this);
+		rmm.setPromptMinimums(10, 5, 3, 7);
+		rmm.setRunWithoutPlayStore(false);
+		rmm.setDialogMessage("You really seem to like this app, "
+				+ "since you have already used it %totalLaunchCount% times! "
+				+ "It would be great if you took a moment to rate it.");
+		rmm.setDialogTitle("Rate this app");
+		rmm.setPositiveBtn("Yeeha!");
+		if (!prefs.getBoolean("apprate", false))
+			rmm.run();
+
 	}
 
 	@Override
@@ -384,5 +403,25 @@ public class MenuActivity extends FragmentActivity implements FlurryAdListener,
 					.getMyPuzzles(this.adapter.frag[this.currentTab]
 							.getActivity());
 		}
+	}
+
+	public void handlePositive() {
+		// Goto app store.
+		// TODO fix this when we publish.
+		startActivity(new Intent(Intent.ACTION_VIEW,
+				Uri.parse("market://details?id=Picogram")));
+		prefs.edit().putBoolean("apprate", true).commit();
+	}
+
+	public void handleNeutral() {
+		// Remind again later on.
+		Crouton.makeText(this, "We'll remind you later on.", Style.INFO).show();
+	}
+
+	public void handleNegative() {
+		// Don't do it again.
+		Crouton.makeText(this,
+				"If you ever want to rate, go to the preferences.", Style.INFO)
+				.show();
 	}
 }

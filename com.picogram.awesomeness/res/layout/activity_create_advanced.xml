@@ -5,14 +5,13 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity" >
 
-    <LinearLayout
-        android:id="@+id/buttonBottomHolder"
-        android:layout_width="match_parent"
+    <RelativeLayout
+     android:id="@+id/buttonBottomHolder"
+        android:layout_width="wrap_content"
         android:layout_height="100dp"
         android:layout_alignParentBottom="true"
-        android:background="#000000"
-        android:orientation="horizontal" >
-    </LinearLayout>
+        android:layout_centerInParent="true" >
+    </RelativeLayout>
 
     <com.cameraview.awesomeness.CameraView
         android:id="@+id/cvPreview"
@@ -54,6 +53,7 @@
         android:layout_marginTop="6dp"
         android:background="@drawable/drop_shadow"
         android:visibility="invisible" />
+
     <com.picogram.awesomeness.TouchImageView
         android:id="@+id/tivGame"
         android:layout_width="match_parent"

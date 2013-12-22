@@ -20,6 +20,7 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
@@ -307,8 +308,8 @@ public class TouchImageView extends ImageView {
 			}
 		}
 		// Clear
-		//canvasBitmap.drawColor(Color.rgb((int) (Math.random() * 200),
-		//		(int) (Math.random() * 200), (int) (Math.random() * 200)));
+		// canvasBitmap.drawColor(Color.rgb((int) (Math.random() * 200),
+		// (int) (Math.random() * 200), (int) (Math.random() * 200)));
 		this.drawOnCanvas();
 		// Change canvas and it'll reflect on the bm.
 		this.setImageBitmap(this.bm);
@@ -477,9 +478,13 @@ public class TouchImageView extends ImageView {
 
 				colorRun++;
 
-				this.canvasBitmap.drawText(this.sideHints.get(i).split(" ")[j]
-						+ " ", (this.longestSide * widthOffset) - 5
-						- (j * this.paintBitmap.getFontSpacing()),
+				String side = this.sideHints.get(i).split(" ")[j];
+				if (side.length() > 1) {
+					side = new StringBuilder(side).reverse().toString();
+				}
+				this.canvasBitmap.drawText(side + " ",
+						(this.longestSide * widthOffset) - 5
+								- (j * this.paintBitmap.getFontSpacing()),
 						(this.longestTop * heightOffset) + (i * heightOffset)
 								+ ((2 * heightOffset) / 3), this.paintBitmap);
 			}

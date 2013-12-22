@@ -42,12 +42,16 @@
             android:key="licenses"
             android:summary="View the licenses of libraries we use"
             android:title="Licenses" />
+        <Preference
+            android:key="rateapp"
+            android:summary="Rating our app gets us more people (If it&apos;s positive) and helps us improve the program! If you have problems, please contact us below."
+            android:title="Rate the App" />
     </PreferenceCategory>
     <PreferenceCategory android:title="Contact" >
         <Preference
             android:key="email"
             android:summary="Email me your problems, concerns, suggestions, request, or even a thank you."
-            android:title="Email" />
+            android:title="Email and Feedback" />
     </PreferenceCategory>
 
 </PreferenceScreen>

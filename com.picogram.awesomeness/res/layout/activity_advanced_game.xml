@@ -8,7 +8,7 @@
         android:id="@+id/tivGame"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@+id/llPallet"
+        android:layout_above="@+id/buttonBottomHolder"
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
         android:paddingBottom="10dp"
@@ -16,18 +16,26 @@
         android:paddingRight="10dp"
         android:paddingTop="10dp" />
 
-    <LinearLayout
-        android:id="@+id/llPallet"
-        android:layout_width="match_parent"
-        android:layout_height="75dp"
+    <RelativeLayout
+        android:id="@+id/buttonBottomHolder"
+        android:layout_width="wrap_content"
+        android:layout_height="100dp"
         android:layout_alignParentBottom="true"
-        android:background="@drawable/border"
-        android:clickable="true" >
+        android:layout_centerInParent="true" >
 
-        <ImageView
-            android:id="@+id/ivOne"
-            android:layout_width="50dp"
-            android:layout_height="50dp" />
-    </LinearLayout>
+        <LinearLayout
+            android:id="@+id/llPallet"
+            android:layout_width="wrap_content"
+            android:layout_height="75dp"
+            android:layout_alignParentBottom="true"
+            android:layout_gravity="center_horizontal"
+            android:clickable="true" >
+
+            <ImageView
+                android:id="@+id/ivOne"
+                android:layout_width="50dp"
+                android:layout_height="50dp" />
+        </LinearLayout>
+    </RelativeLayout>
 
 </RelativeLayout>

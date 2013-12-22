@@ -2,6 +2,7 @@ package com.picogram.awesomeness;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceChangeListener;
@@ -36,6 +37,7 @@ public class SettingsActivity extends SherlockPreferenceActivity implements
 		this.findPreference("logging").setOnPreferenceClickListener(this);
 		this.findPreference("crashes").setOnPreferenceClickListener(this);
 		this.findPreference("licenses").setOnPreferenceClickListener(this);
+		this.findPreference("rateapp").setOnPreferenceClickListener(this);
 		FlurryAgent.logEvent("PreferencesOpened");
 	}
 
@@ -74,6 +76,10 @@ public class SettingsActivity extends SherlockPreferenceActivity implements
 			emailIntent.setType("message/rfc822");
 			this.startActivity(Intent.createChooser(emailIntent,
 					"Send Mail Using :"));
+		} else if (preference.getKey().equals("rateapp")) {
+			// TODO fix this when we publish.
+			startActivity(new Intent(Intent.ACTION_VIEW,
+					Uri.parse("market://details?id=Picogram")));
 		}
 		return false;
 	}

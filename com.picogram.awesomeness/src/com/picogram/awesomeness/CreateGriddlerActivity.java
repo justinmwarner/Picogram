@@ -52,6 +52,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 
@@ -429,18 +430,9 @@ public class CreateGriddlerActivity extends FragmentActivity implements
 	}
 
 	public boolean onTouch(final View v, final MotionEvent event) {
-		if (event.getAction() == MotionEvent.ACTION_DOWN) {
-			this.oldTime = System.currentTimeMillis();
-		}
-		long newTime, diff = 1000;
-		if (event.getAction() == MotionEvent.ACTION_UP) {
-			newTime = System.currentTimeMillis();
-			diff = newTime - this.oldTime;
-		}
 		// We're changing a color.
 		if ((this.bmNew != null)
-				&& (event.getAction() == MotionEvent.ACTION_DOWN)
-				&& (diff < 100)) {
+				&& (event.getAction() == MotionEvent.ACTION_DOWN)) {
 			final float eventX = event.getX();
 			final float eventY = event.getY();
 			final float[] eventXY = new float[] { eventX, eventY };
@@ -485,31 +477,46 @@ public class CreateGriddlerActivity extends FragmentActivity implements
 
 						public void onOk(final AmbilWarnaDialog dialog,
 								int color) {
+							String cols = "";
+							for (int i : newColors)
+								cols += i + " ";
+							Log.d(TAG, "Before" + cols);
 							// Change the value in the colors array.
 							for (int i = 0; i != CreateGriddlerActivity.this.originalColors.length; ++i) {
-								if (CreateGriddlerActivity.this.originalColors[i] == touchedRGB) {
+								if (CreateGriddlerActivity.this.newColors[i] == touchedRGB) {
 									// Make sure this color doesn't already
 									// exist, if it does, tweak the new color
 									// just a little bit.
-									for (int j = 0; j != CreateGriddlerActivity.this.numColors; ++j) {
-										if (CreateGriddlerActivity.this.originalColors[j] == color) {
-											final int[] rgb = CreateGriddlerActivity.this
-													.getRGB(color);
-											if (rgb[0] == 255) {
-												rgb[0] = rgb[0] - 1;
-											} else {
-												rgb[0] = rgb[0] + 1;
-											}
-											color = Color.rgb(rgb[0], rgb[1],
-													rgb[2]);
-											break;
-										}
-									}
-									CreateGriddlerActivity.this.originalColors[i] = color;
+									Log.d(TAG, "Found it!");
+									/*
+									 * //TODO If color already exists, don't let
+									 * it happen. for (int j = 0; j !=
+									 * CreateGriddlerActivity
+									 * .this.newColors.length; ++j) { if
+									 * (CreateGriddlerActivity.this.newColors[j]
+									 * == touchedRGB) { final int[] rgb =
+									 * CreateGriddlerActivity.this
+									 * .getRGB(color); if (rgb[0] == 255) {
+									 * rgb[0] = rgb[0] - 1; } else { rgb[0] =
+									 * rgb[0] + 1; } color = Color.rgb(rgb[0],
+									 * rgb[1], rgb[2]); break; } Log.d(TAG,
+									 * "Didn't find it =/ " + color + " " +
+									 * newColors[j]); }
+									 */
+									CreateGriddlerActivity.this.newColors[i] = color;
 									break;
 								}
 							}
+							// Change values in the original colors too.
+							for (int i = 0; i != originalColors.length; ++i) {
+								if (originalColors[i] == touchedRGB)
+									originalColors[i] = color;
+							}
 							// Update photo
+							cols = "";
+							for (int i : newColors)
+								cols += i + " ";
+							Log.d(TAG, "After:" + cols);
 							CreateGriddlerActivity.this.alterPhoto();
 						}
 					});
@@ -635,7 +642,7 @@ public class CreateGriddlerActivity extends FragmentActivity implements
 			View childLayout = inflater.inflate(R.layout.include_picture_input,
 					(ViewGroup) findViewById(R.layout.include_picture_input));
 
-			LinearLayout ll = (LinearLayout) findViewById(R.id.buttonBottomHolder);
+			RelativeLayout ll = (RelativeLayout) findViewById(R.id.buttonBottomHolder);
 			ll.removeAllViews();
 			ll.addView(childLayout);
 			// Set up listeners and everything.
@@ -665,7 +672,7 @@ public class CreateGriddlerActivity extends FragmentActivity implements
 							R.layout.include_width_height_num,
 							(ViewGroup) findViewById(R.layout.include_width_height_num));
 
-			LinearLayout ll = (LinearLayout) findViewById(R.id.buttonBottomHolder);
+			RelativeLayout ll = (RelativeLayout) findViewById(R.id.buttonBottomHolder);
 			ll.removeAllViews();
 			ll.addView(childLayout);
 			// Hide CameraView, change the bottom bar, and update the new image.
@@ -689,6 +696,9 @@ public class CreateGriddlerActivity extends FragmentActivity implements
 			ivNew = (ImageView) findViewById(R.id.ivNew);
 			ivOriginal = (ImageView) findViewById(R.id.ivOriginal);
 			tivGame = (TouchImageView) findViewById(R.id.tivGame);
+
+			ivNew.setOnTouchListener(this);
+			tivGame.setOnTouchListener(this);
 
 			ivNew.setVisibility(View.VISIBLE);
 			ivOriginal.setVisibility(View.INVISIBLE);
@@ -718,13 +728,13 @@ public class CreateGriddlerActivity extends FragmentActivity implements
 			ivOriginal.setVisibility(View.VISIBLE);
 			ivNew.setVisibility(View.INVISIBLE);
 			tivGame.setVisibility(View.INVISIBLE);
-			currentView = 0;
+			currentView = 1;
 		} else if (currentView == 1) {
 			// Show New without grid.
 			ivOriginal.setVisibility(View.INVISIBLE);
 			ivNew.setVisibility(View.VISIBLE);
 			tivGame.setVisibility(View.INVISIBLE);
-			currentView = 2;
+			currentView = 0;
 		} else if (currentView == 0) {
 			// Show Gameboard
 			ivOriginal.setVisibility(View.INVISIBLE);
