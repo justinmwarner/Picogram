@@ -375,6 +375,12 @@ public class CreateGriddlerActivity extends FragmentActivity implements
 				final Bitmap bi = this.readBitmap(uri);
 				this.bmOriginal = bi;
 				this.ivOriginal.setImageBitmap(this.bmOriginal);
+			} else if (type.startsWith("text/")) {
+				String sharedText = intent.getStringExtra(Intent.EXTRA_TEXT);
+				if (sharedText != null) {
+					url = sharedText;
+					processURL();
+				}
 			}
 		}
 		FlurryAgent.logEvent("CreatingPuzzle");
@@ -518,7 +524,9 @@ public class CreateGriddlerActivity extends FragmentActivity implements
 	// Read bitmap - From
 	// http://tutorials-android.blogspot.co.il/2011/11/outofmemory-exception-when-decoding.html
 	private void processURL() {
+		Crouton.makeText(this, "Valid, we're working.", Style.INFO).show();
 		FlurryAgent.logEvent("CreateURLProcess");
+		final Activity a = this;
 		new Thread(new Runnable() {
 			public void run() {
 				try {
@@ -533,13 +541,14 @@ public class CreateGriddlerActivity extends FragmentActivity implements
 					CreateGriddlerActivity.this.bmOriginal = bm;
 					handler.post(new Runnable() {
 						public void run() {
-							Util.log("Golden");
 							bmOriginal = bm;
 							updateBottomHolder(1);
 						}
 
 					});
 				} catch (final IOException e) {
+					Crouton.makeText(a, "Failed to get image.", Style.ALERT)
+							.show();
 					e.printStackTrace();
 				}
 			}
@@ -709,7 +718,7 @@ public class CreateGriddlerActivity extends FragmentActivity implements
 			ivOriginal.setVisibility(View.VISIBLE);
 			ivNew.setVisibility(View.INVISIBLE);
 			tivGame.setVisibility(View.INVISIBLE);
-			currentView = 1;
+			currentView = 0;
 		} else if (currentView == 1) {
 			// Show New without grid.
 			ivOriginal.setVisibility(View.INVISIBLE);

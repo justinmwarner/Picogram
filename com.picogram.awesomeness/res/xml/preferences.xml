@@ -26,14 +26,22 @@
         <CheckBoxPreference
             android:key="logging"
             android:summary="We collect what you do so if the app crashes, we know how to reproduce what you did.  We can also fix more problematic bugs."
-            android:title="Stop Events and Crashes" />
+            android:title="Stop Events Sharing" />
+        <CheckBoxPreference
+            android:key="crashes"
+            android:summary="We track when and why you crash so we can fix bugs."
+            android:title="Stop Crash Sharing" />
     </PreferenceCategory>
     <!-- Simple changelog.  Remember to update when we release/update. -->
-    <PreferenceCategory android:title="Changelog" >
+    <PreferenceCategory android:title="Extras" >
         <Preference
             android:key="changelog"
             android:summary="View the changelog."
-            android:title="View the changelog." />
+            android:title="Changelog" />
+        <Preference
+            android:key="licenses"
+            android:summary="View the licenses of libraries we use"
+            android:title="Licenses" />
     </PreferenceCategory>
     <PreferenceCategory android:title="Contact" >
         <Preference

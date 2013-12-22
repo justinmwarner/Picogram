@@ -39,6 +39,7 @@
                 <action android:name="android.intent.action.SEND" />
 
                 <data android:mimeType="image/*" />
+                <data android:mimeType="text/plain" />
             </intent-filter>
         </activity>
         <activity

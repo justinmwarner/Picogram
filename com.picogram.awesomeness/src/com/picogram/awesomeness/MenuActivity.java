@@ -33,6 +33,7 @@ import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
 import com.astuetz.viewpager.extensions.PagerSlidingTabStrip;
+import com.crittercism.app.Crittercism;
 import com.flurry.android.FlurryAdListener;
 import com.flurry.android.FlurryAdSize;
 import com.flurry.android.FlurryAdType;
@@ -204,13 +205,17 @@ public class MenuActivity extends FragmentActivity implements FlurryAdListener,
 	public void onCreate(final Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		this.requestWindowFeature(Window.FEATURE_NO_TITLE);
+		this.prefs = this.getSharedPreferences(MenuActivity.PREFS_FILE,
+				MODE_PRIVATE);
+		if (!prefs.getBoolean("crashes", false)) {
+			Crittercism.initialize(getApplicationContext(),
+					"52b6411c4002051525000002");
+		}
 		lv = new ListView(this);
 		lvAdapter = new GriddlerListAdapter(this, R.id.tvName);
 		lv.setAdapter(lvAdapter);
 		Util.setTheme(this);
 		this.setContentView(R.layout.activity_menu);
-		this.prefs = this.getSharedPreferences(MenuActivity.PREFS_FILE,
-				MODE_PRIVATE);
 		final String user = this.prefs.getString("username", "N/A");
 		StackMobAndroid.init(this.getApplicationContext(), 0,
 				"f077e098-c678-4256-b7a2-c3061d9ff0c2");// Change to production.
