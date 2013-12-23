@@ -122,8 +122,8 @@ public class AdvancedGameActivity extends Activity implements OnTouchListener,
 						tiv.colorCharacter = 'x';
 					} else {
 						tiv.isGameplay = true;
-						//Minus 2 for the X's and movement.
-						tiv.colorCharacter = ((ivs.indexOf(v)-2) + "")
+						// Minus 2 for the X's and movement.
+						tiv.colorCharacter = ((ivs.indexOf(v) - 2) + "")
 								.charAt(0);
 					}
 				}
@@ -161,23 +161,6 @@ public class AdvancedGameActivity extends Activity implements OnTouchListener,
 			result[i + 2] = fullColor;
 		}
 		return result;
-	}
-
-	private void initArcMenu(ArcMenu menu, int[] itemDrawables) {
-		final int itemCount = itemDrawables.length;
-		for (int i = 0; i < itemCount; i++) {
-			ImageView item = new ImageView(this);
-			item.setImageResource(itemDrawables[i]);
-
-			final int position = i;
-			menu.addItem(item, new OnClickListener() {
-
-				public void onClick(View v) {
-					Crouton.makeText(AdvancedGameActivity.this,
-							"position:" + position, Style.INFO).show();
-				}
-			});
-		}
 	}
 
 	@Override
@@ -235,6 +218,7 @@ public class AdvancedGameActivity extends Activity implements OnTouchListener,
 			public void onRatingChanged(final RatingBar ratingBar,
 					final float rating, final boolean fromUser) {
 				if (fromUser) {
+					Log.d(TAG, "Rating given of: " + rating);
 					final GriddlerOne g = new GriddlerOne();
 					g.setID(AdvancedGameActivity.this.puzzleId);
 					g.fetch(new StackMobModelCallback() {
@@ -248,12 +232,26 @@ public class AdvancedGameActivity extends Activity implements OnTouchListener,
 
 						@Override
 						public void success() {
-							g.setRating(((Integer.parseInt(g.getRating()) * g
-									.getNumberOfRatings()) + (int) rating) + "");
+							Log.d(TAG,
+									"Got a rating from online of: "
+											+ g.getRating());
+							Log.d(TAG,
+									"Number of ratings online: "
+											+ g.getNumberOfRatings());
+							double oldRating = Double.parseDouble(g.getRating())
+									* g.getNumberOfRatings();
+							double newRating = (oldRating + rating)
+									/ (g.getNumberOfRatings() + 1);
+							Log.d(TAG, "New rating:" + newRating);
+							g.setRating(newRating + "");
 							g.setNumberOfRatings(g.getNumberOfRatings() + 1);
 							// TODO: If save fails, let us do it next time app
 							// is online.
 							g.save();
+							Log.d(TAG, "New Rating: " + g.getRating());
+							Log.d(TAG,
+									"New Number of ratings online: "
+											+ g.getNumberOfRatings());
 							dialog.dismiss();
 							AdvancedGameActivity.this.isDialogueShowing = !AdvancedGameActivity.this.isDialogueShowing;
 							AdvancedGameActivity.this.returnIntent();

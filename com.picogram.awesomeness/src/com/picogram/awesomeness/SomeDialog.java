@@ -41,7 +41,6 @@ public class SomeDialog extends DialogFragment {
 					}
 				}).setNeutralButton("Cancel", new OnClickListener() {
 					public void onClick(DialogInterface dialog, int which) {
-						Log.d("dd", "Cancellllll");
 						listener.onDialogResult(0);
 					}
 				}).create();

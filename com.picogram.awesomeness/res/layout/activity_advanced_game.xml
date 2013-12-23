@@ -8,7 +8,6 @@
         android:id="@+id/tivGame"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@+id/buttonBottomHolder"
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
         android:layout_marginBottom="10dp"
@@ -21,29 +20,6 @@
         android:layout_width="fill_parent"
         android:layout_height="60dp"
         android:paddingLeft="5dp"
-        android:paddingRight="5dp" >
-    </com.capricorn.RayMenu>
-
-    <RelativeLayout
-        android:id="@+id/buttonBottomHolder"
-        android:layout_width="wrap_content"
-        android:layout_height="100dp"
-        android:layout_alignParentBottom="true"
-        android:layout_centerInParent="true" >
-
-        <LinearLayout
-            android:id="@+id/llPallet"
-            android:layout_width="wrap_content"
-            android:layout_height="75dp"
-            android:layout_alignParentBottom="true"
-            android:layout_gravity="center_horizontal"
-            android:clickable="true" >
-
-            <ImageView
-                android:id="@+id/ivOne"
-                android:layout_width="50dp"
-                android:layout_height="50dp" />
-        </LinearLayout>
-    </RelativeLayout>
+        android:paddingRight="5dp" />
 
 </RelativeLayout>

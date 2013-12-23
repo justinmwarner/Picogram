@@ -453,14 +453,13 @@ public class SuperAwesomeCardFragment extends Fragment implements
 						// Nothing
 					} else if (result == 1) {
 						// Clear.
-						Log.d(TAG, "Clearing: " + myAdapter.get(position));
 						String newCurrent = "";
 						for (int i = 0; i != myAdapter.get(position)
 								.getCurrent().length(); ++i) {
 							newCurrent += "0";
 						}
 						myAdapter.updateCurrentById(myAdapter.get(position)
-								.getID(), newCurrent);
+								.getID(), newCurrent, "0");
 						sql.updateCurrentGriddler(myAdapter.get(position)
 								.getID(), "0", newCurrent);
 					} else if (result == 2) {

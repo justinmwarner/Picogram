@@ -123,10 +123,20 @@ public class GriddlerListAdapter extends ArrayAdapter<GriddlerOne> {
 			iv.setVisibility(View.VISIBLE);
 		}
 		if (this.griddlers.get(position).getNumberOfRatings() != 0) {
-			rate.setText("Rating: "
-					+ (Integer.parseInt(this.griddlers.get(position)
-							.getRating()) / this.griddlers.get(position)
-							.getNumberOfRatings()));
+			String rateText = "Rating: "
+					+ (Double.parseDouble(this.griddlers.get(position)
+							.getRating()));
+			int index = rateText.indexOf('.');
+			if (index != -1)
+				if (rateText.length() > index + 3)
+					rate.setText(rateText.substring(0,
+							rateText.indexOf('.') + 3));
+				else
+					rate.setText(rateText.substring(0,
+							rateText.indexOf('.') + 2));
+
+			else
+				rate.setText(rateText);
 		}
 		diff.setText("Difficulty: " + this.griddlers.get(position).getDiff());
 		name.setText(this.griddlers.get(position).getName());
@@ -180,12 +190,13 @@ public class GriddlerListAdapter extends ArrayAdapter<GriddlerOne> {
 		}
 	}
 
-	public void updateCurrentById(String id, String newCurrent) {
+	public void updateCurrentById(String id, String newCurrent, String status) {
 		for (int i = 0; i != griddlers.size(); ++i) {
 			if (griddlers.get(i).getID().equals(id)) {
 				Log.d(TAG, "REMOVE SUCCSS");
 				GriddlerOne go = griddlers.get(i);
 				go.setCurrent(newCurrent);
+				go.setStatus(status);
 				griddlers.set(i, go);
 				return;
 			}

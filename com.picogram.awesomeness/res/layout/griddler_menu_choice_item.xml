@@ -12,20 +12,19 @@
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true" >
 
-        <!-- This needs to be changed to give it a background color for dark themed. -->
-
         <RelativeLayout
             android:id="@+id/mainBackgroundItem"
             android:layout_width="wrap_content"
-            android:layout_height="78dp" >
+            android:layout_height="wrap_content" >
 
             <ImageView
                 android:id="@+id/ivCurrent"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignParentBottom="true"
                 android:layout_alignParentLeft="true"
-                android:layout_alignParentTop="true"
+                android:layout_marginLeft="3dp"
+                android:layout_marginTop="3dp"
+                android:layout_marginBottom="3dp"
                 android:src="@drawable/ic_launcher" />
 
             <TextView
@@ -34,8 +33,8 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentRight="true"
                 android:layout_below="@+id/tvName"
-                android:text="Diffuculty: Medium"
-                android:textAppearance="?android:attr/textAppearanceMedium" />
+                android:layout_marginRight="3dp"
+                android:text="Diffuculty: Medium" />
 
             <TextView
                 android:id="@+id/tvName"
@@ -43,9 +42,10 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentRight="true"
                 android:layout_alignParentTop="true"
+                android:layout_marginRight="3dp"
                 android:gravity="center"
                 android:text="NAME_OF_GRIDDLER"
-                android:textAppearance="?android:attr/textAppearanceLarge" />
+                android:textAppearance="?android:attr/textAppearanceMedium" />
 
             <TextView
                 android:id="@+id/tvRating"
@@ -53,8 +53,8 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentRight="true"
                 android:layout_below="@+id/tvDiff"
-                android:text="Rating: 0"
-                android:textAppearance="?android:attr/textAppearanceMedium" />
+                android:layout_marginRight="3dp"
+                android:text="Rating: 0" />
         </RelativeLayout>
     </FrameLayout>
 
