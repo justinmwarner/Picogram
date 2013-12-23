@@ -146,7 +146,7 @@ public class GriddlerOne extends StackMobModel implements Comparable {
 				+ " " + this.rate + " " + this.author + " " + this.width + " "
 				+ this.height + " " + this.solution + " " + this.current + " "
 				+ this.numberOfColors + " " + this.colors + " "
-				+ this.numberOfRatings;
+				+ this.numberOfRatings ;
 		/*
 		 * id status name diff rating - null author width height solution
 		 * current - null numColors colors numberOfRatings - 5

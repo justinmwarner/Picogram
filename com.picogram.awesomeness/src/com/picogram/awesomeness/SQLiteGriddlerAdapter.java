@@ -126,23 +126,23 @@ public class SQLiteGriddlerAdapter extends SQLiteOpenHelper {
 		cv.put(rank, 0);
 		cv.put(solution, "0");
 		cv.put(current, "0");
-		cv.put(difficulty, "0");
+		cv.put(difficulty, "-1");
 		cv.put(width, "0");
 		cv.put(height, "0");
 		cv.put(status, "2");
-		db.insert(griddlerTable, null, cv); 
+		db.insert(griddlerTable, null, cv);
 		cv.put(id, "0".hashCode());
 		cv.put(author, "justinwarner");
 		cv.put(name, "Random Picogram!");
 		cv.put(rank, 0);
 		cv.put(solution, "0");
 		cv.put(current, "0");
-		cv.put(difficulty, "0");
+		cv.put(difficulty, "-1");
 		cv.put(width, "0");
 		cv.put(height, "0");
 		cv.put(status, "2");
-		db.insert(griddlerTable, null, cv); 
-		cv.put(id, "1111100110011111".hashCode()); 
+		db.insert(griddlerTable, null, cv);
+		cv.put(id, "1111100110011111".hashCode());
 		cv.put(author, "justinwarner");
 		cv.put(name, "Tutorial");
 		cv.put(rank, 0);
@@ -154,7 +154,7 @@ public class SQLiteGriddlerAdapter extends SQLiteOpenHelper {
 		cv.put(status, "0");
 		cv.put(colors, Color.TRANSPARENT + "," + Color.BLACK);
 		cv.put(numberOfColors, 2);
-		db.insert(griddlerTable, null, cv); 
+		db.insert(griddlerTable, null, cv);
 	}
 
 	@Override

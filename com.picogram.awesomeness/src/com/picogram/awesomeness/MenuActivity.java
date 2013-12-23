@@ -344,7 +344,6 @@ public class MenuActivity extends FragmentActivity implements FlurryAdListener,
 	}
 
 	private void updateBottomBar() {
-		Log.d(TAG, "Tab: " + currentTab);
 		if (this.currentTab == TITLES.indexOf("Search")
 				|| currentTab == TITLES.indexOf("Prefs")) { // If previous tab
 															// was search or

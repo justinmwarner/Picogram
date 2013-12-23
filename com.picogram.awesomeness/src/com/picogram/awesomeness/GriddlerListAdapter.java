@@ -98,9 +98,10 @@ public class GriddlerListAdapter extends ArrayAdapter<GriddlerOne> {
 				curr += "0";
 			}
 		}
+		Bitmap bm;
 		if ((height > 0) && (width > 0)) {
-			Bitmap bm = BitmapFactory.decodeResource(
-					this.context.getResources(), R.drawable.ic_launcher);
+			bm = BitmapFactory.decodeResource(this.context.getResources(),
+					R.drawable.ic_launcher);
 			bm = Bitmap.createScaledBitmap(bm, width, height, true);
 			String[] colors = this.griddlers.get(position).getColors()
 					.split(",");
@@ -118,10 +119,22 @@ public class GriddlerListAdapter extends ArrayAdapter<GriddlerOne> {
 					run++;
 				}
 			}
-			bm = Bitmap.createScaledBitmap(bm, 100, 100, false);
-			iv.setImageBitmap(bm);
-			iv.setVisibility(View.VISIBLE);
+		} else {
+			if (position == 0)
+				bm = BitmapFactory.decodeResource(this.context.getResources(),
+						R.drawable.create);
+			else if (position == 1)
+				bm = BitmapFactory.decodeResource(this.context.getResources(),
+						R.drawable.random);
+			else
+				// Just show the icon if something is wrong =/.
+				bm = BitmapFactory.decodeResource(this.context.getResources(),
+						R.drawable.ic_launcher);
+			bm = Bitmap.createScaledBitmap(bm, 100, 100, true);
 		}
+		bm = Bitmap.createScaledBitmap(bm, 100, 100, false);
+		iv.setImageBitmap(bm);
+		iv.setVisibility(View.VISIBLE);
 		if (this.griddlers.get(position).getNumberOfRatings() != 0) {
 			String rateText = "Rating: "
 					+ (Double.parseDouble(this.griddlers.get(position)
@@ -139,6 +152,22 @@ public class GriddlerListAdapter extends ArrayAdapter<GriddlerOne> {
 				rate.setText(rateText);
 		}
 		diff.setText("Difficulty: " + this.griddlers.get(position).getDiff());
+		try {
+			int i = Integer.parseInt(this.griddlers.get(position).getDiff());
+			if (i == 0) {
+				diff.setText("Difficulty: Easy");
+			} else if (i == 1)
+				diff.setText("Difficulty: Normal");
+			else if (i == 2)
+				diff.setText("Difficulty: Hard");
+			else if (i == 3)
+				diff.setText("Difficulty: eXtreme!");
+			else
+				diff.setText("");
+		} catch (Exception e) {
+			// Ignore if not a number.
+			Log.d(TAG, "Poop");
+		}
 		name.setText(this.griddlers.get(position).getName());
 		// Change color if user has beaten level.
 		int status = 0;
@@ -159,13 +188,6 @@ public class GriddlerListAdapter extends ArrayAdapter<GriddlerOne> {
 		} else {
 			// Other (Custom, special levels, etc.).
 			item.setBackgroundResource(R.drawable.griddler_menu_choice_border_other);
-		}
-		// Change background of the linear view based on theme.
-		final View themeChange = item.findViewById(R.id.mainBackgroundItem);
-		if (Util.THEME == R.style.Theme_Sherlock_Light) {
-			themeChange.setBackgroundColor(Color.WHITE);
-		} else {
-			themeChange.setBackgroundColor(Color.BLACK);
 		}
 		gd.invalidateSelf();
 		item.invalidate();

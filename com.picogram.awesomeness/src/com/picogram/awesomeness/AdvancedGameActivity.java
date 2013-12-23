@@ -135,11 +135,11 @@ public class AdvancedGameActivity extends Activity implements OnTouchListener,
 		// +2 for movement and x's.
 		Bitmap[] result = new Bitmap[this.colors.length + 2];
 		final Drawable moveDrawable = this.getResources().getDrawable(
-				R.drawable.icon);
+				R.drawable.move);
 		final Bitmap moveBitmap = Bitmap.createScaledBitmap(
 				((BitmapDrawable) moveDrawable).getBitmap(), 100, 100, true);
 		final Drawable xDrawable = this.getResources().getDrawable(
-				R.drawable.icon);
+				R.drawable.xs);
 		final Bitmap xBitmap = Bitmap.createScaledBitmap(
 				((BitmapDrawable) xDrawable).getBitmap(), 100, 100, true);
 		result[0] = moveBitmap;
@@ -151,7 +151,7 @@ public class AdvancedGameActivity extends Activity implements OnTouchListener,
 			if (rgb[0] == 0) {// This is alpha.
 				// For transparency.
 				fullColor = BitmapFactory.decodeResource(this.getResources(),
-						R.drawable.light_grid);
+						R.drawable.transparent);
 			} else {
 				Log.d(TAG, "Making: " + colors[i]);
 				fullColor.setPixel(0, 0, Color.rgb(rgb[1], rgb[2], rgb[3]));

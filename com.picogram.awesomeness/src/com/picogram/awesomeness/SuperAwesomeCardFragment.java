@@ -431,7 +431,29 @@ public class SuperAwesomeCardFragment extends Fragment implements
 		newFragment.setOnDialogResultListner(new OnDialogResultListener() {
 
 			public void onDialogResult(Bundle result) {
-				// TODO Auto-generated method stub
+				// Add to personal.
+				String current = "", cols = "";
+				for (int i = 0; i != result.getString("solution").length(); ++i)
+					current += "0";
+				for (int i = 0; i != result.getInt("numColors"); ++i)
+					cols += Color.rgb((int) (Math.random() * 255),
+							(int) (Math.random() * 255),
+							(int) (Math.random() * 255)) + ",";
+				cols = cols.substring(0, cols.length() - 1);
+				int w = result.getInt("width"), h = result.getInt("height"), nc = result
+						.getInt("numColors");
+				Log.d(TAG, "Diff: " + ((int) ((w * h * nc) / 1875)));
+				GriddlerOne go = new GriddlerOne(result.getString("solution")
+						.hashCode() + "", "0", result.getString("name"),
+						((int) ((w * h) / 1400)) + "", "3", 1, "computer", w
+								+ "", h + "", result.getString("solution"),
+						current, nc, cols);
+				// TODO make sure go gets saved.
+				sql.addUserGriddler(go);
+				myAdapter.add(go);
+				myAdapter.notifyDataSetChanged();
+				go.save();
+				// Start to play.
 			}
 		});
 	}

@@ -44,15 +44,16 @@ public class DialogMaker extends DialogFragment implements View.OnClickListener 
 	@Override
 	public Dialog onCreateDialog(Bundle savedInstanceState) {
 		savedInstanceState = getArguments();
-		int layoutId = 0;
+		int li = 0;
 		if (savedInstanceState != null) {
 			Log.d("SD", "Found a state");
-			layoutId = savedInstanceState.getInt("layoutId");
+			li = savedInstanceState.getInt("layoutId");
 		}
+		final int layoutId = li;
 		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 		// Get the layout inflater
 		LayoutInflater inflater = getActivity().getLayoutInflater();
-		View v = inflater.inflate(layoutId, null);
+		final View v = inflater.inflate(layoutId, null);
 
 		// Inflate and set the layout for the dialog
 		// Pass null as the parent view because its going in the dialog layout
@@ -62,6 +63,18 @@ public class DialogMaker extends DialogFragment implements View.OnClickListener 
 		.setPositiveButton("Done", new DialogInterface.OnClickListener() {
 			public void onClick(DialogInterface dialog, int id) {
 				Bundle bundle = new Bundle();
+				if (layoutId == R.layout.dialog_random_griddler) {
+					Log.d(TAG, "W: " + randomWidth + " H: " + randomHeight
+							+ " C: " + randomColors + " S: " + randomPuzzle
+							+ " N: ");
+					bundle.putInt("width", randomWidth);
+					bundle.putInt("height", randomHeight);
+					bundle.putInt("numColors", randomColors);
+					bundle.putString("solution", randomPuzzle);
+					bundle.putString("name",
+							"Random #" + randomPuzzle.hashCode());
+					bundle.putString("tags", "random");
+				}
 				listener.onDialogResult(bundle);
 			}
 		}).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
