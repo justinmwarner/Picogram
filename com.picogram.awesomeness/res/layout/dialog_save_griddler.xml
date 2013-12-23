@@ -12,12 +12,12 @@
         android:textAppearance="?android:attr/textAppearanceLarge" />
 
     <EditText
-        android:id="@+id/etName"
+        android:id="@+id/etRandomName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
         android:layout_alignParentTop="true"
-        android:layout_toRightOf="@+id/textView3"
+        android:layout_toRightOf="@+id/tvRandomWidth"
         android:ems="10"
         android:hint="Puzzle Name" >
 
@@ -29,27 +29,27 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
-        android:layout_below="@+id/etName"
+        android:layout_below="@+id/etRandomName"
         android:text="Tags"
         android:textAppearance="?android:attr/textAppearanceLarge" />
 
     <EditText
-        android:id="@+id/etTags"
+        android:id="@+id/etRandomTags"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignRight="@+id/etName"
+        android:layout_alignRight="@+id/etRandomName"
         android:layout_alignTop="@+id/textView1"
-        android:layout_toRightOf="@+id/textView3"
+        android:layout_toRightOf="@+id/tvRandomWidth"
         android:layout_weight="1"
         android:ems="10"
         android:hint="Space seperated." />
 
     <TextView
-        android:id="@+id/textView3"
+        android:id="@+id/tvRandomWidth"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
-        android:layout_below="@+id/etTags"
+        android:layout_below="@+id/etRandomTags"
         android:text="Difficulty"
         android:textAppearance="?android:attr/textAppearanceLarge" />
 
@@ -57,8 +57,8 @@
         android:id="@+id/radioDifficulty"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/etTags"
-        android:layout_below="@+id/etTags" >
+        android:layout_alignLeft="@+id/etRandomTags"
+        android:layout_below="@+id/etRandomTags" >
 
         <RadioButton
             android:id="@+id/radioEasy"

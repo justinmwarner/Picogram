@@ -196,7 +196,6 @@ public class CreateGriddlerActivity extends FragmentActivity implements
 	}
 
 	private void doDone() {
-		Util.log("I'm here!");
 		LayoutInflater inflater = getLayoutInflater();
 		final View dialoglayout = inflater.inflate(
 				R.layout.dialog_save_griddler, (ViewGroup) getCurrentFocus());
@@ -208,14 +207,11 @@ public class CreateGriddlerActivity extends FragmentActivity implements
 				// get user input and set it to result
 				// edit text
 				EditText name = (EditText) dialoglayout
-						.findViewById(R.id.etName);
-				Log.d(TAG, "name: " + name.getText().toString());
+						.findViewById(R.id.etRandomName);
 				EditText tags = (EditText) dialoglayout
-						.findViewById(R.id.etTags);
-				Log.d(TAG, "Tag: " + tags.getText().toString());
+						.findViewById(R.id.etRandomTags);
 				RadioGroup difficulty = (RadioGroup) dialoglayout
 						.findViewById(R.id.radioDifficulty);
-				Log.d(TAG, "Diff: " + difficulty.toString());
 				Log.d(TAG, "Pos: " + difficulty.getCheckedRadioButtonId() + "");
 
 				int radioButtonID = difficulty.getCheckedRadioButtonId();

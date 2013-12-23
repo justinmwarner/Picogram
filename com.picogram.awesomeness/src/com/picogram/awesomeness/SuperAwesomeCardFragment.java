@@ -35,7 +35,7 @@ import android.widget.FrameLayout.LayoutParams;
 import android.widget.ListView;
 
 import com.flurry.android.FlurryAgent;
-import com.picogram.awesomeness.SomeDialog.OnDialogResultListener;
+import com.picogram.awesomeness.DialogMaker.OnDialogResultListener;
 import com.stackmob.sdk.api.StackMobQuery;
 import com.stackmob.sdk.callback.StackMobModelCallback;
 import com.stackmob.sdk.callback.StackMobQueryCallback;
@@ -81,7 +81,6 @@ public class SuperAwesomeCardFragment extends Fragment implements
 		for (int i = 0; i < griddlersArray.length; i++) {
 			final String temp[] = griddlersArray[i];
 			final String id = temp[0];
-			Log.d(TAG, "ID: " + id);
 			final String name = temp[2];
 			final String rate = temp[3];
 			final String width = temp[7];
@@ -90,24 +89,12 @@ public class SuperAwesomeCardFragment extends Fragment implements
 			final String solution = temp[4];
 			final String diff = temp[6];
 			final String author = temp[1];
+			final String status = temp[9];
 			int numColors = 0;
 			String colors = null;
 			if ((temp[10] != null) && (temp[11] != null)) {
 				numColors = Integer.parseInt(temp[10]);
 				colors = temp[11];
-			}
-			String status;
-			if (temp[4].equals(temp[5])) {
-				if (name.equals("Create a Griddler")) {
-					// Special
-					status = 2 + "";
-				} else {
-					// Completed
-					status = 1 + "";
-				}
-			} else {
-				// Not completed.
-				status = 0 + "";
 			}
 			boolean isAdd = true;
 
@@ -122,11 +109,12 @@ public class SuperAwesomeCardFragment extends Fragment implements
 				final GriddlerOne tempGriddler = new GriddlerOne(id, status,
 						name, diff, rate, 0, author, width, height, solution,
 						current, numColors, colors);
+				Log.d(TAG, "Status: " + status);
 				if (status.equals("2") || !Util.isOnline()) {
 					a.runOnUiThread(new Runnable() {
 
 						public void run() {
-							Log.d(TAG, "ID4: " + tempGriddler.getID());
+							Log.d(TAG, tempGriddler.toString());
 							SuperAwesomeCardFragment.this.myAdapter
 									.add(tempGriddler);
 							SuperAwesomeCardFragment.this.myAdapter
@@ -146,10 +134,8 @@ public class SuperAwesomeCardFragment extends Fragment implements
 					final GriddlerOne g = new GriddlerOne();
 					g.setID(id);
 					// Add the Puzzle, then update in the adapter later on.
-					Log.d(TAG, "ID2: " + tempGriddler.getID());
 					myAdapter.add(tempGriddler);
 
-					Log.d(TAG, "1: " + name + " " + id);
 					g.fetch(new StackMobModelCallback() {
 						@Override
 						public void failure(final StackMobException arg0) {
@@ -164,13 +150,11 @@ public class SuperAwesomeCardFragment extends Fragment implements
 								a.runOnUiThread(new Runnable() {
 									public void run() {
 										// TODO Test this, should update rating.
-										Log.d(TAG, "ID3: " + g.getID());
 										for (int i = 0; i != myAdapter
 												.getCount(); ++i) {
 
 											if (myAdapter.get(i).getID() == g
 													.getID()) {
-												Log.d(TAG, "ID3: " + g.getID());
 												myAdapter.remove(tempGriddler);
 												g.setStatus(oldStatus);
 												g.setCurrent(oldCurrent);
@@ -395,26 +379,27 @@ public class SuperAwesomeCardFragment extends Fragment implements
 		if (pos >= 0) // If valid position to select.
 		{
 			if ((this.position == MenuActivity.TITLES.indexOf("My"))
-					&& (pos == 0)) // Can this be the Creating?
-			{
-				final Intent createIntent = new Intent(this.getActivity(),
-						CreateGriddlerActivity.class);
+					&& ((pos == 0) || pos == 1)) {
+				// Can this be the Creating or Random?
 				this.sql.close();
-				this.getActivity().startActivityForResult(createIntent,
-						MenuActivity.CREATE_CODE);
+				if (pos == 0) {
+					final Intent createIntent = new Intent(this.getActivity(),
+							CreateGriddlerActivity.class);
+					this.getActivity().startActivityForResult(createIntent,
+							MenuActivity.CREATE_CODE);
+				} else if (pos == 1) {
+					generateRandomGame();
+				}
 			} else {
 				// If this griddler doesn't exists for the person, add it.
 
 				GriddlerOne griddler = this.myAdapter.get(pos);
-				Log.d(TAG, "Griddler to add maybe?: " + griddler);
 				if (sql == null)
 					this.sql = new SQLiteGriddlerAdapter(this.getActivity(),
 							"Griddlers", null, 1);
 				if (!sql.doesPuzzleExist(griddler)) {
-					Log.d(TAG, "Puzzle doesn't exist." + griddler.getID());
 					sql.addUserGriddler(griddler);
 				}
-				Log.d(TAG, "Griddler: " + griddler);
 				this.startGame(griddler);
 			}
 		}
@@ -435,6 +420,22 @@ public class SuperAwesomeCardFragment extends Fragment implements
 		this.startActivityForResult(gameIntent, GAME_RESULT);
 	}
 
+	public void generateRandomGame() {
+		FragmentTransaction ft = getChildFragmentManager().beginTransaction();
+		// Create and show the dialog.
+		Bundle bundle = new Bundle();
+		bundle.putInt("layoutId", R.layout.dialog_random_griddler);
+		DialogMaker newFragment = new DialogMaker();
+		newFragment.setArguments(bundle);
+		newFragment.show(ft, "dialog");
+		newFragment.setOnDialogResultListner(new OnDialogResultListener() {
+
+			public void onDialogResult(Bundle result) {
+				// TODO Auto-generated method stub
+			}
+		});
+	}
+
 	public boolean onItemLongClick(AdapterView<?> arg0, View arg1,
 			final int position, long arg3) {
 		if (position == 0) {
@@ -444,13 +445,22 @@ public class SuperAwesomeCardFragment extends Fragment implements
 			FragmentTransaction ft = getChildFragmentManager()
 					.beginTransaction();
 			// Create and show the dialog.
-			SomeDialog newFragment = new SomeDialog();
+			Bundle bundle = new Bundle();
+			bundle.putInt("layoutId", R.layout.dialog_listview_contextmenu);
+			DialogMaker newFragment = new DialogMaker();
+			newFragment.setArguments(bundle);
 			newFragment.show(ft, "dialog");
 			newFragment.setOnDialogResultListner(new OnDialogResultListener() {
 
-				public void onDialogResult(int result) {
+				public void onDialogResult(Bundle res) {
+					if (res == null) {
+						return;
+					}
+					int result = res.getInt("resultInt");
+					Log.d(TAG, "RESULT: " + result);
 					if (result == 0) {
 						// Nothing
+						// TODO
 					} else if (result == 1) {
 						// Clear.
 						String newCurrent = "";
@@ -470,6 +480,7 @@ public class SuperAwesomeCardFragment extends Fragment implements
 					myAdapter.notifyDataSetChanged();
 				}
 			});
+
 		}
 		return true;
 	}
