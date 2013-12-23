@@ -304,9 +304,9 @@ public class MenuActivity extends FragmentActivity implements FlurryAdListener,
 			if (this.toolbar.getVisibility() == View.GONE) {
 				this.toolbar.setVisibility(View.VISIBLE);
 			}
-			RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(
+			RelativeLayout.LayoutParams paramsButton = new RelativeLayout.LayoutParams(
 					LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-			params.addRule(RelativeLayout.ALIGN_PARENT_RIGHT,
+			paramsButton.addRule(RelativeLayout.ALIGN_PARENT_RIGHT,
 					RelativeLayout.TRUE);
 
 			final RelativeLayout rl = new RelativeLayout(this);
@@ -314,12 +314,11 @@ public class MenuActivity extends FragmentActivity implements FlurryAdListener,
 			this.bSearch = new Button(this);
 			this.bSearch.setText("Search");
 			this.bSearch.setOnClickListener(this);
-			rl.addView(this.bSearch, params);
-			params = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT,
+			RelativeLayout.LayoutParams paramsEditText = new RelativeLayout.LayoutParams(LayoutParams.MATCH_PARENT,
 					LayoutParams.MATCH_PARENT);
-			params.addRule(RelativeLayout.ALIGN_PARENT_LEFT,
+			paramsEditText.addRule(RelativeLayout.ALIGN_PARENT_LEFT,
 					RelativeLayout.TRUE);
-			params.addRule(RelativeLayout.LEFT_OF, this.bSearch.getId());
+			paramsEditText.addRule(RelativeLayout.LEFT_OF, this.bSearch.getId());
 			this.etTags = new EditText(this);
 			this.etTags.setOnEditorActionListener(new OnEditorActionListener() {
 
@@ -334,7 +333,8 @@ public class MenuActivity extends FragmentActivity implements FlurryAdListener,
 				}
 			});
 			this.etTags.setHint("Tags...");
-			rl.addView(this.etTags, params);
+			rl.addView(this.etTags, paramsEditText);
+			rl.addView(this.bSearch, paramsButton);
 			this.toolbar.removeAllViews();
 			this.toolbar.addView(rl);
 		} else {
