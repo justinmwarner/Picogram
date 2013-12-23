@@ -471,6 +471,8 @@ public class TouchImageView extends ImageView {
 							.get(colorRun)]);
 					colorRun++;
 				}
+				if (topHints.get(i)[j].equals("0"))
+					paintBitmap.setColor(Color.BLACK);
 				this.canvasBitmap
 						.drawText(
 								this.topHints.get(i)[j],
@@ -498,6 +500,8 @@ public class TouchImageView extends ImageView {
 				if (side.length() > 1) {
 					side = new StringBuilder(side).reverse().toString();
 				}
+				if (side.equals("0"))
+					paintBitmap.setColor(Color.BLACK);
 				this.canvasBitmap.drawText(side + " ",
 						(this.longestSide * widthOffset) - 5
 								- (j * this.paintBitmap.getFontSpacing()),
