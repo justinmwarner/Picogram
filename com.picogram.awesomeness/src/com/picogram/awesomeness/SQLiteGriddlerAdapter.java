@@ -7,6 +7,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteDatabase.CursorFactory;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.graphics.Color;
+import android.util.Log;
 
 public class SQLiteGriddlerAdapter extends SQLiteOpenHelper {
 
@@ -174,8 +175,21 @@ public class SQLiteGriddlerAdapter extends SQLiteOpenHelper {
 		cv.put(SQLiteGriddlerAdapter.current, current);
 		cv.put(SQLiteGriddlerAdapter.status, status);
 		cv.put(SQLiteGriddlerAdapter.id, id);
-		return db.update(griddlerTable, cv, SQLiteGriddlerAdapter.id + " = " + id,
-				null);
+		return db.update(griddlerTable, cv, SQLiteGriddlerAdapter.id + " = "
+				+ id, null);
 	}
 
+	public boolean doesPuzzleExist(GriddlerOne go) {
+		String[][] griddlers = getGriddlers();
+		String id = go.getID();
+		Log.d("SQL", "Looking for ID: " + id);
+		for (String[] gs : griddlers) {
+			Log.d("SQL", "Comparing: " + gs[0] + " to " + id);
+			if (gs[0].equals(id)) {
+				Log.d("SQL", "Found");
+				return true;
+			}
+		}
+		return false;
+	}
 }

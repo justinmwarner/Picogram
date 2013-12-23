@@ -403,30 +403,35 @@ public class SuperAwesomeCardFragment extends Fragment implements
 				this.getActivity().startActivityForResult(createIntent,
 						MenuActivity.CREATE_CODE);
 			} else {
-				this.startGame(this.myAdapter.get(pos).getSolution(),
-						this.myAdapter.get(pos).getCurrent(), this.myAdapter
-								.get(pos).getWidth(), this.myAdapter.get(pos)
-								.getHeight(), this.myAdapter.get(pos).getID(),
-						this.myAdapter.get(pos).getName(),
-						this.myAdapter.get(pos).getColors());
+				// If this griddler doesn't exists for the person, add it.
+
+				GriddlerOne griddler = this.myAdapter.get(pos);
+				Log.d(TAG, "Griddler to add maybe?: " + griddler);
+				if (sql == null)
+					this.sql = new SQLiteGriddlerAdapter(this.getActivity(),
+							"Griddlers", null, 1);
+				if (!sql.doesPuzzleExist(griddler)) {
+					Log.d(TAG, "Puzzle doesn't exist." + griddler.getID());
+					sql.addUserGriddler(griddler);
+				}
+				Log.d(TAG, "Griddler: " + griddler);
+				this.startGame(griddler);
 			}
 		}
 	}
 
-	private void startGame(final String solution, final String current,
-			final String width, final String height, final String id,
-			final String name, final String colors) {
+	private void startGame(GriddlerOne go) {
 		FlurryAgent.logEvent("UserPlayGame");
 		// Intent gameIntent = new Intent(this, AdvancedGameActivity.class);
 		final Intent gameIntent = new Intent(this.getActivity(),
 				AdvancedGameActivity.class);
-		gameIntent.putExtra("solution", solution);
-		gameIntent.putExtra("current", current);
-		gameIntent.putExtra("width", width);
-		gameIntent.putExtra("height", height);
-		gameIntent.putExtra("id", id);
-		gameIntent.putExtra("name", name);
-		gameIntent.putExtra("colors", colors);
+		gameIntent.putExtra("solution", go.getSolution());
+		gameIntent.putExtra("current", go.getCurrent());
+		gameIntent.putExtra("width", go.getWidth());
+		gameIntent.putExtra("height", go.getHeight());
+		gameIntent.putExtra("id", go.getID());
+		gameIntent.putExtra("name", go.getName());
+		gameIntent.putExtra("colors", go.getColors());
 		this.startActivityForResult(gameIntent, GAME_RESULT);
 	}
 

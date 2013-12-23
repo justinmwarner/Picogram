@@ -9,7 +9,6 @@ public class GriddlerOne extends StackMobModel implements Comparable {
 
 	public GriddlerOne() {
 		super(GriddlerOne.class);
-
 	}
 
 	public GriddlerOne(final String id, final String status, final String name,
