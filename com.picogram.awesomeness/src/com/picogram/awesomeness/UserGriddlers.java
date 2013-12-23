@@ -207,7 +207,7 @@ public class UserGriddlers extends Activity implements OnTouchListener,
 			});
 			final String[] tags = data.getStringExtra("tags").split(" ");
 			for (final String tag : tags) {
-				final GriddlerTag gt = new GriddlerTag(tag);
+				final GriddlerTag gt = new GriddlerTag(tag.toLowerCase());
 				gt.setID(id);
 				gt.save();
 			}

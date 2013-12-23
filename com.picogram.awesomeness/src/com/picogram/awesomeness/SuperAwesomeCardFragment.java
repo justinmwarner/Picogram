@@ -240,7 +240,7 @@ public class SuperAwesomeCardFragment extends Fragment implements
 			final boolean isSortByRate) {
 		this.myAdapter.clear();
 		final StackMobQuery smq = new StackMobQuery()
-				.fieldIsEqualTo("tag", tag);
+				.fieldIsEqualTo("tag", tag.toLowerCase());
 		StackMobModel.query(GriddlerTag.class, smq,
 				new StackMobQueryCallback<GriddlerTag>() {
 
@@ -452,7 +452,11 @@ public class SuperAwesomeCardFragment extends Fragment implements
 				sql.addUserGriddler(go);
 				myAdapter.add(go);
 				myAdapter.notifyDataSetChanged();
+				go.setCurrent(null);
 				go.save();
+				GriddlerTag gt = new GriddlerTag("random");
+				gt.setID(go.getID());
+				gt.save();
 				// Start to play.
 			}
 		});
