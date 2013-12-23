@@ -170,4 +170,25 @@ public class GriddlerListAdapter extends ArrayAdapter<GriddlerOne> {
 		this.griddlers = g;
 	}
 
+	public void removeById(String id) {
+		for (int i = 0; i != griddlers.size(); ++i) {
+			if (griddlers.get(i).getID().equals(id)) {
+				Log.d(TAG, "REMOVE SUCCSS");
+				griddlers.remove(i);
+				return;
+			}
+		}
+	}
+
+	public void updateCurrentById(String id, String newCurrent) {
+		for (int i = 0; i != griddlers.size(); ++i) {
+			if (griddlers.get(i).getID().equals(id)) {
+				Log.d(TAG, "REMOVE SUCCSS");
+				GriddlerOne go = griddlers.get(i);
+				go.setCurrent(newCurrent);
+				griddlers.set(i, go);
+				return;
+			}
+		}
+	}
 }

@@ -1,4 +1,3 @@
-
 package com.picogram.awesomeness;
 
 import java.util.ArrayList;
@@ -21,7 +20,8 @@ import com.flurry.android.FlurryAgent;
 import com.stackmob.sdk.callback.StackMobModelCallback;
 import com.stackmob.sdk.exception.StackMobException;
 
-public class UserGriddlers extends Activity implements OnTouchListener, OnItemClickListener {
+public class UserGriddlers extends Activity implements OnTouchListener,
+		OnItemClickListener {
 	protected static final String TAG = "UserGriddlers";
 	ArrayList<GriddlerOne> griddlers = new ArrayList<GriddlerOne>();
 	private ListView lv;
@@ -46,8 +46,8 @@ public class UserGriddlers extends Activity implements OnTouchListener, OnItemCl
 
 		this.lv.setAdapter(this.adapter);
 		final String[][] griddlersArray = sql.getGriddlers();
-		final SharedPreferences prefs = this.getSharedPreferences(MenuActivity.PREFS_FILE,
-				MODE_PRIVATE);
+		final SharedPreferences prefs = this.getSharedPreferences(
+				MenuActivity.PREFS_FILE, MODE_PRIVATE);
 		for (int i = 0; i < griddlersArray.length; i++) {
 			final String temp[] = griddlersArray[i];
 			final String id = temp[0];
@@ -89,10 +89,9 @@ public class UserGriddlers extends Activity implements OnTouchListener, OnItemCl
 				}
 			}
 			if (isAdd) {
-				if (status.equals("2") || !Util.isOnline())
-				{
-					final GriddlerOne tempGriddler = new GriddlerOne(status, name, diff,
-							rate, 0, author, width, height,
+				if (status.equals("2") || !Util.isOnline()) {
+					final GriddlerOne tempGriddler = new GriddlerOne(id,
+							status, name, diff, rate, 0, author, width, height,
 							solution, current, numColors, colors);
 					a.runOnUiThread(new Runnable() {
 
@@ -104,9 +103,9 @@ public class UserGriddlers extends Activity implements OnTouchListener, OnItemCl
 
 					});
 
-				} else
-				{
-					// Get data from online about the Griddler for its updated rating.
+				} else {
+					// Get data from online about the Griddler for its updated
+					// rating.
 					// These variables should be removed.
 					final String cols = colors;
 					final int nc = numColors;
@@ -122,15 +121,17 @@ public class UserGriddlers extends Activity implements OnTouchListener, OnItemCl
 							UserGriddlers.this.h.post(new Runnable() {
 
 								public void run() {
-									final GriddlerOne tempGriddler = new GriddlerOne(oldStatus,
-											name,
-											diff,
-											rate, 0, author, width, height,
-											solution, current, nc, cols);
+									final GriddlerOne tempGriddler = new GriddlerOne(
+											id, oldStatus, name, diff, rate, 0,
+											author, width, height, solution,
+											current, nc, cols);
 									tempGriddler.setID(id);
-									UserGriddlers.this.adapter.add(tempGriddler);
-									UserGriddlers.this.griddlers.add(tempGriddler);
-									UserGriddlers.this.adapter.notifyDataSetChanged();
+									UserGriddlers.this.adapter
+											.add(tempGriddler);
+									UserGriddlers.this.griddlers
+											.add(tempGriddler);
+									UserGriddlers.this.adapter
+											.notifyDataSetChanged();
 								}
 							});
 						}
@@ -144,7 +145,8 @@ public class UserGriddlers extends Activity implements OnTouchListener, OnItemCl
 									g.setCurrent(oldCurrent);
 									UserGriddlers.this.adapter.add(g);
 									UserGriddlers.this.griddlers.add(g);
-									UserGriddlers.this.adapter.notifyDataSetChanged();
+									UserGriddlers.this.adapter
+											.notifyDataSetChanged();
 									// adapter.setGriddlers(UserGriddlers.this.griddlers);
 									// UserGriddlers.this.lv.setAdapter(adapter);
 								}
@@ -165,7 +167,8 @@ public class UserGriddlers extends Activity implements OnTouchListener, OnItemCl
 	}
 
 	@Override
-	protected void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
+	protected void onActivityResult(final int requestCode,
+			final int resultCode, final Intent data) {
 		// These could be compiled in to one, but for now, just keep it as is
 		// for simplicity.
 		if (resultCode == RESULT_OK) {
@@ -181,10 +184,12 @@ public class UserGriddlers extends Activity implements OnTouchListener, OnItemCl
 			final String rank = data.getStringExtra("rank");
 			final String solution = data.getStringExtra("solution");
 			final String width = data.getStringExtra("width");
-			final GriddlerOne g = new GriddlerOne(status, name, difficulty, rank, 1, author, width,
-					height, solution, null, numberOfColors, colors);
+			final GriddlerOne g = new GriddlerOne(id, status, name, difficulty,
+					rank, 1, author, width, height, solution, null,
+					numberOfColors, colors);
 			g.setID(id);
-			// TODO Check if Picogram already exists. If it does, just add that to the users sql database.
+			// TODO Check if Picogram already exists. If it does, just add that
+			// to the users sql database.
 			sql.addUserGriddler(g);
 			// TODO If save failed, save offline to upload later on.
 			g.save(new StackMobModelCallback() {
@@ -201,8 +206,7 @@ public class UserGriddlers extends Activity implements OnTouchListener, OnItemCl
 				}
 			});
 			final String[] tags = data.getStringExtra("tags").split(" ");
-			for (final String tag : tags)
-			{
+			for (final String tag : tags) {
 				final GriddlerTag gt = new GriddlerTag(tag);
 				gt.setID(id);
 				gt.save();
@@ -227,7 +231,8 @@ public class UserGriddlers extends Activity implements OnTouchListener, OnItemCl
 		// Grab all the Griddlers on local drive.
 		// IE: The ones the user started on.
 		// Also show the create a Griddler and Tutorial Griddler.
-		sql = new SQLiteGriddlerAdapter(this.getApplicationContext(), "Griddlers", null, 1);
+		sql = new SQLiteGriddlerAdapter(this.getApplicationContext(),
+				"Griddlers", null, 1);
 		this.lv.setOnItemClickListener(this);
 		FlurryAgent.logEvent("UserOpened");
 	}
@@ -238,19 +243,22 @@ public class UserGriddlers extends Activity implements OnTouchListener, OnItemCl
 		return true;
 	}
 
-	public void onItemClick(final AdapterView<?> parent, final View v, final int pos, final long id) {
+	public void onItemClick(final AdapterView<?> parent, final View v,
+			final int pos, final long id) {
 		if (pos >= 0) {
 			if (pos == 0) {
 				// Start Create.
-				final Intent createIntent = new Intent(this, CreateGriddlerActivity.class);
+				final Intent createIntent = new Intent(this,
+						CreateGriddlerActivity.class);
 				sql.close();
 				this.startActivityForResult(createIntent, 1);
 			} else {
 				// Start game with info!
-				this.startGame(this.griddlers.get(pos).getSolution(), this.griddlers.get(pos)
-						.getCurrent(),
-						this.griddlers.get(pos).getWidth(), this.griddlers.get(pos).getHeight(),
-						this.griddlers.get(pos).getID(), this.griddlers.get(pos).getName(),
+				this.startGame(this.griddlers.get(pos).getSolution(),
+						this.griddlers.get(pos).getCurrent(), this.griddlers
+								.get(pos).getWidth(), this.griddlers.get(pos)
+								.getHeight(), this.griddlers.get(pos).getID(),
+						this.griddlers.get(pos).getName(),
 						this.griddlers.get(pos).getColors());
 			}
 		}
@@ -276,24 +284,27 @@ public class UserGriddlers extends Activity implements OnTouchListener, OnItemCl
 			this.yPrev = new Date().getSeconds();
 		}
 		if (me.getAction() == MotionEvent.ACTION_UP) {
-			if (((this.yPrev + 20) < me.getY()) || ((this.yPrev - 20) > me.getY())) {
-				final int pos = this.lv.pointToPosition((int) me.getX(), (int) me.getY());
+			if (((this.yPrev + 20) < me.getY())
+					|| ((this.yPrev - 20) > me.getY())) {
+				final int pos = this.lv.pointToPosition((int) me.getX(),
+						(int) me.getY());
 				if (pos >= 0) {
 					if (pos == 0) {
 						// Start Create.
-						final Intent createIntent = new Intent(this, CreateGriddlerActivity.class);
+						final Intent createIntent = new Intent(this,
+								CreateGriddlerActivity.class);
 						sql.close();
 						this.startActivityForResult(createIntent, 1);
 						return false;
 					} else {
 						// Start game with info!
 						this.startGame(this.griddlers.get(pos).getSolution(),
-								this.griddlers.get(pos).getCurrent(), this.griddlers.get(pos)
-								.getWidth(),
-								this.griddlers.get(pos).getHeight(), this.griddlers.get(pos)
-								.getID(),
-								this.griddlers.get(pos).getName(), this.griddlers.get(pos)
-								.getColors());
+								this.griddlers.get(pos).getCurrent(),
+								this.griddlers.get(pos).getWidth(),
+								this.griddlers.get(pos).getHeight(),
+								this.griddlers.get(pos).getID(), this.griddlers
+										.get(pos).getName(), this.griddlers
+										.get(pos).getColors());
 					}
 				}
 				return false;
@@ -305,8 +316,9 @@ public class UserGriddlers extends Activity implements OnTouchListener, OnItemCl
 		}
 	}
 
-	private void startGame(final String solution, final String current, final String width,
-			final String height, final String id, final String name, final String colors) {
+	private void startGame(final String solution, final String current,
+			final String width, final String height, final String id,
+			final String name, final String colors) {
 		FlurryAgent.logEvent("UserPlayGame");
 		// Intent gameIntent = new Intent(this, AdvancedGameActivity.class);
 		final Intent gameIntent = new Intent(this, AdvancedGameActivity.class);

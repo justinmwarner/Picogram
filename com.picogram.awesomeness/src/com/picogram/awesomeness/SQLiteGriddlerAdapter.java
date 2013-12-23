@@ -1,4 +1,3 @@
-
 package com.picogram.awesomeness;
 
 import android.content.ContentValues;
@@ -52,11 +51,11 @@ public class SQLiteGriddlerAdapter extends SQLiteOpenHelper {
 		return db.insert(griddlerTable, null, cv);
 	}
 
-	public long addUserGriddler(final String id, final String author, final String name,
-			final String rank, final String solution, String current, final String difficulty,
-			final String width,
-			final String height, final String status, final String numberOfColors,
-			final String colors) {
+	public long addUserGriddler(final String id, final String author,
+			final String name, final String rank, final String solution,
+			String current, final String difficulty, final String width,
+			final String height, final String status,
+			final String numberOfColors, final String colors) {
 		// Do stuff. Unknown so far. Implement later.
 		final SQLiteDatabase db = this.getWritableDatabase();
 		final ContentValues cv = new ContentValues();
@@ -72,8 +71,7 @@ public class SQLiteGriddlerAdapter extends SQLiteOpenHelper {
 		cv.put(SQLiteGriddlerAdapter.numberOfColors, numberOfColors);
 		cv.put(SQLiteGriddlerAdapter.colors, colors);
 		// All 0's, if not assigned.
-		if (current == null)
-		{
+		if (current == null) {
 			current = "";
 			for (int i = 0; i < Integer.parseInt(width); i++) {
 				for (int j = 0; j < Integer.parseInt(height); j++) {
@@ -85,13 +83,10 @@ public class SQLiteGriddlerAdapter extends SQLiteOpenHelper {
 		return db.insert(griddlerTable, null, cv);
 	}
 
-	public int deleteGriddler(final String info) {
+	public int deleteGriddler(final String id) {
 		// Probably won't implement. Not a huge deal (Right now).
 		final SQLiteDatabase db = this.getWritableDatabase();
-		final String[] hash = {
-				info.split(" ")[0]
-		};
-		return db.delete(griddlerTable, "id=" + hash, null);
+		return db.delete(griddlerTable, "id=" + id, null);
 	}
 
 	public String[][] getGriddlers() {
@@ -103,7 +98,8 @@ public class SQLiteGriddlerAdapter extends SQLiteOpenHelper {
 		query = "SELECT * FROM " + griddlerTable;
 		final Cursor c = db.rawQuery(query, null);
 		if (c.moveToFirst()) {
-			final String[][] result = new String[c.getCount()][c.getColumnCount()];
+			final String[][] result = new String[c.getCount()][c
+					.getColumnCount()];
 			for (int i = 0; i < result.length; i++) {
 				for (int j = 0; j < c.getColumnCount(); j++) {
 					result[i][j] = c.getString(j);
@@ -153,21 +149,24 @@ public class SQLiteGriddlerAdapter extends SQLiteOpenHelper {
 	@Override
 	public void onCreate(final SQLiteDatabase db) {
 		// Create the database son.
-		final String query = "CREATE TABLE " + griddlerTable + " (" + id + " INT(32)," + author
-				+ " TEXT," + name + " TEXT," + rank + " INT(32)," + solution + " TEXT," + current
-				+ " TEXT," + difficulty + " VARCHAR(16)," + width + " INT(12)," + height
-				+ " INT(12)," + status + " INT(12)," + numberOfColors + "  INT(12), " + colors
-				+ " TEXT, " + " primary KEY (id));";
+		final String query = "CREATE TABLE " + griddlerTable + " (" + id
+				+ " INT(32)," + author + " TEXT," + name + " TEXT," + rank
+				+ " INT(32)," + solution + " TEXT," + current + " TEXT,"
+				+ difficulty + " VARCHAR(16)," + width + " INT(12)," + height
+				+ " INT(12)," + status + " INT(12)," + numberOfColors
+				+ "  INT(12), " + colors + " TEXT, " + " primary KEY (id));";
 		db.execSQL(query);
 		this.insertDefaults(db);
 	}
 
 	@Override
-	public void onUpgrade(final SQLiteDatabase db, final int oldV, final int newV) {
+	public void onUpgrade(final SQLiteDatabase db, final int oldV,
+			final int newV) {
 		// Don't do anything... Yet. Need to read up on what/how this works.
 	}
 
-	public int updateCurrentGriddler(final String id, final String status, final String current) {
+	public int updateCurrentGriddler(final String id, final String status,
+			final String current) {
 		// info = id + " " + status + " " + current
 		// Info should include hash and new current.
 		final SQLiteDatabase db = this.getWritableDatabase();
@@ -175,9 +174,8 @@ public class SQLiteGriddlerAdapter extends SQLiteOpenHelper {
 		cv.put(SQLiteGriddlerAdapter.current, current);
 		cv.put(SQLiteGriddlerAdapter.status, status);
 		cv.put(SQLiteGriddlerAdapter.id, id);
-		return db.update(griddlerTable, cv, SQLiteGriddlerAdapter.id + " = ? ", new String[] {
-				String.valueOf(id)
-		});
+		return db.update(griddlerTable, cv, SQLiteGriddlerAdapter.id + " = " + id,
+				null);
 	}
 
 }

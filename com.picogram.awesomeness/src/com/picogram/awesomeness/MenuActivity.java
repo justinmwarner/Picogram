@@ -144,7 +144,7 @@ public class MenuActivity extends FragmentActivity implements FlurryAdListener,
 			final String rank = data.getStringExtra("rank");
 			final String solution = data.getStringExtra("solution");
 			final String width = data.getStringExtra("width");
-			final GriddlerOne g = new GriddlerOne(status, name, difficulty,
+			final GriddlerOne g = new GriddlerOne(id, status, name, difficulty,
 					rank, 1, author, width, height, solution, null,
 					numberOfColors, colors);
 			g.setID(id);

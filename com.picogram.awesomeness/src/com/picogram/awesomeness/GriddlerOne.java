@@ -1,25 +1,24 @@
-
 package com.picogram.awesomeness;
 
 import com.stackmob.sdk.model.StackMobModel;
 
 public class GriddlerOne extends StackMobModel implements Comparable {
-	private String status, name, diff, rate, author, width, height, solution, current,
-			numberOfColors, colors;
+	private String status, name, diff, rate, author, width, height, solution,
+			current, numberOfColors, colors;
 	private int numberOfRatings;
 
 	public GriddlerOne() {
 		super(GriddlerOne.class);
 
 	}
-	 
-	public GriddlerOne(final String status, final String name,
-			final String difficulty, final String rank, final int numberOfRatings,
-			final String author, final String width,
-			final String height, final String solution, final String current, final int numColors,
-			final String colors) {
+
+	public GriddlerOne(final String id, final String status, final String name,
+			final String difficulty, final String rank,
+			final int numberOfRatings, final String author, final String width,
+			final String height, final String solution, final String current,
+			final int numColors, final String colors) {
 		super(GriddlerOne.class);
-		// this.id = id;
+		this.id = id;
 		this.status = status;
 		this.name = name;
 		this.diff = difficulty;
@@ -36,8 +35,8 @@ public class GriddlerOne extends StackMobModel implements Comparable {
 
 	public int compareTo(final Object g) {
 		// equal is equivlant to making it less than, so no 0 needed.
-		return (Integer.parseInt(this.rate) >= Integer.parseInt(((GriddlerOne) g).rate)) == true ? 1
-				: -1;
+		return (Integer.parseInt(this.rate) >= Integer
+				.parseInt(((GriddlerOne) g).rate)) == true ? 1 : -1;
 	}
 
 	public String getAuthor() {
@@ -143,14 +142,15 @@ public class GriddlerOne extends StackMobModel implements Comparable {
 	}
 
 	@Override
-	public String toString()
-	{
-		return this.id + " " + this.status + " " + this.name + " " + this.diff + " " + this.rate
-				+ " " + this.author + " " + this.width + " " + this.height + " " + this.solution
-				+ " " + this.current + " " + this.numberOfColors + " " + this.colors + " "
+	public String toString() {
+		return this.id + " " + this.status + " " + this.name + " " + this.diff
+				+ " " + this.rate + " " + this.author + " " + this.width + " "
+				+ this.height + " " + this.solution + " " + this.current + " "
+				+ this.numberOfColors + " " + this.colors + " "
 				+ this.numberOfRatings;
 		/*
-		 * id status name diff rating - null author width height solution current - null numColors colors numberOfRatings - 5
+		 * id status name diff rating - null author width height solution
+		 * current - null numColors colors numberOfRatings - 5
 		 */
 	}
 
