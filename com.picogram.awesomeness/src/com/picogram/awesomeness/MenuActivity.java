@@ -280,7 +280,6 @@ public class MenuActivity extends FragmentActivity implements FlurryAdListener,
 
 					@Override
 					public void success(String arg0) {
-						Log.d(TAG, "Upload success.");
 						sql.updateupdateUploadedPicogram(go.getID(), "1");
 					}
 				});
@@ -372,10 +371,19 @@ public class MenuActivity extends FragmentActivity implements FlurryAdListener,
 			rl.addView(this.bSearch, paramsButton);
 			this.toolbar.removeAllViews();
 			this.toolbar.addView(rl);
+			// Show keyboard
+			bSearch.requestFocus();
+			InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+			imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
 		} else {
 			updateBottomBar();
 		}
 		this.currentTab = tab;
+		if (tab != TITLES.indexOf("Search")) {// Hide keyboard
+			InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+			imm.hideSoftInputFromWindow(findViewById(android.R.id.content)
+					.getWindowToken(), 0);
+		}
 	}
 
 	private void updateBottomBar() {

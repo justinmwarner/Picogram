@@ -481,8 +481,8 @@ public class SuperAwesomeCardFragment extends Fragment implements
 
 	public boolean onItemLongClick(AdapterView<?> arg0, View arg1,
 			final int position, long arg3) {
-		if (position == 0) {
-			// Create, should just ignore this?
+		if (position == 0 || position == 1) {
+			// Create or Random, should just ignore this?
 			return false;
 		} else {
 			FragmentTransaction ft = getChildFragmentManager()
