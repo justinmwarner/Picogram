@@ -372,7 +372,7 @@ public class MenuActivity extends FragmentActivity implements FlurryAdListener,
 			this.toolbar.removeAllViews();
 			this.toolbar.addView(rl);
 			// Show keyboard
-			bSearch.requestFocus();
+			etTags.requestFocus();
 			InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
 			imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
 		} else {
