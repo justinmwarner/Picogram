@@ -11,6 +11,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Debug;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -187,9 +188,14 @@ public class MenuActivity extends FragmentActivity implements FlurryAdListener,
 			final String status = data.getStringExtra("status");
 			final String current = data.getStringExtra("current");
 			this.sql.updateCurrentGriddler(id, status, current);
+			this.lvAdapter.updateCurrentById(id, current, status);
+			this.lvAdapter.notifyDataSetChanged();
+			Log.d(TAG, "HEREHHERHEHEREEREEREERE: " + status);
 		} else {
 			// Nothing added.
 		}
+		Log.d(TAG, resultCode + " " + requestCode);
+		Log.d(TAG, Activity.RESULT_OK + " " + GAME_CODE);
 		this.sql.close();
 		// Update current tab.
 		this.updateCurrentTab();
@@ -248,14 +254,16 @@ public class MenuActivity extends FragmentActivity implements FlurryAdListener,
 
 		this.tabs.setViewPager(this.pager);
 		this.tabs.setOnPageChangeListener(this);
-		setUpAds();
+		this.toolbar = (LinearLayout) this.findViewById(R.id.bottomToolbar);
+		if (!Debug.isDebuggerConnected())
+			setUpAds();
 		setUpRater();
-	}
-
-	private void setUpAds() {
 		StackMobAndroid.init(this.getApplicationContext(), 0,
 				"f077e098-c678-4256-b7a2-c3061d9ff0c2");// Change to production.
 
+	}
+
+	private void setUpAds() {
 		FlurryAgent.onStartSession(this,
 				this.getResources().getString(R.string.flurry));
 		FlurryAgent.setCaptureUncaughtExceptions(true);
@@ -263,7 +271,6 @@ public class MenuActivity extends FragmentActivity implements FlurryAdListener,
 		FlurryAgent.setLogEvents(!this.prefs.getBoolean("logging", false));
 
 		FlurryAgent.logEvent("App Started");
-		this.toolbar = (LinearLayout) this.findViewById(R.id.bottomToolbar);
 		// allow us to get callbacks for ad events
 		FlurryAds.setAdListener(this);
 		FlurryAds.enableTestAds(true);
@@ -314,11 +321,12 @@ public class MenuActivity extends FragmentActivity implements FlurryAdListener,
 			this.bSearch = new Button(this);
 			this.bSearch.setText("Search");
 			this.bSearch.setOnClickListener(this);
-			RelativeLayout.LayoutParams paramsEditText = new RelativeLayout.LayoutParams(LayoutParams.MATCH_PARENT,
-					LayoutParams.MATCH_PARENT);
+			RelativeLayout.LayoutParams paramsEditText = new RelativeLayout.LayoutParams(
+					LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
 			paramsEditText.addRule(RelativeLayout.ALIGN_PARENT_LEFT,
 					RelativeLayout.TRUE);
-			paramsEditText.addRule(RelativeLayout.LEFT_OF, this.bSearch.getId());
+			paramsEditText
+					.addRule(RelativeLayout.LEFT_OF, this.bSearch.getId());
 			this.etTags = new EditText(this);
 			this.etTags.setOnEditorActionListener(new OnEditorActionListener() {
 
@@ -352,8 +360,9 @@ public class MenuActivity extends FragmentActivity implements FlurryAdListener,
 			this.toolbar.setVisibility(!this.prefs.getBoolean("advertisements",
 					false) ? View.VISIBLE : View.GONE);
 			if (!this.prefs.getBoolean("advertisements", false)) {
-				FlurryAds.fetchAd(this, "MainScreen", this.toolbar,
-						FlurryAdSize.BANNER_BOTTOM);
+				if (!Debug.isDebuggerConnected())
+					FlurryAds.fetchAd(this, "MainScreen", this.toolbar,
+							FlurryAdSize.BANNER_BOTTOM);
 			}
 		}
 	}
@@ -365,21 +374,24 @@ public class MenuActivity extends FragmentActivity implements FlurryAdListener,
 	public void onStart() {
 		super.onStart();
 		Util.updateFullScreen(this);
-		FlurryAgent.onStartSession(this,
-				this.getResources().getString(R.string.flurry));
+		if (!Debug.isDebuggerConnected())
+			FlurryAgent.onStartSession(this,
+					this.getResources().getString(R.string.flurry));
 		// fetch and prepare ad for this ad space. won’t render one yet
 		this.toolbar.setVisibility(!this.prefs.getBoolean("advertisements",
 				false) ? View.VISIBLE : View.GONE);
 		if (!this.prefs.getBoolean("advertisements", false)) {
-			FlurryAds.fetchAd(this, "MainScreen", this.toolbar,
-					FlurryAdSize.BANNER_BOTTOM);
+			if (!Debug.isDebuggerConnected())
+				FlurryAds.fetchAd(this, "MainScreen", this.toolbar,
+						FlurryAdSize.BANNER_BOTTOM);
 		}
 	}
 
 	@Override
 	public void onStop() {
 		super.onStop();
-		FlurryAgent.onEndSession(this);
+		if (!Debug.isDebuggerConnected())
+			FlurryAgent.onEndSession(this);
 	}
 
 	public void onVideoCompleted(final String arg0) {

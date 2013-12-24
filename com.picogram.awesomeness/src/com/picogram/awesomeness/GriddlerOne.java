@@ -32,6 +32,13 @@ public class GriddlerOne extends StackMobModel implements Comparable {
 		this.numberOfRatings = numberOfRatings;
 	}
 
+	@Override
+	public void save() {
+		super.save();
+		// If save fails, we go have this item saved and upload later.
+		// TODO
+	}
+
 	public int compareTo(final Object g) {
 		// equal is equivlant to making it less than, so no 0 needed.
 		return (Integer.parseInt(this.rate) >= Integer
@@ -146,7 +153,7 @@ public class GriddlerOne extends StackMobModel implements Comparable {
 				+ " " + this.rate + " " + this.author + " " + this.width + " "
 				+ this.height + " " + this.solution + " " + this.current + " "
 				+ this.numberOfColors + " " + this.colors + " "
-				+ this.numberOfRatings ;
+				+ this.numberOfRatings;
 		/*
 		 * id status name diff rating - null author width height solution
 		 * current - null numColors colors numberOfRatings - 5

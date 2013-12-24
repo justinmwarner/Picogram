@@ -239,8 +239,8 @@ public class SuperAwesomeCardFragment extends Fragment implements
 	public void getTagPuzzles(final Activity a, final String tag,
 			final boolean isSortByRate) {
 		this.myAdapter.clear();
-		final StackMobQuery smq = new StackMobQuery()
-				.fieldIsEqualTo("tag", tag.toLowerCase());
+		final StackMobQuery smq = new StackMobQuery().fieldIsEqualTo("tag",
+				tag.toLowerCase());
 		StackMobModel.query(GriddlerTag.class, smq,
 				new StackMobQueryCallback<GriddlerTag>() {
 
@@ -417,7 +417,8 @@ public class SuperAwesomeCardFragment extends Fragment implements
 		gameIntent.putExtra("id", go.getID());
 		gameIntent.putExtra("name", go.getName());
 		gameIntent.putExtra("colors", go.getColors());
-		this.startActivityForResult(gameIntent, GAME_RESULT);
+		Log.d(TAG, "Looking: " + MenuActivity.GAME_CODE);
+		this.getActivity().startActivityForResult(gameIntent, MenuActivity.GAME_CODE);
 	}
 
 	public void generateRandomGame() {
@@ -436,9 +437,13 @@ public class SuperAwesomeCardFragment extends Fragment implements
 				for (int i = 0; i != result.getString("solution").length(); ++i)
 					current += "0";
 				for (int i = 0; i != result.getInt("numColors"); ++i)
-					cols += Color.rgb((int) (Math.random() * 255),
-							(int) (Math.random() * 255),
-							(int) (Math.random() * 255)) + ",";
+					if (i == 0)
+						cols += Color.TRANSPARENT + ",";
+					else
+						cols += Color.rgb((int) (Math.random() * 255),
+								(int) (Math.random() * 255),
+								(int) (Math.random() * 255))
+								+ ",";
 				cols = cols.substring(0, cols.length() - 1);
 				int w = result.getInt("width"), h = result.getInt("height"), nc = result
 						.getInt("numColors");

@@ -68,12 +68,7 @@ public class AdvancedGameActivity extends Activity implements OnTouchListener,
 	@Override
 	public void onBackPressed() {
 		super.onPause();
-		final Intent returnIntent = new Intent();
-		returnIntent.putExtra("current", this.tiv.gCurrent);
-		returnIntent.putExtra("status", "0");
-		returnIntent.putExtra("ID", this.tiv.gSolution.hashCode() + "");
-		this.setResult(2, returnIntent);
-		this.finish();
+		this.returnIntent();
 	}
 
 	@Override
@@ -201,7 +196,14 @@ public class AdvancedGameActivity extends Activity implements OnTouchListener,
 
 		final Intent returnIntent = new Intent();
 		returnIntent.putExtra("current", this.tiv.gCurrent);
-		returnIntent.putExtra("status", "1");
+		Log.d(TAG, "CORRECT: |" + tiv.gCurrent + "|");
+		Log.d(TAG, "CORRECT: |" + tiv.gSolution + "|");
+		Log.d(TAG, "CORRECT: " + (tiv.gCurrent == tiv.gSolution));
+		if (tiv.gCurrent.equals(tiv.gSolution)) {
+			Log.d(TAG, "WE ARE CORRECT");
+			returnIntent.putExtra("status", "1");
+		} else
+			returnIntent.putExtra("status", "0");
 		returnIntent.putExtra("ID", this.tiv.gSolution.hashCode() + "");
 		this.setResult(Activity.RESULT_OK, returnIntent);
 		this.finish();
@@ -211,6 +213,7 @@ public class AdvancedGameActivity extends Activity implements OnTouchListener,
 		final Dialog dialog = new Dialog(AdvancedGameActivity.this);
 		dialog.setContentView(R.layout.dialog_ranking);
 		dialog.setTitle("Rate this Picogram");
+		dialog.setCancelable(false);
 
 		final RatingBar rb = (RatingBar) dialog.findViewById(R.id.rbRate);
 		rb.setOnRatingBarChangeListener(new OnRatingBarChangeListener() {

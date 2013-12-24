@@ -166,7 +166,6 @@ public class GriddlerListAdapter extends ArrayAdapter<GriddlerOne> {
 				diff.setText("");
 		} catch (Exception e) {
 			// Ignore if not a number.
-			Log.d(TAG, "Poop");
 		}
 		name.setText(this.griddlers.get(position).getName());
 		// Change color if user has beaten level.
