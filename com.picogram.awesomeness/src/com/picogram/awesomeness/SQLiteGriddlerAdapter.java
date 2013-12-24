@@ -24,6 +24,8 @@ public class SQLiteGriddlerAdapter extends SQLiteOpenHelper {
 	static final String status = "Status";
 	static final String width = "Width";
 	static final String colors = "Colors";
+	static final String isUploaded = "Uploaded";
+	static final String personalRank = "PersonalRank";
 	static final String numberOfColors = "NumColors";
 
 	// static final String tags = "Tags";
@@ -49,6 +51,8 @@ public class SQLiteGriddlerAdapter extends SQLiteOpenHelper {
 		cv.put(SQLiteGriddlerAdapter.current, g.getCurrent());
 		cv.put(SQLiteGriddlerAdapter.numberOfColors, g.getNumberOfColors());
 		cv.put(SQLiteGriddlerAdapter.colors, g.getColors());
+		cv.put(personalRank, g.getPersonalRank());
+		cv.put(isUploaded, g.getIsUploaded());
 		return db.insert(griddlerTable, null, cv);
 	}
 
@@ -56,7 +60,8 @@ public class SQLiteGriddlerAdapter extends SQLiteOpenHelper {
 			final String name, final String rank, final String solution,
 			String current, final String difficulty, final String width,
 			final String height, final String status,
-			final String numberOfColors, final String colors) {
+			final String numberOfColors, final String colors,
+			final String personalRank, final String isUploaded) {
 		// Do stuff. Unknown so far. Implement later.
 		final SQLiteDatabase db = this.getWritableDatabase();
 		final ContentValues cv = new ContentValues();
@@ -71,6 +76,8 @@ public class SQLiteGriddlerAdapter extends SQLiteOpenHelper {
 		cv.put(SQLiteGriddlerAdapter.status, status);
 		cv.put(SQLiteGriddlerAdapter.numberOfColors, numberOfColors);
 		cv.put(SQLiteGriddlerAdapter.colors, colors);
+		cv.put(SQLiteGriddlerAdapter.personalRank, personalRank);
+		cv.put(SQLiteGriddlerAdapter.isUploaded, isUploaded);
 		// All 0's, if not assigned.
 		if (current == null) {
 			current = "";
@@ -130,6 +137,8 @@ public class SQLiteGriddlerAdapter extends SQLiteOpenHelper {
 		cv.put(width, "0");
 		cv.put(height, "0");
 		cv.put(status, "2");
+		cv.put(personalRank, "0");
+		cv.put(isUploaded, "1");
 		db.insert(griddlerTable, null, cv);
 		cv.put(id, "0".hashCode());
 		cv.put(author, "justinwarner");
@@ -141,6 +150,8 @@ public class SQLiteGriddlerAdapter extends SQLiteOpenHelper {
 		cv.put(width, "0");
 		cv.put(height, "0");
 		cv.put(status, "2");
+		cv.put(personalRank, "0");
+		cv.put(isUploaded, "1");
 		db.insert(griddlerTable, null, cv);
 		cv.put(id, "1111100110011111".hashCode());
 		cv.put(author, "justinwarner");
@@ -154,6 +165,8 @@ public class SQLiteGriddlerAdapter extends SQLiteOpenHelper {
 		cv.put(status, "0");
 		cv.put(colors, Color.TRANSPARENT + "," + Color.BLACK);
 		cv.put(numberOfColors, 2);
+		cv.put(personalRank, "0");
+		cv.put(isUploaded, "1");
 		db.insert(griddlerTable, null, cv);
 	}
 
@@ -165,7 +178,8 @@ public class SQLiteGriddlerAdapter extends SQLiteOpenHelper {
 				+ " INT(32)," + solution + " TEXT," + current + " TEXT,"
 				+ difficulty + " VARCHAR(16)," + width + " INT(12)," + height
 				+ " INT(12)," + status + " INT(12)," + numberOfColors
-				+ "  INT(12), " + colors + " TEXT, " + " primary KEY (id));";
+				+ "  INT(12), " + colors + " TEXT, " + personalRank + " TEXT,"
+				+ isUploaded + " TEXT, primary KEY (id));";
 		db.execSQL(query);
 		this.insertDefaults(db);
 	}
@@ -178,8 +192,6 @@ public class SQLiteGriddlerAdapter extends SQLiteOpenHelper {
 
 	public int updateCurrentGriddler(final String id, final String status,
 			final String current) {
-		// info = id + " " + status + " " + current
-		// Info should include hash and new current.
 		final SQLiteDatabase db = this.getWritableDatabase();
 		final ContentValues cv = new ContentValues();
 		cv.put(SQLiteGriddlerAdapter.current, current);
@@ -189,17 +201,48 @@ public class SQLiteGriddlerAdapter extends SQLiteOpenHelper {
 				+ id, null);
 	}
 
+	public String[][] getUnUploadedPicograms()
+	{
+		final SQLiteDatabase db = this.getWritableDatabase();
+		String[][] thing = this.getGriddlers();
+		String query = "SELECT * FROM " + griddlerTable + " WHERE "
+					+ isUploaded + "='0'";
+		final Cursor c = db.rawQuery(query, null);
+		if (c.moveToFirst()) {
+			final String[][] result = new String[c.getCount()][c
+					.getColumnCount()];
+			for (int i = 0; i < result.length; i++) {
+				for (int j = 0; j < c.getColumnCount(); j++) {
+					result[i][j] = c.getString(j);
+				}
+				c.moveToNext();
+			}
+			c.close();
+			return result;
+		} else {
+			c.close();
+			return null;
+		}
+	}
+
 	public boolean doesPuzzleExist(GriddlerOne go) {
 		String[][] griddlers = getGriddlers();
 		String id = go.getID();
-		Log.d("SQL", "Looking for ID: " + id);
 		for (String[] gs : griddlers) {
-			Log.d("SQL", "Comparing: " + gs[0] + " to " + id);
 			if (gs[0].equals(id)) {
-				Log.d("SQL", "Found");
 				return true;
 			}
 		}
 		return false;
+	}
+
+	public void updateupdateUploadedPicogram(String id, String isUp) {
+
+		final SQLiteDatabase db = this.getWritableDatabase();
+		final ContentValues cv = new ContentValues();
+		cv.put(SQLiteGriddlerAdapter.isUploaded, isUp);
+		cv.put(SQLiteGriddlerAdapter.id, id);
+		db.update(griddlerTable, cv, SQLiteGriddlerAdapter.id + " = "
+				+ id, null);
 	}
 }

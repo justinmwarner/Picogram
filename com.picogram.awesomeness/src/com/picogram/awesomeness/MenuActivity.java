@@ -59,6 +59,7 @@ import com.flurry.android.FlurryAgent;
 import com.kopfgeldjaeger.ratememaybe.RateMeMaybe;
 import com.kopfgeldjaeger.ratememaybe.RateMeMaybe.OnRMMUserChoiceListener;
 import com.stackmob.android.sdk.common.StackMobAndroid;
+import com.stackmob.sdk.callback.StackMobCallback;
 import com.stackmob.sdk.callback.StackMobModelCallback;
 import com.stackmob.sdk.exception.StackMobException;
 
@@ -155,23 +156,24 @@ public class MenuActivity extends FragmentActivity implements FlurryAdListener,
 			final String width = data.getStringExtra("width");
 			final GriddlerOne g = new GriddlerOne(id, status, name, difficulty,
 					rank, 1, author, width, height, solution, null,
-					numberOfColors, colors);
+					numberOfColors, colors, "0", "5");
 			g.setID(id);
 			// TODO Check if Picogram already exists. If it does, just add that
 			// to the users sql database.
-			this.sql.addUserGriddler(g);
 			// TODO If save failed, save offline to upload later on.
 			g.save(new StackMobModelCallback() {
 
 				@Override
 				public void failure(final StackMobException arg0) {
-
+					g.setIsUploaded("0");
+					sql.addUserGriddler(g);
 				}
 
 				@Override
 				public void success() {
 					// TODO Auto-generated method stub
-
+					g.setIsUploaded("1");
+					sql.addUserGriddler(g);
 				}
 			});
 			final String[] tags = data.getStringExtra("tags").split(" ");
@@ -190,14 +192,8 @@ public class MenuActivity extends FragmentActivity implements FlurryAdListener,
 			this.sql.updateCurrentGriddler(id, status, current);
 			this.lvAdapter.updateCurrentById(id, current, status);
 			this.lvAdapter.notifyDataSetChanged();
-			Log.d(TAG, "HEREHHERHEHEREEREEREERE: " + status);
-		} else {
-			// Nothing added.
 		}
-		Log.d(TAG, resultCode + " " + requestCode);
-		Log.d(TAG, Activity.RESULT_OK + " " + GAME_CODE);
 		this.sql.close();
-		// Update current tab.
 		this.updateCurrentTab();
 
 	}
@@ -222,8 +218,10 @@ public class MenuActivity extends FragmentActivity implements FlurryAdListener,
 				// Hide keyboard.
 				final InputMethodManager inputManager = (InputMethodManager) this
 						.getSystemService(Context.INPUT_METHOD_SERVICE);
-				inputManager.hideSoftInputFromWindow(this.getCurrentFocus()
-						.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+				if (inputManager != null)
+					inputManager.hideSoftInputFromWindow(this.getCurrentFocus()
+							.getWindowToken(),
+							InputMethodManager.HIDE_NOT_ALWAYS);
 			}
 		}
 	}
@@ -260,6 +258,35 @@ public class MenuActivity extends FragmentActivity implements FlurryAdListener,
 		setUpRater();
 		StackMobAndroid.init(this.getApplicationContext(), 0,
 				"f077e098-c678-4256-b7a2-c3061d9ff0c2");// Change to production.
+		if (Util.isOnline())
+			updateFromOffline();
+	}
+
+	private void updateFromOffline() {
+		if (this.sql == null) {
+			this.sql = new SQLiteGriddlerAdapter(this, "Griddlers", null, 1);
+		}
+		String[][] offline = sql.getUnUploadedPicograms();
+		if (offline != null) {
+			for (String[] off : offline) {
+				final GriddlerOne go = new GriddlerOne(off);
+				go.save(new StackMobCallback() {
+
+					@Override
+					public void failure(StackMobException arg0) {
+						// TODO Auto-generated method stub
+
+					}
+
+					@Override
+					public void success(String arg0) {
+						Log.d(TAG, "Upload success.");
+						sql.updateupdateUploadedPicogram(go.getID(), "1");
+					}
+				});
+			}
+
+		}
 
 	}
 

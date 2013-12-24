@@ -212,7 +212,6 @@ public class CreateGriddlerActivity extends FragmentActivity implements
 						.findViewById(R.id.etRandomTags);
 				RadioGroup difficulty = (RadioGroup) dialoglayout
 						.findViewById(R.id.radioDifficulty);
-				Log.d(TAG, "Pos: " + difficulty.getCheckedRadioButtonId() + "");
 
 				int radioButtonID = difficulty.getCheckedRadioButtonId();
 				RadioButton radioButton = (RadioButton) difficulty
@@ -281,9 +280,7 @@ public class CreateGriddlerActivity extends FragmentActivity implements
 		if (v.getId() == R.id.bCustom) {
 			// Start a drawing activity.
 			// TODO
-			Log.d(TAG, "Custom");
 		} else if (v.getId() == R.id.bGallery) {
-			Log.d(TAG, "File");
 			// File stuff.
 			final Intent fileIntent = new Intent(Intent.ACTION_GET_CONTENT);
 			fileIntent.setType("image/*");
@@ -296,7 +293,6 @@ public class CreateGriddlerActivity extends FragmentActivity implements
 			// The Listener will take care of all the stuff
 			// that needs to happen.
 		} else if (v.getId() == R.id.bLink) {
-			Log.d(TAG, "Link");
 			final EditText input = new EditText(this);
 			input.setText("http://static.tumblr.com/b81c7dadf0e20919a038a85c933062a6/4w8r7zy/2ifmvnsrg/tumblr_static_tumblr_static_tumblr_inline_mkqs46qvu21qz4rgp.gif");
 			new AlertDialog.Builder(CreateGriddlerActivity.this)
@@ -327,7 +323,6 @@ public class CreateGriddlerActivity extends FragmentActivity implements
 								}
 							}).show();
 		} else if (v.getId() == R.id.bSearch) {
-			Log.d(TAG, "Searching");
 			Crouton.makeText(this, "This isn't supported due to limitations.",
 					Style.INFO).show();
 		}
@@ -481,14 +476,12 @@ public class CreateGriddlerActivity extends FragmentActivity implements
 							String cols = "";
 							for (int i : newColors)
 								cols += i + " ";
-							Log.d(TAG, "Before" + cols);
 							// Change the value in the colors array.
 							for (int i = 0; i != CreateGriddlerActivity.this.newColors.length; ++i) {
 								if (CreateGriddlerActivity.this.newColors[i] == touchedRGB) {
 									// Make sure this color doesn't already
 									// exist, if it does, tweak the new color
 									// just a little bit.
-									Log.d(TAG, "Found it!");
 									/*
 									 * //TODO If color already exists, don't let
 									 * it happen. for (int j = 0; j !=
@@ -517,7 +510,6 @@ public class CreateGriddlerActivity extends FragmentActivity implements
 							cols = "";
 							for (int i : newColors)
 								cols += i + " ";
-							Log.d(TAG, "After:" + cols);
 							CreateGriddlerActivity.this.alterPhoto();
 						}
 					});

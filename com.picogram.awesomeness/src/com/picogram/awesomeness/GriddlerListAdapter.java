@@ -85,10 +85,18 @@ public class GriddlerListAdapter extends ArrayAdapter<GriddlerOne> {
 		final TextView name = (TextView) item.findViewById(R.id.tvName);
 		final ImageView iv = (ImageView) item.findViewById(R.id.ivCurrent);
 		iv.setVisibility(0);
-		final int height = Integer.parseInt(this.griddlers.get(position)
-				.getHeight());
-		final int width = Integer.parseInt(this.griddlers.get(position)
-				.getWidth());
+		int height;
+		try {
+			height = Integer.parseInt(this.griddlers.get(position).getHeight());
+		} catch (Exception e) {
+			height = 0;
+		}
+		int width;
+		try { 
+			width = Integer.parseInt(this.griddlers.get(position).getWidth());
+		} catch (Exception e) {
+			width = 0;
+		}
 		String curr = this.griddlers.get(position).getCurrent();
 		int run = 0;
 		if (curr == null) {
@@ -204,7 +212,6 @@ public class GriddlerListAdapter extends ArrayAdapter<GriddlerOne> {
 	public void removeById(String id) {
 		for (int i = 0; i != griddlers.size(); ++i) {
 			if (griddlers.get(i).getID().equals(id)) {
-				Log.d(TAG, "REMOVE SUCCSS");
 				griddlers.remove(i);
 				return;
 			}
@@ -214,7 +221,6 @@ public class GriddlerListAdapter extends ArrayAdapter<GriddlerOne> {
 	public void updateCurrentById(String id, String newCurrent, String status) {
 		for (int i = 0; i != griddlers.size(); ++i) {
 			if (griddlers.get(i).getID().equals(id)) {
-				Log.d(TAG, "REMOVE SUCCSS");
 				GriddlerOne go = griddlers.get(i);
 				go.setCurrent(newCurrent);
 				go.setStatus(status);

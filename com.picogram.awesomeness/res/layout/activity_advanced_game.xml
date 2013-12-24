@@ -1,7 +1,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/one"
+    android:background="@drawable/sky"
     android:tileMode="repeat" >
 
     <com.picogram.awesomeness.TouchImageView
@@ -21,5 +21,34 @@
         android:layout_height="60dp"
         android:paddingLeft="5dp"
         android:paddingRight="5dp" />
+
+    <SeekBar
+        android:id="@+id/sbHistory"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/ray_menu"
+        android:layout_toLeftOf="@+id/bRedo"
+        android:layout_toRightOf="@+id/bUndo"
+        android:max="0" />
+
+    <Button
+        android:id="@+id/bUndo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/sbHistory"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/ray_menu"
+        android:text="Undo"
+        android:textSize="10dp" />
+
+    <Button
+        android:id="@+id/bRedo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/sbHistory"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/ray_menu"
+        android:text="Redo"
+        android:textSize="10dp" />
 
 </RelativeLayout>

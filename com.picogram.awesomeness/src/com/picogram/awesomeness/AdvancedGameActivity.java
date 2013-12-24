@@ -21,14 +21,18 @@ import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup.LayoutParams;
 import android.view.Window;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RatingBar;
 import android.widget.RatingBar.OnRatingBarChangeListener;
+import android.widget.SeekBar;
+import android.widget.SeekBar.OnSeekBarChangeListener;
 
 import com.capricorn.ArcMenu;
 import com.capricorn.RayMenu;
 import com.flurry.android.FlurryAgent;
+import com.picogram.awesomeness.TouchImageView.HistoryListener;
 import com.picogram.awesomeness.TouchImageView.WinnerListener;
 import com.stackmob.sdk.callback.StackMobModelCallback;
 import com.stackmob.sdk.exception.StackMobException;
@@ -37,7 +41,7 @@ import de.keyboardsurfer.android.widget.crouton.Crouton;
 import de.keyboardsurfer.android.widget.crouton.Style;
 
 public class AdvancedGameActivity extends Activity implements OnTouchListener,
-		WinnerListener {
+		WinnerListener, View.OnClickListener, OnSeekBarChangeListener {
 	private static final String TAG = "AdvancedGameActivity";
 	TouchImageView tiv;
 	Handler handle = new Handler();
@@ -93,13 +97,36 @@ public class AdvancedGameActivity extends Activity implements OnTouchListener,
 		for (int i = 0; i != cols.length; ++i) {
 			this.colors[i] = Integer.parseInt(cols[i]);
 		}
+		// History Bar.
+		sbHistory = (SeekBar) findViewById(R.id.sbHistory);
+		sbHistory.setOnSeekBarChangeListener(this);
+		Button bUndo = (Button) findViewById(R.id.bUndo);
+		Button bRedo = (Button) findViewById(R.id.bRedo);
+		bUndo.setOnClickListener(this);
+		bRedo.setOnClickListener(this);
+		historyListener = new HistoryListener() {
 
+			public void action(String curr) {
+				if (sbHistory.getProgress() != sbHistory.getMax()) {
+					for (int i = sbHistory.getProgress(); i != sbHistory
+							.getMax(); ++i) {
+						history.remove(history.size() - 1);
+					}
+					sbHistory.setMax(sbHistory.getProgress());
+				}
+				sbHistory.setMax(sbHistory.getMax() + 1);
+				sbHistory.setProgress(sbHistory.getMax());
+				history.add(curr);
+				isFirstUndo = true;
+			}
+		};
+		tiv.setHistoryListener(historyListener);
 		Bitmap[] bmColors = getMenuBitmaps();
 		// Movement, X's, transparent, then colors.
 		RayMenu rayMenu = (RayMenu) findViewById(R.id.ray_menu);
-		final ArrayList<View> ivs = new ArrayList();
+		final ArrayList<View> ivs = new ArrayList<View>();
 		for (int i = 0; i < bmColors.length; i++) {
-			ImageView item = new ImageView(this); 
+			ImageView item = new ImageView(this);
 			item.setImageBitmap(bmColors[i]);
 			item.setBackgroundDrawable(this.getResources().getDrawable(
 					R.drawable.dropshadows));
@@ -108,7 +135,6 @@ public class AdvancedGameActivity extends Activity implements OnTouchListener,
 			rayMenu.addItem(item, new OnClickListener() {
 
 				public void onClick(View v) {
-					Log.d(TAG, "Clicked: " + ivs.indexOf(v));
 					if (ivs.indexOf(v) == 0) {
 						// Moving.
 						tiv.isGameplay = false;
@@ -148,7 +174,6 @@ public class AdvancedGameActivity extends Activity implements OnTouchListener,
 				fullColor = BitmapFactory.decodeResource(this.getResources(),
 						R.drawable.transparent);
 			} else {
-				Log.d(TAG, "Making: " + colors[i]);
 				fullColor.setPixel(0, 0, Color.rgb(rgb[1], rgb[2], rgb[3]));
 
 			}
@@ -196,11 +221,7 @@ public class AdvancedGameActivity extends Activity implements OnTouchListener,
 
 		final Intent returnIntent = new Intent();
 		returnIntent.putExtra("current", this.tiv.gCurrent);
-		Log.d(TAG, "CORRECT: |" + tiv.gCurrent + "|");
-		Log.d(TAG, "CORRECT: |" + tiv.gSolution + "|");
-		Log.d(TAG, "CORRECT: " + (tiv.gCurrent == tiv.gSolution));
 		if (tiv.gCurrent.equals(tiv.gSolution)) {
-			Log.d(TAG, "WE ARE CORRECT");
 			returnIntent.putExtra("status", "1");
 		} else
 			returnIntent.putExtra("status", "0");
@@ -221,7 +242,6 @@ public class AdvancedGameActivity extends Activity implements OnTouchListener,
 			public void onRatingChanged(final RatingBar ratingBar,
 					final float rating, final boolean fromUser) {
 				if (fromUser) {
-					Log.d(TAG, "Rating given of: " + rating);
 					final GriddlerOne g = new GriddlerOne();
 					g.setID(AdvancedGameActivity.this.puzzleId);
 					g.fetch(new StackMobModelCallback() {
@@ -229,32 +249,23 @@ public class AdvancedGameActivity extends Activity implements OnTouchListener,
 						@Override
 						public void failure(final StackMobException arg0) {
 							dialog.dismiss();
+							// If rating failed, make their rate
+							// TODO
 							AdvancedGameActivity.this.isDialogueShowing = !AdvancedGameActivity.this.isDialogueShowing;
 							AdvancedGameActivity.this.returnIntent();
 						}
 
 						@Override
 						public void success() {
-							Log.d(TAG,
-									"Got a rating from online of: "
-											+ g.getRating());
-							Log.d(TAG,
-									"Number of ratings online: "
-											+ g.getNumberOfRatings());
 							double oldRating = Double.parseDouble(g.getRating())
 									* g.getNumberOfRatings();
 							double newRating = (oldRating + rating)
 									/ (g.getNumberOfRatings() + 1);
-							Log.d(TAG, "New rating:" + newRating);
 							g.setRating(newRating + "");
 							g.setNumberOfRatings(g.getNumberOfRatings() + 1);
 							// TODO: If save fails, let us do it next time app
 							// is online.
 							g.save();
-							Log.d(TAG, "New Rating: " + g.getRating());
-							Log.d(TAG,
-									"New Number of ratings online: "
-											+ g.getNumberOfRatings());
 							dialog.dismiss();
 							AdvancedGameActivity.this.isDialogueShowing = !AdvancedGameActivity.this.isDialogueShowing;
 							AdvancedGameActivity.this.returnIntent();
@@ -270,4 +281,57 @@ public class AdvancedGameActivity extends Activity implements OnTouchListener,
 			this.isDialogueShowing = !this.isDialogueShowing;
 		}
 	}
+
+	boolean isFirstUndo = true;
+
+	public void onClick(View v) {
+		char[] curr = tiv.gCurrent.toCharArray();
+		if (v.getId() == R.id.bUndo) {
+			if (sbHistory.getProgress() == 0) {
+				return;
+			}
+			if (isFirstUndo) {
+				isFirstUndo = false;
+
+				history.add(tiv.gCurrent);
+				sbHistory.setMax(sbHistory.getMax() + 1);
+			}
+			sbHistory.setProgress(sbHistory.getProgress() - 1);
+			tiv.gCurrent = history.get(sbHistory.getProgress());
+
+		} else if (v.getId() == R.id.bRedo) {
+			if (sbHistory.getProgress() == sbHistory.getMax() - 1) {
+				return;
+			}
+			tiv.gCurrent = history.get(sbHistory.getProgress() + 1);
+			sbHistory.setProgress(sbHistory.getProgress() + 1);
+		}
+		tiv.bitmapFromCurrent();
+	}
+
+	public void onProgressChanged(SeekBar seekBar, int progress,
+			boolean fromUser) {
+		// TODO Auto-generated method stub
+		// Ignore if done programmatically.
+		if (fromUser) {
+			if (!(progress >= history.size())) {
+				tiv.gCurrent = history.get(progress);
+				tiv.bitmapFromCurrent();
+			}
+		}
+	}
+
+	public void onStartTrackingTouch(SeekBar seekBar) {
+		// TODO Auto-generated method stub
+
+	}
+
+	public void onStopTrackingTouch(SeekBar seekBar) {
+		// TODO Auto-generated method stub
+
+	}
+
+	HistoryListener historyListener;
+	SeekBar sbHistory;
+	ArrayList<String> history = new ArrayList<String>();
 }

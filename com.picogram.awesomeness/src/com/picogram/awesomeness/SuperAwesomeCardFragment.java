@@ -37,6 +37,7 @@ import android.widget.ListView;
 import com.flurry.android.FlurryAgent;
 import com.picogram.awesomeness.DialogMaker.OnDialogResultListener;
 import com.stackmob.sdk.api.StackMobQuery;
+import com.stackmob.sdk.callback.StackMobCallback;
 import com.stackmob.sdk.callback.StackMobModelCallback;
 import com.stackmob.sdk.callback.StackMobQueryCallback;
 import com.stackmob.sdk.exception.StackMobException;
@@ -90,6 +91,8 @@ public class SuperAwesomeCardFragment extends Fragment implements
 			final String diff = temp[6];
 			final String author = temp[1];
 			final String status = temp[9];
+			final String personalRank = temp[12];
+			final String isUploaded = temp[13];
 			int numColors = 0;
 			String colors = null;
 			if ((temp[10] != null) && (temp[11] != null)) {
@@ -108,13 +111,11 @@ public class SuperAwesomeCardFragment extends Fragment implements
 			if (isAdd) {
 				final GriddlerOne tempGriddler = new GriddlerOne(id, status,
 						name, diff, rate, 0, author, width, height, solution,
-						current, numColors, colors);
-				Log.d(TAG, "Status: " + status);
+						current, numColors, colors, isUploaded, personalRank);
 				if (status.equals("2") || !Util.isOnline()) {
 					a.runOnUiThread(new Runnable() {
 
 						public void run() {
-							Log.d(TAG, tempGriddler.toString());
 							SuperAwesomeCardFragment.this.myAdapter
 									.add(tempGriddler);
 							SuperAwesomeCardFragment.this.myAdapter
@@ -347,10 +348,10 @@ public class SuperAwesomeCardFragment extends Fragment implements
 			return new View(this.getActivity());
 		} else {
 			for (int i = 0; i != 20; ++i) {
-				final GriddlerOne obj = new GriddlerOne("Poop", "0",
+				final GriddlerOne obj = new GriddlerOne("=/", "0",
 						"We had an error. You shouldn't see this " + i, "0",
 						"0", 1, "Justin", "1", "1", "1", "0", 2, Color.BLACK
-								+ " " + Color.RED);
+								+ " " + Color.RED, "1", "0");
 				obj.setID(i + "" + this.position);
 				this.myAdapter.add(obj);
 				// items.add(MenuActivity.TITLES.get(this.position) + " " +
@@ -417,8 +418,8 @@ public class SuperAwesomeCardFragment extends Fragment implements
 		gameIntent.putExtra("id", go.getID());
 		gameIntent.putExtra("name", go.getName());
 		gameIntent.putExtra("colors", go.getColors());
-		Log.d(TAG, "Looking: " + MenuActivity.GAME_CODE);
-		this.getActivity().startActivityForResult(gameIntent, MenuActivity.GAME_CODE);
+		this.getActivity().startActivityForResult(gameIntent,
+				MenuActivity.GAME_CODE);
 	}
 
 	public void generateRandomGame() {
@@ -447,18 +448,29 @@ public class SuperAwesomeCardFragment extends Fragment implements
 				cols = cols.substring(0, cols.length() - 1);
 				int w = result.getInt("width"), h = result.getInt("height"), nc = result
 						.getInt("numColors");
-				Log.d(TAG, "Diff: " + ((int) ((w * h * nc) / 1875)));
-				GriddlerOne go = new GriddlerOne(result.getString("solution")
-						.hashCode() + "", "0", result.getString("name"),
+				final GriddlerOne go = new GriddlerOne(result.getString(
+						"solution").hashCode()
+						+ "", "0", result.getString("name"),
 						((int) ((w * h) / 1400)) + "", "3", 1, "computer", w
 								+ "", h + "", result.getString("solution"),
-						current, nc, cols);
+						current, nc, cols, "0", "5");
 				// TODO make sure go gets saved.
-				sql.addUserGriddler(go);
 				myAdapter.add(go);
 				myAdapter.notifyDataSetChanged();
 				go.setCurrent(null);
-				go.save();
+				go.save(new StackMobCallback() {
+
+					@Override
+					public void failure(StackMobException arg0) {
+						sql.addUserGriddler(go);
+					}
+
+					@Override
+					public void success(String arg0) {
+						go.setIsUploaded("1");
+						sql.addUserGriddler(go);
+					}
+				});
 				GriddlerTag gt = new GriddlerTag("random");
 				gt.setID(go.getID());
 				gt.save();
@@ -488,7 +500,6 @@ public class SuperAwesomeCardFragment extends Fragment implements
 						return;
 					}
 					int result = res.getInt("resultInt");
-					Log.d(TAG, "RESULT: " + result);
 					if (result == 0) {
 						// Nothing
 						// TODO

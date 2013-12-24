@@ -71,6 +71,10 @@ public class TouchImageView extends ImageView {
 		public void win();
 	}
 
+	public interface HistoryListener {
+		public void action(String curr);
+	}
+
 	Matrix matrix;
 	// We can be in one of these 3 states
 	static final int NONE = 0;
@@ -122,9 +126,10 @@ public class TouchImageView extends ImageView {
 	int[] gColors;
 
 	/*
-	 * Interface and such to see if we win.
+	 * Interface and such to see if we win and history stuff.
 	 */
 	private WinnerListener winListener;
+	private HistoryListener historyListener;
 
 	OnTouchListener touchListener = new OnTouchListener() {
 
@@ -200,9 +205,12 @@ public class TouchImageView extends ImageView {
 						}
 						return true;
 					}
+					oldCurrent = gCurrent;
 					final char[] temp = gCurrent.toCharArray();
 					final String past = gCurrent;
 					if (((indexY * gWidth) + indexX) < temp.length) {
+						final char oldChar = temp[(indexY * gWidth) + indexX];
+						final int pos = (indexY * gWidth) + indexX;
 						temp[(indexY * gWidth) + indexX] = colorCharacter;
 						gCurrent = String.valueOf(temp);
 						if (!past.equals(gCurrent)) {
@@ -212,6 +220,7 @@ public class TouchImageView extends ImageView {
 									h.post(new Runnable() {
 
 										public void run() {
+											historyListener.action(oldCurrent);
 											TouchImageView.this
 													.bitmapFromCurrent();
 										}
@@ -245,6 +254,7 @@ public class TouchImageView extends ImageView {
 
 	ArrayList<Integer> topColors = new ArrayList();
 	ArrayList<Integer> sideColors = new ArrayList();
+	String oldCurrent = "";
 
 	public TouchImageView(final Context context) {
 		super(context);
@@ -260,7 +270,7 @@ public class TouchImageView extends ImageView {
 
 	// Convert current String to a bitmap that's drawable. This will draw
 	// everything: grid, numbers, and onclicks.
-	private void bitmapFromCurrent() {
+	public void bitmapFromCurrent() {
 		// Get a 2D array of "current" griddler.
 		final char current2D[][] = this.solutionTo2DArray();
 		// Create bitmap based on the current. Make a int array with pixel
@@ -351,7 +361,6 @@ public class TouchImageView extends ImageView {
 				this.gCurrent += "0";
 			}
 		}
-		int bah = 0;
 		for (int i = 0; i != this.gCurrent.length(); ++i) {
 			if ((i % (this.gWidth)) == 0) {
 				column = 0;
@@ -363,11 +372,9 @@ public class TouchImageView extends ImageView {
 							* (this.longestTop + row + 1));
 			// INFO: This is where we draw the board.
 
+			// if (oldCurrent.charAt(i) != gCurrent.charAt(i)) {
 			Xfermode old = paintBitmap.getXfermode();
 			if (gCurrent.charAt(i) == 'x') {
-				if (bah == 0)
-					Log.d(TAG, gCurrent);
-				bah = 1;
 				// We have an x.
 				paintBitmap.setColor(Color.TRANSPARENT);
 				paintBitmap.setTextSize(this.cellHeight);
@@ -393,18 +400,7 @@ public class TouchImageView extends ImageView {
 				this.canvasBitmap.drawRect(r, this.paintBitmap);
 				paintBitmap.setXfermode(old);
 			}
-			/*
-			 * if (i != 0) { if (this.gCurrent.charAt(i) !=
-			 * this.gCurrent.charAt(i - 1)) { if (this.gCurrent.charAt(i) ==
-			 * '0') { this.paintBitmap.setColor(Color.WHITE); } else {
-			 * this.paintBitmap.setColor(Color.BLACK); } } } else { if
-			 * (this.gCurrent.charAt(i) == '0') {
-			 * this.paintBitmap.setColor(Color.WHITE); } else {
-			 * this.paintBitmap.setColor(Color.BLACK); } }
-			 */
-			// this.paintBitmap.setColor(this.gColors[Integer.parseInt(this.colorCharacter
-			// + "")]);
-			// this.canvasBitmap.drawRect(r, this.paintBitmap);
+			// }
 			++column;
 		}
 	}
@@ -484,17 +480,26 @@ public class TouchImageView extends ImageView {
 				}
 				if (topHints.get(i)[j].equals("0"))
 					paintBitmap.setColor(Color.BLACK);
-				
-				this.canvasBitmap.drawRect(new Rect(
-						((this.longestSide * widthOffset) + (j * widthOffset) )
-						, ((this.longestTop * heightOffset) - (heightOffset * i)  - heightOffset)
-								,((this.longestSide * widthOffset) + (j * widthOffset) ) + (widthOffset)
-								, ((this.longestTop * heightOffset) - (heightOffset * i) ) ), paintBitmap);
-				int[] rgbOriginal = getRGB(paintBitmap.getColor());
-				paintBitmap.setColor(Color.rgb(255-rgbOriginal[0], 255-rgbOriginal[1], 255-rgbOriginal[2]));
+
 				this.canvasBitmap
-						.drawText
-(this.topHints.get(i)[j],((this.longestSide * widthOffset)+ (widthOffset / 2) + (j * widthOffset)) - 5,(this.longestTop * heightOffset)
+						.drawRect(
+								new Rect(
+										((this.longestSide * widthOffset) + (j * widthOffset)),
+										((this.longestTop * heightOffset)
+												- (heightOffset * i) - heightOffset),
+										((this.longestSide * widthOffset) + (j * widthOffset))
+												+ (widthOffset),
+										((this.longestTop * heightOffset) - (heightOffset * i))),
+								paintBitmap);
+				int[] rgbOriginal = getRGB(paintBitmap.getColor());
+				paintBitmap.setColor(Color.rgb(255 - rgbOriginal[0],
+						255 - rgbOriginal[1], 255 - rgbOriginal[2]));
+				this.canvasBitmap
+						.drawText(
+								this.topHints.get(i)[j],
+								((this.longestSide * widthOffset)
+										+ (widthOffset / 2) + (j * widthOffset)) - 5,
+								(this.longestTop * heightOffset)
 										- (heightOffset * i) - 5,
 								this.paintBitmap);
 				paintBitmap.setColor(Color.TRANSPARENT);
@@ -520,17 +525,17 @@ public class TouchImageView extends ImageView {
 				if (side.equals("0"))
 					paintBitmap.setColor(Color.BLACK);
 
-				canvasBitmap.drawRect(new Rect(
-						(this.longestSide * widthOffset) - (j*widthOffset),
-						(this.longestTop * heightOffset) + (i * heightOffset) ,
-						(this.longestSide * widthOffset) - (j*widthOffset) - (widthOffset),
-						(this.longestTop * heightOffset) + (i * heightOffset) + heightOffset  )						
-						,paintBitmap);
-				
-				int[] rgbOriginal = getRGB(paintBitmap.getColor());
-				paintBitmap.setColor(Color.rgb(255-rgbOriginal[0], 255-rgbOriginal[1], 255-rgbOriginal[2]));
+				canvasBitmap.drawRect(new Rect((this.longestSide * widthOffset)
+						- (j * widthOffset), (this.longestTop * heightOffset)
+						+ (i * heightOffset), (this.longestSide * widthOffset)
+						- (j * widthOffset) - (widthOffset),
+						(this.longestTop * heightOffset) + (i * heightOffset)
+								+ heightOffset), paintBitmap);
 
-				
+				int[] rgbOriginal = getRGB(paintBitmap.getColor());
+				paintBitmap.setColor(Color.rgb(255 - rgbOriginal[0],
+						255 - rgbOriginal[1], 255 - rgbOriginal[2]));
+
 				this.canvasBitmap.drawText(side + "  ",
 						(this.longestSide * widthOffset) - 5
 								- (j * widthOffset),
@@ -541,29 +546,35 @@ public class TouchImageView extends ImageView {
 		this.paintBitmap.setTextAlign(oldAlign);
 	}
 
+	boolean isFirstTime = true;
+
 	private void drawOnCanvas() {
-		BitmapDrawable background;
-		background = new BitmapDrawable(BitmapFactory.decodeResource(
-				getResources(), R.drawable.light_grid));
+		if (false) {
+			BitmapDrawable background;
+			background = new BitmapDrawable(BitmapFactory.decodeResource(
+					getResources(), R.drawable.light_grid));
 
-		// in this case, you want to tile the entire view
-		background.setBounds(0, 0, canvasBitmap.getWidth(),
-				canvasBitmap.getHeight());
+			// in this case, you want to tile the entire view
+			background.setBounds(0, 0, canvasBitmap.getWidth(),
+					canvasBitmap.getHeight());
 
-		background
-				.setTileModeXY(Shader.TileMode.REPEAT, Shader.TileMode.REPEAT);
-		background.draw(canvasBitmap);
-		//paintBitmap.setColor(Color.WHITE);
-		this.drawWhiteCanvas();
+			background.setTileModeXY(Shader.TileMode.REPEAT,
+					Shader.TileMode.REPEAT);
+			background.draw(canvasBitmap);
+			// paintBitmap.setColor(Color.WHITE);
+			this.drawWhiteCanvas();
+		}
 		// Draw game surface.
 		this.drawGame();
 		// Draw gridlines and hints
+		if (isFirstTime) {
+			this.drawHints();
+			isFirstTime = false;
+		}
 		this.drawGridlines();
-		this.drawHints();
 		this.paintBitmap.setColor(Color.RED);
 		this.canvasBitmap.drawCircle(this.lastTouchX, this.lastTouchY, 5,
 				this.paintBitmap);
-		
 
 	}
 
@@ -909,6 +920,12 @@ public class TouchImageView extends ImageView {
 		for (int i = 0; i != cols.length; ++i) {
 			this.gColors[i] = Integer.parseInt(cols[i]);
 		}
+		this.oldCurrent = "";
+		// Below is for optimization so it only draws all the squares once and
+		// only again after it's changed.
+		for (int i = 0; i != gSolution.length(); i++)
+			this.oldCurrent += "-";
+
 		this.bitmapFromCurrent();
 	}
 
@@ -918,6 +935,10 @@ public class TouchImageView extends ImageView {
 
 	public void setWinListener(final WinnerListener winListener) {
 		this.winListener = winListener;
+	}
+
+	public void setHistoryListener(final HistoryListener hl) {
+		historyListener = hl;
 	}
 
 	private void sharedConstructing(final Context context) {

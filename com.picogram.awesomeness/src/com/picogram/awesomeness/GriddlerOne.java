@@ -4,7 +4,7 @@ import com.stackmob.sdk.model.StackMobModel;
 
 public class GriddlerOne extends StackMobModel implements Comparable {
 	private String status, name, diff, rate, author, width, height, solution,
-			current, numberOfColors, colors;
+			current, numberOfColors, colors, personalRank, isUploaded;
 	private int numberOfRatings;
 
 	public GriddlerOne() {
@@ -15,7 +15,8 @@ public class GriddlerOne extends StackMobModel implements Comparable {
 			final String difficulty, final String rank,
 			final int numberOfRatings, final String author, final String width,
 			final String height, final String solution, final String current,
-			final int numColors, final String colors) {
+			final int numColors, final String colors, final String isUploaded,
+			final String personalRank) {
 		super(GriddlerOne.class);
 		this.id = id;
 		this.status = status;
@@ -30,13 +31,59 @@ public class GriddlerOne extends StackMobModel implements Comparable {
 		this.colors = colors;
 		this.numberOfColors = numColors + "";
 		this.numberOfRatings = numberOfRatings;
+		this.personalRank = personalRank;
+		this.isUploaded = isUploaded;
+	}
+
+	public GriddlerOne(String[] arr) {
+		super(GriddlerOne.class);
+		final String id = arr[0];
+		final String author = arr[1];
+		final String name = arr[2];
+		final String rate = arr[3];
+		final String solution = arr[4];
+		String current = arr[5];
+		final String diff = arr[6];
+		final String width = arr[7];
+		final String height = arr[8];
+		final String status = arr[9];
+		final String personalRank = arr[12];
+		final String isUploaded = arr[13];
+		int numColors = 0;
+		final int nor = 0;
+		String colors = null;
+		if ((arr[10] != null) && (arr[11] != null)) {
+			numColors = Integer.parseInt(arr[10]);
+			colors = arr[11];
+		}
+		if (current == null) {
+			current = "";
+			for (int i = 0; i != solution.length(); ++i)
+				current += "0";
+		}
+		this.id = id;
+		this.status = status;
+		this.name = name;
+		this.diff = diff;
+		this.rate = rate;
+		this.numberOfRatings = nor;
+		this.author = author;
+		this.width = width;
+		this.height = height;
+		this.solution = solution;
+		this.current = current;
+		this.numberOfColors = numColors + "";
+		this.colors = colors;
+		this.isUploaded = isUploaded;
+		this.personalRank = personalRank;
 	}
 
 	@Override
 	public void save() {
+		// Server doesn't care about progress or rank.
+		this.current = null;
+		this.personalRank = null;
 		super.save();
-		// If save fails, we go have this item saved and upload later.
-		// TODO
 	}
 
 	public int compareTo(final Object g) {
@@ -158,6 +205,22 @@ public class GriddlerOne extends StackMobModel implements Comparable {
 		 * id status name diff rating - null author width height solution
 		 * current - null numColors colors numberOfRatings - 5
 		 */
+	}
+
+	public String getIsUploaded() {
+		return isUploaded;
+	}
+
+	public void setIsUploaded(String isUploaded) {
+		this.isUploaded = isUploaded;
+	}
+
+	public String getPersonalRank() {
+		return personalRank;
+	}
+
+	public void setPersonalRank(String personalRank) {
+		this.personalRank = personalRank;
 	}
 
 }

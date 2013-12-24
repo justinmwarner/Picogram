@@ -46,7 +46,6 @@ public class DialogMaker extends DialogFragment implements View.OnClickListener 
 		savedInstanceState = getArguments();
 		int li = 0;
 		if (savedInstanceState != null) {
-			Log.d("SD", "Found a state");
 			li = savedInstanceState.getInt("layoutId");
 		}
 		final int layoutId = li;
@@ -64,9 +63,6 @@ public class DialogMaker extends DialogFragment implements View.OnClickListener 
 			public void onClick(DialogInterface dialog, int id) {
 				Bundle bundle = new Bundle();
 				if (layoutId == R.layout.dialog_random_griddler) {
-					Log.d(TAG, "W: " + randomWidth + " H: " + randomHeight
-							+ " C: " + randomColors + " S: " + randomPuzzle
-							+ " N: ");
 					bundle.putInt("width", randomWidth);
 					bundle.putInt("height", randomHeight);
 					bundle.putInt("numColors", randomColors);
@@ -215,7 +211,6 @@ public class DialogMaker extends DialogFragment implements View.OnClickListener 
 				handler.post(new Runnable() {
 					public void run() {
 						if (id == R.id.bRandomNumColors) {
-							Log.d(TAG, "Editing colors");
 							randomColors = number;
 						} else if (id == R.id.bRandomWidth) {
 							randomWidth = number;
