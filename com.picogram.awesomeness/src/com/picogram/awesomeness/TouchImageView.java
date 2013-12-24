@@ -3,6 +3,7 @@ package com.picogram.awesomeness;
 import java.util.ArrayList;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.BitmapShader;
@@ -18,7 +19,9 @@ import android.graphics.Shader;
 import android.graphics.Shader.TileMode;
 import android.graphics.Typeface;
 import android.graphics.Xfermode;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.NinePatchDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.AttributeSet;
@@ -451,6 +454,14 @@ public class TouchImageView extends ImageView {
 		}
 	}
 
+	private int[] getRGB(final int i) {
+
+		final int r = (i >> 16) & 0xff;
+		final int g = (i >> 8) & 0xff;
+		final int b = (i & 0xff);
+		return new int[] { r, g, b };
+	}
+
 	private void drawHints() {
 		this.paintBitmap.setAntiAlias(true);
 		this.paintBitmap.setColor(this.getResources().getColor(
@@ -473,14 +484,20 @@ public class TouchImageView extends ImageView {
 				}
 				if (topHints.get(i)[j].equals("0"))
 					paintBitmap.setColor(Color.BLACK);
+				
+				this.canvasBitmap.drawRect(new Rect(
+						((this.longestSide * widthOffset) + (j * widthOffset) )
+						, ((this.longestTop * heightOffset) - (heightOffset * i)  - heightOffset)
+								,((this.longestSide * widthOffset) + (j * widthOffset) ) + (widthOffset)
+								, ((this.longestTop * heightOffset) - (heightOffset * i) ) ), paintBitmap);
+				int[] rgbOriginal = getRGB(paintBitmap.getColor());
+				paintBitmap.setColor(Color.rgb(255-rgbOriginal[0], 255-rgbOriginal[1], 255-rgbOriginal[2]));
 				this.canvasBitmap
-						.drawText(
-								this.topHints.get(i)[j],
-								((this.longestSide * widthOffset)
-										+ (widthOffset / 2) + (j * widthOffset)) - 5,
-								(this.longestTop * heightOffset)
+						.drawText
+(this.topHints.get(i)[j],((this.longestSide * widthOffset)+ (widthOffset / 2) + (j * widthOffset)) - 5,(this.longestTop * heightOffset)
 										- (heightOffset * i) - 5,
 								this.paintBitmap);
+				paintBitmap.setColor(Color.TRANSPARENT);
 			}
 		}
 		// Draw side hints.
@@ -502,9 +519,21 @@ public class TouchImageView extends ImageView {
 				}
 				if (side.equals("0"))
 					paintBitmap.setColor(Color.BLACK);
-				this.canvasBitmap.drawText(side + " ",
+
+				canvasBitmap.drawRect(new Rect(
+						(this.longestSide * widthOffset) - (j*widthOffset),
+						(this.longestTop * heightOffset) + (i * heightOffset) ,
+						(this.longestSide * widthOffset) - (j*widthOffset) - (widthOffset),
+						(this.longestTop * heightOffset) + (i * heightOffset) + heightOffset  )						
+						,paintBitmap);
+				
+				int[] rgbOriginal = getRGB(paintBitmap.getColor());
+				paintBitmap.setColor(Color.rgb(255-rgbOriginal[0], 255-rgbOriginal[1], 255-rgbOriginal[2]));
+
+				
+				this.canvasBitmap.drawText(side + "  ",
 						(this.longestSide * widthOffset) - 5
-								- (j * this.paintBitmap.getFontSpacing()),
+								- (j * widthOffset),
 						(this.longestTop * heightOffset) + (i * heightOffset)
 								+ ((2 * heightOffset) / 3), this.paintBitmap);
 			}
@@ -513,7 +542,18 @@ public class TouchImageView extends ImageView {
 	}
 
 	private void drawOnCanvas() {
-		// White out whole canvas.
+		BitmapDrawable background;
+		background = new BitmapDrawable(BitmapFactory.decodeResource(
+				getResources(), R.drawable.light_grid));
+
+		// in this case, you want to tile the entire view
+		background.setBounds(0, 0, canvasBitmap.getWidth(),
+				canvasBitmap.getHeight());
+
+		background
+				.setTileModeXY(Shader.TileMode.REPEAT, Shader.TileMode.REPEAT);
+		background.draw(canvasBitmap);
+		//paintBitmap.setColor(Color.WHITE);
 		this.drawWhiteCanvas();
 		// Draw game surface.
 		this.drawGame();
@@ -523,6 +563,8 @@ public class TouchImageView extends ImageView {
 		this.paintBitmap.setColor(Color.RED);
 		this.canvasBitmap.drawCircle(this.lastTouchX, this.lastTouchY, 5,
 				this.paintBitmap);
+		
+
 	}
 
 	private void drawWhiteCanvas() {

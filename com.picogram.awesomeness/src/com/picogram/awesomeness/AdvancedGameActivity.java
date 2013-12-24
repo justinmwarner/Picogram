@@ -99,7 +99,7 @@ public class AdvancedGameActivity extends Activity implements OnTouchListener,
 		RayMenu rayMenu = (RayMenu) findViewById(R.id.ray_menu);
 		final ArrayList<View> ivs = new ArrayList();
 		for (int i = 0; i < bmColors.length; i++) {
-			ImageView item = new ImageView(this);
+			ImageView item = new ImageView(this); 
 			item.setImageBitmap(bmColors[i]);
 			item.setBackgroundDrawable(this.getResources().getDrawable(
 					R.drawable.dropshadows));
