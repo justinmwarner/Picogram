@@ -102,8 +102,7 @@ public class SQLiteGriddlerAdapter extends SQLiteOpenHelper {
 		// Returns String array of Griddler infos to be processed internally.
 		// Maybe change this so it's easier to process?
 		final SQLiteDatabase db = this.getWritableDatabase();
-		String query = "";
-		query = "SELECT * FROM " + griddlerTable;
+		String query = "SELECT * FROM " + griddlerTable;
 		final Cursor c = db.rawQuery(query, null);
 		if (c.moveToFirst()) {
 			final String[][] result = new String[c.getCount()][c
@@ -201,12 +200,11 @@ public class SQLiteGriddlerAdapter extends SQLiteOpenHelper {
 				+ id, null);
 	}
 
-	public String[][] getUnUploadedPicograms()
-	{
+	public String[][] getUnUploadedPicograms() {
 		final SQLiteDatabase db = this.getWritableDatabase();
 		String[][] thing = this.getGriddlers();
 		String query = "SELECT * FROM " + griddlerTable + " WHERE "
-					+ isUploaded + "='0'";
+				+ isUploaded + "='0'";
 		final Cursor c = db.rawQuery(query, null);
 		if (c.moveToFirst()) {
 			final String[][] result = new String[c.getCount()][c
@@ -236,13 +234,13 @@ public class SQLiteGriddlerAdapter extends SQLiteOpenHelper {
 		return false;
 	}
 
-	public void updateupdateUploadedPicogram(String id, String isUp) {
+	public void updateUploadedPicogram(String id, String isUp) {
 
 		final SQLiteDatabase db = this.getWritableDatabase();
 		final ContentValues cv = new ContentValues();
 		cv.put(SQLiteGriddlerAdapter.isUploaded, isUp);
 		cv.put(SQLiteGriddlerAdapter.id, id);
-		db.update(griddlerTable, cv, SQLiteGriddlerAdapter.id + " = "
-				+ id, null);
+		db.update(griddlerTable, cv, SQLiteGriddlerAdapter.id + " = " + id,
+				null);
 	}
 }

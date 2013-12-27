@@ -6,7 +6,7 @@
     tools:context=".MainActivity" >
 
     <RelativeLayout
-     android:id="@+id/buttonBottomHolder"
+        android:id="@+id/buttonBottomHolder"
         android:layout_width="wrap_content"
         android:layout_height="100dp"
         android:layout_alignParentBottom="true"
@@ -67,6 +67,14 @@
         android:layout_marginRight="6dp"
         android:layout_marginTop="6dp"
         android:background="@drawable/drop_shadow"
+        android:visibility="invisible" />
+
+    <com.capricorn.RayMenu
+        android:id="@+id/ray_menu_create"
+        android:layout_width="fill_parent"
+        android:layout_height="60dp"
+        android:paddingLeft="5dp"
+        android:paddingRight="5dp"
         android:visibility="invisible" />
 
 </RelativeLayout>

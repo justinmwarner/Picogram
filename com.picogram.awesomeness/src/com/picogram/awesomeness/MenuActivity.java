@@ -182,7 +182,11 @@ public class MenuActivity extends FragmentActivity implements FlurryAdListener,
 				gt.setID(id);
 				gt.save();
 			}
-
+			// Add this Picogram to the rating table as a 5.
+			final SQLiteRatingAdapter sorh = new SQLiteRatingAdapter(this,
+					"Griddlers", null, 1);
+			sorh.insert(id, "5", "0");
+			sorh.close();
 		} else if ((resultCode == Activity.RESULT_OK)
 				&& (requestCode == GAME_CODE)) {
 			// Back button pushed or won.
@@ -190,8 +194,8 @@ public class MenuActivity extends FragmentActivity implements FlurryAdListener,
 			final String status = data.getStringExtra("status");
 			final String current = data.getStringExtra("current");
 			this.sql.updateCurrentGriddler(id, status, current);
-			this.lvAdapter.updateCurrentById(id, current, status);
-			this.lvAdapter.notifyDataSetChanged();
+			MenuActivity.lvAdapter.updateCurrentById(id, current, status);
+			MenuActivity.lvAdapter.notifyDataSetChanged();
 		}
 		this.sql.close();
 		this.updateCurrentTab();
@@ -280,13 +284,69 @@ public class MenuActivity extends FragmentActivity implements FlurryAdListener,
 
 					@Override
 					public void success(String arg0) {
-						sql.updateupdateUploadedPicogram(go.getID(), "1");
+						sql.updateUploadedPicogram(go.getID(), "1");
 					}
 				});
 			}
 
 		}
 
+		// Update new rankings.
+		final SQLiteRatingAdapter sorh = new SQLiteRatingAdapter(this,
+				"Rating", null, 2);
+		offline = sorh.getAllNeededUpdates();
+		if (offline != null) {
+			Log.d(TAG, "Offline crap: " + offline.length);
+			for (String[] o : offline) {
+				final String id = o[0];
+				final int oldRate = Integer.parseInt(o[1]);
+				final int newRate = Integer.parseInt(o[2]);
+				// Only add the oldRate.
+				final GriddlerOne go = new GriddlerOne();
+				go.setID(id);
+				go.fetch(new StackMobCallback() {
+
+					@Override
+					public void failure(StackMobException arg0) {
+						// Still can't upload, no big deal, do nothing.
+						return;
+					}
+
+					@Override
+					public void success(String arg0) {
+						// Now we got it, add the oldRating.
+						double oldRating = Double.parseDouble(go.getRating())
+								* go.getNumberOfRatings();
+						oldRating = oldRating - oldRate;
+						double newRating = (oldRating + newRate)
+								/ (go.getNumberOfRatings());
+						go.setRating(newRating + "");
+						if (newRate == 0) // Only if it's a new rate increase
+											// the num by 1.
+							go.setNumberOfRatings(go.getNumberOfRatings() + 1);
+
+						// TODO: If save fails, let us do it next time app
+						// is online.
+						go.save(new StackMobCallback() {
+
+							@Override
+							public void failure(StackMobException arg0) {
+								// Ignore, just wait until next time.
+							}
+
+							@Override
+							public void success(String arg0) {
+								// Remove this item from the offline sql
+								// database. Use 0 so that we don't have any
+								// more updates needed.
+								sorh.updateRecord(id, newRate + "", "0");
+							}
+						});
+					}
+				});
+			}
+		}
+		sorh.close();
 	}
 
 	private void setUpAds() {
@@ -318,6 +378,7 @@ public class MenuActivity extends FragmentActivity implements FlurryAdListener,
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
+		this.sql.close();
 	}
 
 	public void onPageScrolled(final int arg0, final float arg1, final int arg2) {
@@ -330,6 +391,12 @@ public class MenuActivity extends FragmentActivity implements FlurryAdListener,
 
 	public void onPageSelected(final int tab) {
 		// Handle bottom toolbar changes.
+		if (tab != TITLES.indexOf("My") && !Util.isOnline()) {
+			Crouton.makeText(this, "You can't use these offline!", Style.ALERT)
+					.show();
+			this.pager.setCurrentItem(TITLES.indexOf("My"));
+			return;
+		}
 		if (tab == TITLES.indexOf("Prefs")) {
 			final Intent i = new Intent(this, SettingsActivity.class);
 			this.startActivityForResult(i, PREFERENCES_CODE);

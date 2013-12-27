@@ -58,6 +58,7 @@ import android.widget.SeekBar.OnSeekBarChangeListener;
 
 import com.cameraview.awesomeness.CameraView;
 import com.cameraview.awesomeness.CameraView.OnPictureTakenListener;
+import com.capricorn.RayMenu;
 import com.doomonafireball.betterpickers.numberpicker.NumberPickerBuilder;
 import com.doomonafireball.betterpickers.numberpicker.NumberPickerDialogFragment.NumberPickerDialogHandler;
 import com.flurry.android.FlurryAgent;
@@ -78,7 +79,6 @@ public class CreateGriddlerActivity extends FragmentActivity implements
 	int currentView = 0;
 	CameraView cv;
 
-	private EditText etURL, name;
 	Handler handler = new Handler();
 	ImageView ivOriginal, ivNew;
 	int originalColors[] = { Color.TRANSPARENT, Color.BLACK, Color.RED,
@@ -234,7 +234,7 @@ public class CreateGriddlerActivity extends FragmentActivity implements
 					returnIntent.putExtra("numRank", 1 + "");
 					returnIntent.putExtra("id", puzzleId);
 					returnIntent.putExtra("rank", 5 + "");
-					returnIntent.putExtra("solution", solution);
+					returnIntent.putExtra("solution", tivGame.gCurrent);
 					returnIntent.putExtra("width", xNum + "");
 					returnIntent.putExtra("tags", tags.getText().toString());
 					resultAndFinish(returnIntent);
@@ -278,8 +278,19 @@ public class CreateGriddlerActivity extends FragmentActivity implements
 	public void onClick(final View v) {
 		// We're getting a photo to edit.
 		if (v.getId() == R.id.bCustom) {
-			// Start a drawing activity.
-			// TODO
+			// If we're making our own, just set main
+			// to the drawing screen.
+			this.xNum = 25;
+			this.yNum = 25;
+			this.numColors = 3;
+			this.solution = "";
+			for (int i = 0; i != (xNum * yNum); ++i)
+				solution += "0";
+			Bitmap bm = Bitmap
+					.createBitmap(xNum, yNum, Bitmap.Config.ARGB_8888);
+			bmNew = bmOriginal = bm;
+			updateBottomHolder(1);
+			this.updateMainView();
 		} else if (v.getId() == R.id.bGallery) {
 			// File stuff.
 			final Intent fileIntent = new Intent(Intent.ACTION_GET_CONTENT);
@@ -378,6 +389,49 @@ public class CreateGriddlerActivity extends FragmentActivity implements
 			}
 		}
 		FlurryAgent.logEvent("CreatingPuzzle");
+		setupRayMenu();
+	}
+
+	private void setupRayMenu() {
+		ray = (RayMenu) findViewById(R.id.ray_menu_create);
+		Bitmap[] bmColors = getMenuBitmaps();
+		final ArrayList<View> ivs = new ArrayList<View>();
+		for (int i = 0; i < this.numColors; i++) {
+			ImageView item = new ImageView(this);
+			item.setImageBitmap(bmColors[i]);
+			item.setBackgroundDrawable(this.getResources().getDrawable(
+					R.drawable.dropshadows));
+			ivs.add(item);
+			final int position = i;
+			ray.addItem(item, new OnClickListener() {
+
+				public void onClick(View v) {
+					tivGame.isGameplay = true;
+					// Minus 2 for the X's and movement.
+					tivGame.colorCharacter = (ivs.indexOf(v) + "").charAt(0);
+
+				}
+			});// Add a menu item
+		}
+	}
+
+	private Bitmap[] getMenuBitmaps() {
+		Bitmap[] result = new Bitmap[this.numColors];
+		for (int i = 0; i != numColors; ++i) {
+			Bitmap fullColor = Bitmap.createBitmap(1, 1,
+					Bitmap.Config.ARGB_8888);
+			final int[] rgb = this.getRGB(this.newColors[i]);
+			if (rgb[0] == 0) {// This is alpha.
+				// For transparency.
+				fullColor = BitmapFactory.decodeResource(this.getResources(),
+						R.drawable.transparent);
+			} else {
+				fullColor.setPixel(0, 0, Color.rgb(rgb[0], rgb[1], rgb[2]));
+			}
+			// +2 for the X's and movement.
+			result[i] = fullColor;
+		}
+		return result;
 	}
 
 	@Override
@@ -423,103 +477,117 @@ public class CreateGriddlerActivity extends FragmentActivity implements
 	}
 
 	public boolean onTouch(final View v, final MotionEvent event) {
-		// We're changing a color.
-		if ((this.bmNew != null)
-				&& (event.getAction() == MotionEvent.ACTION_DOWN)) {
-			final float eventX = event.getX();
-			final float eventY = event.getY();
-			final float[] eventXY = new float[] { eventX, eventY };
+		if (v.getId() == this.ivNew.getId()) {
+			// We're changing a color.
+			if ((this.bmNew != null)
+					&& (event.getAction() == MotionEvent.ACTION_DOWN)) {
+				final float eventX = event.getX();
+				final float eventY = event.getY();
+				final float[] eventXY = new float[] { eventX, eventY };
 
-			ImageView ivAlter = ((ivNew.getVisibility() == View.VISIBLE) ? ivNew
-					: tivGame);
-			final Matrix invertMatrix = new Matrix();
-			ivAlter.getImageMatrix().invert(invertMatrix);
+				ImageView ivAlter = ((ivNew.getVisibility() == View.VISIBLE) ? ivNew
+						: tivGame);
+				final Matrix invertMatrix = new Matrix();
+				ivAlter.getImageMatrix().invert(invertMatrix);
 
-			invertMatrix.mapPoints(eventXY);
-			int x = Integer.valueOf((int) eventXY[0]);
-			int y = Integer.valueOf((int) eventXY[1]);
+				invertMatrix.mapPoints(eventXY);
+				int x = Integer.valueOf((int) eventXY[0]);
+				int y = Integer.valueOf((int) eventXY[1]);
 
-			final Drawable imgDrawable = ivAlter.getDrawable();
-			final Bitmap bitmap = ((BitmapDrawable) imgDrawable).getBitmap();
+				final Drawable imgDrawable = ivAlter.getDrawable();
+				final Bitmap bitmap = ((BitmapDrawable) imgDrawable)
+						.getBitmap();
 
-			// Limit x, y range within bitmap
-			if (x < 0) {
-				x = 0;
-			} else if (x > (bitmap.getWidth() - 1)) {
-				x = bitmap.getWidth() - 1;
-			}
+				// Limit x, y range within bitmap
+				if (x < 0) {
+					x = 0;
+				} else if (x > (bitmap.getWidth() - 1)) {
+					x = bitmap.getWidth() - 1;
+				}
 
-			if (y < 0) {
-				y = 0;
-			} else if (y > (bitmap.getHeight() - 1)) {
-				y = bitmap.getHeight() - 1;
-			}
+				if (y < 0) {
+					y = 0;
+				} else if (y > (bitmap.getHeight() - 1)) {
+					y = bitmap.getHeight() - 1;
+				}
 
-			final int touchedRGB = bitmap.getPixel(x, y);
-			if (touchedRGB == Color.TRANSPARENT)
-				return true; // Ignore if we're touching a transparent color.
-			// initialColor is the initially-selected color to be shown in the
-			// rectangle on the left of the arrow.
-			// for example, 0xff000000 is black, 0xff0000ff is blue. Please be
-			// aware
-			// of the initial 0xff which is the alpha.
-			final AmbilWarnaDialog dialog = new AmbilWarnaDialog(this,
-					touchedRGB, new OnAmbilWarnaListener() {
+				final int touchedRGB = bitmap.getPixel(x, y);
+				if (touchedRGB == Color.TRANSPARENT)
+					return true; // Ignore if we're touching a transparent
+									// color.
+				// initialColor is the initially-selected color to be shown in
+				// the
+				// rectangle on the left of the arrow.
+				// for example, 0xff000000 is black, 0xff0000ff is blue. Please
+				// be
+				// aware
+				// of the initial 0xff which is the alpha.
+				final AmbilWarnaDialog dialog = new AmbilWarnaDialog(this,
+						touchedRGB, new OnAmbilWarnaListener() {
 
-						public void onCancel(final AmbilWarnaDialog dialog) {
-							// TODO Auto-generated method stub
+							public void onCancel(final AmbilWarnaDialog dialog) {
+								// TODO Auto-generated method stub
 
-						}
+							}
 
-						public void onOk(final AmbilWarnaDialog dialog,
-								int color) {
-							String cols = "";
-							for (int i : newColors)
-								cols += i + " ";
-							// Change the value in the colors array.
-							for (int i = 0; i != CreateGriddlerActivity.this.newColors.length; ++i) {
-								if (CreateGriddlerActivity.this.newColors[i] == touchedRGB) {
-									// Make sure this color doesn't already
-									// exist, if it does, tweak the new color
-									// just a little bit.
-									/*
-									 * //TODO If color already exists, don't let
-									 * it happen. for (int j = 0; j !=
-									 * CreateGriddlerActivity
-									 * .this.newColors.length; ++j) { if
-									 * (CreateGriddlerActivity.this.newColors[j]
-									 * == touchedRGB) { final int[] rgb =
-									 * CreateGriddlerActivity.this
-									 * .getRGB(color); if (rgb[0] == 255) {
-									 * rgb[0] = rgb[0] - 1; } else { rgb[0] =
-									 * rgb[0] + 1; } color = Color.rgb(rgb[0],
-									 * rgb[1], rgb[2]); break; } Log.d(TAG,
-									 * "Didn't find it =/ " + color + " " +
-									 * newColors[j]); }
-									 */
-									CreateGriddlerActivity.this.newColors[i] = color;
-									break;
+							public void onOk(final AmbilWarnaDialog dialog,
+									int color) {
+								String cols = "";
+								for (int i : newColors)
+									cols += i + " ";
+								// Change the value in the colors array.
+								for (int i = 0; i != CreateGriddlerActivity.this.newColors.length; ++i) {
+									if (CreateGriddlerActivity.this.newColors[i] == touchedRGB) {
+										// Make sure this color doesn't already
+										// exist, if it does, tweak the new
+										// color
+										// just a little bit.
+										/*
+										 * //TODO If color already exists, don't
+										 * let it happen. for (int j = 0; j !=
+										 * CreateGriddlerActivity
+										 * .this.newColors.length; ++j) { if
+										 * (CreateGriddlerActivity
+										 * .this.newColors[j] == touchedRGB) {
+										 * final int[] rgb =
+										 * CreateGriddlerActivity.this
+										 * .getRGB(color); if (rgb[0] == 255) {
+										 * rgb[0] = rgb[0] - 1; } else { rgb[0]
+										 * = rgb[0] + 1; } color =
+										 * Color.rgb(rgb[0], rgb[1], rgb[2]);
+										 * break; } Log.d(TAG,
+										 * "Didn't find it =/ " + color + " " +
+										 * newColors[j]); }
+										 */
+										CreateGriddlerActivity.this.newColors[i] = color;
+										break;
+									}
 								}
+								// Change values in the original colors too.
+								for (int i = 0; i != originalColors.length; ++i) {
+									if (originalColors[i] == touchedRGB)
+										originalColors[i] = color;
+								}
+								// Update photo
+								cols = "";
+								for (int i : newColors)
+									cols += i + " ";
+								CreateGriddlerActivity.this.alterPhoto();
 							}
-							// Change values in the original colors too.
-							for (int i = 0; i != originalColors.length; ++i) {
-								if (originalColors[i] == touchedRGB)
-									originalColors[i] = color;
-							}
-							// Update photo
-							cols = "";
-							for (int i : newColors)
-								cols += i + " ";
-							CreateGriddlerActivity.this.alterPhoto();
-						}
-					});
+						});
 
-			dialog.show();
-			return true;
-		} else {
-			return false;
+				dialog.show();
+				return true;
+			} else {
+				return false;
+			}
+		} else if (v.getId() == tivGame.getId()) {
+
 		}
+		return true;
 	}
+
+	RayMenu ray;
 
 	// Read bitmap - From
 	// http://tutorials-android.blogspot.co.il/2011/11/outofmemory-exception-when-decoding.html
@@ -618,7 +686,9 @@ public class CreateGriddlerActivity extends FragmentActivity implements
 						} else if (id == R.id.bHeight) {
 							yNum = number;
 						}
+						setGameViewInfo();
 						alterPhoto();
+						setupRayMenu();
 					}
 				});
 			}
@@ -691,7 +761,7 @@ public class CreateGriddlerActivity extends FragmentActivity implements
 			tivGame = (TouchImageView) findViewById(R.id.tivGame);
 
 			ivNew.setOnTouchListener(this);
-			tivGame.setOnTouchListener(this);
+			// tivGame.setOnTouchListener(this);
 
 			ivNew.setVisibility(View.VISIBLE);
 			ivOriginal.setVisibility(View.INVISIBLE);
@@ -708,6 +778,10 @@ public class CreateGriddlerActivity extends FragmentActivity implements
 	}
 
 	private void updateMainView() {
+		if (tivGame != null)
+			if (tivGame.gCurrent != null)
+				this.solution = tivGame.gCurrent;
+		ray.setVisibility(View.INVISIBLE);
 		if (currentView == -1) {
 			// We're changing back to the get picture screen.
 			ivOriginal.setVisibility(View.INVISIBLE);
@@ -724,6 +798,8 @@ public class CreateGriddlerActivity extends FragmentActivity implements
 			currentView = 1;
 		} else if (currentView == 1) {
 			// Show New without grid.
+			// Update from solution.
+			updateFromSolution();
 			ivOriginal.setVisibility(View.INVISIBLE);
 			ivNew.setVisibility(View.VISIBLE);
 			tivGame.setVisibility(View.INVISIBLE);
@@ -734,9 +810,30 @@ public class CreateGriddlerActivity extends FragmentActivity implements
 			ivNew.setVisibility(View.INVISIBLE);
 			tivGame.setVisibility(View.VISIBLE);
 			currentView = 2;
+			ray.setVisibility(View.VISIBLE);
+			Crouton.makeText(this, "Draw on screen to edit", Style.INFO).show();
+			// current width height id solution colors(string,)
 		} else {
 			currentView = 0; // Reset if problems.
 		}
+	}
+
+	private void updateFromSolution() {
+
+	}
+
+	private void setGameViewInfo() {
+		Bundle bundle = new Bundle();
+		bundle.putString("current", this.solution);
+		bundle.putString("width", "" + xNum);
+		bundle.putString("height", "" + yNum);
+		bundle.putString("id", "" + this.solution.hashCode());
+		bundle.putString("solution", this.solution);
+		String cols = "";
+		for (Integer color : newColors)
+			cols += color + ",";
+		bundle.putString("colors", cols.substring(0, cols.length() - 1));
+		tivGame.setGriddlerInfo(bundle);
 	}
 
 	private boolean userValuesValid() {

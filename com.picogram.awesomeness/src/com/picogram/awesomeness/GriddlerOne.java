@@ -1,5 +1,7 @@
 package com.picogram.awesomeness;
 
+import android.util.Log;
+
 import com.stackmob.sdk.model.StackMobModel;
 
 public class GriddlerOne extends StackMobModel implements Comparable {

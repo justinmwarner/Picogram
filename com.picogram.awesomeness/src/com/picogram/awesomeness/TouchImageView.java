@@ -220,7 +220,9 @@ public class TouchImageView extends ImageView {
 									h.post(new Runnable() {
 
 										public void run() {
-											historyListener.action(oldCurrent);
+											if (historyListener != null)
+												historyListener
+														.action(oldCurrent);
 											TouchImageView.this
 													.bitmapFromCurrent();
 										}

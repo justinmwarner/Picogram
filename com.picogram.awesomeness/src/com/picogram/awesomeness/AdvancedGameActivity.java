@@ -12,6 +12,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Vibrator;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
@@ -34,6 +35,7 @@ import com.capricorn.RayMenu;
 import com.flurry.android.FlurryAgent;
 import com.picogram.awesomeness.TouchImageView.HistoryListener;
 import com.picogram.awesomeness.TouchImageView.WinnerListener;
+import com.stackmob.sdk.callback.StackMobCallback;
 import com.stackmob.sdk.callback.StackMobModelCallback;
 import com.stackmob.sdk.exception.StackMobException;
 
@@ -104,9 +106,13 @@ public class AdvancedGameActivity extends Activity implements OnTouchListener,
 		Button bRedo = (Button) findViewById(R.id.bRedo);
 		bUndo.setOnClickListener(this);
 		bRedo.setOnClickListener(this);
+
+		final Vibrator myVib = (Vibrator) this
+				.getSystemService(VIBRATOR_SERVICE);
 		historyListener = new HistoryListener() {
 
 			public void action(String curr) {
+				myVib.vibrate(10);
 				if (sbHistory.getProgress() != sbHistory.getMax()) {
 					for (int i = sbHistory.getProgress(); i != sbHistory
 							.getMax(); ++i) {
@@ -235,6 +241,7 @@ public class AdvancedGameActivity extends Activity implements OnTouchListener,
 		dialog.setContentView(R.layout.dialog_ranking);
 		dialog.setTitle("Rate this Picogram");
 		dialog.setCancelable(false);
+		final Activity a = this;
 
 		final RatingBar rb = (RatingBar) dialog.findViewById(R.id.rbRate);
 		rb.setOnRatingBarChangeListener(new OnRatingBarChangeListener() {
@@ -249,8 +256,16 @@ public class AdvancedGameActivity extends Activity implements OnTouchListener,
 						@Override
 						public void failure(final StackMobException arg0) {
 							dialog.dismiss();
-							// If rating failed, make their rate
-							// TODO
+							// If rating failed, do it next time we can, so add
+							// to database.
+							SQLiteRatingAdapter sorh = new SQLiteRatingAdapter(
+									a.getApplicationContext(), "Offline", null,
+									1);
+							long line = sorh.insert(g.getID(),
+									sorh.getPastRatingForPID(g.getID()), rating
+											+ "");
+							sorh.close();
+							Log.d(TAG, "Line: " + line);
 							AdvancedGameActivity.this.isDialogueShowing = !AdvancedGameActivity.this.isDialogueShowing;
 							AdvancedGameActivity.this.returnIntent();
 						}
@@ -265,7 +280,39 @@ public class AdvancedGameActivity extends Activity implements OnTouchListener,
 							g.setNumberOfRatings(g.getNumberOfRatings() + 1);
 							// TODO: If save fails, let us do it next time app
 							// is online.
-							g.save();
+							g.save(new StackMobCallback() {
+
+								@Override
+								public void failure(StackMobException arg0) {
+									// Save the rating in the rating table, but
+									// we failed, so add it as a no rating yet,
+									// then a future rating.
+									SQLiteRatingAdapter sorh = new SQLiteRatingAdapter(
+											a.getApplicationContext(),
+											"Offline", null, 1);
+
+									long line = sorh.insert(g.getID(), "0",
+											rating + "");
+									Log.d(TAG, "Line: " + line);
+									sorh.close();
+								}
+
+								@Override
+								public void success(String arg0) {
+									// Save the rating in the rating table.
+									// If successful, we want to just add the
+									// past rating and 0 for future.
+									SQLiteRatingAdapter sorh = new SQLiteRatingAdapter(
+											a.getApplicationContext(),
+											"Offline", null, 1);
+
+									long line = sorh.insert(g.getID(), rating
+											+ "", "0");
+									Log.d(TAG, "Line: " + line);
+									sorh.close();
+								}
+							});
+
 							dialog.dismiss();
 							AdvancedGameActivity.this.isDialogueShowing = !AdvancedGameActivity.this.isDialogueShowing;
 							AdvancedGameActivity.this.returnIntent();
@@ -280,6 +327,29 @@ public class AdvancedGameActivity extends Activity implements OnTouchListener,
 			dialog.show();
 			this.isDialogueShowing = !this.isDialogueShowing;
 		}
+	}
+
+	@Override
+	protected void onRestoreInstanceState(Bundle savedInstanceState) {
+		super.onRestoreInstanceState(savedInstanceState);
+		tiv.gCurrent = savedInstanceState.getString("current");
+		tiv.colorCharacter = savedInstanceState.getChar("drawCharacter");
+		tiv.isGameplay = savedInstanceState.getBoolean("isGame");
+		this.history = savedInstanceState.getStringArrayList("history");
+		sbHistory.setMax(savedInstanceState.getInt("sbMax"));
+		sbHistory.setProgress(savedInstanceState.getInt("sbProgress"));
+		tiv.bitmapFromCurrent();
+	}
+
+	@Override
+	protected void onSaveInstanceState(Bundle outState) {
+		super.onSaveInstanceState(outState);
+		outState.putString("current", tiv.gCurrent);
+		outState.putChar("drawCharacter", tiv.colorCharacter);
+		outState.putBoolean("isGame", tiv.isGameplay);
+		outState.putStringArrayList("history", history);
+		outState.putInt("sbMax", sbHistory.getMax());
+		outState.putInt("sbProgress", sbHistory.getProgress());
 	}
 
 	boolean isFirstUndo = true;
