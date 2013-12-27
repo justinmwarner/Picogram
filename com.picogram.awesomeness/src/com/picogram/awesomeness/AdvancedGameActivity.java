@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -82,6 +83,11 @@ public class AdvancedGameActivity extends Activity implements OnTouchListener,
 		super.onCreate(savedInstanceState);
 		this.requestWindowFeature(Window.FEATURE_NO_TITLE);
 		this.setContentView(R.layout.activity_advanced_game);
+		// AnimationDrawable progressAnimation = (AnimationDrawable)
+		// findViewById(
+		// R.id.rlGameActivity).getBackground();
+		// progressAnimation.start();
+
 		Util.setTheme(this);
 		this.tiv = (TouchImageView) this.findViewById(R.id.tivGame);
 		this.tiv.setWinListener(this);
@@ -112,7 +118,7 @@ public class AdvancedGameActivity extends Activity implements OnTouchListener,
 		historyListener = new HistoryListener() {
 
 			public void action(String curr) {
-				myVib.vibrate(10);
+				myVib.vibrate(40);
 				if (sbHistory.getProgress() != sbHistory.getMax()) {
 					for (int i = sbHistory.getProgress(); i != sbHistory
 							.getMax(); ++i) {
@@ -133,14 +139,17 @@ public class AdvancedGameActivity extends Activity implements OnTouchListener,
 		final ArrayList<View> ivs = new ArrayList<View>();
 		for (int i = 0; i < bmColors.length; i++) {
 			ImageView item = new ImageView(this);
+
 			item.setImageBitmap(bmColors[i]);
-			item.setBackgroundDrawable(this.getResources().getDrawable(
-					R.drawable.dropshadows));
+			if (i > 2)
+				item.setBackgroundDrawable(this.getResources().getDrawable(
+						R.drawable.dropshadows));
 			ivs.add(item);
 			final int position = i;
 			rayMenu.addItem(item, new OnClickListener() {
 
 				public void onClick(View v) {
+					// 2 is always transparent, don't worry ;).
 					if (ivs.indexOf(v) == 0) {
 						// Moving.
 						tiv.isGameplay = false;
@@ -159,18 +168,12 @@ public class AdvancedGameActivity extends Activity implements OnTouchListener,
 	}
 
 	private Bitmap[] getMenuBitmaps() {
-		// +2 for movement and x's.
+		// +3 for movement and x's and transparent.
 		Bitmap[] result = new Bitmap[this.colors.length + 2];
-		final Drawable moveDrawable = this.getResources().getDrawable(
+		result[0] = BitmapFactory.decodeResource(this.getResources(),
 				R.drawable.move);
-		final Bitmap moveBitmap = Bitmap.createScaledBitmap(
-				((BitmapDrawable) moveDrawable).getBitmap(), 100, 100, true);
-		final Drawable xDrawable = this.getResources().getDrawable(
+		result[1] = BitmapFactory.decodeResource(this.getResources(),
 				R.drawable.xs);
-		final Bitmap xBitmap = Bitmap.createScaledBitmap(
-				((BitmapDrawable) xDrawable).getBitmap(), 100, 100, true);
-		result[0] = moveBitmap;
-		result[1] = xBitmap;
 		for (int i = 0; i != colors.length; ++i) {
 			Bitmap fullColor = Bitmap.createBitmap(1, 1,
 					Bitmap.Config.ARGB_8888);
@@ -183,7 +186,7 @@ public class AdvancedGameActivity extends Activity implements OnTouchListener,
 				fullColor.setPixel(0, 0, Color.rgb(rgb[1], rgb[2], rgb[3]));
 
 			}
-			// +2 for the X's and movement.
+			// +2 for the X's and movement and transparent.
 			result[i + 2] = fullColor;
 		}
 		return result;
