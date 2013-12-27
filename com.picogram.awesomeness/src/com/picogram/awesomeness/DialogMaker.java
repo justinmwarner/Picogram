@@ -160,11 +160,13 @@ public class DialogMaker extends DialogFragment implements View.OnClickListener 
 					} else {
 						isGameplay = true;
 						// Minus 2 for the X's and movement.
-						colorCharacter = ((ivs.indexOf(v) - 2) + "").charAt(0);
+						colorCharacter = ((ivs.indexOf(v.getParent()) - 2) + "")
+								.charAt(0);
 					}
 					Bundle bundle = new Bundle();
 					bundle.putBoolean("isGameplay", isGameplay);
 					bundle.putChar("colorCharacter", colorCharacter);
+					Log.d(TAG, "COLOR: " + colorCharacter);
 					listener.onDialogResult(bundle);
 				}
 

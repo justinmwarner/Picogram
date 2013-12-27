@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string-array name="listBackgroundName">
+        <item>Solid White</item>
+        <item>Solid Black</item>
+        <item>Rolling Sky (Light)</item>
+        <item>City Bridge (Dark)</item>
+    </string-array>
+    <string-array name="listBackgroundValue">
+        <item>bgWhite</item>
+        <item>bgBlack</item>
+        <item>skywave</item>
+        <item>darkbridge</item>
+    </string-array>
+    <string-array name="listListValue">
+        <item>Auto</item>
+        <item>Dark</item>
+        <item>Light</item>
+    </string-array>
+
+</resources>

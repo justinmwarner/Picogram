@@ -41,6 +41,7 @@ public class SettingsActivity extends SherlockPreferenceActivity implements
 		this.findPreference("crashes").setOnPreferenceClickListener(this);
 		this.findPreference("licenses").setOnPreferenceClickListener(this);
 		this.findPreference("rateapp").setOnPreferenceClickListener(this);
+
 		FlurryAgent.logEvent("PreferencesOpened");
 	}
 

@@ -117,6 +117,7 @@ public class TouchImageView extends ImageView {
 	Bitmap bm;
 	Canvas canvasBitmap;
 	Paint paintBitmap;
+	int gridlinesColor;
 
 	// Griddler specifics.
 	String gCurrent, gSolution;
@@ -414,8 +415,7 @@ public class TouchImageView extends ImageView {
 		final int widthTrim = this.canvasBitmap.getWidth()
 				% (this.gWidth + this.longestSide);
 		// Up down.
-		this.paintBitmap.setColor(this.getResources().getColor(
-				R.color.foreground));
+		this.paintBitmap.setColor(gridlinesColor);
 		final int widthOffset = (this.canvasBitmap.getWidth() - widthTrim)
 				/ (this.longestSide + this.gWidth);
 		final int heightOffset = (this.canvasBitmap.getHeight() - heightTrim)

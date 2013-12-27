@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -14,6 +15,7 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Vibrator;
+import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -32,6 +34,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RatingBar;
 import android.widget.RatingBar.OnRatingBarChangeListener;
+import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 
@@ -90,12 +93,54 @@ public class AdvancedGameActivity extends FragmentActivity implements
 		super.onCreate(savedInstanceState);
 		this.requestWindowFeature(Window.FEATURE_NO_TITLE);
 		this.setContentView(R.layout.activity_advanced_game);
-		AnimationDrawable progressAnimation = (AnimationDrawable) findViewById(
-				R.id.rlGameActivity).getBackground();
-		progressAnimation.start();
-
-		Util.setTheme(this);
 		this.tiv = (TouchImageView) this.findViewById(R.id.tivGame);
+		// Do background stuff.
+		RelativeLayout rlMain = (RelativeLayout) this
+				.findViewById(R.id.rlGameActivity);
+		SharedPreferences prefs = PreferenceManager
+				.getDefaultSharedPreferences(this);
+
+		String bg = Util.getPreferences(this)
+				.getString("background", "bgWhite");
+		String line = Util.getPreferences(this).getString("lines", "Auto");
+		boolean isAnimating = false;
+		if (bg.equals("bgWhite")) {
+			rlMain.setBackgroundResource(android.R.color.transparent);
+			rlMain.setBackgroundColor(Color.BLACK);
+			line = Color.WHITE + "";
+		} else if (bg.equals("bgBlack")) {
+			rlMain.setBackgroundResource(android.R.color.transparent);
+			rlMain.setBackgroundColor(Color.WHITE);
+			line = Color.BLACK + "";
+		} else if (bg.equals("skywave")) {
+			isAnimating = true;
+			line = Color.BLACK + "";
+			rlMain.setBackgroundResource(R.drawable.skywave);
+		} else if (bg.equals("darkbridge")) {
+			isAnimating = true;
+			rlMain.setBackgroundResource(R.drawable.darkbridge);
+			line = Color.WHITE + "";
+		} else {
+			rlMain.setBackgroundResource(android.R.color.transparent);
+			rlMain.setBackgroundColor(Color.WHITE);
+			line = Color.BLACK + "";
+		}
+		if (Util.getPreferences(this).getString("lines", "Auto").equals("Auto"))
+			tiv.gridlinesColor = Integer.parseInt(line);
+		else {
+			if (Util.getPreferences(this).getString("lines", "Auto")
+					.equals("Light"))
+				tiv.gridlinesColor = Color.WHITE;
+			else
+				tiv.gridlinesColor = Color.BLACK;
+		}
+
+		if (isAnimating) {
+			AnimationDrawable progressAnimation = (AnimationDrawable) findViewById(
+					R.id.rlGameActivity).getBackground();
+			progressAnimation.start();
+		}
+		Util.setTheme(this);
 		this.tiv.setWinListener(this);
 		this.tiv.setGriddlerInfo(this.getIntent().getExtras());
 		final String name = this.getIntent().getExtras().getString("name");
@@ -344,6 +389,7 @@ public class AdvancedGameActivity extends FragmentActivity implements
 				public void onDialogResult(Bundle result) {
 					tiv.isGameplay = result.getBoolean("isGameplay");
 					tiv.colorCharacter = result.getChar("colorCharacter");
+					Log.d(TAG, "COLOR: " + tiv.colorCharacter);
 					newFragment.dismiss();
 				}
 			});

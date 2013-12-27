@@ -12,6 +12,19 @@
             android:key="decorations"
             android:summary="Show the bar with the time, battery, and notifications while you play."
             android:title="Show Top Bar?" />
+        <ListPreference
+            android:entries="@array/listBackgroundName"
+            android:entryValues="@array/listBackgroundValue"
+            android:key="background"
+            android:summary="Select the background of your game."
+            android:title="Background" />
+        <ListPreference
+            android:entries="@array/listListValue"
+            android:entryValues="@array/listListValue"
+            android:key="lines"
+            android:summary="Select the line colors."
+            android:title="Gridlines" />
+        
     </PreferenceCategory>
     <!-- Privacy, let the user control anything we can/will collect. -->
     <PreferenceCategory android:title="Privacy Preferences" >
