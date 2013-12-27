@@ -14,6 +14,9 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Vibrator;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
@@ -24,6 +27,7 @@ import android.view.View.OnTouchListener;
 import android.view.ViewGroup.LayoutParams;
 import android.view.Window;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RatingBar;
@@ -34,6 +38,7 @@ import android.widget.SeekBar.OnSeekBarChangeListener;
 import com.capricorn.ArcMenu;
 import com.capricorn.RayMenu;
 import com.flurry.android.FlurryAgent;
+import com.picogram.awesomeness.DialogMaker.OnDialogResultListener;
 import com.picogram.awesomeness.TouchImageView.HistoryListener;
 import com.picogram.awesomeness.TouchImageView.WinnerListener;
 import com.stackmob.sdk.callback.StackMobCallback;
@@ -43,14 +48,16 @@ import com.stackmob.sdk.exception.StackMobException;
 import de.keyboardsurfer.android.widget.crouton.Crouton;
 import de.keyboardsurfer.android.widget.crouton.Style;
 
-public class AdvancedGameActivity extends Activity implements OnTouchListener,
-		WinnerListener, View.OnClickListener, OnSeekBarChangeListener {
+public class AdvancedGameActivity extends FragmentActivity implements
+		OnTouchListener, WinnerListener, View.OnClickListener,
+		OnSeekBarChangeListener {
 	private static final String TAG = "AdvancedGameActivity";
 	TouchImageView tiv;
 	Handler handle = new Handler();
 	int tutorialStep = 0;
 	private static SQLiteGriddlerAdapter sql;
 	int colors[];
+	String strColors[];
 	ArrayList<ImageView> ivs = new ArrayList<ImageView>();
 
 	String puzzleId;
@@ -83,10 +90,9 @@ public class AdvancedGameActivity extends Activity implements OnTouchListener,
 		super.onCreate(savedInstanceState);
 		this.requestWindowFeature(Window.FEATURE_NO_TITLE);
 		this.setContentView(R.layout.activity_advanced_game);
-		// AnimationDrawable progressAnimation = (AnimationDrawable)
-		// findViewById(
-		// R.id.rlGameActivity).getBackground();
-		// progressAnimation.start();
+		AnimationDrawable progressAnimation = (AnimationDrawable) findViewById(
+				R.id.rlGameActivity).getBackground();
+		progressAnimation.start();
 
 		Util.setTheme(this);
 		this.tiv = (TouchImageView) this.findViewById(R.id.tivGame);
@@ -99,11 +105,10 @@ public class AdvancedGameActivity extends Activity implements OnTouchListener,
 		FlurryAgent.logEvent("UserPlayingGame");
 		// Create colors for pallet.
 		final String thing = this.getIntent().getExtras().getString("colors");
-		final String[] cols = this.getIntent().getExtras().getString("colors")
-				.split(",");
-		this.colors = new int[cols.length];
-		for (int i = 0; i != cols.length; ++i) {
-			this.colors[i] = Integer.parseInt(cols[i]);
+		strColors = this.getIntent().getExtras().getString("colors").split(",");
+		this.colors = new int[strColors.length];
+		for (int i = 0; i != strColors.length; ++i) {
+			this.colors[i] = Integer.parseInt(strColors[i]);
 		}
 		// History Bar.
 		sbHistory = (SeekBar) findViewById(R.id.sbHistory);
@@ -133,63 +138,10 @@ public class AdvancedGameActivity extends Activity implements OnTouchListener,
 			}
 		};
 		tiv.setHistoryListener(historyListener);
-		Bitmap[] bmColors = getMenuBitmaps();
-		// Movement, X's, transparent, then colors.
-		RayMenu rayMenu = (RayMenu) findViewById(R.id.ray_menu);
-		final ArrayList<View> ivs = new ArrayList<View>();
-		for (int i = 0; i < bmColors.length; i++) {
-			ImageView item = new ImageView(this);
 
-			item.setImageBitmap(bmColors[i]);
-			if (i > 2)
-				item.setBackgroundDrawable(this.getResources().getDrawable(
-						R.drawable.dropshadows));
-			ivs.add(item);
-			final int position = i;
-			rayMenu.addItem(item, new OnClickListener() {
+		ImageButton tools = (ImageButton) this.findViewById(R.id.ibTools);
+		tools.setOnClickListener(this);
 
-				public void onClick(View v) {
-					// 2 is always transparent, don't worry ;).
-					if (ivs.indexOf(v) == 0) {
-						// Moving.
-						tiv.isGameplay = false;
-					} else if (ivs.indexOf(v) == 1) {
-						tiv.isGameplay = true;
-						tiv.colorCharacter = 'x';
-					} else {
-						tiv.isGameplay = true;
-						// Minus 2 for the X's and movement.
-						tiv.colorCharacter = ((ivs.indexOf(v) - 2) + "")
-								.charAt(0);
-					}
-				}
-			});// Add a menu item
-		}
-	}
-
-	private Bitmap[] getMenuBitmaps() {
-		// +3 for movement and x's and transparent.
-		Bitmap[] result = new Bitmap[this.colors.length + 2];
-		result[0] = BitmapFactory.decodeResource(this.getResources(),
-				R.drawable.move);
-		result[1] = BitmapFactory.decodeResource(this.getResources(),
-				R.drawable.xs);
-		for (int i = 0; i != colors.length; ++i) {
-			Bitmap fullColor = Bitmap.createBitmap(1, 1,
-					Bitmap.Config.ARGB_8888);
-			final int[] rgb = this.getRGB(this.colors[i]);
-			if (rgb[0] == 0) {// This is alpha.
-				// For transparency.
-				fullColor = BitmapFactory.decodeResource(this.getResources(),
-						R.drawable.transparent);
-			} else {
-				fullColor.setPixel(0, 0, Color.rgb(rgb[1], rgb[2], rgb[3]));
-
-			}
-			// +2 for the X's and movement and transparent.
-			result[i + 2] = fullColor;
-		}
-		return result;
 	}
 
 	@Override
@@ -378,6 +330,25 @@ public class AdvancedGameActivity extends Activity implements OnTouchListener,
 			}
 			tiv.gCurrent = history.get(sbHistory.getProgress() + 1);
 			sbHistory.setProgress(sbHistory.getProgress() + 1);
+		} else if (v.getId() == R.id.ibTools) {
+			Bundle bundle = new Bundle();
+			FragmentTransaction ft = getSupportFragmentManager()
+					.beginTransaction();
+
+			bundle.putInt("layoutId", R.layout.dialog_color_choice);
+			bundle.putStringArray("colors", strColors);
+			final DialogMaker newFragment = new DialogMaker();
+			newFragment.setArguments(bundle);
+			newFragment.setOnDialogResultListner(new OnDialogResultListener() {
+
+				public void onDialogResult(Bundle result) {
+					tiv.isGameplay = result.getBoolean("isGameplay");
+					tiv.colorCharacter = result.getChar("colorCharacter");
+					newFragment.dismiss();
+				}
+			});
+			newFragment.show(ft, "dialog");
+			return;
 		}
 		tiv.bitmapFromCurrent();
 	}

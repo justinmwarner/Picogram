@@ -1,8 +1,8 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/rlGameActivity"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:id="@+id/rlGameActivity"
-    android:background="@drawable/sky"
+    android:background="@drawable/skywave"
     android:tileMode="repeat" >
 
     <com.picogram.awesomeness.TouchImageView
@@ -15,13 +15,6 @@
         android:layout_marginLeft="10dp"
         android:layout_marginRight="10dp"
         android:layout_marginTop="10dp" />
-
-    <com.capricorn.RayMenu
-        android:id="@+id/ray_menu"
-        android:layout_width="fill_parent"
-        android:layout_height="60dp"
-        android:paddingLeft="5dp"
-        android:paddingRight="5dp" />
 
     <SeekBar
         android:id="@+id/sbHistory"
@@ -51,5 +44,14 @@
         android:layout_below="@+id/ray_menu"
         android:text="Redo"
         android:textSize="10dp" />
+
+    <ImageButton
+        android:id="@+id/ibTools"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_alignLeft="@+id/tivGame"
+        android:layout_below="@+id/bUndo"
+        android:scaleType="fitCenter"
+        android:src="@drawable/properties" />
 
 </RelativeLayout>
