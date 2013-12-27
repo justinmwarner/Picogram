@@ -247,7 +247,7 @@ public class AdvancedGameActivity extends FragmentActivity implements
 			public void onRatingChanged(final RatingBar ratingBar,
 					final float rating, final boolean fromUser) {
 				if (fromUser) {
-					final PicogramOne g = new PicogramOne();
+					final GriddlerOne g = new GriddlerOne();
 					g.setID(AdvancedGameActivity.this.puzzleId);
 					g.fetch(new StackMobModelCallback() {
 
@@ -257,7 +257,7 @@ public class AdvancedGameActivity extends FragmentActivity implements
 							// If rating failed, do it next time we can, so add
 							// to database.
 							SQLiteRatingAdapter sorh = new SQLiteRatingAdapter(
-									a.getApplicationContext(), "Offline", null,
+									a.getApplicationContext(), "Rating", null,
 									1);
 							long line = sorh.insert(g.getID(),
 									sorh.getPastRatingForPID(g.getID()), rating
@@ -287,7 +287,7 @@ public class AdvancedGameActivity extends FragmentActivity implements
 									// then a future rating.
 									SQLiteRatingAdapter sorh = new SQLiteRatingAdapter(
 											a.getApplicationContext(),
-											"Offline", null, 1);
+											"Rating", null, 2);
 
 									long line = sorh.insert(g.getID(), "0",
 											rating + "");
@@ -302,7 +302,7 @@ public class AdvancedGameActivity extends FragmentActivity implements
 									// past rating and 0 for future.
 									SQLiteRatingAdapter sorh = new SQLiteRatingAdapter(
 											a.getApplicationContext(),
-											"Offline", null, 1);
+											"Rating", null, 2);
 
 									long line = sorh.insert(g.getID(), rating
 											+ "", "0");

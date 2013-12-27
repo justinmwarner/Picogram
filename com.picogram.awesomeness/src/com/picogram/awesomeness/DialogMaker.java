@@ -73,13 +73,13 @@ public class DialogMaker extends DialogFragment implements View.OnClickListener 
 		// Setup listeners and attributes of dialog UI elements.
 		if (layoutId == R.layout.dialog_listview_contextmenu) {
 			setupLongClick(v);
-		} else if (layoutId == R.layout.dialog_random_Picogram) {
+		} else if (layoutId == R.layout.dialog_random_picogram) {
 			builder
 			// Add action buttons
 			.setPositiveButton("Done", new DialogInterface.OnClickListener() {
 				public void onClick(DialogInterface dialog, int id) {
 					Bundle bundle = new Bundle();
-					if (layoutId == R.layout.dialog_random_Picogram) {
+					if (layoutId == R.layout.dialog_random_picogram) {
 						bundle.putInt("width", randomWidth);
 						bundle.putInt("height", randomHeight);
 						bundle.putInt("numColors", randomColors);
@@ -100,7 +100,7 @@ public class DialogMaker extends DialogFragment implements View.OnClickListener 
 		} else if (layoutId == R.layout.dialog_ranking) {
 			// Don't need action buttons.
 			setupRating(v);
-		} else if (layoutId == R.layout.dialog_save_Picogram) {
+		} else if (layoutId == R.layout.dialog_save_picogram) {
 			setupCreate(v);
 		} else if (layoutId == R.layout.dialog_color_choice) {
 			setupColorChoice(v, colors);
@@ -142,7 +142,8 @@ public class DialogMaker extends DialogFragment implements View.OnClickListener 
 			ll.setGravity(Gravity.CENTER);
 			ll.addView(item);
 			ll.setLayoutParams(new LinearLayout.LayoutParams(
-					LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, 1f));
+					android.view.ViewGroup.LayoutParams.WRAP_CONTENT,
+					android.view.ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
 			ivs.add(ll);
 			final int position = i;
 			item.setOnClickListener(new View.OnClickListener() {
@@ -151,10 +152,10 @@ public class DialogMaker extends DialogFragment implements View.OnClickListener 
 					// 2 is always transparent, don't worry ;).\
 					boolean isGameplay = true;
 					char colorCharacter = 'x';
-					if (ivs.indexOf(v) == 0) {
+					if (ivs.indexOf(v.getParent()) == 0) {
 						// Moving.
 						isGameplay = false;
-					} else if (ivs.indexOf(v) == 1) {
+					} else if (ivs.indexOf(v.getParent()) == 1) {
 						isGameplay = true;
 						colorCharacter = 'x';
 					} else {
@@ -164,6 +165,9 @@ public class DialogMaker extends DialogFragment implements View.OnClickListener 
 								.charAt(0);
 					}
 					Bundle bundle = new Bundle();
+					Log.d(TAG, "IndexOf: " + (ivs.indexOf(v.getParent()))
+							+ " Char: " + colorCharacter + " Game: "
+							+ isGameplay);
 					bundle.putBoolean("isGameplay", isGameplay);
 					bundle.putChar("colorCharacter", colorCharacter);
 					Log.d(TAG, "COLOR: " + colorCharacter);

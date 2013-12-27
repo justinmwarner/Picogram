@@ -2,11 +2,11 @@ package com.picogram.awesomeness;
 
 import com.stackmob.sdk.model.StackMobModel;
 
-public class PicogramTag extends StackMobModel {
+public class GriddlerTag extends StackMobModel {
 	String tag;
 
-	public PicogramTag(final String tag) {
-		super(PicogramTag.class);
+	public GriddlerTag(final String tag) {
+		super(GriddlerTag.class);
 		this.tag = tag.toLowerCase();
 	}
 }

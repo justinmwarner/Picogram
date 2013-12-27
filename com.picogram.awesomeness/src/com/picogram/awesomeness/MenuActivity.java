@@ -154,7 +154,7 @@ public class MenuActivity extends FragmentActivity implements FlurryAdListener,
 			final String rank = data.getStringExtra("rank");
 			final String solution = data.getStringExtra("solution");
 			final String width = data.getStringExtra("width");
-			final PicogramOne g = new PicogramOne(id, status, name, difficulty,
+			final GriddlerOne g = new GriddlerOne(id, status, name, difficulty,
 					rank, 1, author, width, height, solution, null,
 					numberOfColors, colors, "0", "5");
 			g.setID(id);
@@ -178,13 +178,13 @@ public class MenuActivity extends FragmentActivity implements FlurryAdListener,
 			});
 			final String[] tags = data.getStringExtra("tags").split(" ");
 			for (final String tag : tags) {
-				final PicogramTag gt = new PicogramTag(tag.toLowerCase());
+				final GriddlerTag gt = new GriddlerTag(tag.toLowerCase());
 				gt.setID(id);
 				gt.save();
 			}
 			// Add this Picogram to the rating table as a 5.
 			final SQLiteRatingAdapter sorh = new SQLiteRatingAdapter(this,
-					"Rating", null, 1);
+					"Rating", null, 2);
 			sorh.insert(id, "5", "0");
 			sorh.close();
 		} else if ((resultCode == Activity.RESULT_OK)
@@ -278,7 +278,7 @@ public class MenuActivity extends FragmentActivity implements FlurryAdListener,
 		String[][] offline = sql.getUnUploadedPicograms();
 		if (offline != null) {
 			for (String[] off : offline) {
-				final PicogramOne go = new PicogramOne(off);
+				final GriddlerOne go = new GriddlerOne(off);
 				go.save(new StackMobCallback() {
 
 					@Override
@@ -307,7 +307,7 @@ public class MenuActivity extends FragmentActivity implements FlurryAdListener,
 				final int oldRate = Integer.parseInt(o[1]);
 				final int newRate = Integer.parseInt(o[2]);
 				// Only add the oldRate.
-				final PicogramOne go = new PicogramOne();
+				final GriddlerOne go = new GriddlerOne();
 				go.setID(id);
 				go.fetch(new StackMobCallback() {
 

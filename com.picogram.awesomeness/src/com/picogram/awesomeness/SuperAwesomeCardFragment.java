@@ -109,7 +109,7 @@ public class SuperAwesomeCardFragment extends Fragment implements
 				}
 			}
 			if (isAdd) {
-				final PicogramOne tempPicogram = new PicogramOne(id, status,
+				final GriddlerOne tempPicogram = new GriddlerOne(id, status,
 						name, diff, rate, 0, author, width, height, solution,
 						current, numColors, colors, isUploaded, personalRank);
 				if (status.equals("2") || !Util.isOnline()) {
@@ -132,7 +132,7 @@ public class SuperAwesomeCardFragment extends Fragment implements
 					final int nc = numColors;
 					final String oldStatus = status; // Don't get rid of this.
 					final String oldCurrent = current;
-					final PicogramOne g = new PicogramOne();
+					final GriddlerOne g = new GriddlerOne();
 					g.setID(id);
 					// Add the Puzzle, then update in the adapter later on.
 					myAdapter.add(tempPicogram);
@@ -178,10 +178,10 @@ public class SuperAwesomeCardFragment extends Fragment implements
 
 	public void getRecentPuzzles(final Activity a) {
 		StackMobModel.query(
-				PicogramOne.class,
+				GriddlerOne.class,
 				new StackMobQuery().isInRange(0, 9).fieldIsOrderedBy(
 						"createddate", StackMobQuery.Ordering.DESCENDING),
-				new StackMobQueryCallback<PicogramOne>() {
+				new StackMobQueryCallback<GriddlerOne>() {
 
 					@Override
 					public void failure(final StackMobException arg0) {
@@ -192,8 +192,8 @@ public class SuperAwesomeCardFragment extends Fragment implements
 					}
 
 					@Override
-					public void success(final List<PicogramOne> gs) {
-						for (final PicogramOne g : gs) {
+					public void success(final List<GriddlerOne> gs) {
+						for (final GriddlerOne g : gs) {
 							SuperAwesomeCardFragment.this.myAdapter.add(g);
 							SuperAwesomeCardFragment.this.myAdapter
 									.notifyDataSetChanged();
@@ -205,10 +205,10 @@ public class SuperAwesomeCardFragment extends Fragment implements
 	public void getSortedPuzzles(final Activity a, final String sort) {
 		this.myAdapter.clear();
 		StackMobModel.query(
-				PicogramOne.class,
+				GriddlerOne.class,
 				new StackMobQuery().isInRange(0, 9).fieldIsOrderedBy(sort,
 						StackMobQuery.Ordering.DESCENDING),
-				new StackMobQueryCallback<PicogramOne>() {
+				new StackMobQueryCallback<GriddlerOne>() {
 
 					@Override
 					public void failure(final StackMobException arg0) {
@@ -220,8 +220,8 @@ public class SuperAwesomeCardFragment extends Fragment implements
 					}
 
 					@Override
-					public void success(final List<PicogramOne> gs) {
-						for (final PicogramOne g : gs) {
+					public void success(final List<GriddlerOne> gs) {
+						for (final GriddlerOne g : gs) {
 							a.runOnUiThread(new Runnable() {
 
 								public void run() {
@@ -242,8 +242,8 @@ public class SuperAwesomeCardFragment extends Fragment implements
 		this.myAdapter.clear();
 		final StackMobQuery smq = new StackMobQuery().fieldIsEqualTo("tag",
 				tag.toLowerCase());
-		StackMobModel.query(PicogramTag.class, smq,
-				new StackMobQueryCallback<PicogramTag>() {
+		StackMobModel.query(GriddlerTag.class, smq,
+				new StackMobQueryCallback<GriddlerTag>() {
 
 					@Override
 					public void failure(final StackMobException arg0) {
@@ -254,14 +254,14 @@ public class SuperAwesomeCardFragment extends Fragment implements
 					}
 
 					@Override
-					public void success(final List<PicogramTag> gts) {
+					public void success(final List<GriddlerTag> gts) {
 						final ArrayList<String> ids = new ArrayList();
-						for (final PicogramTag gt : gts) {
+						for (final GriddlerTag gt : gts) {
 							ids.add(gt.getID());
 						}
 
 						final StackMobQuery smqInner = new StackMobQuery()
-								.isInRange(0, 9).fieldIsIn("Picogramone_id",
+								.isInRange(0, 9).fieldIsIn("GriddlerOne_id",
 										ids);
 
 						if (isSortByRate) {
@@ -271,8 +271,8 @@ public class SuperAwesomeCardFragment extends Fragment implements
 							smq.fieldIsOrderedBy("createddate",
 									StackMobQuery.Ordering.DESCENDING);
 						}
-						StackMobModel.query(PicogramOne.class, smqInner,
-								new StackMobQueryCallback<PicogramOne>() {
+						StackMobModel.query(GriddlerOne.class, smqInner,
+								new StackMobQueryCallback<GriddlerOne>() {
 
 									@Override
 									public void failure(
@@ -287,9 +287,9 @@ public class SuperAwesomeCardFragment extends Fragment implements
 
 									@Override
 									public void success(
-											final List<PicogramOne> gs) {
+											final List<GriddlerOne> gs) {
 
-										for (final PicogramOne g : gs) {
+										for (final GriddlerOne g : gs) {
 											a.runOnUiThread(new Runnable() {
 
 												public void run() {
@@ -348,7 +348,7 @@ public class SuperAwesomeCardFragment extends Fragment implements
 			return new View(this.getActivity());
 		} else {
 			for (int i = 0; i != 20; ++i) {
-				final PicogramOne obj = new PicogramOne("=/", "0",
+				final GriddlerOne obj = new GriddlerOne("=/", "0",
 						"We had an error. You shouldn't see this " + i, "0",
 						"0", 1, "Justin", "1", "1", "1", "0", 2, Color.BLACK
 								+ " " + Color.RED, "1", "0");
@@ -394,7 +394,7 @@ public class SuperAwesomeCardFragment extends Fragment implements
 			} else {
 				// If this Picogram doesn't exists for the person, add it.
 
-				PicogramOne Picogram = this.myAdapter.get(pos);
+				GriddlerOne Picogram = this.myAdapter.get(pos);
 				if (sql == null)
 					this.sql = new SQLitePicogramAdapter(this.getActivity(),
 							"Picograms", null, 1);
@@ -406,7 +406,7 @@ public class SuperAwesomeCardFragment extends Fragment implements
 		}
 	}
 
-	private void startGame(PicogramOne go) {
+	private void startGame(GriddlerOne go) {
 		FlurryAgent.logEvent("UserPlayGame");
 		// Intent gameIntent = new Intent(this, AdvancedGameActivity.class);
 		final Intent gameIntent = new Intent(this.getActivity(),
@@ -426,7 +426,7 @@ public class SuperAwesomeCardFragment extends Fragment implements
 		FragmentTransaction ft = getChildFragmentManager().beginTransaction();
 		// Create and show the dialog.
 		Bundle bundle = new Bundle();
-		bundle.putInt("layoutId", R.layout.dialog_random_Picogram);
+		bundle.putInt("layoutId", R.layout.dialog_random_picogram);
 		DialogMaker newFragment = new DialogMaker();
 		newFragment.setArguments(bundle);
 		newFragment.show(ft, "dialog");
@@ -448,7 +448,7 @@ public class SuperAwesomeCardFragment extends Fragment implements
 				cols = cols.substring(0, cols.length() - 1);
 				int w = result.getInt("width"), h = result.getInt("height"), nc = result
 						.getInt("numColors");
-				final PicogramOne go = new PicogramOne(result.getString(
+				final GriddlerOne go = new GriddlerOne(result.getString(
 						"solution").hashCode()
 						+ "", "0", result.getString("name"),
 						((int) ((w * h) / 1400)) + "", "3", 1, "computer", w
@@ -471,7 +471,7 @@ public class SuperAwesomeCardFragment extends Fragment implements
 						sql.addUserPicogram(go);
 					}
 				});
-				PicogramTag gt = new PicogramTag("random");
+				GriddlerTag gt = new GriddlerTag("random");
 				gt.setID(go.getID());
 				gt.save();
 				// Start to play.

@@ -35,7 +35,7 @@ public class SQLitePicogramAdapter extends SQLiteOpenHelper {
 		super(context, name, factory, version);
 	}
 
-	public long addUserPicogram(final PicogramOne g) {
+	public long addUserPicogram(final GriddlerOne g) {
 		// Do stuff. Unknown so far. Implement later.
 		final SQLiteDatabase db = this.getWritableDatabase();
 		final ContentValues cv = new ContentValues();
@@ -223,7 +223,7 @@ public class SQLitePicogramAdapter extends SQLiteOpenHelper {
 		}
 	}
 
-	public boolean doesPuzzleExist(PicogramOne go) {
+	public boolean doesPuzzleExist(GriddlerOne go) {
 		String[][] Picograms = getPicograms();
 		String id = go.getID();
 		for (String[] gs : Picograms) {

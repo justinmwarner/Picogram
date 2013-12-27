@@ -19,10 +19,10 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.AdapterView.OnItemLongClickListener;
 
-public class PicogramListAdapter extends ArrayAdapter<PicogramOne> {
+public class PicogramListAdapter extends ArrayAdapter<GriddlerOne> {
 	private static final String TAG = "PicogramListAdapter";
 	private Context context;
-	ArrayList<PicogramOne> Picograms = new ArrayList<PicogramOne>();
+	ArrayList<GriddlerOne> Picograms = new ArrayList<GriddlerOne>();
 
 	public PicogramListAdapter(final Context context,
 			final int textViewResourceId) {
@@ -30,14 +30,14 @@ public class PicogramListAdapter extends ArrayAdapter<PicogramOne> {
 	}
 
 	public PicogramListAdapter(final Context context, final int resource,
-			final ArrayList<PicogramOne> items) {
+			final ArrayList<GriddlerOne> items) {
 		super(context, resource, items);
 		this.context = context;
 		this.Picograms = items;
 	}
 
 	@Override
-	public void add(final PicogramOne object) {
+	public void add(final GriddlerOne object) {
 		super.add(object);
 		this.Picograms.add(object);
 		// this.notifyDataSetChanged();
@@ -51,7 +51,7 @@ public class PicogramListAdapter extends ArrayAdapter<PicogramOne> {
 	}
 
 	public boolean existsById(final String id) {
-		for (final PicogramOne g : this.Picograms) {
+		for (final GriddlerOne g : this.Picograms) {
 			if (g.getID().equals(id)) {
 				return true;
 			}
@@ -60,7 +60,7 @@ public class PicogramListAdapter extends ArrayAdapter<PicogramOne> {
 		return false;
 	}
 
-	public PicogramOne get(final int pos) {
+	public GriddlerOne get(final int pos) {
 		return this.Picograms.get(pos);
 	}
 
@@ -78,7 +78,7 @@ public class PicogramListAdapter extends ArrayAdapter<PicogramOne> {
 		}
 		final LayoutInflater inflater = (LayoutInflater) this.context
 				.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		final View item = inflater.inflate(R.layout.Picogram_menu_choice_item,
+		final View item = inflater.inflate(R.layout.picogram_menu_choice_item,
 				parent, false);
 		final TextView rate = (TextView) item.findViewById(R.id.tvRating);
 		final TextView diff = (TextView) item.findViewById(R.id.tvDiff);
@@ -185,16 +185,16 @@ public class PicogramListAdapter extends ArrayAdapter<PicogramOne> {
 		final RelativeLayout rl = (RelativeLayout) item
 				.findViewById(R.id.rlMenuHolder);
 		final Drawable gd = rl.getBackground().mutate();
-		item.setBackgroundResource(R.drawable.Picogram_menu_choice_border_red);
+		item.setBackgroundResource(R.drawable.picogram_menu_choice_border_red);
 		if (status == 0) {
 			// In progress.
-			item.setBackgroundResource(R.drawable.Picogram_menu_choice_border_red);
+			item.setBackgroundResource(R.drawable.picogram_menu_choice_border_red);
 		} else if (status == 1) {
 			// Won.
-			item.setBackgroundResource(R.drawable.Picogram_menu_choice_border_green);
+			item.setBackgroundResource(R.drawable.picogram_menu_choice_border_green);
 		} else {
 			// Other (Custom, special levels, etc.).
-			item.setBackgroundResource(R.drawable.Picogram_menu_choice_border_other);
+			item.setBackgroundResource(R.drawable.picogram_menu_choice_border_other);
 		}
 		gd.invalidateSelf();
 		item.invalidate();
@@ -205,7 +205,7 @@ public class PicogramListAdapter extends ArrayAdapter<PicogramOne> {
 		return item;
 	}
 
-	public void setPicograms(final ArrayList<PicogramOne> g) {
+	public void setPicograms(final ArrayList<GriddlerOne> g) {
 		this.Picograms = g;
 	}
 
@@ -221,7 +221,7 @@ public class PicogramListAdapter extends ArrayAdapter<PicogramOne> {
 	public void updateCurrentById(String id, String newCurrent, String status) {
 		for (int i = 0; i != Picograms.size(); ++i) {
 			if (Picograms.get(i).getID().equals(id)) {
-				PicogramOne go = Picograms.get(i);
+				GriddlerOne go = Picograms.get(i);
 				go.setCurrent(newCurrent);
 				go.setStatus(status);
 				Picograms.set(i, go);

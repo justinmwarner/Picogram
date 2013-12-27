@@ -200,7 +200,7 @@ public class CreatePicogramActivity extends FragmentActivity implements
 	private void doDone() {
 		LayoutInflater inflater = getLayoutInflater();
 		final View dialoglayout = inflater.inflate(
-				R.layout.dialog_save_Picogram, (ViewGroup) getCurrentFocus());
+				R.layout.dialog_save_picogram, (ViewGroup) getCurrentFocus());
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
 		builder.setView(dialoglayout);
 		final Activity a = this;
@@ -236,7 +236,8 @@ public class CreatePicogramActivity extends FragmentActivity implements
 					returnIntent.putExtra("numRank", 1 + "");
 					returnIntent.putExtra("id", puzzleId);
 					returnIntent.putExtra("rank", 5 + "");
-					returnIntent.putExtra("solution", tivGame.gCurrent);
+					returnIntent.putExtra("solution",
+							tivGame.gCurrent.replaceAll("x", "0"));
 					returnIntent.putExtra("width", xNum + "");
 					returnIntent.putExtra("tags", tags.getText().toString());
 					resultAndFinish(returnIntent);
@@ -354,7 +355,7 @@ public class CreatePicogramActivity extends FragmentActivity implements
 				public void onDialogResult(Bundle result) {
 					tivGame.isGameplay = result.getBoolean("isGameplay");
 					tivGame.colorCharacter = result.getChar("colorCharacter");
-					tivGame.gridlinesColor = Color.BLACK;
+					// tivGame.gridlinesColor = Color.BLACK;
 					newFragment.dismiss();
 				}
 			});
@@ -687,8 +688,8 @@ public class CreatePicogramActivity extends FragmentActivity implements
 						} else if (id == R.id.bHeight) {
 							yNum = number;
 						}
-						setGameViewInfo();
 						alterPhoto();
+						setGameViewInfo();
 					}
 				});
 			}
@@ -818,7 +819,10 @@ public class CreatePicogramActivity extends FragmentActivity implements
 			tivGame.gCurrent = this.solution;
 			tivGame.bitmapFromCurrent();
 			currentView = 2;
+			Log.d(TAG, ib.getVisibility() + " VISIBLE");
 			ib.setVisibility(View.VISIBLE);
+			ib.getParent().bringChildToFront(ib);
+			Log.d(TAG, ib.getVisibility() + " VISIBLE");
 			Crouton.makeText(this, "Draw on screen to edit", Style.INFO).show();
 			// current width height id solution colors(string,)
 		} else {
@@ -830,16 +834,16 @@ public class CreatePicogramActivity extends FragmentActivity implements
 		bmNew = Bitmap.createBitmap(xNum, yNum, Bitmap.Config.ARGB_4444);
 		int[] pixels = new int[xNum * yNum];
 		for (int i = 0; i != gSolution.length(); ++i) {
-			int color = Integer.parseInt("" + gSolution.charAt(i));
-			pixels[i] = newColors[color];
+			if (gSolution.charAt(i) == 'x')
+				pixels[i] = 0;
+			else {
+				int color = Integer.parseInt("" + gSolution.charAt(i));
+				pixels[i] = newColors[color];
+			}
 		}
 		bmNew.setPixels(pixels, 0, xNum, 0, 0, xNum, yNum);
 		bmNew = Bitmap.createScaledBitmap(bmNew, xNum * 10, yNum * 10, false);
 		ivNew.setImageBitmap(bmNew);
-	}
-
-	private void updateFromSolution() {
-
 	}
 
 	private void setGameViewInfo() {
