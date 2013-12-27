@@ -432,6 +432,7 @@ public class TouchImageView extends ImageView {
 				this.paintBitmap.setStrokeWidth(this.paintBitmap
 						.getStrokeWidth() - 4);
 			}
+			Log.d(TAG, "DRAWING");
 			runner++;
 		}
 		// Side side.

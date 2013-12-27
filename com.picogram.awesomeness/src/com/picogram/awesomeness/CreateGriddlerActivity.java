@@ -33,6 +33,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentTransaction;
 import android.text.Editable;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -48,6 +49,7 @@ import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
@@ -58,10 +60,10 @@ import android.widget.SeekBar.OnSeekBarChangeListener;
 
 import com.cameraview.awesomeness.CameraView;
 import com.cameraview.awesomeness.CameraView.OnPictureTakenListener;
-import com.capricorn.RayMenu;
 import com.doomonafireball.betterpickers.numberpicker.NumberPickerBuilder;
 import com.doomonafireball.betterpickers.numberpicker.NumberPickerDialogFragment.NumberPickerDialogHandler;
 import com.flurry.android.FlurryAgent;
+import com.picogram.awesomeness.DialogMaker.OnDialogResultListener;
 
 import de.keyboardsurfer.android.widget.crouton.Crouton;
 import de.keyboardsurfer.android.widget.crouton.Style;
@@ -336,6 +338,29 @@ public class CreateGriddlerActivity extends FragmentActivity implements
 		} else if (v.getId() == R.id.bSearch) {
 			Crouton.makeText(this, "This isn't supported due to limitations.",
 					Style.INFO).show();
+		} else if (v.getId() == R.id.ibToolsCreate) {
+			Bundle bundle = new Bundle();
+			FragmentTransaction ft = getSupportFragmentManager()
+					.beginTransaction();
+			String strColors[] = new String[this.numColors];
+			for (int i = 0; i != numColors; ++i)
+				strColors[i] = "" + newColors[i];
+			bundle.putInt("layoutId", R.layout.dialog_color_choice);
+			bundle.putStringArray("colors", strColors);
+			final DialogMaker newFragment = new DialogMaker();
+			newFragment.setArguments(bundle);
+			newFragment.setOnDialogResultListner(new OnDialogResultListener() {
+
+				public void onDialogResult(Bundle result) {
+					tivGame.isGameplay = result.getBoolean("isGameplay");
+					tivGame.colorCharacter = result.getChar("colorCharacter");
+					tivGame.gridlinesColor = Color.BLACK;
+					newFragment.dismiss();
+				}
+			});
+			newFragment.show(ft, "dialog");
+			return;
+
 		}
 		// We're altering the sizes and stuff.
 		if (v.getId() == R.id.bWidth) {
@@ -389,30 +414,8 @@ public class CreateGriddlerActivity extends FragmentActivity implements
 			}
 		}
 		FlurryAgent.logEvent("CreatingPuzzle");
-		setupRayMenu();
-	}
-
-	private void setupRayMenu() {
-		ray = (RayMenu) findViewById(R.id.ray_menu_create);
-		Bitmap[] bmColors = getMenuBitmaps();
-		final ArrayList<View> ivs = new ArrayList<View>();
-		for (int i = 0; i < this.numColors; i++) {
-			ImageView item = new ImageView(this);
-			item.setImageBitmap(bmColors[i]);
-			item.setBackgroundDrawable(this.getResources().getDrawable(
-					R.drawable.dropshadows));
-			ivs.add(item);
-			final int position = i;
-			ray.addItem(item, new OnClickListener() {
-
-				public void onClick(View v) {
-					tivGame.isGameplay = true;
-					// Minus 2 for the X's and movement.
-					tivGame.colorCharacter = (ivs.indexOf(v) + "").charAt(0);
-
-				}
-			});// Add a menu item
-		}
+		ib = (ImageButton) findViewById(R.id.ibToolsCreate);
+		ib.setOnClickListener(this);
 	}
 
 	private Bitmap[] getMenuBitmaps() {
@@ -587,8 +590,6 @@ public class CreateGriddlerActivity extends FragmentActivity implements
 		return true;
 	}
 
-	RayMenu ray;
-
 	// Read bitmap - From
 	// http://tutorials-android.blogspot.co.il/2011/11/outofmemory-exception-when-decoding.html
 	private void processURL() {
@@ -688,7 +689,6 @@ public class CreateGriddlerActivity extends FragmentActivity implements
 						}
 						setGameViewInfo();
 						alterPhoto();
-						setupRayMenu();
 					}
 				});
 			}
@@ -777,11 +777,13 @@ public class CreateGriddlerActivity extends FragmentActivity implements
 		}
 	}
 
+	ImageButton ib;
+
 	private void updateMainView() {
 		if (tivGame != null)
 			if (tivGame.gCurrent != null)
 				this.solution = tivGame.gCurrent;
-		ray.setVisibility(View.INVISIBLE);
+		ib.setVisibility(View.INVISIBLE);
 		if (currentView == -1) {
 			// We're changing back to the get picture screen.
 			ivOriginal.setVisibility(View.INVISIBLE);
@@ -799,23 +801,41 @@ public class CreateGriddlerActivity extends FragmentActivity implements
 		} else if (currentView == 1) {
 			// Show New without grid.
 			// Update from solution.
-			updateFromSolution();
 			ivOriginal.setVisibility(View.INVISIBLE);
 			ivNew.setVisibility(View.VISIBLE);
 			tivGame.setVisibility(View.INVISIBLE);
 			currentView = 0;
+			Log.d(TAG, "Solution: " + tivGame.gCurrent);
+			updatePictureFromTIV(tivGame.gCurrent);
 		} else if (currentView == 0) {
 			// Show Gameboard
 			ivOriginal.setVisibility(View.INVISIBLE);
 			ivNew.setVisibility(View.INVISIBLE);
 			tivGame.setVisibility(View.VISIBLE);
+			tivGame.gridlinesColor = Color.BLACK;
+			tivGame.gHeight = this.yNum;
+			tivGame.gWidth = this.xNum;
+			tivGame.gCurrent = this.solution;
+			tivGame.bitmapFromCurrent();
 			currentView = 2;
-			ray.setVisibility(View.VISIBLE);
+			ib.setVisibility(View.VISIBLE);
 			Crouton.makeText(this, "Draw on screen to edit", Style.INFO).show();
 			// current width height id solution colors(string,)
 		} else {
 			currentView = 0; // Reset if problems.
 		}
+	}
+
+	private void updatePictureFromTIV(String gSolution) {
+		bmNew = Bitmap.createBitmap(xNum, yNum, Bitmap.Config.ARGB_4444);
+		int[] pixels = new int[xNum * yNum];
+		for (int i = 0; i != gSolution.length(); ++i) {
+			int color = Integer.parseInt("" + gSolution.charAt(i));
+			pixels[i] = newColors[color];
+		}
+		bmNew.setPixels(pixels, 0, xNum, 0, 0, xNum, yNum);
+		bmNew = Bitmap.createScaledBitmap(bmNew, xNum * 10, yNum * 10, false);
+		ivNew.setImageBitmap(bmNew);
 	}
 
 	private void updateFromSolution() {

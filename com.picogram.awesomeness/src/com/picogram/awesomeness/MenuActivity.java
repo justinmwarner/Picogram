@@ -184,7 +184,7 @@ public class MenuActivity extends FragmentActivity implements FlurryAdListener,
 			}
 			// Add this Picogram to the rating table as a 5.
 			final SQLiteRatingAdapter sorh = new SQLiteRatingAdapter(this,
-					"Griddlers", null, 1);
+					"Rating", null, 1);
 			sorh.insert(id, "5", "0");
 			sorh.close();
 		} else if ((resultCode == Activity.RESULT_OK)
@@ -264,6 +264,11 @@ public class MenuActivity extends FragmentActivity implements FlurryAdListener,
 				"f077e098-c678-4256-b7a2-c3061d9ff0c2");// Change to production.
 		if (Util.isOnline())
 			updateFromOffline();
+		else {
+			// Remove ads bar if offline.
+			toolbar.setVisibility(View.GONE);
+		}
+
 	}
 
 	private void updateFromOffline() {

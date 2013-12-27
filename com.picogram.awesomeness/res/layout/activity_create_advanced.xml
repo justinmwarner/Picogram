@@ -69,12 +69,14 @@
         android:background="@drawable/drop_shadow"
         android:visibility="invisible" />
 
-    <com.capricorn.RayMenu
-        android:id="@+id/ray_menu_create"
-        android:layout_width="fill_parent"
-        android:layout_height="60dp"
-        android:paddingLeft="5dp"
-        android:paddingRight="5dp"
+    <ImageButton
+        android:id="@+id/ibToolsCreate"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_alignLeft="@+id/cvPreview"
+        android:layout_alignTop="@+id/cvPreview"
+        android:scaleType="fitCenter"
+        android:src="@drawable/properties"
         android:visibility="invisible" />
 
 </RelativeLayout>

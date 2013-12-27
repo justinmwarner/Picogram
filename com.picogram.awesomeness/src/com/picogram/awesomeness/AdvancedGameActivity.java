@@ -38,8 +38,6 @@ import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 
-import com.capricorn.ArcMenu;
-import com.capricorn.RayMenu;
 import com.flurry.android.FlurryAgent;
 import com.picogram.awesomeness.DialogMaker.OnDialogResultListener;
 import com.picogram.awesomeness.TouchImageView.HistoryListener;
