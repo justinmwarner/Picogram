@@ -125,16 +125,16 @@ public class MenuActivity extends FragmentActivity implements FlurryAdListener,
 	EditText etTags;
 	static ListView lv;
 
-	static GriddlerListAdapter lvAdapter;
+	static PicogramListAdapter lvAdapter;
 
-	SQLiteGriddlerAdapter sql = null;
+	SQLitePicogramAdapter sql = null;
 
 	@Override
 	protected void onActivityResult(final int requestCode,
 			final int resultCode, final Intent data) {
 		updateBottomBar();
 		if (this.sql == null) {
-			this.sql = new SQLiteGriddlerAdapter(this, "Griddlers", null, 1);
+			this.sql = new SQLitePicogramAdapter(this, "Picograms", null, 1);
 		}
 		if ((requestCode == PREFERENCES_CODE)) {
 			// Preferences, just switch tab back to main.
@@ -154,7 +154,7 @@ public class MenuActivity extends FragmentActivity implements FlurryAdListener,
 			final String rank = data.getStringExtra("rank");
 			final String solution = data.getStringExtra("solution");
 			final String width = data.getStringExtra("width");
-			final GriddlerOne g = new GriddlerOne(id, status, name, difficulty,
+			final PicogramOne g = new PicogramOne(id, status, name, difficulty,
 					rank, 1, author, width, height, solution, null,
 					numberOfColors, colors, "0", "5");
 			g.setID(id);
@@ -166,19 +166,19 @@ public class MenuActivity extends FragmentActivity implements FlurryAdListener,
 				@Override
 				public void failure(final StackMobException arg0) {
 					g.setIsUploaded("0");
-					sql.addUserGriddler(g);
+					sql.addUserPicogram(g);
 				}
 
 				@Override
 				public void success() {
 					// TODO Auto-generated method stub
 					g.setIsUploaded("1");
-					sql.addUserGriddler(g);
+					sql.addUserPicogram(g);
 				}
 			});
 			final String[] tags = data.getStringExtra("tags").split(" ");
 			for (final String tag : tags) {
-				final GriddlerTag gt = new GriddlerTag(tag.toLowerCase());
+				final PicogramTag gt = new PicogramTag(tag.toLowerCase());
 				gt.setID(id);
 				gt.save();
 			}
@@ -193,7 +193,7 @@ public class MenuActivity extends FragmentActivity implements FlurryAdListener,
 			final String id = data.getStringExtra("ID");
 			final String status = data.getStringExtra("status");
 			final String current = data.getStringExtra("current");
-			this.sql.updateCurrentGriddler(id, status, current);
+			this.sql.updateCurrentPicogram(id, status, current);
 			MenuActivity.lvAdapter.updateCurrentById(id, current, status);
 			MenuActivity.lvAdapter.notifyDataSetChanged();
 		}
@@ -241,7 +241,7 @@ public class MenuActivity extends FragmentActivity implements FlurryAdListener,
 					"52b6411c4002051525000002");
 		}
 		lv = new ListView(this);
-		lvAdapter = new GriddlerListAdapter(this, R.id.tvName);
+		lvAdapter = new PicogramListAdapter(this, R.id.tvName);
 		lv.setAdapter(lvAdapter);
 		Util.setTheme(this);
 		this.setContentView(R.layout.activity_menu);
@@ -273,12 +273,12 @@ public class MenuActivity extends FragmentActivity implements FlurryAdListener,
 
 	private void updateFromOffline() {
 		if (this.sql == null) {
-			this.sql = new SQLiteGriddlerAdapter(this, "Griddlers", null, 1);
+			this.sql = new SQLitePicogramAdapter(this, "Picograms", null, 1);
 		}
 		String[][] offline = sql.getUnUploadedPicograms();
 		if (offline != null) {
 			for (String[] off : offline) {
-				final GriddlerOne go = new GriddlerOne(off);
+				final PicogramOne go = new PicogramOne(off);
 				go.save(new StackMobCallback() {
 
 					@Override
@@ -307,7 +307,7 @@ public class MenuActivity extends FragmentActivity implements FlurryAdListener,
 				final int oldRate = Integer.parseInt(o[1]);
 				final int newRate = Integer.parseInt(o[2]);
 				// Only add the oldRate.
-				final GriddlerOne go = new GriddlerOne();
+				final PicogramOne go = new PicogramOne();
 				go.setID(id);
 				go.fetch(new StackMobCallback() {
 

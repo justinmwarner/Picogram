@@ -4,22 +4,22 @@ import android.util.Log;
 
 import com.stackmob.sdk.model.StackMobModel;
 
-public class GriddlerOne extends StackMobModel implements Comparable {
+public class PicogramOne extends StackMobModel implements Comparable {
 	private String status, name, diff, rate, author, width, height, solution,
 			current, numberOfColors, colors, personalRank, isUploaded;
 	private int numberOfRatings;
 
-	public GriddlerOne() {
-		super(GriddlerOne.class);
+	public PicogramOne() {
+		super(PicogramOne.class);
 	}
 
-	public GriddlerOne(final String id, final String status, final String name,
+	public PicogramOne(final String id, final String status, final String name,
 			final String difficulty, final String rank,
 			final int numberOfRatings, final String author, final String width,
 			final String height, final String solution, final String current,
 			final int numColors, final String colors, final String isUploaded,
 			final String personalRank) {
-		super(GriddlerOne.class);
+		super(PicogramOne.class);
 		this.id = id;
 		this.status = status;
 		this.name = name;
@@ -37,8 +37,8 @@ public class GriddlerOne extends StackMobModel implements Comparable {
 		this.isUploaded = isUploaded;
 	}
 
-	public GriddlerOne(String[] arr) {
-		super(GriddlerOne.class);
+	public PicogramOne(String[] arr) {
+		super(PicogramOne.class);
 		final String id = arr[0];
 		final String author = arr[1];
 		final String name = arr[2];
@@ -91,7 +91,7 @@ public class GriddlerOne extends StackMobModel implements Comparable {
 	public int compareTo(final Object g) {
 		// equal is equivlant to making it less than, so no 0 needed.
 		return (Integer.parseInt(this.rate) >= Integer
-				.parseInt(((GriddlerOne) g).rate)) == true ? 1 : -1;
+				.parseInt(((PicogramOne) g).rate)) == true ? 1 : -1;
 	}
 
 	public String getAuthor() {

@@ -73,13 +73,13 @@ public class DialogMaker extends DialogFragment implements View.OnClickListener 
 		// Setup listeners and attributes of dialog UI elements.
 		if (layoutId == R.layout.dialog_listview_contextmenu) {
 			setupLongClick(v);
-		} else if (layoutId == R.layout.dialog_random_griddler) {
+		} else if (layoutId == R.layout.dialog_random_Picogram) {
 			builder
 			// Add action buttons
 			.setPositiveButton("Done", new DialogInterface.OnClickListener() {
 				public void onClick(DialogInterface dialog, int id) {
 					Bundle bundle = new Bundle();
-					if (layoutId == R.layout.dialog_random_griddler) {
+					if (layoutId == R.layout.dialog_random_Picogram) {
 						bundle.putInt("width", randomWidth);
 						bundle.putInt("height", randomHeight);
 						bundle.putInt("numColors", randomColors);
@@ -100,7 +100,7 @@ public class DialogMaker extends DialogFragment implements View.OnClickListener 
 		} else if (layoutId == R.layout.dialog_ranking) {
 			// Don't need action buttons.
 			setupRating(v);
-		} else if (layoutId == R.layout.dialog_save_griddler) {
+		} else if (layoutId == R.layout.dialog_save_Picogram) {
 			setupCreate(v);
 		} else if (layoutId == R.layout.dialog_color_choice) {
 			setupColorChoice(v, colors);

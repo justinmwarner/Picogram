@@ -33,7 +33,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.picogram.awesomeness.CreateGriddlerActivity"
+            android:name="com.picogram.awesomeness.CreatePicogramActivity"
             android:label="@string/app_name"
             android:screenOrientation="portrait" >
             <intent-filter>
@@ -44,12 +44,12 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.picogram.awesomeness.UserGriddlers"
-            android:label="@string/title_activity_user_griddlers" >
+            android:name="com.picogram.awesomeness.UserPicograms"
+            android:label="@string/title_activity_user_Picograms" >
         </activity>
         <activity
-            android:name="com.picogram.awesomeness.WorldGriddlers"
-            android:label="@string/title_activity_world_griddlers" >
+            android:name="com.picogram.awesomeness.WorldPicograms"
+            android:label="@string/title_activity_world_Picograms" >
         </activity>
         <activity
             android:name="com.picogram.awesomeness.SettingsActivity"

@@ -68,11 +68,11 @@ import com.picogram.awesomeness.DialogMaker.OnDialogResultListener;
 import de.keyboardsurfer.android.widget.crouton.Crouton;
 import de.keyboardsurfer.android.widget.crouton.Style;
 
-public class CreateGriddlerActivity extends FragmentActivity implements
+public class CreatePicogramActivity extends FragmentActivity implements
 		OnClickListener, OnTouchListener, OnPictureTakenListener {
 	private static final int CAMERA_REQUEST_CODE = 1888,
 			FILE_SELECT_CODE = 1337;
-	private static final String TAG = "CreateGriddlerActivity";
+	private static final String TAG = "CreatePicogramActivity";
 	static String url = "";
 
 	private Bitmap bmOriginal, bmNew;
@@ -186,7 +186,7 @@ public class CreateGriddlerActivity extends FragmentActivity implements
 			cols = cols.substring(0, cols.length() - 1);
 			bundle.putString("colors", cols);
 			tivGame.isRefreshing = true;
-			tivGame.setGriddlerInfo(bundle);
+			tivGame.setPicogramInfo(bundle);
 		} else {
 			Crouton.makeText(this, "=( We need a picture first.", Style.INFO)
 					.show();
@@ -200,7 +200,7 @@ public class CreateGriddlerActivity extends FragmentActivity implements
 	private void doDone() {
 		LayoutInflater inflater = getLayoutInflater();
 		final View dialoglayout = inflater.inflate(
-				R.layout.dialog_save_griddler, (ViewGroup) getCurrentFocus());
+				R.layout.dialog_save_Picogram, (ViewGroup) getCurrentFocus());
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
 		builder.setView(dialoglayout);
 		final Activity a = this;
@@ -308,7 +308,7 @@ public class CreateGriddlerActivity extends FragmentActivity implements
 		} else if (v.getId() == R.id.bLink) {
 			final EditText input = new EditText(this);
 			input.setText("http://static.tumblr.com/b81c7dadf0e20919a038a85c933062a6/4w8r7zy/2ifmvnsrg/tumblr_static_tumblr_static_tumblr_inline_mkqs46qvu21qz4rgp.gif");
-			new AlertDialog.Builder(CreateGriddlerActivity.this)
+			new AlertDialog.Builder(CreatePicogramActivity.this)
 					.setTitle("URL Sumittion")
 					.setMessage("Url Link to Image File...")
 					.setView(input)
@@ -317,7 +317,7 @@ public class CreateGriddlerActivity extends FragmentActivity implements
 								public void onClick(DialogInterface dialog,
 										int whichButton) {
 									Editable value = input.getText();
-									CreateGriddlerActivity.url = value
+									CreatePicogramActivity.url = value
 											.toString();
 									handler.post(new Runnable() {
 
@@ -539,8 +539,8 @@ public class CreateGriddlerActivity extends FragmentActivity implements
 								for (int i : newColors)
 									cols += i + " ";
 								// Change the value in the colors array.
-								for (int i = 0; i != CreateGriddlerActivity.this.newColors.length; ++i) {
-									if (CreateGriddlerActivity.this.newColors[i] == touchedRGB) {
+								for (int i = 0; i != CreatePicogramActivity.this.newColors.length; ++i) {
+									if (CreatePicogramActivity.this.newColors[i] == touchedRGB) {
 										// Make sure this color doesn't already
 										// exist, if it does, tweak the new
 										// color
@@ -548,12 +548,12 @@ public class CreateGriddlerActivity extends FragmentActivity implements
 										/*
 										 * //TODO If color already exists, don't
 										 * let it happen. for (int j = 0; j !=
-										 * CreateGriddlerActivity
+										 * CreatePicogramActivity
 										 * .this.newColors.length; ++j) { if
-										 * (CreateGriddlerActivity
+										 * (CreatePicogramActivity
 										 * .this.newColors[j] == touchedRGB) {
 										 * final int[] rgb =
-										 * CreateGriddlerActivity.this
+										 * CreatePicogramActivity.this
 										 * .getRGB(color); if (rgb[0] == 255) {
 										 * rgb[0] = rgb[0] - 1; } else { rgb[0]
 										 * = rgb[0] + 1; } color =
@@ -562,7 +562,7 @@ public class CreateGriddlerActivity extends FragmentActivity implements
 										 * "Didn't find it =/ " + color + " " +
 										 * newColors[j]); }
 										 */
-										CreateGriddlerActivity.this.newColors[i] = color;
+										CreatePicogramActivity.this.newColors[i] = color;
 										break;
 									}
 								}
@@ -575,7 +575,7 @@ public class CreateGriddlerActivity extends FragmentActivity implements
 								cols = "";
 								for (int i : newColors)
 									cols += i + " ";
-								CreateGriddlerActivity.this.alterPhoto();
+								CreatePicogramActivity.this.alterPhoto();
 							}
 						});
 
@@ -599,7 +599,7 @@ public class CreateGriddlerActivity extends FragmentActivity implements
 		new Thread(new Runnable() {
 			public void run() {
 				try {
-					final URL url = new URL(CreateGriddlerActivity.url);
+					final URL url = new URL(CreatePicogramActivity.url);
 					final HttpURLConnection conn = (HttpURLConnection) url
 							.openConnection();
 					conn.setDoInput(true);
@@ -607,7 +607,7 @@ public class CreateGriddlerActivity extends FragmentActivity implements
 					InputStream in;
 					in = conn.getInputStream();
 					final Bitmap bm = BitmapFactory.decodeStream(in);
-					CreateGriddlerActivity.this.bmOriginal = bm;
+					CreatePicogramActivity.this.bmOriginal = bm;
 					handler.post(new Runnable() {
 						public void run() {
 							bmOriginal = bm;
@@ -853,7 +853,7 @@ public class CreateGriddlerActivity extends FragmentActivity implements
 		for (Integer color : newColors)
 			cols += color + ",";
 		bundle.putString("colors", cols.substring(0, cols.length() - 1));
-		tivGame.setGriddlerInfo(bundle);
+		tivGame.setPicogramInfo(bundle);
 	}
 
 	private boolean userValuesValid() {

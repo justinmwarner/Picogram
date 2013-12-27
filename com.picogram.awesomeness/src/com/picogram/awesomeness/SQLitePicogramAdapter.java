@@ -9,13 +9,13 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.graphics.Color;
 import android.util.Log;
 
-public class SQLiteGriddlerAdapter extends SQLiteOpenHelper {
+public class SQLitePicogramAdapter extends SQLiteOpenHelper {
 
 	static final String author = "Author";
 	static final String current = "Current";
-	static final String dbName = "Griddlers";
+	static final String dbName = "Picograms";
 	static final String difficulty = "Difficulty";
-	static final String griddlerTable = "UserGriddlers";
+	static final String PicogramTable = "UserPicograms";
 	static final String height = "Height";
 	static final String id = "id";
 	static final String name = "Name";
@@ -30,33 +30,33 @@ public class SQLiteGriddlerAdapter extends SQLiteOpenHelper {
 
 	// static final String tags = "Tags";
 
-	public SQLiteGriddlerAdapter(final Context context, final String name,
+	public SQLitePicogramAdapter(final Context context, final String name,
 			final CursorFactory factory, final int version) {
 		super(context, name, factory, version);
 	}
 
-	public long addUserGriddler(final GriddlerOne g) {
+	public long addUserPicogram(final PicogramOne g) {
 		// Do stuff. Unknown so far. Implement later.
 		final SQLiteDatabase db = this.getWritableDatabase();
 		final ContentValues cv = new ContentValues();
-		cv.put(SQLiteGriddlerAdapter.id, g.getID());
-		cv.put(SQLiteGriddlerAdapter.author, g.getAuthor());
-		cv.put(SQLiteGriddlerAdapter.name, g.getName());
-		cv.put(SQLiteGriddlerAdapter.rank, g.getRating());
-		cv.put(SQLiteGriddlerAdapter.solution, g.getSolution());
-		cv.put(SQLiteGriddlerAdapter.difficulty, g.getDiff());
-		cv.put(SQLiteGriddlerAdapter.width, g.getWidth());
-		cv.put(SQLiteGriddlerAdapter.height, g.getHeight());
-		cv.put(SQLiteGriddlerAdapter.status, g.getStatus());
-		cv.put(SQLiteGriddlerAdapter.current, g.getCurrent());
-		cv.put(SQLiteGriddlerAdapter.numberOfColors, g.getNumberOfColors());
-		cv.put(SQLiteGriddlerAdapter.colors, g.getColors());
+		cv.put(SQLitePicogramAdapter.id, g.getID());
+		cv.put(SQLitePicogramAdapter.author, g.getAuthor());
+		cv.put(SQLitePicogramAdapter.name, g.getName());
+		cv.put(SQLitePicogramAdapter.rank, g.getRating());
+		cv.put(SQLitePicogramAdapter.solution, g.getSolution());
+		cv.put(SQLitePicogramAdapter.difficulty, g.getDiff());
+		cv.put(SQLitePicogramAdapter.width, g.getWidth());
+		cv.put(SQLitePicogramAdapter.height, g.getHeight());
+		cv.put(SQLitePicogramAdapter.status, g.getStatus());
+		cv.put(SQLitePicogramAdapter.current, g.getCurrent());
+		cv.put(SQLitePicogramAdapter.numberOfColors, g.getNumberOfColors());
+		cv.put(SQLitePicogramAdapter.colors, g.getColors());
 		cv.put(personalRank, g.getPersonalRank());
 		cv.put(isUploaded, g.getIsUploaded());
-		return db.insert(griddlerTable, null, cv);
+		return db.insert(PicogramTable, null, cv);
 	}
 
-	public long addUserGriddler(final String id, final String author,
+	public long addUserPicogram(final String id, final String author,
 			final String name, final String rank, final String solution,
 			String current, final String difficulty, final String width,
 			final String height, final String status,
@@ -65,19 +65,19 @@ public class SQLiteGriddlerAdapter extends SQLiteOpenHelper {
 		// Do stuff. Unknown so far. Implement later.
 		final SQLiteDatabase db = this.getWritableDatabase();
 		final ContentValues cv = new ContentValues();
-		cv.put(SQLiteGriddlerAdapter.id, id);
-		cv.put(SQLiteGriddlerAdapter.author, author);
-		cv.put(SQLiteGriddlerAdapter.name, name);
-		cv.put(SQLiteGriddlerAdapter.rank, rank);
-		cv.put(SQLiteGriddlerAdapter.solution, solution);
-		cv.put(SQLiteGriddlerAdapter.difficulty, difficulty);
-		cv.put(SQLiteGriddlerAdapter.width, width);
-		cv.put(SQLiteGriddlerAdapter.height, height);
-		cv.put(SQLiteGriddlerAdapter.status, status);
-		cv.put(SQLiteGriddlerAdapter.numberOfColors, numberOfColors);
-		cv.put(SQLiteGriddlerAdapter.colors, colors);
-		cv.put(SQLiteGriddlerAdapter.personalRank, personalRank);
-		cv.put(SQLiteGriddlerAdapter.isUploaded, isUploaded);
+		cv.put(SQLitePicogramAdapter.id, id);
+		cv.put(SQLitePicogramAdapter.author, author);
+		cv.put(SQLitePicogramAdapter.name, name);
+		cv.put(SQLitePicogramAdapter.rank, rank);
+		cv.put(SQLitePicogramAdapter.solution, solution);
+		cv.put(SQLitePicogramAdapter.difficulty, difficulty);
+		cv.put(SQLitePicogramAdapter.width, width);
+		cv.put(SQLitePicogramAdapter.height, height);
+		cv.put(SQLitePicogramAdapter.status, status);
+		cv.put(SQLitePicogramAdapter.numberOfColors, numberOfColors);
+		cv.put(SQLitePicogramAdapter.colors, colors);
+		cv.put(SQLitePicogramAdapter.personalRank, personalRank);
+		cv.put(SQLitePicogramAdapter.isUploaded, isUploaded);
 		// All 0's, if not assigned.
 		if (current == null) {
 			current = "";
@@ -87,22 +87,22 @@ public class SQLiteGriddlerAdapter extends SQLiteOpenHelper {
 				}
 			}
 		}
-		cv.put(SQLiteGriddlerAdapter.current, current);
-		return db.insert(griddlerTable, null, cv);
+		cv.put(SQLitePicogramAdapter.current, current);
+		return db.insert(PicogramTable, null, cv);
 	}
 
-	public int deleteGriddler(final String id) {
+	public int deletePicogram(final String id) {
 		// Probably won't implement. Not a huge deal (Right now).
 		final SQLiteDatabase db = this.getWritableDatabase();
-		return db.delete(griddlerTable, "id=" + id, null);
+		return db.delete(PicogramTable, "id=" + id, null);
 	}
 
-	public String[][] getGriddlers() {
-		// Page is the page of Griddlers to get. Might change.
-		// Returns String array of Griddler infos to be processed internally.
+	public String[][] getPicograms() {
+		// Page is the page of Picograms to get. Might change.
+		// Returns String array of Picogram infos to be processed internally.
 		// Maybe change this so it's easier to process?
 		final SQLiteDatabase db = this.getWritableDatabase();
-		String query = "SELECT * FROM " + griddlerTable;
+		String query = "SELECT * FROM " + PicogramTable;
 		final Cursor c = db.rawQuery(query, null);
 		if (c.moveToFirst()) {
 			final String[][] result = new String[c.getCount()][c
@@ -138,7 +138,7 @@ public class SQLiteGriddlerAdapter extends SQLiteOpenHelper {
 		cv.put(status, "2");
 		cv.put(personalRank, "0");
 		cv.put(isUploaded, "1");
-		db.insert(griddlerTable, null, cv);
+		db.insert(PicogramTable, null, cv);
 		cv.put(id, "0".hashCode());
 		cv.put(author, "justinwarner");
 		cv.put(name, "Random Picogram!");
@@ -151,7 +151,7 @@ public class SQLiteGriddlerAdapter extends SQLiteOpenHelper {
 		cv.put(status, "2");
 		cv.put(personalRank, "0");
 		cv.put(isUploaded, "1");
-		db.insert(griddlerTable, null, cv);
+		db.insert(PicogramTable, null, cv);
 		cv.put(id, "1111100110011111".hashCode());
 		cv.put(author, "justinwarner");
 		cv.put(name, "Tutorial");
@@ -166,13 +166,13 @@ public class SQLiteGriddlerAdapter extends SQLiteOpenHelper {
 		cv.put(numberOfColors, 2);
 		cv.put(personalRank, "0");
 		cv.put(isUploaded, "1");
-		db.insert(griddlerTable, null, cv);
+		db.insert(PicogramTable, null, cv);
 	}
 
 	@Override
 	public void onCreate(final SQLiteDatabase db) {
 		// Create the database son.
-		final String query = "CREATE TABLE " + griddlerTable + " (" + id
+		final String query = "CREATE TABLE " + PicogramTable + " (" + id
 				+ " INT(32)," + author + " TEXT," + name + " TEXT," + rank
 				+ " INT(32)," + solution + " TEXT," + current + " TEXT,"
 				+ difficulty + " VARCHAR(16)," + width + " INT(12)," + height
@@ -189,21 +189,21 @@ public class SQLiteGriddlerAdapter extends SQLiteOpenHelper {
 		// Don't do anything... Yet. Need to read up on what/how this works.
 	}
 
-	public int updateCurrentGriddler(final String id, final String status,
+	public int updateCurrentPicogram(final String id, final String status,
 			final String current) {
 		final SQLiteDatabase db = this.getWritableDatabase();
 		final ContentValues cv = new ContentValues();
-		cv.put(SQLiteGriddlerAdapter.current, current);
-		cv.put(SQLiteGriddlerAdapter.status, status);
-		cv.put(SQLiteGriddlerAdapter.id, id);
-		return db.update(griddlerTable, cv, SQLiteGriddlerAdapter.id + " = "
+		cv.put(SQLitePicogramAdapter.current, current);
+		cv.put(SQLitePicogramAdapter.status, status);
+		cv.put(SQLitePicogramAdapter.id, id);
+		return db.update(PicogramTable, cv, SQLitePicogramAdapter.id + " = "
 				+ id, null);
 	}
 
 	public String[][] getUnUploadedPicograms() {
 		final SQLiteDatabase db = this.getWritableDatabase();
-		String[][] thing = this.getGriddlers();
-		String query = "SELECT * FROM " + griddlerTable + " WHERE "
+		String[][] thing = this.getPicograms();
+		String query = "SELECT * FROM " + PicogramTable + " WHERE "
 				+ isUploaded + "='0'";
 		final Cursor c = db.rawQuery(query, null);
 		if (c.moveToFirst()) {
@@ -223,10 +223,10 @@ public class SQLiteGriddlerAdapter extends SQLiteOpenHelper {
 		}
 	}
 
-	public boolean doesPuzzleExist(GriddlerOne go) {
-		String[][] griddlers = getGriddlers();
+	public boolean doesPuzzleExist(PicogramOne go) {
+		String[][] Picograms = getPicograms();
 		String id = go.getID();
-		for (String[] gs : griddlers) {
+		for (String[] gs : Picograms) {
 			if (gs[0].equals(id)) {
 				return true;
 			}
@@ -238,9 +238,9 @@ public class SQLiteGriddlerAdapter extends SQLiteOpenHelper {
 
 		final SQLiteDatabase db = this.getWritableDatabase();
 		final ContentValues cv = new ContentValues();
-		cv.put(SQLiteGriddlerAdapter.isUploaded, isUp);
-		cv.put(SQLiteGriddlerAdapter.id, id);
-		db.update(griddlerTable, cv, SQLiteGriddlerAdapter.id + " = " + id,
+		cv.put(SQLitePicogramAdapter.isUploaded, isUp);
+		cv.put(SQLitePicogramAdapter.id, id);
+		db.update(PicogramTable, cv, SQLitePicogramAdapter.id + " = " + id,
 				null);
 	}
 }

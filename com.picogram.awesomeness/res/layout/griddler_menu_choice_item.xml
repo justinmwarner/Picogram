@@ -3,7 +3,7 @@
     android:id="@+id/rlMenuHolder"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/griddler_menu_choice_border" >
+    android:background="@drawable/Picogram_menu_choice_border" >
 
     <FrameLayout
         android:id="@+id/frameLayout1"
@@ -44,7 +44,7 @@
                 android:layout_alignParentTop="true"
                 android:layout_marginRight="3dp"
                 android:gravity="center"
-                android:text="NAME_OF_GRIDDLER"
+                android:text="NAME_OF_Picogram"
                 android:textAppearance="?android:attr/textAppearanceMedium" />
 
             <TextView

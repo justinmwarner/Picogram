@@ -56,7 +56,7 @@ public class AdvancedGameActivity extends FragmentActivity implements
 	TouchImageView tiv;
 	Handler handle = new Handler();
 	int tutorialStep = 0;
-	private static SQLiteGriddlerAdapter sql;
+	private static SQLitePicogramAdapter sql;
 	int colors[];
 	String strColors[];
 	ArrayList<ImageView> ivs = new ArrayList<ImageView>();
@@ -140,7 +140,7 @@ public class AdvancedGameActivity extends FragmentActivity implements
 		}
 		Util.setTheme(this);
 		this.tiv.setWinListener(this);
-		this.tiv.setGriddlerInfo(this.getIntent().getExtras());
+		this.tiv.setPicogramInfo(this.getIntent().getExtras());
 		final String name = this.getIntent().getExtras().getString("name");
 		final String c = this.getIntent().getExtras().getString("current");
 		final String s = this.getIntent().getExtras().getString("solution");
@@ -197,7 +197,7 @@ public class AdvancedGameActivity extends FragmentActivity implements
 	@Override
 	public void onPause() {
 		super.onPause();
-		sql.updateCurrentGriddler(this.tiv.gSolution.hashCode() + "", "0",
+		sql.updateCurrentPicogram(this.tiv.gSolution.hashCode() + "", "0",
 				this.tiv.gCurrent);
 		sql.close();
 	}
@@ -206,8 +206,8 @@ public class AdvancedGameActivity extends FragmentActivity implements
 	public void onResume() {
 		super.onResume();
 		Util.updateFullScreen(this);
-		sql = new SQLiteGriddlerAdapter(this.getApplicationContext(),
-				"Griddlers", null, 1);
+		sql = new SQLitePicogramAdapter(this.getApplicationContext(),
+				"Picograms", null, 1);
 	}
 
 	public boolean onTouch(final View v, final MotionEvent event) {
@@ -247,7 +247,7 @@ public class AdvancedGameActivity extends FragmentActivity implements
 			public void onRatingChanged(final RatingBar ratingBar,
 					final float rating, final boolean fromUser) {
 				if (fromUser) {
-					final GriddlerOne g = new GriddlerOne();
+					final PicogramOne g = new PicogramOne();
 					g.setID(AdvancedGameActivity.this.puzzleId);
 					g.fetch(new StackMobModelCallback() {
 

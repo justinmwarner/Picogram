@@ -19,27 +19,27 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.AdapterView.OnItemLongClickListener;
 
-public class GriddlerListAdapter extends ArrayAdapter<GriddlerOne> {
-	private static final String TAG = "GriddlerListAdapter";
+public class PicogramListAdapter extends ArrayAdapter<PicogramOne> {
+	private static final String TAG = "PicogramListAdapter";
 	private Context context;
-	ArrayList<GriddlerOne> griddlers = new ArrayList<GriddlerOne>();
+	ArrayList<PicogramOne> Picograms = new ArrayList<PicogramOne>();
 
-	public GriddlerListAdapter(final Context context,
+	public PicogramListAdapter(final Context context,
 			final int textViewResourceId) {
 		super(context, textViewResourceId);
 	}
 
-	public GriddlerListAdapter(final Context context, final int resource,
-			final ArrayList<GriddlerOne> items) {
+	public PicogramListAdapter(final Context context, final int resource,
+			final ArrayList<PicogramOne> items) {
 		super(context, resource, items);
 		this.context = context;
-		this.griddlers = items;
+		this.Picograms = items;
 	}
 
 	@Override
-	public void add(final GriddlerOne object) {
+	public void add(final PicogramOne object) {
 		super.add(object);
-		this.griddlers.add(object);
+		this.Picograms.add(object);
 		// this.notifyDataSetChanged();
 		// this.notifyDataSetInvalidated();
 	}
@@ -47,11 +47,11 @@ public class GriddlerListAdapter extends ArrayAdapter<GriddlerOne> {
 	@Override
 	public void clear() {
 		super.clear();
-		this.griddlers.clear();
+		this.Picograms.clear();
 	}
 
 	public boolean existsById(final String id) {
-		for (final GriddlerOne g : this.griddlers) {
+		for (final PicogramOne g : this.Picograms) {
 			if (g.getID().equals(id)) {
 				return true;
 			}
@@ -60,13 +60,13 @@ public class GriddlerListAdapter extends ArrayAdapter<GriddlerOne> {
 		return false;
 	}
 
-	public GriddlerOne get(final int pos) {
-		return this.griddlers.get(pos);
+	public PicogramOne get(final int pos) {
+		return this.Picograms.get(pos);
 	}
 
 	@Override
 	public int getCount() {
-		return this.griddlers.size();
+		return this.Picograms.size();
 	}
 
 	@Override
@@ -78,7 +78,7 @@ public class GriddlerListAdapter extends ArrayAdapter<GriddlerOne> {
 		}
 		final LayoutInflater inflater = (LayoutInflater) this.context
 				.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		final View item = inflater.inflate(R.layout.griddler_menu_choice_item,
+		final View item = inflater.inflate(R.layout.Picogram_menu_choice_item,
 				parent, false);
 		final TextView rate = (TextView) item.findViewById(R.id.tvRating);
 		final TextView diff = (TextView) item.findViewById(R.id.tvDiff);
@@ -87,21 +87,21 @@ public class GriddlerListAdapter extends ArrayAdapter<GriddlerOne> {
 		iv.setVisibility(0);
 		int height;
 		try {
-			height = Integer.parseInt(this.griddlers.get(position).getHeight());
+			height = Integer.parseInt(this.Picograms.get(position).getHeight());
 		} catch (Exception e) {
 			height = 0;
 		}
 		int width;
 		try { 
-			width = Integer.parseInt(this.griddlers.get(position).getWidth());
+			width = Integer.parseInt(this.Picograms.get(position).getWidth());
 		} catch (Exception e) {
 			width = 0;
 		}
-		String curr = this.griddlers.get(position).getCurrent();
+		String curr = this.Picograms.get(position).getCurrent();
 		int run = 0;
 		if (curr == null) {
 			curr = "";
-			for (int i = 0; i != this.griddlers.get(position).getSolution()
+			for (int i = 0; i != this.Picograms.get(position).getSolution()
 					.length(); ++i) {
 				curr += "0";
 			}
@@ -111,7 +111,7 @@ public class GriddlerListAdapter extends ArrayAdapter<GriddlerOne> {
 			bm = BitmapFactory.decodeResource(this.context.getResources(),
 					R.drawable.ic_launcher);
 			bm = Bitmap.createScaledBitmap(bm, width, height, true);
-			String[] colors = this.griddlers.get(position).getColors()
+			String[] colors = this.Picograms.get(position).getColors()
 					.split(",");
 			for (int i = 0; i < height; i++) {
 				for (int j = 0; j < width; j++) {
@@ -143,9 +143,9 @@ public class GriddlerListAdapter extends ArrayAdapter<GriddlerOne> {
 		bm = Bitmap.createScaledBitmap(bm, 100, 100, false);
 		iv.setImageBitmap(bm);
 		iv.setVisibility(View.VISIBLE);
-		if (this.griddlers.get(position).getNumberOfRatings() != 0) {
+		if (this.Picograms.get(position).getNumberOfRatings() != 0) {
 			String rateText = "Rating: "
-					+ (Double.parseDouble(this.griddlers.get(position)
+					+ (Double.parseDouble(this.Picograms.get(position)
 							.getRating()));
 			int index = rateText.indexOf('.');
 			if (index != -1)
@@ -159,9 +159,9 @@ public class GriddlerListAdapter extends ArrayAdapter<GriddlerOne> {
 			else
 				rate.setText(rateText);
 		}
-		diff.setText("Difficulty: " + this.griddlers.get(position).getDiff());
+		diff.setText("Difficulty: " + this.Picograms.get(position).getDiff());
 		try {
-			int i = Integer.parseInt(this.griddlers.get(position).getDiff());
+			int i = Integer.parseInt(this.Picograms.get(position).getDiff());
 			if (i == 0) {
 				diff.setText("Difficulty: Easy");
 			} else if (i == 1)
@@ -175,26 +175,26 @@ public class GriddlerListAdapter extends ArrayAdapter<GriddlerOne> {
 		} catch (Exception e) {
 			// Ignore if not a number.
 		}
-		name.setText(this.griddlers.get(position).getName());
+		name.setText(this.Picograms.get(position).getName());
 		// Change color if user has beaten level.
 		int status = 0;
 		try {
-			status = Integer.parseInt(this.griddlers.get(position).getStatus());
+			status = Integer.parseInt(this.Picograms.get(position).getStatus());
 		} catch (final NumberFormatException e) {
 		}
 		final RelativeLayout rl = (RelativeLayout) item
 				.findViewById(R.id.rlMenuHolder);
 		final Drawable gd = rl.getBackground().mutate();
-		item.setBackgroundResource(R.drawable.griddler_menu_choice_border_red);
+		item.setBackgroundResource(R.drawable.Picogram_menu_choice_border_red);
 		if (status == 0) {
 			// In progress.
-			item.setBackgroundResource(R.drawable.griddler_menu_choice_border_red);
+			item.setBackgroundResource(R.drawable.Picogram_menu_choice_border_red);
 		} else if (status == 1) {
 			// Won.
-			item.setBackgroundResource(R.drawable.griddler_menu_choice_border_green);
+			item.setBackgroundResource(R.drawable.Picogram_menu_choice_border_green);
 		} else {
 			// Other (Custom, special levels, etc.).
-			item.setBackgroundResource(R.drawable.griddler_menu_choice_border_other);
+			item.setBackgroundResource(R.drawable.Picogram_menu_choice_border_other);
 		}
 		gd.invalidateSelf();
 		item.invalidate();
@@ -205,26 +205,26 @@ public class GriddlerListAdapter extends ArrayAdapter<GriddlerOne> {
 		return item;
 	}
 
-	public void setGriddlers(final ArrayList<GriddlerOne> g) {
-		this.griddlers = g;
+	public void setPicograms(final ArrayList<PicogramOne> g) {
+		this.Picograms = g;
 	}
 
 	public void removeById(String id) {
-		for (int i = 0; i != griddlers.size(); ++i) {
-			if (griddlers.get(i).getID().equals(id)) {
-				griddlers.remove(i);
+		for (int i = 0; i != Picograms.size(); ++i) {
+			if (Picograms.get(i).getID().equals(id)) {
+				Picograms.remove(i);
 				return;
 			}
 		}
 	}
 
 	public void updateCurrentById(String id, String newCurrent, String status) {
-		for (int i = 0; i != griddlers.size(); ++i) {
-			if (griddlers.get(i).getID().equals(id)) {
-				GriddlerOne go = griddlers.get(i);
+		for (int i = 0; i != Picograms.size(); ++i) {
+			if (Picograms.get(i).getID().equals(id)) {
+				PicogramOne go = Picograms.get(i);
 				go.setCurrent(newCurrent);
 				go.setStatus(status);
-				griddlers.set(i, go);
+				Picograms.set(i, go);
 				return;
 			}
 		}

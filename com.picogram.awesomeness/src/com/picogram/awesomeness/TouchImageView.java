@@ -119,7 +119,7 @@ public class TouchImageView extends ImageView {
 	Paint paintBitmap;
 	int gridlinesColor;
 
-	// Griddler specifics.
+	// Picogram specifics.
 	String gCurrent, gSolution;
 
 	int gWidth, gHeight, gId, lTop, lSide, cellWidth, cellHeight;
@@ -274,7 +274,7 @@ public class TouchImageView extends ImageView {
 	// Convert current String to a bitmap that's drawable. This will draw
 	// everything: grid, numbers, and onclicks.
 	public void bitmapFromCurrent() {
-		// Get a 2D array of "current" griddler.
+		// Get a 2D array of "current" Picogram.
 		final char current2D[][] = this.solutionTo2DArray();
 		// Create bitmap based on the current. Make a int array with pixel
 		// colors.
@@ -910,7 +910,7 @@ public class TouchImageView extends ImageView {
 	}
 
 	// Get bundled info and set it for use.
-	public void setGriddlerInfo(final Bundle savedInstanceState) {
+	public void setPicogramInfo(final Bundle savedInstanceState) {
 		this.gCurrent = savedInstanceState.getString("current");
 		this.gHeight = Integer.parseInt(savedInstanceState.getString("height"));
 		this.gWidth = Integer.parseInt(savedInstanceState.getString("width"));

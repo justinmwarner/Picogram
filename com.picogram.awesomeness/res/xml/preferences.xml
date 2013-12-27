@@ -6,7 +6,7 @@
 
         <CheckBoxPreference
             android:key="wonvisible"
-            android:summary="Hardcore griddler master?  Remove all those pesky games to find new challenges faster!"
+            android:summary="Hardcore Picogram master?  Remove all those pesky games to find new challenges faster!"
             android:title="Remove Won Games" />
         <CheckBoxPreference
             android:key="decorations"
