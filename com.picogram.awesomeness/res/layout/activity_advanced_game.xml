@@ -50,8 +50,26 @@
         android:layout_width="50dp"
         android:layout_height="50dp"
         android:layout_alignLeft="@+id/tivGame"
-        android:layout_below="@+id/bUndo"
+        android:layout_below="@+id/sbHistory"
         android:scaleType="fitCenter"
         android:src="@drawable/properties" />
+
+    <ImageView
+        android:id="@+id/ivBattery"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_alignTop="@+id/ibTools"
+        android:layout_centerHorizontal="true"
+        android:src="@drawable/batteryfulldark" />
+
+    <TextView
+        android:id="@+id/tvTime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/ibTools"
+        android:layout_alignParentRight="true"
+        android:padding="15dp"
+        android:gravity="center"
+        android:text="12:00" />
 
 </RelativeLayout>

@@ -216,17 +216,16 @@ public class MenuActivity extends FragmentActivity implements FlurryAdListener,
 
 	public void onClick(final View v) {
 		// Should be search.
-		if (this.bSearch != null) {
-			if (v.getId() == this.bSearch.getId()) {
-				this.updateCurrentTab();
-				// Hide keyboard.
-				final InputMethodManager inputManager = (InputMethodManager) this
-						.getSystemService(Context.INPUT_METHOD_SERVICE);
-				if (inputManager != null)
-					inputManager.hideSoftInputFromWindow(this.getCurrentFocus()
-							.getWindowToken(),
-							InputMethodManager.HIDE_NOT_ALWAYS);
-			}
+		if (v.getId() == this.bSearch.getId()) {
+			this.updateCurrentTab();
+			// Hide keyboard.
+			InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+			imm.hideSoftInputFromWindow(this.etTags.getWindowToken(), 0);
+			final InputMethodManager inputManager = (InputMethodManager) this
+					.getSystemService(Context.INPUT_METHOD_SERVICE);
+			if (inputManager != null)
+				inputManager.hideSoftInputFromWindow(this.getCurrentFocus()
+						.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
 		}
 	}
 
@@ -306,7 +305,6 @@ public class MenuActivity extends FragmentActivity implements FlurryAdListener,
 				final String id = o[0];
 				final int oldRate = Integer.parseInt(o[1]);
 				final int newRate = Integer.parseInt(o[2]);
-				// Only add the oldRate.
 				final GriddlerOne go = new GriddlerOne();
 				go.setID(id);
 				go.fetch(new StackMobCallback() {
@@ -319,14 +317,16 @@ public class MenuActivity extends FragmentActivity implements FlurryAdListener,
 
 					@Override
 					public void success(String arg0) {
-						// Now we got it, add the oldRating.
-						double oldRating = Double.parseDouble(go.getRating())
-								* go.getNumberOfRatings();
-						oldRating = oldRating - oldRate;
-						double newRating = (oldRating + newRate)
+						// Now we got it, remove the old rating.
+						double onlineRatingTotal = Double.parseDouble(go
+								.getRating()) * go.getNumberOfRatings();
+						onlineRatingTotal = onlineRatingTotal - oldRate;
+						// Add the new rating.
+						double newRating = (onlineRatingTotal + newRate)
 								/ (go.getNumberOfRatings());
 						go.setRating(newRating + "");
-						if (newRate == 0) // Only if it's a new rate increase
+						if (newRate == 0) // Only if it's a new rate
+											// increase
 											// the num by 1.
 							go.setNumberOfRatings(go.getNumberOfRatings() + 1);
 

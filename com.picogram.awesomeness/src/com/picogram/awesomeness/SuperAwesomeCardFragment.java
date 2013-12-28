@@ -1,7 +1,9 @@
 package com.picogram.awesomeness;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -179,8 +181,11 @@ public class SuperAwesomeCardFragment extends Fragment implements
 	public void getRecentPuzzles(final Activity a) {
 		StackMobModel.query(
 				GriddlerOne.class,
-				new StackMobQuery().isInRange(0, 9).fieldIsOrderedBy(
-						"createddate", StackMobQuery.Ordering.DESCENDING),
+				new StackMobQuery()
+						.isInRange(0, 9)
+						.fieldIsNotEqual("griddlerone_id", "random")
+						.fieldIsOrderedBy("createddate",
+								StackMobQuery.Ordering.DESCENDING),
 				new StackMobQueryCallback<GriddlerOne>() {
 
 					@Override
@@ -241,7 +246,7 @@ public class SuperAwesomeCardFragment extends Fragment implements
 			final boolean isSortByRate) {
 		this.myAdapter.clear();
 		final StackMobQuery smq = new StackMobQuery().fieldIsEqualTo("tag",
-				tag.toLowerCase());
+				tag.toLowerCase(Locale.ENGLISH));
 		StackMobModel.query(GriddlerTag.class, smq,
 				new StackMobQueryCallback<GriddlerTag>() {
 
@@ -250,7 +255,7 @@ public class SuperAwesomeCardFragment extends Fragment implements
 						Crouton.makeText(a,
 								"Error fetching data: " + arg0.toString(),
 								Style.ALERT);
-
+						Log.d(TAG, "SEARCH " + arg0.toString());
 					}
 
 					@Override
@@ -259,25 +264,29 @@ public class SuperAwesomeCardFragment extends Fragment implements
 						for (final GriddlerTag gt : gts) {
 							ids.add(gt.getID());
 						}
-
+						Log.d(TAG,
+								"SEARCH found num of tag matches: "
+										+ gts.size());
 						final StackMobQuery smqInner = new StackMobQuery()
-								.isInRange(0, 9).fieldIsIn("GriddlerOne_id",
+								.isInRange(0, 9).fieldIsIn("griddlerone_id",
 										ids);
 
 						if (isSortByRate) {
-							smq.fieldIsOrderedBy("rate",
+							smqInner.fieldIsOrderedBy("rate",
 									StackMobQuery.Ordering.DESCENDING);
 						} else {
-							smq.fieldIsOrderedBy("createddate",
+							smqInner.fieldIsOrderedBy("createddate",
 									StackMobQuery.Ordering.DESCENDING);
 						}
-						StackMobModel.query(GriddlerOne.class, smqInner,
+						GriddlerOne.query(GriddlerOne.class, smqInner,
 								new StackMobQueryCallback<GriddlerOne>() {
 
 									@Override
 									public void failure(
 											final StackMobException arg0) {
-
+										Log.d(TAG,
+												"SEARCH failed after id finds "
+														+ arg0.toString());
 										Crouton.makeText(
 												a,
 												"Error fetching data: "
@@ -288,7 +297,9 @@ public class SuperAwesomeCardFragment extends Fragment implements
 									@Override
 									public void success(
 											final List<GriddlerOne> gs) {
-
+										Log.d(TAG,
+												"SEARCH success inner, num: "
+														+ gs.size());
 										for (final GriddlerOne g : gs) {
 											a.runOnUiThread(new Runnable() {
 
@@ -481,6 +492,10 @@ public class SuperAwesomeCardFragment extends Fragment implements
 
 	public boolean onItemLongClick(AdapterView<?> arg0, View arg1,
 			final int position, long arg3) {
+		if (!myAdapter.get(0).getName().contains("Create")) {
+			// We only want long click support on My tab.
+			return false;
+		}
 		if (position == 0 || position == 1) {
 			// Create or Random, should just ignore this?
 			return false;

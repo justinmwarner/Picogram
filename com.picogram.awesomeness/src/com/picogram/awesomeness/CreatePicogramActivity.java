@@ -748,7 +748,7 @@ public class CreatePicogramActivity extends FragmentActivity implements
 			bHeight = (Button) findViewById(R.id.bHeight);
 			bColors = (Button) findViewById(R.id.bColors);
 			bBack = (Button) findViewById(R.id.bBack);
-
+			
 			bDone.setOnClickListener(this);
 			bSwitch.setOnClickListener(this);
 			bWidth.setOnClickListener(this);
@@ -821,7 +821,6 @@ public class CreatePicogramActivity extends FragmentActivity implements
 			currentView = 2;
 			Log.d(TAG, ib.getVisibility() + " VISIBLE");
 			ib.setVisibility(View.VISIBLE);
-			ib.getParent().bringChildToFront(ib);
 			Log.d(TAG, ib.getVisibility() + " VISIBLE");
 			Crouton.makeText(this, "Draw on screen to edit", Style.INFO).show();
 			// current width height id solution colors(string,)

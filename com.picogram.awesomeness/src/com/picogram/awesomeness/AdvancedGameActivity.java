@@ -1,10 +1,16 @@
 package com.picogram.awesomeness;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 
 import android.app.Activity;
 import android.app.Dialog;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -12,8 +18,10 @@ import android.graphics.Color;
 import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.os.BatteryManager;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Message;
 import android.os.Vibrator;
 import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentActivity;
@@ -33,6 +41,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RatingBar;
+import android.widget.TextView;
 import android.widget.RatingBar.OnRatingBarChangeListener;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
@@ -86,6 +95,89 @@ public class AdvancedGameActivity extends FragmentActivity implements
 		this.returnIntent();
 	}
 
+	private BroadcastReceiver mBatInfoReceiver = new BroadcastReceiver() {
+		@Override
+		public void onReceive(Context arg0, Intent intent) {
+			// TODO Auto-generated method stub
+			// this will give you battery current status
+			ImageView ivBattery = (ImageView) findViewById(R.id.ivBattery);
+			int level = intent.getIntExtra("level", 0);
+			int status = intent.getIntExtra(BatteryManager.EXTRA_STATUS, -1);
+			boolean isCharging = status == BatteryManager.BATTERY_STATUS_CHARGING
+					|| status == BatteryManager.BATTERY_STATUS_FULL;
+			if (isCharging) {
+				if (isLight) {
+					ivBattery.setImageBitmap(BitmapFactory.decodeResource(
+							getResources(), R.drawable.batterychargingdark));
+				} else {
+					ivBattery.setImageBitmap(BitmapFactory.decodeResource(
+							getResources(), R.drawable.batterycharginglight));
+				}
+			} else {
+				if (level >= 95) {
+					if (isLight) {
+						ivBattery.setImageBitmap(BitmapFactory.decodeResource(
+								getResources(), R.drawable.batteryfulldark));
+					} else {
+						ivBattery.setImageBitmap(BitmapFactory
+								.decodeResource(getResources(),
+										R.drawable.batterycharginglight));
+					}
+				} else if (level >= 30) {
+					if (isLight) {
+						ivBattery.setImageBitmap(BitmapFactory.decodeResource(
+								getResources(), R.drawable.batteryhalfdark));
+					} else {
+						ivBattery.setImageBitmap(BitmapFactory.decodeResource(
+								getResources(), R.drawable.batteryhalflight));
+					}
+				} else if (level >= 5) {
+					if (isLight) {
+						ivBattery.setImageBitmap(BitmapFactory.decodeResource(
+								getResources(), R.drawable.batterylowdark));
+					} else {
+						ivBattery.setImageBitmap(BitmapFactory.decodeResource(
+								getResources(), R.drawable.batterylowlight));
+					}
+				} else {
+					if (isLight) {
+						ivBattery.setImageBitmap(BitmapFactory.decodeResource(
+								getResources(), R.drawable.batteryemptydark));
+					} else {
+						ivBattery.setImageBitmap(BitmapFactory.decodeResource(
+								getResources(), R.drawable.batteryemptylight));
+					}
+				}
+			}
+		}
+	};
+	private RefreshHandler mRedrawHandler = new RefreshHandler();
+
+	class RefreshHandler extends Handler {
+		@Override
+		public void handleMessage(Message msg) {
+			// Do the time
+			DateFormat df = new SimpleDateFormat("h:m:s");
+			String curDateTime = df.format(Calendar.getInstance().getTime());
+			((TextView) activity.findViewById(R.id.tvTime))
+					.setText(curDateTime);
+			// Do the battery.
+			registerReceiver(mBatInfoReceiver, new IntentFilter(
+					Intent.ACTION_BATTERY_CHANGED));
+			sleep(100, activity);
+		}
+
+		Activity activity;
+
+		public void sleep(long delayMillis, Activity a) {
+			this.removeMessages(0);
+			this.activity = a;
+			sendMessageDelayed(obtainMessage(0), delayMillis);
+		}
+	}
+
+	boolean isLight;
+
 	@Override
 	protected void onCreate(final Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -104,12 +196,12 @@ public class AdvancedGameActivity extends FragmentActivity implements
 		boolean isAnimating = false;
 		if (bg.equals("bgWhite")) {
 			rlMain.setBackgroundResource(android.R.color.transparent);
-			rlMain.setBackgroundColor(Color.BLACK);
-			line = Color.WHITE + "";
-		} else if (bg.equals("bgBlack")) {
-			rlMain.setBackgroundResource(android.R.color.transparent);
 			rlMain.setBackgroundColor(Color.WHITE);
 			line = Color.BLACK + "";
+		} else if (bg.equals("bgBlack")) {
+			rlMain.setBackgroundResource(android.R.color.transparent);
+			rlMain.setBackgroundColor(Color.BLACK);
+			line = Color.WHITE + "";
 		} else if (bg.equals("skywave")) {
 			isAnimating = true;
 			line = Color.BLACK + "";
@@ -118,19 +210,31 @@ public class AdvancedGameActivity extends FragmentActivity implements
 			isAnimating = true;
 			rlMain.setBackgroundResource(R.drawable.darkbridge);
 			line = Color.WHITE + "";
+		} else if (bg.equals("spaceman")) {
+			isAnimating = true;
+			rlMain.setBackgroundResource(R.drawable.spaceman);
+			line = Color.WHITE + "";
 		} else {
 			rlMain.setBackgroundResource(android.R.color.transparent);
 			rlMain.setBackgroundColor(Color.WHITE);
 			line = Color.BLACK + "";
 		}
-		if (Util.getPreferences(this).getString("lines", "Auto").equals("Auto"))
+		if (Util.getPreferences(this).getString("lines", "Auto").equals("Auto")) {
 			tiv.gridlinesColor = Integer.parseInt(line);
-		else {
+			if (line.equals("" + Color.WHITE)) {
+				isLight = false;
+			} else {
+				isLight = true;
+			}
+		} else {
 			if (Util.getPreferences(this).getString("lines", "Auto")
-					.equals("Light"))
-				tiv.gridlinesColor = Color.WHITE;
-			else
+					.equals("Light")) {
 				tiv.gridlinesColor = Color.BLACK;
+				isLight = true;
+			} else {
+				tiv.gridlinesColor = Color.WHITE;
+				isLight = false;
+			}
 		}
 
 		if (isAnimating) {
@@ -139,6 +243,14 @@ public class AdvancedGameActivity extends FragmentActivity implements
 			progressAnimation.start();
 		}
 		Util.setTheme(this);
+
+		// Time
+		mRedrawHandler.sleep(100, this);
+		if (isLight)
+			((TextView) findViewById(R.id.tvTime)).setTextColor(Color.BLACK);
+		else
+			((TextView) findViewById(R.id.tvTime)).setTextColor(Color.WHITE);
+
 		this.tiv.setWinListener(this);
 		this.tiv.setPicogramInfo(this.getIntent().getExtras());
 		final String name = this.getIntent().getExtras().getString("name");
@@ -253,18 +365,12 @@ public class AdvancedGameActivity extends FragmentActivity implements
 
 						@Override
 						public void failure(final StackMobException arg0) {
-							dialog.dismiss();
 							// If rating failed, do it next time we can, so add
 							// to database.
 							SQLiteRatingAdapter sorh = new SQLiteRatingAdapter(
 									a.getApplicationContext(), "Rating", null,
 									1);
-							long line = sorh.insert(g.getID(),
-									sorh.getPastRatingForPID(g.getID()), rating
-											+ "");
-							sorh.close();
-							Log.d(TAG, "Line: " + line);
-							AdvancedGameActivity.this.isDialogueShowing = !AdvancedGameActivity.this.isDialogueShowing;
+							dialog.dismiss();
 							AdvancedGameActivity.this.returnIntent();
 						}
 
@@ -288,11 +394,8 @@ public class AdvancedGameActivity extends FragmentActivity implements
 									SQLiteRatingAdapter sorh = new SQLiteRatingAdapter(
 											a.getApplicationContext(),
 											"Rating", null, 2);
-
-									long line = sorh.insert(g.getID(), "0",
-											rating + "");
-									Log.d(TAG, "Line: " + line);
-									sorh.close();
+									dialog.dismiss();
+									AdvancedGameActivity.this.returnIntent();
 								}
 
 								@Override
@@ -303,17 +406,11 @@ public class AdvancedGameActivity extends FragmentActivity implements
 									SQLiteRatingAdapter sorh = new SQLiteRatingAdapter(
 											a.getApplicationContext(),
 											"Rating", null, 2);
-
-									long line = sorh.insert(g.getID(), rating
-											+ "", "0");
-									Log.d(TAG, "Line: " + line);
-									sorh.close();
+									dialog.dismiss();
+									AdvancedGameActivity.this.returnIntent();
 								}
 							});
 
-							dialog.dismiss();
-							AdvancedGameActivity.this.isDialogueShowing = !AdvancedGameActivity.this.isDialogueShowing;
-							AdvancedGameActivity.this.returnIntent();
 						}
 
 					});

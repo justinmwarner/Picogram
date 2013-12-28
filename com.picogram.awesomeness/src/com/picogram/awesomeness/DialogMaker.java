@@ -2,6 +2,9 @@ package com.picogram.awesomeness;
 
 import java.util.ArrayList;
 
+import yuku.ambilwarna.AmbilWarnaDialog;
+import yuku.ambilwarna.AmbilWarnaDialog.OnAmbilWarnaListener;
+
 import com.doomonafireball.betterpickers.numberpicker.NumberPickerBuilder;
 import com.doomonafireball.betterpickers.numberpicker.NumberPickerDialogFragment.NumberPickerDialogHandler;
 
@@ -23,6 +26,7 @@ import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnLongClickListener;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
@@ -116,14 +120,14 @@ public class DialogMaker extends DialogFragment implements View.OnClickListener 
 			return null;
 	}
 
-	public void setupColorChoice(View v, String[] colors) {
+	public void setupColorChoice(View v, final String[] colors) {
 		LinearLayout llFirst = (LinearLayout) v.findViewById(R.id.llColorFirst);
 		LinearLayout llSecond = (LinearLayout) v
 				.findViewById(R.id.llColorSecond);
 		LinearLayout llThird = (LinearLayout) v.findViewById(R.id.llColorThird);
 		LinearLayout llFourth = (LinearLayout) v
 				.findViewById(R.id.llColorFourth);
-
+		final Activity a = this.getActivity();
 		// Layout
 		// llFirst [MOVE] [Xs] [Transparent]
 		// llSecond [Color] [Color] [Color]
@@ -174,6 +178,32 @@ public class DialogMaker extends DialogFragment implements View.OnClickListener 
 					listener.onDialogResult(bundle);
 				}
 
+			});
+			item.setOnLongClickListener(new View.OnLongClickListener() {
+
+				public boolean onLongClick(final View v) {
+					final AmbilWarnaDialog dialog = new AmbilWarnaDialog(a,
+							Integer.parseInt(colors[ivs.indexOf(v)]),
+							new OnAmbilWarnaListener() {
+
+								public void onCancel(
+										final AmbilWarnaDialog dialog) {
+									// Do nothing.
+								}
+
+								public void onOk(final AmbilWarnaDialog dialog,
+										int color) {
+									Bundle bundle = new Bundle();
+									String[] cols = colors;
+									cols[Integer.parseInt(colors[ivs.indexOf(v)])] = color
+											+ "";
+									bundle.putStringArray("colors", cols);
+									listener.onDialogResult(bundle);
+								}
+							});
+					dialog.show();
+					return true;
+				}
 			});
 		}
 		// All ImageViews are setup. Now add them.
@@ -359,5 +389,4 @@ public class DialogMaker extends DialogFragment implements View.OnClickListener 
 	}
 
 	private static final String TAG = "DialogMaker";
-
 }
