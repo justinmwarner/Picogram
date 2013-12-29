@@ -179,32 +179,39 @@ public class DialogMaker extends DialogFragment implements View.OnClickListener 
 				}
 
 			});
-			item.setOnLongClickListener(new View.OnLongClickListener() {
+			if (i > 2)
+				item.setOnLongClickListener(new View.OnLongClickListener() {
 
-				public boolean onLongClick(final View v) {
-					final AmbilWarnaDialog dialog = new AmbilWarnaDialog(a,
-							Integer.parseInt(colors[ivs.indexOf(v)]),
-							new OnAmbilWarnaListener() {
+					public boolean onLongClick(final View v) {
+						final AmbilWarnaDialog dialog = new AmbilWarnaDialog(a,
+								Integer.parseInt(colors[ivs.indexOf(v
+										.getParent()) - 2]),
+								new OnAmbilWarnaListener() {
 
-								public void onCancel(
-										final AmbilWarnaDialog dialog) {
-									// Do nothing.
-								}
+									public void onCancel(
+											final AmbilWarnaDialog dialog) {
+										// Do nothing.
+									}
 
-								public void onOk(final AmbilWarnaDialog dialog,
-										int color) {
-									Bundle bundle = new Bundle();
-									String[] cols = colors;
-									cols[Integer.parseInt(colors[ivs.indexOf(v)])] = color
-											+ "";
-									bundle.putStringArray("colors", cols);
-									listener.onDialogResult(bundle);
-								}
-							});
-					dialog.show();
-					return true;
-				}
-			});
+									public void onOk(
+											final AmbilWarnaDialog dialog,
+											int color) {
+										Bundle bundle = new Bundle();
+										int[] cols = new int[colors.length];
+										for (int i = 0; i != cols.length; ++i)
+											cols[i] = Integer
+													.parseInt(colors[i]);
+										cols[ivs.indexOf(v.getParent()) - 2] = color;
+										bundle.putIntArray("colors", cols);
+										bundle.putInt("color",
+												ivs.indexOf(v.getParent()) - 2);
+										listener.onDialogResult(bundle);
+									}
+								});
+						dialog.show();
+						return true;
+					}
+				});
 		}
 		// All ImageViews are setup. Now add them.
 		for (int i = 0; i != ivs.size(); ++i) {

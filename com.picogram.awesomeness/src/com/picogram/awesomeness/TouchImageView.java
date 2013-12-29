@@ -393,7 +393,6 @@ public class TouchImageView extends ImageView {
 						+ cellHeight * 9 / 10, paintBitmap);
 				this.paintBitmap.setTextAlign(first);
 			} else {
-				Log.d(TAG, "HERE: " + gCurrent);
 				this.paintBitmap.setColor(this.gColors[Integer
 						.parseInt(this.gCurrent.charAt(i) + "")]);
 				if (this.gColors[Integer.parseInt(this.gCurrent.charAt(i) + "")] == Color.TRANSPARENT) {

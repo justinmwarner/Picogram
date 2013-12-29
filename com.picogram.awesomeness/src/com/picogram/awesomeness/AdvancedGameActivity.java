@@ -5,6 +5,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 
+import nonogram.Solver;
+
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.BroadcastReceiver;
@@ -301,6 +303,8 @@ public class AdvancedGameActivity extends FragmentActivity implements
 		ImageButton tools = (ImageButton) this.findViewById(R.id.ibTools);
 		tools.setOnClickListener(this);
 
+		// TODO Check for multiple solutions. If they exist tell the user as a
+		// heads up.
 	}
 
 	@Override
@@ -491,9 +495,23 @@ public class AdvancedGameActivity extends FragmentActivity implements
 			newFragment.setOnDialogResultListner(new OnDialogResultListener() {
 
 				public void onDialogResult(Bundle result) {
-					tiv.isGameplay = result.getBoolean("isGameplay");
-					tiv.colorCharacter = result.getChar("colorCharacter");
-					newFragment.dismiss();
+					if (result.containsKey("colors")) {
+						tiv.gColors = result.getIntArray("colors");
+						tiv.isFirstTime = true;
+						tiv.bitmapFromCurrent();
+						String[] cols = new String[tiv.gColors.length];
+						for (int i = 0; i != cols.length; ++i)
+							cols[i] = "" + tiv.gColors[i];
+						strColors = cols;
+						tiv.colorCharacter = (result.getInt("color") + "")
+								.charAt(0);
+						tiv.isGameplay = true;
+						newFragment.dismiss();
+					} else {
+						tiv.isGameplay = result.getBoolean("isGameplay");
+						tiv.colorCharacter = result.getChar("colorCharacter");
+						newFragment.dismiss();
+					}
 				}
 			});
 			newFragment.show(ft, "dialog");
