@@ -24,6 +24,12 @@
             android:key="lines"
             android:summary="Select the line colors."
             android:title="Gridlines" />
+        <ListPreference
+            android:entries="@array/listSoundValue"
+            android:entryValues="@array/listSoundValue"
+            android:key="music"
+            android:summary="Have some short semi-annoying background music ;)"
+            android:title="Music" />
         
     </PreferenceCategory>
     <!-- Privacy, let the user control anything we can/will collect. -->

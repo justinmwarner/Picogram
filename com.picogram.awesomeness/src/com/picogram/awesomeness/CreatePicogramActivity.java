@@ -458,6 +458,9 @@ public class CreatePicogramActivity extends FragmentActivity implements
 	@Override
 	protected void onPause() {
 		super.onPause();
+		if (!continueMusic) {
+			MusicManager.pause();
+		}
 	}
 
 	public void onPictureTaken(Bitmap bm) {
@@ -477,6 +480,8 @@ public class CreatePicogramActivity extends FragmentActivity implements
 	@Override
 	protected void onResume() {
 		super.onResume();
+		continueMusic = false;
+		MusicManager.start(this, (int) (Math.random() * 1000));
 
 	}
 
@@ -748,7 +753,7 @@ public class CreatePicogramActivity extends FragmentActivity implements
 			bHeight = (Button) findViewById(R.id.bHeight);
 			bColors = (Button) findViewById(R.id.bColors);
 			bBack = (Button) findViewById(R.id.bBack);
-			
+
 			bDone.setOnClickListener(this);
 			bSwitch.setOnClickListener(this);
 			bWidth.setOnClickListener(this);
@@ -863,5 +868,7 @@ public class CreatePicogramActivity extends FragmentActivity implements
 		// TODO redo this method.
 		return true;
 	}
+
+	boolean continueMusic = true;
 
 }

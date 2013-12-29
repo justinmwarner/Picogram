@@ -21,6 +21,7 @@ public class SettingsActivity extends SherlockPreferenceActivity implements
 		OnPreferenceChangeListener, OnPreferenceClickListener {
 	private static final String TAG = "SettingsActivity";
 	SharedPreferences prefs;
+	boolean continueMusic = true;
 
 	@Override
 	public void onCreate(final Bundle savedInstanceState) {
@@ -52,7 +53,10 @@ public class SettingsActivity extends SherlockPreferenceActivity implements
 
 	@Override
 	public void onPause() {
-		super.onStop();
+		super.onPause();
+		if (!continueMusic) {
+			MusicManager.pause();
+		}
 	}
 
 	public boolean onPreferenceChange(final Preference preference,
@@ -96,6 +100,8 @@ public class SettingsActivity extends SherlockPreferenceActivity implements
 	public void onResume() {
 		super.onResume();
 		Util.updateFullScreen(this);
+		continueMusic = false;
+		MusicManager.start(this, (int) (Math.random() * 1000));
 	}
 
 	public void optOut() {

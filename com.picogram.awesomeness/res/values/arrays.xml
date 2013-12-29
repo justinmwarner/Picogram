@@ -20,5 +20,12 @@
         <item>Dark</item>
         <item>Light</item>
     </string-array>
+    <string-array name="listSoundValue">
+        <item>None</item>
+        <item>Classical</item>
+        <item>Synth</item>
+        <item>Dubwub</item>
+        <item>Country</item>
+    </string-array>
 
 </resources>

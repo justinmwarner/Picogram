@@ -15,6 +15,8 @@ import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.Matrix;
+import android.graphics.PointF;
 import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -31,6 +33,7 @@ import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MotionEvent;
+import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
@@ -157,7 +160,7 @@ public class AdvancedGameActivity extends FragmentActivity implements
 		@Override
 		public void handleMessage(Message msg) {
 			// Do the time
-			DateFormat df = new SimpleDateFormat("h:m:s");
+			DateFormat df = new SimpleDateFormat("h:m:ss");
 			String curDateTime = df.format(Calendar.getInstance().getTime());
 			((TextView) activity.findViewById(R.id.tvTime))
 					.setText(curDateTime);
@@ -252,7 +255,8 @@ public class AdvancedGameActivity extends FragmentActivity implements
 			((TextView) findViewById(R.id.tvTime)).setTextColor(Color.WHITE);
 
 		this.tiv.setWinListener(this);
-		this.tiv.setPicogramInfo(this.getIntent().getExtras());
+		tiv.setPicogramInfo(getIntent().getExtras());
+
 		final String name = this.getIntent().getExtras().getString("name");
 		final String c = this.getIntent().getExtras().getString("current");
 		final String s = this.getIntent().getExtras().getString("solution");
@@ -312,6 +316,10 @@ public class AdvancedGameActivity extends FragmentActivity implements
 		sql.updateCurrentPicogram(this.tiv.gSolution.hashCode() + "", "0",
 				this.tiv.gCurrent);
 		sql.close();
+
+		if (!continueMusic) {
+			MusicManager.pause();
+		}
 	}
 
 	@Override
@@ -320,6 +328,8 @@ public class AdvancedGameActivity extends FragmentActivity implements
 		Util.updateFullScreen(this);
 		sql = new SQLitePicogramAdapter(this.getApplicationContext(),
 				"Picograms", null, 1);
+		continueMusic = false;
+		MusicManager.start(this, MusicManager.MUSIC_MENU);
 	}
 
 	public boolean onTouch(final View v, final MotionEvent event) {
@@ -460,10 +470,10 @@ public class AdvancedGameActivity extends FragmentActivity implements
 
 				history.add(tiv.gCurrent);
 				sbHistory.setMax(sbHistory.getMax() + 1);
-			}
-			sbHistory.setProgress(sbHistory.getProgress() - 1);
-			tiv.gCurrent = history.get(sbHistory.getProgress());
 
+				sbHistory.setProgress(sbHistory.getProgress() - 1);
+				tiv.gCurrent = history.get(sbHistory.getProgress());
+			}
 		} else if (v.getId() == R.id.bRedo) {
 			if (sbHistory.getProgress() == sbHistory.getMax() - 1) {
 				return;
@@ -474,7 +484,6 @@ public class AdvancedGameActivity extends FragmentActivity implements
 			Bundle bundle = new Bundle();
 			FragmentTransaction ft = getSupportFragmentManager()
 					.beginTransaction();
-
 			bundle.putInt("layoutId", R.layout.dialog_color_choice);
 			bundle.putStringArray("colors", strColors);
 			final DialogMaker newFragment = new DialogMaker();
@@ -484,7 +493,6 @@ public class AdvancedGameActivity extends FragmentActivity implements
 				public void onDialogResult(Bundle result) {
 					tiv.isGameplay = result.getBoolean("isGameplay");
 					tiv.colorCharacter = result.getChar("colorCharacter");
-					Log.d(TAG, "COLOR: " + tiv.colorCharacter);
 					newFragment.dismiss();
 				}
 			});
@@ -493,6 +501,8 @@ public class AdvancedGameActivity extends FragmentActivity implements
 		}
 		tiv.bitmapFromCurrent();
 	}
+
+	boolean continueMusic = true;
 
 	public void onProgressChanged(SeekBar seekBar, int progress,
 			boolean fromUser) {

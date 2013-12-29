@@ -368,6 +368,24 @@ public class MenuActivity extends FragmentActivity implements FlurryAdListener,
 
 	}
 
+	@Override
+	protected void onPause() {
+		// TODO Auto-generated method stub
+		super.onPause();
+		if (!continueMusic) {
+			MusicManager.pause();
+		}
+	}
+
+	boolean continueMusic = true;
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+		continueMusic = false;
+		MusicManager.start(this, (int) (Math.random() * 1000));
+	}
+
 	private void setUpRater() {
 		// Rate me Maybe
 		RateMeMaybe rmm = new RateMeMaybe(this);
@@ -516,7 +534,8 @@ public class MenuActivity extends FragmentActivity implements FlurryAdListener,
 	}
 
 	public void updateCurrentTab() {
-		this.adapter.frag[this.currentTab].clearAdapter();
+		if (this.adapter.frag[this.currentTab] != null)
+			this.adapter.frag[this.currentTab].clearAdapter();
 		if (this.currentTab == MenuActivity.TITLES.indexOf("My")) {
 			this.adapter.frag[this.currentTab]
 					.getMyPuzzles(this.adapter.frag[this.currentTab]

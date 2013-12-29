@@ -91,7 +91,6 @@ public class TouchImageView extends ImageView {
 
 	int viewWidth, viewHeight;
 	static final int CLICK = 3;
-	protected static final String TAG = "TouchImageView";
 	float saveScale = 1f;
 
 	protected float origWidth, origHeight;
@@ -107,6 +106,7 @@ public class TouchImageView extends ImageView {
 	int lastTouchX = 0;
 	int lastTouchY = 0;
 	char colorCharacter = '0';
+	protected static final String TAG = "TouchImageView";
 
 	// These take a long time to calculate and don't change. Only do it once.
 	ArrayList<String[]> topHints;
