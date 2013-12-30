@@ -180,7 +180,8 @@ public class TouchImageView extends ImageView {
 				invalidate();
 			} else {
 				if ((event.getAction() == MotionEvent.ACTION_MOVE)
-						|| (event.getAction() == MotionEvent.ACTION_DOWN)) {
+						|| (event.getAction() == MotionEvent.ACTION_DOWN || (event
+								.getAction() == MotionEvent.ACTION_UP))) {
 					matrix.getValues(m);
 					final float transX = m[Matrix.MTRANS_X] * -1;
 					final float transY = m[Matrix.MTRANS_Y] * -1;
@@ -196,6 +197,28 @@ public class TouchImageView extends ImageView {
 					final int indexY = (int) Math
 							.floor((lastTouchY - (cellHeight * lTop))
 									/ cellHeight);
+					if (event.getAction() == MotionEvent.ACTION_UP) {
+						if ((lastTouchX < (cellWidth * lSide) && lastTouchY > (cellHeight * lTop))
+								|| (lastTouchY < (cellHeight * lTop) && lastTouchX > (cellWidth * lSide))) {
+							// Only do this if we're in the hints.
+							int xx = lastTouchX / cellWidth;
+							int yy = lastTouchY / cellHeight;
+							int ccc = bm.getPixel(xx * cellWidth + 5, yy
+									* cellHeight + 5);
+							for (int i = 0; i != gColors.length; ++i)
+								if (gColors[i] == ccc)
+									ccc = i;
+							// ccc now has the color id, if 0, transparent.
+							colorCharacter = (ccc + "").charAt(0);
+							// TODO: Update the color indicator.
+							int[] rgb = getRGB(gColors[ccc]);
+							((View) getParent()).findViewById(R.id.ibTools)
+									.setBackgroundColor(
+											Color.argb(100, rgb[0], rgb[1],
+													rgb[2]));
+						}
+						return true;// Ignore up actions if not above.
+					}
 					if ((lastTouchX < (cellWidth * lSide))
 							|| (lastTouchY < (cellHeight * lTop))
 							|| (lastTouchX > bm.getWidth())
@@ -283,7 +306,12 @@ public class TouchImageView extends ImageView {
 			this.rows = this.getRows(current2D);
 			this.columns = this.getColumns(current2D);
 			this.sideHints = this.getSideHints(this.rows);
+			for (String side : sideHints)
+				Log.d(TAG, "Side: " + side);
 			this.topHints = this.getTopHints(this.columns);
+			for (String[] tops : topHints)
+				for (String top : tops)
+					Log.d(TAG, "Top:  " + tops + " " + top);
 			this.longestTop = this.topHints.size();
 			this.longestSide = this.getLongest(this.sideHints); // Get widest
 																// "layer"
@@ -481,7 +509,7 @@ public class TouchImageView extends ImageView {
 					colorRun++;
 				}
 				if (topHints.get(i)[j].equals("0"))
-					paintBitmap.setColor(Color.BLACK);
+					paintBitmap.setColor(Color.TRANSPARENT);
 
 				this.canvasBitmap
 						.drawRect(
@@ -494,8 +522,11 @@ public class TouchImageView extends ImageView {
 										((this.longestTop * heightOffset) - (heightOffset * i))),
 								paintBitmap);
 				int[] rgbOriginal = getRGB(paintBitmap.getColor());
-				paintBitmap.setColor(Color.rgb(255 - rgbOriginal[0],
-						255 - rgbOriginal[1], 255 - rgbOriginal[2]));
+				if (paintBitmap.getColor() == Color.TRANSPARENT)
+					paintBitmap.setColor(this.gridlinesColor);
+				else
+					paintBitmap.setColor(Color.rgb(255 - rgbOriginal[0],
+							255 - rgbOriginal[1], 255 - rgbOriginal[2]));
 				this.canvasBitmap
 						.drawText(
 								this.topHints.get(i)[j],
@@ -525,7 +556,7 @@ public class TouchImageView extends ImageView {
 					side = new StringBuilder(side).reverse().toString();
 				}
 				if (side.equals("0"))
-					paintBitmap.setColor(Color.BLACK);
+					paintBitmap.setColor(Color.TRANSPARENT);
 
 				canvasBitmap.drawRect(new Rect((this.longestSide * widthOffset)
 						- (j * widthOffset), (this.longestTop * heightOffset)
@@ -535,9 +566,11 @@ public class TouchImageView extends ImageView {
 								+ heightOffset), paintBitmap);
 
 				int[] rgbOriginal = getRGB(paintBitmap.getColor());
-				paintBitmap.setColor(Color.rgb(255 - rgbOriginal[0],
-						255 - rgbOriginal[1], 255 - rgbOriginal[2]));
-
+				if (paintBitmap.getColor() == Color.TRANSPARENT)
+					paintBitmap.setColor(this.gridlinesColor);
+				else
+					paintBitmap.setColor(Color.rgb(255 - rgbOriginal[0],
+							255 - rgbOriginal[1], 255 - rgbOriginal[2]));
 				this.canvasBitmap.drawText(side + "  ",
 						(this.longestSide * widthOffset) - 5
 								- (j * widthOffset),
