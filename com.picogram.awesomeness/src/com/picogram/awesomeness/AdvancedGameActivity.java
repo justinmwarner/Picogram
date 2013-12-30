@@ -506,6 +506,7 @@ public class AdvancedGameActivity extends FragmentActivity implements
 						tiv.colorCharacter = (result.getInt("color") + "")
 								.charAt(0);
 						tiv.isGameplay = true;
+						sql.updateColorsById(tiv.gId, strColors);
 						newFragment.dismiss();
 					} else {
 						tiv.isGameplay = result.getBoolean("isGameplay");

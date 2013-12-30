@@ -243,4 +243,15 @@ public class SQLitePicogramAdapter extends SQLiteOpenHelper {
 		db.update(PicogramTable, cv, SQLitePicogramAdapter.id + " = " + id,
 				null);
 	}
+
+	public void updateColorsById(int gId, String[] strColors) {
+		String colors = "";
+		for (int i = 0; i != strColors.length; ++i)
+			colors += strColors[i] + ",";
+		colors = colors.substring(0, colors.length() - 1);
+		SQLiteDatabase db = this.getWritableDatabase();
+		ContentValues cv = new ContentValues();
+		cv.put(SQLitePicogramAdapter.colors, colors);
+		db.update(SQLitePicogramAdapter.PicogramTable, cv, id + "=" + gId, null);
+	}
 }
