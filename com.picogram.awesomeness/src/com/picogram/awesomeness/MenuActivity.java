@@ -17,6 +17,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.util.Log;
@@ -58,6 +59,7 @@ import com.flurry.android.FlurryAds;
 import com.flurry.android.FlurryAgent;
 import com.kopfgeldjaeger.ratememaybe.RateMeMaybe;
 import com.kopfgeldjaeger.ratememaybe.RateMeMaybe.OnRMMUserChoiceListener;
+import com.picogram.awesomeness.DialogMaker.OnDialogResultListener;
 import com.stackmob.android.sdk.common.StackMobAndroid;
 import com.stackmob.sdk.callback.StackMobCallback;
 import com.stackmob.sdk.callback.StackMobModelCallback;
@@ -384,6 +386,25 @@ public class MenuActivity extends FragmentActivity implements FlurryAdListener,
 		super.onResume();
 		continueMusic = false;
 		MusicManager.start(this, (int) (Math.random() * 1000));
+
+		// TODO Tutorial
+		if (Util.getPreferences(this).getBoolean("isFirst", true)) {
+			// Util.getPreferences(this).edit().putBoolean("isFirst",
+			// false).commit();
+			Bundle bundle = new Bundle();
+			FragmentTransaction ft = getSupportFragmentManager()
+					.beginTransaction();
+			bundle.putInt("layoutId", R.layout.dialog_tutorial);
+			final DialogMaker newFragment = new DialogMaker();
+			newFragment.setArguments(bundle);
+			newFragment.setOnDialogResultListner(new OnDialogResultListener() {
+
+				public void onDialogResult(Bundle result) {
+					//No results needed.
+				}
+			});
+			newFragment.show(ft, "dialog");
+		}
 	}
 
 	private void setUpRater() {

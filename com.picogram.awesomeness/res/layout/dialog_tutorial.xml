@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+    <ImageView
+        android:id="@+id/ivInstructions"
+        android:layout_width="match_parent"
+        android:layout_height="400dp"
+        android:layout_below="@+id/tvInstructions"
+        android:layout_centerHorizontal="true" />
+
+    <TextView
+        android:id="@+id/tvInstructions"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:text="Instructions go here." />
+
+    <Button
+        android:id="@+id/bNever"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/ivInstructions"
+        android:text="Never" />
+
+    <Button
+        android:id="@+id/bLater"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/bNever"
+        android:layout_alignBottom="@+id/bNever"
+        android:layout_centerHorizontal="true"
+        android:text="Later" />
+
+    <Button
+        android:id="@+id/bNext"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/ivInstructions"
+        android:text="Next" />
+
+</RelativeLayout>

@@ -28,6 +28,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnLongClickListener;
 import android.view.ViewGroup;
+import android.webkit.WebView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -108,8 +109,72 @@ public class DialogMaker extends DialogFragment implements View.OnClickListener 
 			setupCreate(v);
 		} else if (layoutId == R.layout.dialog_color_choice) {
 			setupColorChoice(v, colors);
-		}
+		} else if (layoutId == R.layout.dialog_tutorial) {
+			final ImageView iv = (ImageView) v
+					.findViewById(R.id.ivInstructions);
+			final TextView tv = (TextView) v.findViewById(R.id.tvInstructions);
+			final int resources[] = { R.drawable.one, R.drawable.two,
+					R.drawable.three, R.drawable.four, R.drawable.five,
+					R.drawable.properties, R.drawable.transparent,
+					R.drawable.xs, R.drawable.create };
+			final String[] prompts = {
+					"The 3 represents three consequtive blocks.",
+					"Thus we get...",
+					"Now on this puzzle",
+					"2 2 means we have two consequtive blocks, an amount of white, then two more consequtive blocks",
+					"Thus...",
+					"However, if it were like this, we have the following valid solutions...",
+					"If we had an \"X\", we'd still win, as X's are ignored.",
+					"Here's a full example...",
+					"Finally, colors work the same." };
+			tv.setText(prompts[0]);
+			iv.setImageBitmap(BitmapFactory.decodeResource(getResources(),
+					resources[0]));
+			// Add action buttons
+			((Button) v.findViewById(R.id.bNext))
+					.setOnClickListener(new View.OnClickListener() {
+						public void onClick(View view) {
+							int currentStep = -1;
+							for (int i = 0; i != prompts.length; ++i)
+								if (prompts[i].equals(tv.getText().toString()))
+									currentStep = i + 1;
+							if (currentStep == -1)
+								currentStep = 0;
+							iv.setImageBitmap(BitmapFactory.decodeResource(
+									getResources(), resources[currentStep]));
+							// wv.loadUrl(urls[currentStep]);
+							tv.setText(prompts[currentStep]);
+							currentStep++;
+							if (currentStep == prompts.length) {
+								getDialog().dismiss();
+							}
+						}
+					});
 
+			((Button) v.findViewById(R.id.bNever))
+					.setOnClickListener(new View.OnClickListener() {
+						public void onClick(View view) {
+							Crouton.makeText(
+									getActivity(),
+									"You can view this in the Prefs tab.  Good luck!",
+									Style.INFO).show();
+							getDialog().dismiss();
+						}
+					});
+
+			((Button) v.findViewById(R.id.bLater))
+					.setOnClickListener(new View.OnClickListener() {
+
+						public void onClick(View view) {
+							// TODO Auto-generated method stub
+							Crouton.makeText(
+									getActivity(),
+									"We'll show this next app start. You can also view this in Prefs",
+									Style.INFO).show();
+							getDialog().dismiss();
+						}
+					});
+		}
 		return builder.create();
 	}
 
