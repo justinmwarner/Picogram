@@ -19,6 +19,7 @@ import android.content.DialogInterface.OnClickListener;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.drawable.AnimationDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.DialogFragment;
@@ -113,27 +114,44 @@ public class DialogMaker extends DialogFragment implements View.OnClickListener 
 			final ImageView iv = (ImageView) v
 					.findViewById(R.id.ivInstructions);
 			final TextView tv = (TextView) v.findViewById(R.id.tvInstructions);
-			final int resources[] = { R.drawable.one, R.drawable.two,
-					R.drawable.three, R.drawable.four, R.drawable.five,
-					R.drawable.properties, R.drawable.transparent,
-					R.drawable.xs, R.drawable.create };
+			final int resources[] = { R.drawable.tutorial_step_one,
+					R.drawable.tutorial_step_two,
+					R.drawable.tutorial_step_three,
+					R.drawable.tutorial_step_four,
+					R.drawable.tutorial_step_five,
+					R.drawable.tutorial_step_six,
+					R.drawable.tutorial_step_seven };
 			final String[] prompts = {
-					"The 3 represents three consequtive blocks.",
-					"Thus we get...",
-					"Now on this puzzle",
-					"2 2 means we have two consequtive blocks, an amount of white, then two more consequtive blocks",
-					"Thus...",
-					"However, if it were like this, we have the following valid solutions...",
-					"If we had an \"X\", we'd still win, as X's are ignored.",
-					"Here's a full example...",
-					"Finally, colors work the same." };
+					"The 3 represents three consequtive blocks in that row, as the 1's represent a block in the column.",
+					"Thus we get...  Notice the columns are all one and have one filled in block per column.  We can have any amount of white space on either side of conseutive blocks.",
+					"Now on this puzzle, 2 2 means we have two consequtive blocks with any amount of white space between, then two more consequtive blocks.  If space permit, we could have any amount of white space on either side.",
+					"However, the puzzle is small enough so that only one white spot remains.",
+					"This is also a valid solution. X's are ignored as white space (Although they're black colored in game).  Notice, also, the colors. Grey goes with grey, thus this is valid.",
+					"This is just an example of a full puzzle.",
+					"This is another but with colors. Notice the order the colors are in and the numbers going with it." };
 			tv.setText(prompts[0]);
 			iv.setImageBitmap(BitmapFactory.decodeResource(getResources(),
 					resources[0]));
+			// iv.setBackgroundResource(R.drawable.spaceman);
+			// AnimationDrawable progressAnimation = (AnimationDrawable) iv
+			// .getBackground();
+			// progressAnimation.start();
+
 			// Add action buttons
 			((Button) v.findViewById(R.id.bNext))
 					.setOnClickListener(new View.OnClickListener() {
 						public void onClick(View view) {
+							if (((Button) view).getText().toString()
+									.equals("Done")) {
+								Crouton.makeText(
+										getActivity(),
+										"You can view this again in the Prefs tab.  Good luck!",
+										Style.INFO).show();
+								getDialog().dismiss();
+								Util.getPreferences(getActivity()).edit()
+										.putBoolean("isFirst", false).commit();
+								return;
+							}
 							int currentStep = -1;
 							for (int i = 0; i != prompts.length; ++i)
 								if (prompts[i].equals(tv.getText().toString()))
@@ -142,22 +160,27 @@ public class DialogMaker extends DialogFragment implements View.OnClickListener 
 								currentStep = 0;
 							iv.setImageBitmap(BitmapFactory.decodeResource(
 									getResources(), resources[currentStep]));
-							// wv.loadUrl(urls[currentStep]);
 							tv.setText(prompts[currentStep]);
 							currentStep++;
 							if (currentStep == prompts.length) {
-								getDialog().dismiss();
+								((Button) view).setText("Done");
+
 							}
+							((Button) v.findViewById(R.id.bLater))
+									.setText("Previous");
 						}
 					});
 
 			((Button) v.findViewById(R.id.bNever))
 					.setOnClickListener(new View.OnClickListener() {
 						public void onClick(View view) {
+
 							Crouton.makeText(
 									getActivity(),
 									"You can view this in the Prefs tab.  Good luck!",
 									Style.INFO).show();
+							Util.getPreferences(getActivity()).edit()
+									.putBoolean("isFirst", false).commit();
 							getDialog().dismiss();
 						}
 					});
@@ -166,12 +189,31 @@ public class DialogMaker extends DialogFragment implements View.OnClickListener 
 					.setOnClickListener(new View.OnClickListener() {
 
 						public void onClick(View view) {
-							// TODO Auto-generated method stub
-							Crouton.makeText(
-									getActivity(),
-									"We'll show this next app start. You can also view this in Prefs",
-									Style.INFO).show();
-							getDialog().dismiss();
+							if (((Button) view).getText().toString()
+									.equals("Previous")) {
+								((Button) v.findViewById(R.id.bNext))
+										.setText("Next");
+								int currentStep = -1;
+								for (int i = 0; i != prompts.length; ++i)
+									if (prompts[i].equals(tv.getText()
+											.toString()))
+										currentStep = i - 1;
+								tv.setText(prompts[currentStep]);
+								iv.setImageBitmap(BitmapFactory.decodeResource(
+										getResources(), resources[currentStep]));
+								if (currentStep == 0)
+									((Button) v.findViewById(R.id.bLater))
+											.setText("Later");
+
+							} else {
+								Crouton.makeText(
+										getActivity(),
+										"We'll show this next app start. You can also view this in Prefs",
+										Style.INFO).show();
+								Util.getPreferences(getActivity()).edit()
+										.putBoolean("isFirst", true).commit();
+								getDialog().dismiss();
+							}
 						}
 					});
 		}

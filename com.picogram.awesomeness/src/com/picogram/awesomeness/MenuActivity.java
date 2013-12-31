@@ -387,10 +387,7 @@ public class MenuActivity extends FragmentActivity implements FlurryAdListener,
 		continueMusic = false;
 		MusicManager.start(this, (int) (Math.random() * 1000));
 
-		// TODO Tutorial
 		if (Util.getPreferences(this).getBoolean("isFirst", true)) {
-			// Util.getPreferences(this).edit().putBoolean("isFirst",
-			// false).commit();
 			Bundle bundle = new Bundle();
 			FragmentTransaction ft = getSupportFragmentManager()
 					.beginTransaction();
