@@ -70,9 +70,10 @@ import de.keyboardsurfer.android.widget.crouton.Style;
 
 public class MenuActivity extends FragmentActivity implements FlurryAdListener,
 		OnPageChangeListener, OnClickListener, OnRMMUserChoiceListener {
+	private static final String TAG = "MainActivity";
+
 	public class MyPagerAdapter extends FragmentPagerAdapter {
 
-		private static final String TAG = "MainActivity";
 		public SuperAwesomeCardFragment frag[] = new SuperAwesomeCardFragment[this
 				.getCount()];
 
@@ -100,10 +101,8 @@ public class MenuActivity extends FragmentActivity implements FlurryAdListener,
 	}
 
 	static final ArrayList<String> TITLES = new ArrayList<String>(
-			Arrays.asList(new String[] { "My", "Top", "Recent", "Search",
-					"Prefs" }));
-
-	protected static final String TAG = "MenuActivity";
+			Arrays.asList(new String[] { "My", "Packs", "Top", "Recent",
+					"Search", "Prefs" }));
 
 	public static final int CREATE_CODE = 8008;
 	public static final int GAME_CODE = 1337;
@@ -141,7 +140,6 @@ public class MenuActivity extends FragmentActivity implements FlurryAdListener,
 		if ((requestCode == PREFERENCES_CODE)) {
 			// Preferences, just switch tab back to main.
 			this.pager.setCurrentItem(TITLES.indexOf("My"));
-			this.updateCurrentTab();
 		} else if ((resultCode == Activity.RESULT_OK)
 				&& (requestCode == CREATE_CODE)) {
 			// New Girddler, add to database.
@@ -159,23 +157,21 @@ public class MenuActivity extends FragmentActivity implements FlurryAdListener,
 			final GriddlerOne g = new GriddlerOne(id, status, name, difficulty,
 					rank, 1, author, width, height, solution, null,
 					numberOfColors, colors, "0", "5");
+			g.setIsUploaded("0");
+			sql.addUserPicogram(g);
 			g.setID(id);
 			// TODO Check if Picogram already exists. If it does, just add that
 			// to the users sql database.
-			// TODO If save failed, save offline to upload later on.
 			g.save(new StackMobModelCallback() {
 
 				@Override
 				public void failure(final StackMobException arg0) {
-					g.setIsUploaded("0");
-					sql.addUserPicogram(g);
 				}
 
 				@Override
 				public void success() {
-					// TODO Auto-generated method stub
 					g.setIsUploaded("1");
-					sql.addUserPicogram(g);
+					sql.updateUploadedPicogram(g.getID(), "1");
 				}
 			});
 			final String[] tags = data.getStringExtra("tags").split(" ");
@@ -189,6 +185,8 @@ public class MenuActivity extends FragmentActivity implements FlurryAdListener,
 					"Rating", null, 2);
 			sorh.insert(id, "5", "0");
 			sorh.close();
+			// Update current tab.
+			this.currentTab = 0;
 		} else if ((resultCode == Activity.RESULT_OK)
 				&& (requestCode == GAME_CODE)) {
 			// Back button pushed or won.
@@ -201,7 +199,6 @@ public class MenuActivity extends FragmentActivity implements FlurryAdListener,
 		}
 		this.sql.close();
 		this.updateCurrentTab();
-
 	}
 
 	public void onAdClicked(final String arg0) {
@@ -397,7 +394,7 @@ public class MenuActivity extends FragmentActivity implements FlurryAdListener,
 			newFragment.setOnDialogResultListner(new OnDialogResultListener() {
 
 				public void onDialogResult(Bundle result) {
-					//No results needed.
+					// No results needed.
 				}
 			});
 			newFragment.show(ft, "dialog");
@@ -487,6 +484,7 @@ public class MenuActivity extends FragmentActivity implements FlurryAdListener,
 			updateBottomBar();
 		}
 		this.currentTab = tab;
+		this.updateCurrentTab();
 		if (tab != TITLES.indexOf("Search")) {// Hide keyboard
 			InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
 			imm.hideSoftInputFromWindow(findViewById(android.R.id.content)
@@ -555,9 +553,17 @@ public class MenuActivity extends FragmentActivity implements FlurryAdListener,
 		if (this.adapter.frag[this.currentTab] != null)
 			this.adapter.frag[this.currentTab].clearAdapter();
 		if (this.currentTab == MenuActivity.TITLES.indexOf("My")) {
+			Log.d(TAG,
+					"Up: "
+							+ this.adapter.frag[this.currentTab].myAdapter
+									.getCount());
 			this.adapter.frag[this.currentTab]
 					.getMyPuzzles(this.adapter.frag[this.currentTab]
 							.getActivity());
+			Log.d(TAG,
+					"Up: "
+							+ this.adapter.frag[this.currentTab].myAdapter
+									.getCount());
 		} else if (this.currentTab == MenuActivity.TITLES.indexOf("Top")) {
 			this.adapter.frag[this.currentTab].getSortedPuzzles(
 					this.adapter.frag[this.currentTab].getActivity(), "rate");
@@ -573,7 +579,14 @@ public class MenuActivity extends FragmentActivity implements FlurryAdListener,
 			this.adapter.frag[this.currentTab]
 					.getMyPuzzles(this.adapter.frag[this.currentTab]
 							.getActivity());
+		} else if (this.currentTab == MenuActivity.TITLES.indexOf("Packs")) {
+			this.adapter.frag[this.currentTab].getPackPuzzles();
 		}
+		this.adapter.frag[this.currentTab].myAdapter.notifyDataSetChanged();
+		Log.d(TAG,
+				"Up: "
+						+ this.adapter.frag[this.currentTab].myAdapter
+								.getCount());
 	}
 
 	public void handlePositive() {

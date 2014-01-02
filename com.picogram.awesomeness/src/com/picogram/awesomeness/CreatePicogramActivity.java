@@ -94,20 +94,6 @@ public class CreatePicogramActivity extends FragmentActivity implements
 
 	TouchImageView tivGame;
 
-	private Bitmap addBorder(Bitmap bmp, int borderSize) {
-		return bmp;
-		/*
-		 * Bitmap bmpWithBorder = Bitmap.createBitmap(bmp.getWidth() +
-		 * borderSize 2, bmp.getHeight() + borderSize * 2, bmp.getConfig());
-		 * Canvas canvas = new Canvas(bmpWithBorder); Paint paint = new Paint();
-		 * paint.setStyle(Paint.Style.STROKE); paint.setStrokeWidth(borderSize *
-		 * 2); paint.setColor(Color.BLUE); canvas.drawBitmap(bmp, borderSize,
-		 * borderSize, null); canvas.drawRect((borderSize / 2), (borderSize /
-		 * 2), bmp.getWidth() + (borderSize), bmp.getHeight() + (borderSize),
-		 * paint); return bmpWithBorder;
-		 */
-	}
-
 	private void alterPhoto() {
 		if (this.bmOriginal != null) {
 			// Subarray with the number.
@@ -124,7 +110,9 @@ public class CreatePicogramActivity extends FragmentActivity implements
 					alter.getWidth(), alter.getHeight());
 			for (int i = 0; i < pixels.length; i++) {
 				final int rgb[] = this.getRGB(pixels[i]);
-				pixels[i] = (rgb[0] + rgb[1] + rgb[2]) / 3; // Greyscale
+				pixels[i] = 255 - ((rgb[0] + rgb[1] + rgb[2]) / 3); // Greyscale
+																	// and
+																	// inverse
 			}
 			alter = alter.copy(Bitmap.Config.ARGB_8888, true);
 			alter.setPixels(pixels, 0, alter.getWidth(), 0, 0,
@@ -169,10 +157,11 @@ public class CreatePicogramActivity extends FragmentActivity implements
 			this.bmNew = alter;
 			this.bmNew.setHasAlpha(true);
 			this.bmOriginal.setHasAlpha(true);
-			ivNew.setImageBitmap(addBorder(bmNew, 2));
-			ivOriginal
-					.setImageBitmap(addBorder(Bitmap.createScaledBitmap(
-							bmOriginal, xNum, yNum, false), 2));
+			ivNew.setImageBitmap((bmNew));
+			ivOriginal.setImageBitmap(bmOriginal);
+			// ivOriginal
+			// .setImageBitmap(addBorder(Bitmap.createScaledBitmap(
+			// bmOriginal, xNum, yNum, false), 2));
 			Bundle bundle = new Bundle();
 			// current height width id solution colors(,)
 			bundle.putString("current", solution);
@@ -294,6 +283,17 @@ public class CreatePicogramActivity extends FragmentActivity implements
 			bmNew = bmOriginal = bm;
 			updateBottomHolder(1);
 			this.updateMainView();
+			Bundle bundle = new Bundle();
+			bundle.putString("current", null);
+			bundle.putString("width", "" + xNum);
+			bundle.putString("height", "" + yNum);
+			String cols = "";
+			for (int i = 0; i != newColors.length; ++i)
+				cols += newColors[i] + ",";
+			bundle.putString("colors", cols);
+
+			tivGame.setPicogramInfo(bundle);
+
 		} else if (v.getId() == R.id.bGallery) {
 			// File stuff.
 			final Intent fileIntent = new Intent(Intent.ACTION_GET_CONTENT);
@@ -811,7 +811,6 @@ public class CreatePicogramActivity extends FragmentActivity implements
 			ivNew.setVisibility(View.VISIBLE);
 			tivGame.setVisibility(View.INVISIBLE);
 			currentView = 0;
-			Log.d(TAG, "Solution: " + tivGame.gCurrent);
 			updatePictureFromTIV(tivGame.gCurrent);
 		} else if (currentView == 0) {
 			// Show Gameboard
@@ -824,9 +823,7 @@ public class CreatePicogramActivity extends FragmentActivity implements
 			tivGame.gCurrent = this.solution;
 			tivGame.bitmapFromCurrent();
 			currentView = 2;
-			Log.d(TAG, ib.getVisibility() + " VISIBLE");
 			ib.setVisibility(View.VISIBLE);
-			Log.d(TAG, ib.getVisibility() + " VISIBLE");
 			Crouton.makeText(this, "Draw on screen to edit", Style.INFO).show();
 			// current width height id solution colors(string,)
 		} else {

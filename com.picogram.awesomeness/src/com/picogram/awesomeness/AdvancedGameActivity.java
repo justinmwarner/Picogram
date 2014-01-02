@@ -384,6 +384,7 @@ public class AdvancedGameActivity extends FragmentActivity implements
 							SQLiteRatingAdapter sorh = new SQLiteRatingAdapter(
 									a.getApplicationContext(), "Rating", null,
 									1);
+							sorh.insert(g.getID(), -1+"", rating+"");
 							dialog.dismiss();
 							AdvancedGameActivity.this.returnIntent();
 						}

@@ -1,5 +1,6 @@
 package com.picogram.awesomeness;
 
+import android.graphics.Color;
 import android.util.Log;
 
 import com.stackmob.sdk.model.StackMobModel;
@@ -223,6 +224,55 @@ public class GriddlerOne extends StackMobModel implements Comparable {
 
 	public void setPersonalRank(String personalRank) {
 		this.personalRank = personalRank;
+	}
+
+	public GriddlerOne nullsToValue() {
+		if (id == null) {
+			if (solution != null) {
+				id = solution.hashCode() + "";
+			} else
+				id = "0";
+		}
+		if (status == null) {
+			status = "0";
+		}
+		if (name == null) {
+			name = "N/A";
+		}
+		if (diff == null) {
+			diff = "Easy";
+		}
+		if (rate == null) {
+			rate = "0";
+		}
+		if (author == null) {
+			author = "N/A";
+		}
+		if (width == null) {
+			width = "0";
+		}
+		if (height == null) {
+			height = "0";
+		}
+		if (solution == null) {
+			solution = "";
+		}
+		if (current == null) {
+			current = "";
+			for (int i = 0; i != Integer.parseInt(width)
+					* Integer.parseInt(height); ++i)
+				current += "0";
+		}
+		if (numberOfColors == null) {
+			numberOfColors = "2";
+		}
+		if (colors == null) {
+			colors = Color.TRANSPARENT + "," + Color.BLACK;
+		}
+		if (numberOfRatings == 0) {
+			numberOfRatings = 0;
+		}
+		return this;
 	}
 
 }

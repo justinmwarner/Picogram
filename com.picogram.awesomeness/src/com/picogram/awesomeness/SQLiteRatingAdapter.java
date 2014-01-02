@@ -29,7 +29,6 @@ public class SQLiteRatingAdapter extends SQLiteOpenHelper {
 		final String query = "CREATE TABLE " + offlineRatingTable + " ("
 				+ picogramId + " INT(32)," + pastRank + " INT(4)," + futureRank
 				+ " INT(4), primary KEY (" + picogramId + "));";
-		Log.d("HERE", "Offline creating.");
 		db.execSQL(query);
 	}
 
@@ -59,10 +58,10 @@ public class SQLiteRatingAdapter extends SQLiteOpenHelper {
 		final SQLiteDatabase db = this.getWritableDatabase();
 		final ContentValues cv = new ContentValues();
 		cv.put(SQLiteRatingAdapter.picogramId, picogramId);
-		cv.put(SQLiteRatingAdapter.pastRank, pastRank);
-		cv.put(SQLiteRatingAdapter.futureRank, futureRank);
-		Log.d(TAG, "Adding: " + picogramId + " Past: " + pastRank + " Future: "
-				+ futureRank);
+		if (!pastRank.equals("-1"))
+			cv.put(SQLiteRatingAdapter.pastRank, pastRank);
+		if (!futureRank.equals("-1"))
+			cv.put(SQLiteRatingAdapter.futureRank, futureRank);
 		// Check if PID exists, if it does, just update it.
 		String query = "SELECT * FROM "
 				+ SQLiteRatingAdapter.offlineRatingTable + " WHERE "

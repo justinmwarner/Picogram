@@ -306,12 +306,7 @@ public class TouchImageView extends ImageView {
 			this.rows = this.getRows(current2D);
 			this.columns = this.getColumns(current2D);
 			this.sideHints = this.getSideHints(this.rows);
-			for (String side : sideHints)
-				Log.d(TAG, "Side: " + side);
 			this.topHints = this.getTopHints(this.columns);
-			for (String[] tops : topHints)
-				for (String top : tops)
-					Log.d(TAG, "Top:  " + tops + " " + top);
 			this.longestTop = this.topHints.size();
 			this.longestSide = this.getLongest(this.sideHints); // Get widest
 																// "layer"
@@ -956,6 +951,13 @@ public class TouchImageView extends ImageView {
 			this.gColors[i] = Integer.parseInt(cols[i]);
 		}
 		this.oldCurrent = "";
+		if (gCurrent == null) {
+			gCurrent = ""; // Start it out as empty.
+			for (int i = 0; i != gHeight * gWidth; ++i)
+				gCurrent += "0";
+		}
+		if (gSolution == null)
+			gSolution = gCurrent; // Not a real game, so no win listener.
 		// Below is for optimization so it only draws all the squares once and
 		// only again after it's changed.
 		for (int i = 0; i != gSolution.length(); i++)

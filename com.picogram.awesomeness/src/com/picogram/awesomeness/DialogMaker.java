@@ -53,7 +53,6 @@ public class DialogMaker extends DialogFragment implements View.OnClickListener 
 	OnDialogResultListener listener;
 
 	public void setOnDialogResultListner(OnDialogResultListener odrl) {
-		Log.d(TAG, "SETTING IT NOW");
 		listener = odrl;
 	}
 
@@ -276,12 +275,8 @@ public class DialogMaker extends DialogFragment implements View.OnClickListener 
 								.charAt(0);
 					}
 					Bundle bundle = new Bundle();
-					Log.d(TAG, "IndexOf: " + (ivs.indexOf(v.getParent()))
-							+ " Char: " + colorCharacter + " Game: "
-							+ isGameplay);
 					bundle.putBoolean("isGameplay", isGameplay);
 					bundle.putChar("colorCharacter", colorCharacter);
-					Log.d(TAG, "COLOR: " + colorCharacter);
 					listener.onDialogResult(bundle);
 				}
 

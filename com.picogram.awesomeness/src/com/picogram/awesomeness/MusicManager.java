@@ -34,7 +34,7 @@ public class MusicManager {
 			return;
 		}
 		if (music == MUSIC_PREVIOUS) {
-			Log.d(TAG, "Using previous music [" + previousMusic + "]");
+			// Log.d(TAG, "Using previous music [" + previousMusic + "]");
 			music = previousMusic;
 		}
 		if (currentMusic == music) {
@@ -43,12 +43,12 @@ public class MusicManager {
 		}
 		if (currentMusic != -1) {
 			previousMusic = currentMusic;
-			Log.d(TAG, "Previous music was [" + previousMusic + "]");
+			// Log.d(TAG, "Previous music was [" + previousMusic + "]");
 			// playing some other music, pause it and change
 			pause();
 		}
 		currentMusic = music;
-		Log.d(TAG, "Current music is now [" + currentMusic + "]");
+		// Log.d(TAG, "Current music is now [" + currentMusic + "]");
 		MediaPlayer mp = (MediaPlayer) players.get(music);
 		if (mp != null) {
 			if (!mp.isPlaying()) {
@@ -71,7 +71,7 @@ public class MusicManager {
 			}
 			players.put(music, mp);
 			float volume = getMusicVolume(context);
-			Log.d(TAG, "Setting music volume to " + volume);
+			// Log.d(TAG, "Setting music volume to " + volume);
 			mp.setVolume(volume, volume);
 			if (mp == null) {
 				Log.e(TAG, "player was not created successfully");
@@ -96,16 +96,16 @@ public class MusicManager {
 		// previousMusic should always be something valid
 		if (currentMusic != -1) {
 			previousMusic = currentMusic;
-			Log.d(TAG, "Previous music was [" + previousMusic + "]");
+			// Log.d(TAG, "Previous music was [" + previousMusic + "]");
 		}
 		currentMusic = -1;
-		Log.d(TAG, "Current music is now [" + currentMusic + "]");
+		// Log.d(TAG, "Current music is now [" + currentMusic + "]");
 	}
 
 	public static void updateVolumeFromPrefs(Context context) {
 		try {
 			float volume = getMusicVolume(context);
-			Log.d(TAG, "Setting music volume to " + volume);
+			// Log.d(TAG, "Setting music volume to " + volume);
 			Collection<MediaPlayer> mps = players.values();
 			for (MediaPlayer p : mps) {
 				p.setVolume(volume, volume);
@@ -133,9 +133,9 @@ public class MusicManager {
 		mps.clear();
 		if (currentMusic != -1) {
 			previousMusic = currentMusic;
-			Log.d(TAG, "Previous music was [" + previousMusic + "]");
+			// Log.d(TAG, "Previous music was [" + previousMusic + "]");
 		}
 		currentMusic = -1;
-		Log.d(TAG, "Current music is now [" + currentMusic + "]");
+		// Log.d(TAG, "Current music is now [" + currentMusic + "]");
 	}
 }

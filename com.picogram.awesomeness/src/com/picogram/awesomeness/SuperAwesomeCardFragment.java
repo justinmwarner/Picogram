@@ -71,14 +71,15 @@ public class SuperAwesomeCardFragment extends Fragment implements
 	SQLitePicogramAdapter sql = null;
 
 	public void clearAdapter() {
-		this.myAdapter.clear();
-		this.myAdapter.notifyDataSetChanged();
+		if (myAdapter != null) {
+			this.myAdapter.clear();
+			this.myAdapter.notifyDataSetChanged();
+		}
 	}
 
 	public void getMyPuzzles(final FragmentActivity a) {
-		if (this.sql == null) {
-			this.sql = new SQLitePicogramAdapter(a, "Picograms", null, 1);
-		}
+		this.sql = new SQLitePicogramAdapter(a, "Picograms", null, 1);
+
 		final String[][] PicogramsArray = this.sql.getPicograms();
 		final SharedPreferences prefs = Util.getPreferences(a);
 		for (int i = 0; i < PicogramsArray.length; i++) {
@@ -242,6 +243,25 @@ public class SuperAwesomeCardFragment extends Fragment implements
 				});
 	}
 
+	public void getPackPuzzles() {
+		this.myAdapter.clear();
+		GriddlerOne go = new GriddlerOne();
+		go.setName("Easy Pack 1 (10 puzzles)");
+		go.setStatus("2");
+		myAdapter.add(go);
+		myAdapter.notifyDataSetChanged();
+		go = new GriddlerOne();
+		go.setName("Easy Pack 2 (10 puzzles)");
+		go.setStatus("2");
+		myAdapter.add(go);
+		myAdapter.notifyDataSetChanged();
+		go = new GriddlerOne();
+		go.setName("Medium Pack 1 (10 puzzles)");
+		go.setStatus("2");
+		myAdapter.add(go);
+		myAdapter.notifyDataSetChanged();
+	}
+
 	public void getTagPuzzles(final Activity a, final String tag,
 			final boolean isSortByRate) {
 		this.myAdapter.clear();
@@ -255,7 +275,6 @@ public class SuperAwesomeCardFragment extends Fragment implements
 						Crouton.makeText(a,
 								"Error fetching data: " + arg0.toString(),
 								Style.ALERT);
-						Log.d(TAG, "SEARCH " + arg0.toString());
 					}
 
 					@Override
@@ -264,9 +283,6 @@ public class SuperAwesomeCardFragment extends Fragment implements
 						for (final GriddlerTag gt : gts) {
 							ids.add(gt.getID());
 						}
-						Log.d(TAG,
-								"SEARCH found num of tag matches: "
-										+ gts.size());
 						final StackMobQuery smqInner = new StackMobQuery()
 								.isInRange(0, 9).fieldIsIn("griddlerone_id",
 										ids);
@@ -284,9 +300,6 @@ public class SuperAwesomeCardFragment extends Fragment implements
 									@Override
 									public void failure(
 											final StackMobException arg0) {
-										Log.d(TAG,
-												"SEARCH failed after id finds "
-														+ arg0.toString());
 										Crouton.makeText(
 												a,
 												"Error fetching data: "
@@ -297,9 +310,6 @@ public class SuperAwesomeCardFragment extends Fragment implements
 									@Override
 									public void success(
 											final List<GriddlerOne> gs) {
-										Log.d(TAG,
-												"SEARCH success inner, num: "
-														+ gs.size());
 										for (final GriddlerOne g : gs) {
 											a.runOnUiThread(new Runnable() {
 
@@ -327,6 +337,7 @@ public class SuperAwesomeCardFragment extends Fragment implements
 	@Override
 	public View onCreateView(final LayoutInflater inflater,
 			final ViewGroup container, final Bundle savedInstanceState) {
+
 		final LayoutParams params = new LayoutParams(
 				android.view.ViewGroup.LayoutParams.MATCH_PARENT,
 				android.view.ViewGroup.LayoutParams.MATCH_PARENT);
@@ -357,12 +368,14 @@ public class SuperAwesomeCardFragment extends Fragment implements
 			// this.getTagPuzzles(this.getActivity(), "", true);
 		} else if (this.position == MenuActivity.TITLES.indexOf("Prefs")) {
 			return new View(this.getActivity());
+		} else if (this.position == MenuActivity.TITLES.indexOf("Packs")) {
+			this.getPackPuzzles();
 		} else {
 			for (int i = 0; i != 20; ++i) {
 				final GriddlerOne obj = new GriddlerOne("=/", "0",
-						"We had an error. You shouldn't see this " + i, "0",
-						"0", 1, "Justin", "1", "1", "1", "0", 2, Color.BLACK
-								+ " " + Color.RED, "1", "0");
+						"Had an error. You shouldn't see this " + i, "0", "0",
+						1, "Justin", "1", "1", "1", "0", 2, Color.BLACK + " "
+								+ Color.RED, "1", "0");
 				obj.setID(i + "" + this.position);
 				this.myAdapter.add(obj);
 				// items.add(MenuActivity.TITLES.get(this.position) + " " +
@@ -390,29 +403,56 @@ public class SuperAwesomeCardFragment extends Fragment implements
 			final int pos, final long id) {
 		if (pos >= 0) // If valid position to select.
 		{
-			if ((this.position == MenuActivity.TITLES.indexOf("My"))
-					&& ((pos == 0) || pos == 1)) {
-				// Can this be the Creating or Random?
-				this.sql.close();
-				if (pos == 0) {
-					final Intent createIntent = new Intent(this.getActivity(),
-							CreatePicogramActivity.class);
-					this.getActivity().startActivityForResult(createIntent,
-							MenuActivity.CREATE_CODE);
-				} else if (pos == 1) {
-					generateRandomGame();
-				}
-			} else {
-				// If this Picogram doesn't exists for the person, add it.
-
-				GriddlerOne Picogram = this.myAdapter.get(pos);
-				if (sql == null)
+			GriddlerOne picogram = this.myAdapter.get(pos);
+			if (this.position == MenuActivity.TITLES.indexOf("Packs")) {
+				// We load the pack to My, and change the tab over.
+				if (picogram.getName().contains("Easy Pack 1")) {
+					// TODO
 					this.sql = new SQLitePicogramAdapter(this.getActivity(),
 							"Picograms", null, 1);
-				if (!sql.doesPuzzleExist(Picogram)) {
-					sql.addUserPicogram(Picogram);
+					sql.addUserPicogram("1", "1", "Pack Puzzle", "1", "1", "0",
+							"", "1", "1", "0", "2", Color.TRANSPARENT + ","
+									+ Color.BLACK, "0", "1");
+				} else if (picogram.getName().contains("Easy Pack 2")) {
+					// TODO
+				} else if (picogram.getName().contains("Medium Pack 1")) {
+					// TODO
+				} else {
+					Crouton.makeText(
+							this.getActivity(),
+							picogram.getName()
+									+ " is not currently supported.  Report a bug.",
+							Style.INFO).show();
+					return;
 				}
-				this.startGame(Picogram);
+				Crouton.makeText(this.getActivity(),
+						picogram.getName() + " loaded, go back to My tab.",
+						Style.INFO).show();
+
+			} else {
+				if ((this.position == MenuActivity.TITLES.indexOf("My"))
+						&& ((pos == 0) || pos == 1)) {
+					// Can this be the Creating or Random?
+					this.sql.close();
+					if (pos == 0) {
+						final Intent createIntent = new Intent(
+								this.getActivity(),
+								CreatePicogramActivity.class);
+						this.getActivity().startActivityForResult(createIntent,
+								MenuActivity.CREATE_CODE);
+					} else if (pos == 1) {
+						generateRandomGame();
+					}
+				} else {
+					// If this Picogram doesn't exists for the person, add it.
+					if (sql == null)
+						this.sql = new SQLitePicogramAdapter(
+								this.getActivity(), "Picograms", null, 1);
+					if (!sql.doesPuzzleExist(picogram)) {
+						sql.addUserPicogram(picogram);
+					}
+					this.startGame(picogram);
+				}
 			}
 		}
 	}
@@ -533,6 +573,7 @@ public class SuperAwesomeCardFragment extends Fragment implements
 						// Delete.
 						sql.deletePicogram(myAdapter.get(position).getID());
 						myAdapter.removeById(myAdapter.get(position).getID());
+						// TODO Remove from personal ranking table.
 					}
 					myAdapter.notifyDataSetChanged();
 				}
