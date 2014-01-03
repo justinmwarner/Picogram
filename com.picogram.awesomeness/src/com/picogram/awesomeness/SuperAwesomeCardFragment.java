@@ -405,18 +405,13 @@ public class SuperAwesomeCardFragment extends Fragment implements
 		{
 			GriddlerOne picogram = this.myAdapter.get(pos);
 			if (this.position == MenuActivity.TITLES.indexOf("Packs")) {
-				// We load the pack to My, and change the tab over.
+				// We load the pack to My and prompt user.
 				if (picogram.getName().contains("Easy Pack 1")) {
-					// TODO
-					this.sql = new SQLitePicogramAdapter(this.getActivity(),
-							"Picograms", null, 1);
-					sql.addUserPicogram("1", "1", "Pack Puzzle", "1", "1", "0",
-							"", "1", "1", "0", "2", Color.TRANSPARENT + ","
-									+ Color.BLACK, "0", "1");
+					loadEasyPackOne();
 				} else if (picogram.getName().contains("Easy Pack 2")) {
-					// TODO
+					loadEasyPackTwo();
 				} else if (picogram.getName().contains("Medium Pack 1")) {
-					// TODO
+					loadMediumPackOne();
 				} else {
 					Crouton.makeText(
 							this.getActivity(),
@@ -425,6 +420,7 @@ public class SuperAwesomeCardFragment extends Fragment implements
 							Style.INFO).show();
 					return;
 				}
+				sql.close();
 				Crouton.makeText(this.getActivity(),
 						picogram.getName() + " loaded, go back to My tab.",
 						Style.INFO).show();
@@ -448,13 +444,281 @@ public class SuperAwesomeCardFragment extends Fragment implements
 					if (sql == null)
 						this.sql = new SQLitePicogramAdapter(
 								this.getActivity(), "Picograms", null, 1);
-					if (!sql.doesPuzzleExist(picogram)) {
+					if (sql.doesPuzzleExist(picogram) != -1) {
 						sql.addUserPicogram(picogram);
 					}
 					this.startGame(picogram);
 				}
 			}
 		}
+	}
+
+	private void loadMediumPackOne() {
+		this.sql = new SQLitePicogramAdapter(this.getActivity(), "Picograms",
+				null, 1);
+		GriddlerOne go = new GriddlerOne();
+		// Change.
+		go.setName("Rose");
+		go.setSolution("000111101110000001001110011100010011001011010110110110111011111010110011010101111101111111011011111100110111101111011110011110000111100001110011111000000001111000000000010000000000111001000011100011111001111000001111011111000000110111110000000001111000000000001000000000000000100000000");
+		go.setWidth("15");
+		go.setHeight("20");
+		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
+		go.nullsToValue();
+		sql.addUserPicogram(go);
+		go = new GriddlerOne();
+		go.setName("House");
+		go.setSolution("00000111000000001110111000011100000111011000000000111111111111111100000000000110111110000011010101011111101111101000110101010100011011111010011100000001000110000000100011111111111111");
+		go.setWidth("13");
+		go.setHeight("14");
+		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
+		go.nullsToValue();
+		sql.addUserPicogram(go);
+		go = new GriddlerOne();
+		go.setName("Water Drop");
+		go.setSolution("000001000000011100000110100000100110001100010011000011110000001100000001100000001100000001110000011011100110000111100");
+		go.setWidth("9");
+		go.setHeight("15");
+		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
+		go.nullsToValue();
+		sql.addUserPicogram(go);
+		go = new GriddlerOne();
+		go.setName("Arrow Heart");
+		go.setSolution("000000000111000000000011000100010101001010101000010001010100010000100100001001001000000110010000000110100000001001000000110000000000010000000000");
+		go.setWidth("12");
+		go.setHeight("12");
+		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
+		go.nullsToValue();
+		sql.addUserPicogram(go);
+		go = new GriddlerOne();
+		go.setName("X Wins");
+		go.setSolution("1001100001000001101000010110011010000101101001100001000011111111111111100110000100000110101101000001101011010000100110000100001111111111111110011000011001011010110101100110101101011010011000011001");
+		go.setWidth("14");
+		go.setHeight("14");
+		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
+		go.nullsToValue();
+		sql.addUserPicogram(go);
+		go = new GriddlerOne();
+		go.setName("Good and Bad");
+		go.setSolution("000000000110000000000000000110011000000000000110000011100000000010000110011100000001000001100111100000100000000000111100001000000000011111000100000000000111111001000000000011111110100000000000111111111000000001111111111101000000111111111110010000011111111111100010000111111111110000100011111111111100000100111111111110000000100110011111000000000110100111100000000000011111100000000000000111111000000000000000011000000000");
+		go.setWidth("20");
+		go.setHeight("20");
+		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
+		go.nullsToValue();
+		sql.addUserPicogram(go);
+		go = new GriddlerOne();
+		go.setName("Apples");
+		go.setSolution("0000000000100000000001100110110000001100110010011000100000000000010010000100101010010010100000000001101000010010010010110000000001001010011101011101101000001001011000000000001100110000000000000001100000000000000011100000000000000111000000000000001100000000000000011000000000000000110000000000000111111000000000001111110000000000111111110000");
+		go.setWidth("17");
+		go.setHeight("20");
+		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
+		go.nullsToValue();
+		sql.addUserPicogram(go);
+		go = new GriddlerOne();
+		go.setName("Woman");
+		go.setSolution("000111111100000100111001000010100010100101010001010101001000100100000011100000010000100000000100101000000001100011110000010001000000010000010000001000001000001000000010000111111111000000100010000000010001000000001000100000001100011000");
+		go.setWidth("13");
+		go.setHeight("18");
+		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
+		go.nullsToValue();
+		sql.addUserPicogram(go);
+		go = new GriddlerOne();
+		go.setName("Man");
+		go.setSolution("000010000000111000000111000001111100000111000001000100001000100001000100100111000010010000001010000000111111000010000000010000000010000000101000000101000001000100001000100");
+		go.setWidth("9");
+		go.setHeight("19");
+		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
+		go.nullsToValue();
+		sql.addUserPicogram(go);
+		go = new GriddlerOne();
+		go.setName("Sword");
+		go.setSolution("0000000000000000111000000000000001100100000000000001000110000000000001000111000000000001000111000000000001000111000000000001000101000000000001000101000000000001000101000000000001000101000000000001000101000000011001000101000000001011000101000000000010100001000000000000100001000000000000010011000000000000010110100000000000010100101000000000001100001100000000000");
+		go.setWidth("19");
+		go.setHeight("19");
+		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
+		go.nullsToValue();
+		sql.addUserPicogram(go);
+		go = new GriddlerOne();
+		sql.close();
+	}
+
+	private void loadEasyPackTwo() {
+		this.sql = new SQLitePicogramAdapter(this.getActivity(), "Picograms",
+				null, 1);
+		// These shouldn't change for these packs.
+		GriddlerOne go = new GriddlerOne();
+		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
+		// Change.
+		go.setName("Key");
+		go.setSolution("000001111111110100100111");
+		go.setWidth("8");
+		go.setHeight("3");
+		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
+		go.nullsToValue();
+		sql.addUserPicogram(go);
+		go = new GriddlerOne();
+		go.setName("Cat");
+		go.setSolution("00111111010000111011111000010100");
+		go.setWidth("8");
+		go.setHeight("4");
+		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
+		go.nullsToValue();
+		sql.addUserPicogram(go);
+		go = new GriddlerOne();
+		go.setName("Heart");
+		go.setSolution("01010111110111000100");
+		go.setWidth("5");
+		go.setHeight("4");
+		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
+		go.nullsToValue();
+		sql.addUserPicogram(go);
+		go = new GriddlerOne();
+		go.setName("Hourglass");
+		go.setSolution("1111111111111110000000001111111111111110100000000010010000000001001001010100100100010100010011000100011000110000011000001101011000000011011000000001101100000001100011000001100100110001100000001100100001000010010001010001001001010100100101010101010111111111111111000000000111111111111111");
+		go.setWidth("13");
+		go.setHeight("22");
+		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
+		go.nullsToValue();
+		sql.addUserPicogram(go);
+		go = new GriddlerOne();
+		go.setName("Cube");
+		go.setSolution("00111111110100000101111111100110000010011000001001100000100110000010101111111100");
+		go.setWidth("10");
+		go.setHeight("8");
+		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
+		go.nullsToValue();
+		sql.addUserPicogram(go);
+		go = new GriddlerOne();
+		go.setName("Eye");
+		go.setSolution("0001111000001100110001001100101000110001010011001000110011000001111000");
+		go.setWidth("10");
+		go.setHeight("7");
+		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
+		go.nullsToValue();
+		sql.addUserPicogram(go);
+		go = new GriddlerOne();
+		go.setName("Note");
+		go.setSolution("011111010001010001110011110011");
+		go.setWidth("6");
+		go.setHeight("5");
+		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
+		go.nullsToValue();
+		sql.addUserPicogram(go);
+		go = new GriddlerOne();
+		go.setName("Shot");
+		go.setSolution("111010010010111101101101111111111010010");
+		go.setWidth("3");
+		go.setHeight("13");
+		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
+		go.nullsToValue();
+		sql.addUserPicogram(go);
+		go = new GriddlerOne();
+		go.setName("Flower");
+		go.setSolution("001000101010101010100010010101011100010000100");
+		go.setWidth("5");
+		go.setHeight("9");
+		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
+		go.nullsToValue();
+		sql.addUserPicogram(go);
+		go = new GriddlerOne();
+		go.setName("Bomb");
+		go.setSolution("00000001100000000100100000010000100000100000000111100000011111100001110111100111011111101101111111011011111110011111111000011111100000011110000");
+		go.setWidth("11");
+		go.setHeight("13");
+		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
+		go.nullsToValue();
+		sql.addUserPicogram(go);
+		go = new GriddlerOne();
+		sql.close();
+	}
+
+	private void loadEasyPackOne() {
+		this.sql = new SQLitePicogramAdapter(this.getActivity(), "Picograms",
+				null, 1);
+		// These shouldn't change for these packs.
+		GriddlerOne go = new GriddlerOne();
+		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
+		// Change.
+		go.setName("Smile");
+		go.setSolution("01010000001000101110");
+		go.setWidth("5");
+		go.setHeight("4");
+		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
+		go.nullsToValue();
+		sql.addUserPicogram(go);
+		go = new GriddlerOne();
+		go.setName("Sad");
+		go.setSolution("01010000000111010001");
+		go.setWidth("5");
+		go.setHeight("4");
+		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
+		go.nullsToValue();
+		sql.addUserPicogram(go);
+		go = new GriddlerOne();
+		go.setName("Person");
+		go.setSolution("010111010101");
+		go.setWidth("3");
+		go.setHeight("4");
+		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
+		go.nullsToValue();
+		sql.addUserPicogram(go);
+		go = new GriddlerOne();
+		go.setName("Umbrella Man");
+		go.setSolution("1010000110111111011010100");
+		go.setWidth("5");
+		go.setHeight("5");
+		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
+		go.nullsToValue();
+		sql.addUserPicogram(go);
+		go = new GriddlerOne();
+		go.setName("Football Man");
+		go.setSolution("0010001111000101010100100");
+		go.setWidth("5");
+		go.setHeight("5");
+		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
+		go.nullsToValue();
+		sql.addUserPicogram(go);
+		go = new GriddlerOne();
+		go.setName("Scorpion");
+		go.setSolution("0110010000100110111000011");
+		go.setWidth("5");
+		go.setHeight("5");
+		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
+		go.nullsToValue();
+		sql.addUserPicogram(go);
+		go = new GriddlerOne();
+		go.setName("Drummer");
+		go.setSolution("0100010010101001101101011");
+		go.setWidth("5");
+		go.setHeight("5");
+		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
+		go.nullsToValue();
+		sql.addUserPicogram(go);
+		go = new GriddlerOne();
+		go.setName("Peace");
+		go.setSolution("001110001010101001001101010101000100011100");
+		go.setWidth("7");
+		go.setHeight("6");
+		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
+		go.nullsToValue();
+		sql.addUserPicogram(go);
+		go = new GriddlerOne();
+		go.setName("Shopping");
+		go.setSolution("0001111110100100110010010");
+		go.setWidth("5");
+		go.setHeight("5");
+		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
+		go.nullsToValue();
+		sql.addUserPicogram(go);
+		go = new GriddlerOne();
+		go.setName("Two Prayers");
+		go.setSolution("1010001010111100101001101");
+		go.setWidth("5");
+		go.setHeight("5");
+		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
+		go.nullsToValue();
+		sql.addUserPicogram(go);
+		go = new GriddlerOne();
+		sql.close();
 	}
 
 	private void startGame(GriddlerOne go) {

@@ -201,28 +201,28 @@ public class AdvancedGameActivity extends FragmentActivity implements
 		boolean isAnimating = false;
 		if (bg.equals("bgWhite")) {
 			rlMain.setBackgroundResource(android.R.color.transparent);
-			rlMain.setBackgroundColor(Color.WHITE);
-			line = Color.BLACK + "";
+			rlMain.setBackgroundColor(Color.rgb(191, 191, 191));
+			line = Color.rgb(64, 64, 64) + "";
 		} else if (bg.equals("bgBlack")) {
 			rlMain.setBackgroundResource(android.R.color.transparent);
-			rlMain.setBackgroundColor(Color.BLACK);
-			line = Color.WHITE + "";
+			rlMain.setBackgroundColor(Color.rgb(64, 64, 64));
+			line = Color.rgb(191, 191, 191) + "";
 		} else if (bg.equals("skywave")) {
 			isAnimating = true;
-			line = Color.BLACK + "";
+			line = Color.rgb(64, 64, 64) + "";
 			rlMain.setBackgroundResource(R.drawable.skywave);
 		} else if (bg.equals("darkbridge")) {
 			isAnimating = true;
 			rlMain.setBackgroundResource(R.drawable.darkbridge);
-			line = Color.WHITE + "";
+			line = Color.rgb(191, 191, 191) + "";
 		} else if (bg.equals("spaceman")) {
 			isAnimating = true;
 			rlMain.setBackgroundResource(R.drawable.spaceman);
-			line = Color.WHITE + "";
+			line = Color.rgb(191, 191, 191) + "";
 		} else {
 			rlMain.setBackgroundResource(android.R.color.transparent);
-			rlMain.setBackgroundColor(Color.WHITE);
-			line = Color.BLACK + "";
+			rlMain.setBackgroundColor(Color.rgb(191, 191, 191));
+			line = Color.rgb(64, 64, 64) + "";
 		}
 		if (Util.getPreferences(this).getString("lines", "Auto").equals("Auto")) {
 			tiv.gridlinesColor = Integer.parseInt(line);
@@ -234,10 +234,10 @@ public class AdvancedGameActivity extends FragmentActivity implements
 		} else {
 			if (Util.getPreferences(this).getString("lines", "Auto")
 					.equals("Light")) {
-				tiv.gridlinesColor = Color.BLACK;
+				tiv.gridlinesColor = Color.rgb(64, 64, 64);
 				isLight = true;
 			} else {
-				tiv.gridlinesColor = Color.WHITE;
+				tiv.gridlinesColor = Color.rgb(191, 191, 191);
 				isLight = false;
 			}
 		}
@@ -375,6 +375,7 @@ public class AdvancedGameActivity extends FragmentActivity implements
 				if (fromUser) {
 					final GriddlerOne g = new GriddlerOne();
 					g.setID(AdvancedGameActivity.this.puzzleId);
+					dialog.dismiss();
 					g.fetch(new StackMobModelCallback() {
 
 						@Override
@@ -384,7 +385,7 @@ public class AdvancedGameActivity extends FragmentActivity implements
 							SQLiteRatingAdapter sorh = new SQLiteRatingAdapter(
 									a.getApplicationContext(), "Rating", null,
 									1);
-							sorh.insert(g.getID(), -1+"", rating+"");
+							sorh.insert(g.getID(), -1 + "", rating + "");
 							dialog.dismiss();
 							AdvancedGameActivity.this.returnIntent();
 						}

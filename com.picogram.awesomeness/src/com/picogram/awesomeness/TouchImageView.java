@@ -1,6 +1,7 @@
 package com.picogram.awesomeness;
 
 import java.util.ArrayList;
+import java.util.regex.Pattern;
 
 import android.content.Context;
 import android.content.res.Resources;
@@ -15,6 +16,7 @@ import android.graphics.Paint.Align;
 import android.graphics.PointF;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
+import android.graphics.RectF;
 import android.graphics.Shader;
 import android.graphics.Shader.TileMode;
 import android.graphics.Typeface;
@@ -298,7 +300,7 @@ public class TouchImageView extends ImageView {
 	// everything: grid, numbers, and onclicks.
 	public void bitmapFromCurrent() {
 		// Get a 2D array of "current" Picogram.
-		final char current2D[][] = this.solutionTo2DArray();
+		final char current2D[][] = this.puzzleTo2DArray(gSolution);
 		// Create bitmap based on the current. Make a int array with pixel
 		// colors.
 		// Because of how we're making the top hints, it needs its own method.
@@ -423,6 +425,8 @@ public class TouchImageView extends ImageView {
 					this.paintBitmap.setXfermode(new PorterDuffXfermode(
 							android.graphics.PorterDuff.Mode.SRC));
 				}
+				// Dim the color to see the gridlines.
+				Log.d(TAG, "Drawing at alpha: " + paintBitmap.getAlpha());
 				this.canvasBitmap.drawRect(r, this.paintBitmap);
 				paintBitmap.setXfermode(old);
 			}
@@ -602,10 +606,53 @@ public class TouchImageView extends ImageView {
 			isFirstTime = false;
 		}
 		this.drawGridlines();
+		this.drawSolvedPortions();
 		this.paintBitmap.setColor(Color.RED);
 		this.canvasBitmap.drawCircle(this.lastTouchX, this.lastTouchY, 5,
 				this.paintBitmap);
 
+	}
+
+	private void drawSolvedPortions() {
+		Log.d(TAG, "Stop");
+
+		char[][] solution2D = this.puzzleTo2DArray(gSolution);
+		ArrayList<String> solutionRows = this.getRows(solution2D);
+		ArrayList<String> solutionColumns = this.getColumns(solution2D);
+
+		char[][] current2D = this.puzzleTo2DArray(gCurrent);
+		ArrayList<String> currentRows = this.getRows(current2D);
+		ArrayList<String> currentColumns = this.getColumns(current2D);
+		Rect r = new Rect(0, 0, 0, 0);
+		for (int i = 0; i != solutionRows.size(); ++i) {
+			if (solutionRows
+					.get(i)
+					.replaceAll("[0|X]+", "0")
+					.replaceAll("[X|0]*$", "")
+					.equals(currentRows.get(i).replaceAll("[0|X]+", "0")
+							.replaceAll("[X|0]*$", ""))) {
+				this.paintBitmap.setColor(Color.GREEN);
+				r.set(lSide * cellWidth - 1, (cellHeight * lTop)
+						+ (i * cellHeight), lSide * cellWidth + 1,
+						(cellHeight * lTop) + (i * cellHeight) + cellHeight);
+				this.canvasBitmap.drawRect(r, paintBitmap);
+			}
+		}
+
+		for (int i = 0; i != solutionColumns.size(); ++i) {
+			if (solutionColumns
+					.get(i)
+					.replaceAll("[0|X]+", "0")
+					.replaceAll("[X|0]*$", "")
+					.equals(currentColumns.get(i).replaceAll("[0|X]+", "0")
+							.replaceAll("[X|0]*$", ""))) {
+				this.paintBitmap.setColor(Color.GREEN);
+				r.set((i * cellWidth) + (lSide * cellWidth), lTop * cellHeight
+						- 1, (i * cellWidth) + (lSide * cellWidth) + cellWidth,
+						lTop * cellHeight + 1);
+				this.canvasBitmap.drawRect(r, paintBitmap);
+			}
+		}
 	}
 
 	private void drawWhiteCanvas() {
@@ -991,12 +1038,12 @@ public class TouchImageView extends ImageView {
 		this.setOnTouchListener(this.touchListener);
 	}
 
-	private char[][] solutionTo2DArray() {
+	private char[][] puzzleTo2DArray(String in) {
 		final char[][] result = new char[this.gHeight][this.gWidth];
 		int runner = 0;
 		for (int i = 0; i != result.length; ++i) {
 			for (int j = 0; j != result[i].length; ++j) {
-				result[i][j] = this.gSolution.charAt(runner++);
+				result[i][j] = in.charAt(runner++);
 			}
 		}
 		return result;

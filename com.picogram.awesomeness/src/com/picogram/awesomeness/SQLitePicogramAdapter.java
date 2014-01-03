@@ -36,7 +36,10 @@ public class SQLitePicogramAdapter extends SQLiteOpenHelper {
 	}
 
 	public long addUserPicogram(final GriddlerOne g) {
-		// Do stuff. Unknown so far. Implement later.
+		// If puzzle already exists, ignore.
+		long line = this.doesPuzzleExist(g);
+		if (line != -1)
+			return line;
 		final SQLiteDatabase db = this.getWritableDatabase();
 		final ContentValues cv = new ContentValues();
 		cv.put(SQLitePicogramAdapter.id, g.getID());
@@ -62,7 +65,10 @@ public class SQLitePicogramAdapter extends SQLiteOpenHelper {
 			final String height, final String status,
 			final String numberOfColors, final String colors,
 			final String personalRank, final String isUploaded) {
-		// Do stuff. Unknown so far. Implement later.
+		// If puzzle already exists, ignore.
+		long line = this.doesPuzzleExist(id);
+		if (line != -1)
+			return line;
 		final SQLiteDatabase db = this.getWritableDatabase();
 		final ContentValues cv = new ContentValues();
 		cv.put(SQLitePicogramAdapter.id, id);
@@ -224,15 +230,21 @@ public class SQLitePicogramAdapter extends SQLiteOpenHelper {
 		}
 	}
 
-	public boolean doesPuzzleExist(GriddlerOne go) {
-		String[][] Picograms = getPicograms();
+	public long doesPuzzleExist(GriddlerOne go) {
+		String[][] picograms = getPicograms();
 		String id = go.getID();
-		for (String[] gs : Picograms) {
-			if (gs[0].equals(id)) {
-				return true;
+		for (int i = 0; i != picograms.length; ++i) {
+			if (picograms[i][0].equals(id)) {
+				return i;
 			}
 		}
-		return false;
+		return -1;
+	}
+
+	public long doesPuzzleExist(String id) {
+		GriddlerOne go = new GriddlerOne();
+		go.setID(id);
+		return doesPuzzleExist(go);
 	}
 
 	public void updateUploadedPicogram(String id, String isUp) {
