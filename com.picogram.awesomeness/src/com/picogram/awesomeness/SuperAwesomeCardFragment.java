@@ -444,8 +444,13 @@ public class SuperAwesomeCardFragment extends Fragment implements
 					if (sql == null)
 						this.sql = new SQLitePicogramAdapter(
 								this.getActivity(), "Picograms", null, 1);
-					if (sql.doesPuzzleExist(picogram) != -1) {
+					if (sql.doesPuzzleExist(picogram) == -1) {
 						sql.addUserPicogram(picogram);
+						// Add to the ranking table.
+						SQLiteRatingAdapter sra = new SQLiteRatingAdapter(
+								this.getActivity(), "Rating", null, 2);
+						sra.insertOnOpenOnlineGame(picogram.getID());
+						sra.close();
 					}
 					this.startGame(picogram);
 				}
@@ -789,6 +794,10 @@ public class SuperAwesomeCardFragment extends Fragment implements
 				GriddlerTag gt = new GriddlerTag("random");
 				gt.setID(go.getID());
 				gt.save();
+				SQLiteRatingAdapter sra = new SQLiteRatingAdapter(
+						getActivity(), "Rating", null, 2);
+				sra.insertCreate(gt.getID());
+				sra.close();
 				// Start to play.
 			}
 		});

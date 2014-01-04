@@ -92,6 +92,18 @@ public class SQLiteRatingAdapter extends SQLiteOpenHelper {
 		return "0";// Never played, so 0.
 	}
 
+	public boolean hasPlayedByPID(String id) {
+		SQLiteDatabase db = this.getWritableDatabase();
+		String query = "SELECT * FROM "
+				+ SQLiteRatingAdapter.offlineRatingTable + " WHERE "
+				+ SQLiteRatingAdapter.picogramId + " = '" + id + "'";
+		Cursor c = db.rawQuery(query, null);
+		if (c.moveToFirst()) {
+			return true;
+		}
+		return false;
+	}
+
 	/**
 	 * Makes this.futureRank = 0 and this.pastRank = newRating;
 	 * 
@@ -106,5 +118,63 @@ public class SQLiteRatingAdapter extends SQLiteOpenHelper {
 		cv.put(SQLiteRatingAdapter.pastRank, newPastRating);
 		db.update(SQLiteRatingAdapter.offlineRatingTable, cv,
 				SQLiteRatingAdapter.picogramId + "=" + id, null);
+	}
+
+	public long insertCreate(String pid) {
+		SQLiteDatabase db = this.getWritableDatabase();
+		ContentValues cv = new ContentValues();
+		if (this.hasPlayedByPID(pid)) {
+			return 0;// Ignore return value =(
+		}
+		cv.put(picogramId, pid);
+		cv.put(SQLiteRatingAdapter.futureRank, 0);
+		cv.put(SQLiteRatingAdapter.pastRank, 5);
+		return db.insert(offlineRatingTable, null, cv);
+	}
+
+	public long insertOnOpenOnlineGame(String pid) {
+		SQLiteDatabase db = this.getWritableDatabase();
+		ContentValues cv = new ContentValues();
+		if (this.hasPlayedByPID(pid)) {
+			return 0;// Ignore return value =(
+		}
+		cv.put(picogramId, pid);
+		cv.put(SQLiteRatingAdapter.futureRank, 0);
+		cv.put(SQLiteRatingAdapter.pastRank, 0);
+		return db.insert(offlineRatingTable, null, cv);
+	}
+
+	public int updateSuccessfulUpload(String pid, int newRank) {
+		SQLiteDatabase db = this.getWritableDatabase();
+		ContentValues cv = new ContentValues();
+		cv.put(SQLiteRatingAdapter.futureRank, 0);
+		cv.put(SQLiteRatingAdapter.pastRank, newRank);
+		return db.update(offlineRatingTable, cv, SQLiteRatingAdapter.picogramId
+				+ "='" + pid + "'", null);
+	}
+
+	public int updateFailedUpload(String pid, int newRank) {
+		SQLiteDatabase db = this.getWritableDatabase();
+		ContentValues cv = new ContentValues();
+		cv.put(SQLiteRatingAdapter.futureRank, newRank);
+		return db.update(offlineRatingTable, cv, SQLiteRatingAdapter.picogramId
+				+ "='" + pid + "'", null);
+	}
+
+	public int updateRankDialogSuccess(String pid, int newRank) {
+		SQLiteDatabase db = this.getWritableDatabase();
+		ContentValues cv = new ContentValues();
+		cv.put(SQLiteRatingAdapter.futureRank, 0);
+		cv.put(SQLiteRatingAdapter.pastRank, newRank);
+		return db.update(offlineRatingTable, cv, SQLiteRatingAdapter.picogramId
+				+ "='" + pid + "'", null);
+	}
+
+	public int updateRankDialogFail(String pid, int newRank) {
+		SQLiteDatabase db = this.getWritableDatabase();
+		ContentValues cv = new ContentValues();
+		cv.put(SQLiteRatingAdapter.futureRank, newRank);
+		return db.update(offlineRatingTable, cv, SQLiteRatingAdapter.picogramId
+				+ "='" + pid + "'", null);
 	}
 }

@@ -181,10 +181,10 @@ public class MenuActivity extends FragmentActivity implements FlurryAdListener,
 				gt.save();
 			}
 			// Add this Picogram to the rating table as a 5.
-			final SQLiteRatingAdapter sorh = new SQLiteRatingAdapter(this,
-					"Rating", null, 2);
-			sorh.insert(id, "5", "0");
-			sorh.close();
+			SQLiteRatingAdapter sra = new SQLiteRatingAdapter(this, "Rating",
+					null, 2);
+			sra.insertCreate(id);
+			sra.close();
 			// Update current tab.
 			this.currentTab = 0;
 		} else if ((resultCode == Activity.RESULT_OK)

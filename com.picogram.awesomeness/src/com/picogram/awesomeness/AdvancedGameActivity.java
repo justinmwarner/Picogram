@@ -385,7 +385,8 @@ public class AdvancedGameActivity extends FragmentActivity implements
 							SQLiteRatingAdapter sorh = new SQLiteRatingAdapter(
 									a.getApplicationContext(), "Rating", null,
 									1);
-							sorh.insert(g.getID(), -1 + "", rating + "");
+							sorh.updateRankDialogFail(g.getID(), (int) rating);
+							sorh.close();
 							dialog.dismiss();
 							AdvancedGameActivity.this.returnIntent();
 						}
@@ -409,7 +410,10 @@ public class AdvancedGameActivity extends FragmentActivity implements
 									// then a future rating.
 									SQLiteRatingAdapter sorh = new SQLiteRatingAdapter(
 											a.getApplicationContext(),
-											"Rating", null, 2);
+											"Rating", null, 1);
+									sorh.updateRankDialogFail(g.getID(),
+											(int) rating);
+									sorh.close();
 									dialog.dismiss();
 									AdvancedGameActivity.this.returnIntent();
 								}
@@ -421,7 +425,10 @@ public class AdvancedGameActivity extends FragmentActivity implements
 									// past rating and 0 for future.
 									SQLiteRatingAdapter sorh = new SQLiteRatingAdapter(
 											a.getApplicationContext(),
-											"Rating", null, 2);
+											"Rating", null, 1);
+									sorh.updateRankDialogSuccess(g.getID(),
+											(int) rating);
+									sorh.close();
 									dialog.dismiss();
 									AdvancedGameActivity.this.returnIntent();
 								}

@@ -625,11 +625,17 @@ public class TouchImageView extends ImageView {
 		ArrayList<String> currentColumns = this.getColumns(current2D);
 		Rect r = new Rect(0, 0, 0, 0);
 		for (int i = 0; i != solutionRows.size(); ++i) {
+			String sr = solutionRows.get(i).replaceAll("^[0|X]*", "0")
+					.replaceAll("[0|X]+", "0").replaceAll("[X|0]*$", "");
+			String cr = currentRows.get(i).replaceAll("^[0|X]*", "0")
+					.replaceAll("[0|X]+", "0").replaceAll("[X|0]*$", "");
 			if (solutionRows
 					.get(i)
+					.replaceAll("^[0|X]*", "0")
 					.replaceAll("[0|X]+", "0")
 					.replaceAll("[X|0]*$", "")
-					.equals(currentRows.get(i).replaceAll("[0|X]+", "0")
+					.equals(currentRows.get(i).replaceAll("^[0|X]*", "0")
+							.replaceAll("[0|X]+", "0")
 							.replaceAll("[X|0]*$", ""))) {
 				this.paintBitmap.setColor(Color.GREEN);
 				r.set(lSide * cellWidth - 1, (cellHeight * lTop)
@@ -640,11 +646,17 @@ public class TouchImageView extends ImageView {
 		}
 
 		for (int i = 0; i != solutionColumns.size(); ++i) {
+			String sr = solutionColumns.get(i).replaceAll("^[0|X]*", "0")
+					.replaceAll("[0|X]+", "0").replaceAll("[X|0]*$", "");
+			String cr = currentColumns.get(i).replaceAll("^[0|X]*", "0")
+					.replaceAll("[0|X]+", "0").replaceAll("[X|0]*$", "");
 			if (solutionColumns
 					.get(i)
+					.replaceAll("^[0|X]*", "0")
 					.replaceAll("[0|X]+", "0")
 					.replaceAll("[X|0]*$", "")
-					.equals(currentColumns.get(i).replaceAll("[0|X]+", "0")
+					.equals(currentColumns.get(i).replaceAll("^[0|X]*", "0")
+							.replaceAll("[0|X]+", "0")
 							.replaceAll("[X|0]*$", ""))) {
 				this.paintBitmap.setColor(Color.GREEN);
 				r.set((i * cellWidth) + (lSide * cellWidth), lTop * cellHeight
