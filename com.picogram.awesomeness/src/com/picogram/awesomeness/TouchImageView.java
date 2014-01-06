@@ -127,7 +127,7 @@ public class TouchImageView extends ImageView implements OnGestureListener,
 	Canvas canvasBitmap;
 	Paint paintBitmap;
 	int gridlinesColor;
-
+	ArrayList<String> history = new ArrayList();
 	// Picogram specifics.
 	String gCurrent, gSolution, gName;
 
@@ -203,12 +203,17 @@ public class TouchImageView extends ImageView implements OnGestureListener,
 					lastTouchY = (int) ((event.getY() + transY) / scaleY);
 					lastTouchX = Math.abs(lastTouchX);
 					lastTouchY = Math.abs(lastTouchY);
-					final int indexX = (int) Math
+
+					int indexX = (int) Math
 							.floor((lastTouchX - (cellWidth * lSide))
 									/ cellWidth);
-					final int indexY = (int) Math
+					int indexY = (int) Math
 							.floor((lastTouchY - (cellHeight * lTop))
 									/ cellHeight);
+					if (lastTouchX >= (lSide + gWidth) * cellWidth)
+						indexX -= 1;
+					if (lastTouchY >= (lTop + gHeight) * cellHeight)
+						indexY -= 1;
 					if (event.getAction() == MotionEvent.ACTION_UP) {
 						if ((lastTouchX < (cellWidth * lSide) && lastTouchY > (cellHeight * lTop))
 								|| (lastTouchY < (cellHeight * lTop) && lastTouchX > (cellWidth * lSide))) {
@@ -231,25 +236,22 @@ public class TouchImageView extends ImageView implements OnGestureListener,
 						}
 						return true;// Ignore up actions if not above.
 					}
-					if ((lastTouchX < (cellWidth * lSide))
-							|| (lastTouchY < (cellHeight * lTop))
-							|| (lastTouchX > bm.getWidth())
-							|| (lastTouchY > ((lTop + gHeight) * cellHeight))) {
-						// If we're on the hints, just get out of there.
-						// Don't do anything.
-						if (lastTouchY > ((lTop + gHeight) * cellHeight)) {
-						}
-						return true;
-					}
 					oldCurrent = gCurrent;
 					final char[] temp = gCurrent.toCharArray();
 					final String past = gCurrent;
 					if (((indexY * gWidth) + indexX) < temp.length) {
-						final char oldChar = temp[(indexY * gWidth) + indexX];
-						final int pos = (indexY * gWidth) + indexX;
+						Log.d(TAG, "IX: " + indexX + " IY: " + indexY + " ltX "
+								+ lastTouchX + " ltY " + lastTouchY);
+						int pos = ((indexY * gWidth) + indexX);
+						// Get the position of the change. If it's the same as
+						// the previous, change the values.
 						temp[(indexY * gWidth) + indexX] = colorCharacter;
 						gCurrent = String.valueOf(temp);
 						if (!past.equals(gCurrent)) {
+
+							Log.d(TAG, "IX: " + indexX + " IY: " + indexY
+									+ " ltX " + lastTouchX + " ltY "
+									+ lastTouchY);
 							new Thread(new Runnable() {
 
 								public void run() {
@@ -289,7 +291,8 @@ public class TouchImageView extends ImageView implements OnGestureListener,
 		}
 
 	};
-
+	boolean didSwitch = false; // If we're switching a color to an X so it
+								// doesn't switch back on the MOVE/UP
 	ArrayList<Integer> topColors = new ArrayList();
 	ArrayList<Integer> sideColors = new ArrayList();
 	String oldCurrent = "";
@@ -439,7 +442,6 @@ public class TouchImageView extends ImageView implements OnGestureListener,
 				this.canvasBitmap.drawRect(r, this.paintBitmap);
 				paintBitmap.setXfermode(old);
 			}
-			// }
 			++column;
 		}
 	}
@@ -643,7 +645,7 @@ public class TouchImageView extends ImageView implements OnGestureListener,
 		} while (paint.measureText(str) < maxWidth);
 
 		return size;
-	} // End getMaxTextSize()
+	}
 
 	private void drawCornerInfo() {
 		// Draw the name and the size in the upper left corner of game board.

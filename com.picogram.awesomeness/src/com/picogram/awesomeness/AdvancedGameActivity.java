@@ -259,9 +259,6 @@ public class AdvancedGameActivity extends FragmentActivity implements
 		this.tiv.setWinListener(this);
 		tiv.setPicogramInfo(getIntent().getExtras());
 
-		final String name = this.getIntent().getExtras().getString("name");
-		final String c = this.getIntent().getExtras().getString("current");
-		final String s = this.getIntent().getExtras().getString("solution");
 		this.puzzleId = this.getIntent().getExtras().getString("id");
 		FlurryAgent.logEvent("UserPlayingGame");
 		// Create colors for pallet.
@@ -288,13 +285,13 @@ public class AdvancedGameActivity extends FragmentActivity implements
 				if (sbHistory.getProgress() != sbHistory.getMax()) {
 					for (int i = sbHistory.getProgress(); i != sbHistory
 							.getMax(); ++i) {
-						history.remove(history.size() - 1);
+						tiv.history.remove(tiv.history.size() - 1);
 					}
 					sbHistory.setMax(sbHistory.getProgress());
 				}
 				sbHistory.setMax(sbHistory.getMax() + 1);
 				sbHistory.setProgress(sbHistory.getMax());
-				history.add(curr);
+				tiv.history.add(curr);
 				isFirstUndo = true;
 			}
 		};
@@ -459,7 +456,7 @@ public class AdvancedGameActivity extends FragmentActivity implements
 		tiv.gCurrent = savedInstanceState.getString("current");
 		tiv.colorCharacter = savedInstanceState.getChar("drawCharacter");
 		tiv.isGameplay = savedInstanceState.getBoolean("isGame");
-		this.history = savedInstanceState.getStringArrayList("history");
+		this.tiv.history = savedInstanceState.getStringArrayList("history");
 		sbHistory.setMax(savedInstanceState.getInt("sbMax"));
 		sbHistory.setProgress(savedInstanceState.getInt("sbProgress"));
 		tiv.bitmapFromCurrent();
@@ -471,7 +468,7 @@ public class AdvancedGameActivity extends FragmentActivity implements
 		outState.putString("current", tiv.gCurrent);
 		outState.putChar("drawCharacter", tiv.colorCharacter);
 		outState.putBoolean("isGame", tiv.isGameplay);
-		outState.putStringArrayList("history", history);
+		outState.putStringArrayList("history", tiv.history);
 		outState.putInt("sbMax", sbHistory.getMax());
 		outState.putInt("sbProgress", sbHistory.getProgress());
 	}
@@ -487,17 +484,17 @@ public class AdvancedGameActivity extends FragmentActivity implements
 			if (isFirstUndo) {
 				isFirstUndo = false;
 
-				history.add(tiv.gCurrent);
+				tiv.history.add(tiv.gCurrent);
 				sbHistory.setMax(sbHistory.getMax() + 1);
 
 				sbHistory.setProgress(sbHistory.getProgress() - 1);
-				tiv.gCurrent = history.get(sbHistory.getProgress());
+				tiv.gCurrent = tiv.history.get(sbHistory.getProgress());
 			}
 		} else if (v.getId() == R.id.bRedo) {
 			if (sbHistory.getProgress() == sbHistory.getMax() - 1) {
 				return;
 			}
-			tiv.gCurrent = history.get(sbHistory.getProgress() + 1);
+			tiv.gCurrent = tiv.history.get(sbHistory.getProgress() + 1);
 			sbHistory.setProgress(sbHistory.getProgress() + 1);
 		} else if (v.getId() == R.id.ibTools) {
 			Bundle bundle = new Bundle();
@@ -540,11 +537,10 @@ public class AdvancedGameActivity extends FragmentActivity implements
 
 	public void onProgressChanged(SeekBar seekBar, int progress,
 			boolean fromUser) {
-		// TODO Auto-generated method stub
 		// Ignore if done programmatically.
 		if (fromUser) {
-			if (!(progress >= history.size())) {
-				tiv.gCurrent = history.get(progress);
+			if (!(progress >= tiv.history.size())) {
+				tiv.gCurrent = tiv.history.get(progress);
 				tiv.bitmapFromCurrent();
 			}
 		}
@@ -562,5 +558,5 @@ public class AdvancedGameActivity extends FragmentActivity implements
 
 	HistoryListener historyListener;
 	SeekBar sbHistory;
-	ArrayList<String> history = new ArrayList<String>();
+
 }
