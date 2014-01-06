@@ -298,6 +298,7 @@ public class AdvancedGameActivity extends FragmentActivity implements
 		tiv.setHistoryListener(historyListener);
 
 		ImageButton tools = (ImageButton) this.findViewById(R.id.ibTools);
+		tools.setBackgroundColor(Color.WHITE);
 		tools.setOnClickListener(this);
 
 		// TODO Check for multiple solutions. If they exist tell the user as a
@@ -475,7 +476,7 @@ public class AdvancedGameActivity extends FragmentActivity implements
 
 	boolean isFirstUndo = true;
 
-	public void onClick(View v) {
+	public void onClick(final View v) {
 		char[] curr = tiv.gCurrent.toCharArray();
 		if (v.getId() == R.id.bUndo) {
 			if (sbHistory.getProgress() == 0) {
@@ -523,6 +524,12 @@ public class AdvancedGameActivity extends FragmentActivity implements
 					} else {
 						tiv.isGameplay = result.getBoolean("isGameplay");
 						tiv.colorCharacter = result.getChar("colorCharacter");
+						if (Character.isDigit(tiv.colorCharacter))
+							((ImageButton) v).setBackgroundColor(tiv.gColors[Integer
+									.parseInt("" + tiv.colorCharacter)]);
+						else
+							((ImageButton) v).setBackgroundColor(Color.WHITE);
+
 						newFragment.dismiss();
 					}
 				}
