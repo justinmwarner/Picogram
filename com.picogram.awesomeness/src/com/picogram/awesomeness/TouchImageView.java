@@ -129,7 +129,7 @@ public class TouchImageView extends ImageView implements OnGestureListener,
 	int gridlinesColor;
 
 	// Picogram specifics.
-	String gCurrent, gSolution;
+	String gCurrent, gSolution, gName;
 
 	int gWidth, gHeight, gId, lTop, lSide, cellWidth, cellHeight;
 
@@ -616,10 +616,48 @@ public class TouchImageView extends ImageView implements OnGestureListener,
 		}
 		this.drawGridlines();
 		this.drawSolvedPortions();
+		this.drawCornerInfo();
 		this.paintBitmap.setColor(Color.RED);
 		this.canvasBitmap.drawCircle(this.lastTouchX, this.lastTouchY, 5,
 				this.paintBitmap);
 
+	}
+
+	/**
+	 * http://stackoverflow.com/questions/12166476/android-canvas-drawtext-set-
+	 * font-size-from-width Retrieve the maximum text size to fit in a given
+	 * width.
+	 * 
+	 * @param str
+	 *            (String): Text to check for size.
+	 * @param maxWidth
+	 *            (float): Maximum allowed width.
+	 * @return (int): The desired text size.
+	 */
+	private int determineMaxTextSize(String str, float maxWidth) {
+		int size = 0;
+		Paint paint = new Paint();
+
+		do {
+			paint.setTextSize(++size);
+		} while (paint.measureText(str) < maxWidth);
+
+		return size;
+	} // End getMaxTextSize()
+
+	private void drawCornerInfo() {
+		// Draw the name and the size in the upper left corner of game board.
+		String size = gWidth + " X " + gHeight;
+
+		this.paintBitmap.setColor(gridlinesColor);
+		paintBitmap
+				.setTextSize(determineMaxTextSize(gName, lSide * cellWidth) - 5);
+		this.canvasBitmap.drawText(gName, 0, paintBitmap.getTextSize(),
+				paintBitmap);
+		paintBitmap
+				.setTextSize(determineMaxTextSize(size, lSide * cellWidth) - 5);
+		this.canvasBitmap.drawText(size, 0, paintBitmap.getTextSize() * 2 - 5,
+				paintBitmap);
 	}
 
 	private void drawSolvedPortions() {
@@ -990,13 +1028,16 @@ public class TouchImageView extends ImageView implements OnGestureListener,
 
 	// Get bundled info and set it for use.
 	public void setPicogramInfo(final Bundle savedInstanceState) {
+		gName = savedInstanceState.getString("name", "");
 		this.gCurrent = savedInstanceState.getString("current");
-		this.gHeight = Integer.parseInt(savedInstanceState.getString("height"));
-		this.gWidth = Integer.parseInt(savedInstanceState.getString("width"));
-		if (savedInstanceState.getString("id") != null) {
-			this.gId = Integer.parseInt(savedInstanceState.getString("id"));
-		}
+		this.gHeight = Integer.parseInt(savedInstanceState.getString("height",
+				"0"));
+		this.gWidth = Integer.parseInt(savedInstanceState.getString("width",
+				"0"));
+
 		this.gSolution = savedInstanceState.getString("solution");
+		this.gId = Integer.parseInt(savedInstanceState.getString("id",
+				gSolution + ""));
 		final String[] cols = savedInstanceState.getString("colors").split(",");
 		this.gColors = new int[cols.length];
 		for (int i = 0; i != cols.length; ++i) {
@@ -1088,7 +1129,6 @@ public class TouchImageView extends ImageView implements OnGestureListener,
 	}
 
 	public boolean onDoubleTap(MotionEvent e) {
-		// TODO Auto-generated method stub
 		Vibrator v = (Vibrator) context
 				.getSystemService(context.VIBRATOR_SERVICE);
 		v.vibrate(100);

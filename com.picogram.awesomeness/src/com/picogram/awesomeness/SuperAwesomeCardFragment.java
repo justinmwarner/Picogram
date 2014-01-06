@@ -731,6 +731,7 @@ public class SuperAwesomeCardFragment extends Fragment implements
 		// Intent gameIntent = new Intent(this, AdvancedGameActivity.class);
 		final Intent gameIntent = new Intent(this.getActivity(),
 				AdvancedGameActivity.class);
+		gameIntent.putExtra("name", go.getName());
 		gameIntent.putExtra("solution", go.getSolution());
 		gameIntent.putExtra("current", go.getCurrent());
 		gameIntent.putExtra("width", go.getWidth());
