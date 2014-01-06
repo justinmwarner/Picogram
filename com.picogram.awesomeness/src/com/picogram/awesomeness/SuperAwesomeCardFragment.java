@@ -468,7 +468,7 @@ public class SuperAwesomeCardFragment extends Fragment implements
 		go.setWidth("15");
 		go.setHeight("20");
 		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
-		go.nullsToValue();
+		go.nullsToValue(this.getActivity());
 		sql.addUserPicogram(go);
 		go = new GriddlerOne();
 		go.setName("House");
@@ -476,7 +476,7 @@ public class SuperAwesomeCardFragment extends Fragment implements
 		go.setWidth("13");
 		go.setHeight("14");
 		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
-		go.nullsToValue();
+		go.nullsToValue(this.getActivity());
 		sql.addUserPicogram(go);
 		go = new GriddlerOne();
 		go.setName("Water Drop");
@@ -484,7 +484,7 @@ public class SuperAwesomeCardFragment extends Fragment implements
 		go.setWidth("9");
 		go.setHeight("15");
 		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
-		go.nullsToValue();
+		go.nullsToValue(this.getActivity());
 		sql.addUserPicogram(go);
 		go = new GriddlerOne();
 		go.setName("Arrow Heart");
@@ -492,7 +492,7 @@ public class SuperAwesomeCardFragment extends Fragment implements
 		go.setWidth("12");
 		go.setHeight("12");
 		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
-		go.nullsToValue();
+		go.nullsToValue(this.getActivity());
 		sql.addUserPicogram(go);
 		go = new GriddlerOne();
 		go.setName("X Wins");
@@ -500,7 +500,7 @@ public class SuperAwesomeCardFragment extends Fragment implements
 		go.setWidth("14");
 		go.setHeight("14");
 		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
-		go.nullsToValue();
+		go.nullsToValue(this.getActivity());
 		sql.addUserPicogram(go);
 		go = new GriddlerOne();
 		go.setName("Good and Bad");
@@ -508,7 +508,7 @@ public class SuperAwesomeCardFragment extends Fragment implements
 		go.setWidth("20");
 		go.setHeight("20");
 		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
-		go.nullsToValue();
+		go.nullsToValue(this.getActivity());
 		sql.addUserPicogram(go);
 		go = new GriddlerOne();
 		go.setName("Apples");
@@ -516,7 +516,7 @@ public class SuperAwesomeCardFragment extends Fragment implements
 		go.setWidth("17");
 		go.setHeight("20");
 		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
-		go.nullsToValue();
+		go.nullsToValue(this.getActivity());
 		sql.addUserPicogram(go);
 		go = new GriddlerOne();
 		go.setName("Woman");
@@ -524,7 +524,7 @@ public class SuperAwesomeCardFragment extends Fragment implements
 		go.setWidth("13");
 		go.setHeight("18");
 		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
-		go.nullsToValue();
+		go.nullsToValue(this.getActivity());
 		sql.addUserPicogram(go);
 		go = new GriddlerOne();
 		go.setName("Man");
@@ -532,7 +532,7 @@ public class SuperAwesomeCardFragment extends Fragment implements
 		go.setWidth("9");
 		go.setHeight("19");
 		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
-		go.nullsToValue();
+		go.nullsToValue(this.getActivity());
 		sql.addUserPicogram(go);
 		go = new GriddlerOne();
 		go.setName("Sword");
@@ -540,7 +540,7 @@ public class SuperAwesomeCardFragment extends Fragment implements
 		go.setWidth("19");
 		go.setHeight("19");
 		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
-		go.nullsToValue();
+		go.nullsToValue(this.getActivity());
 		sql.addUserPicogram(go);
 		go = new GriddlerOne();
 		sql.close();
@@ -558,7 +558,7 @@ public class SuperAwesomeCardFragment extends Fragment implements
 		go.setWidth("8");
 		go.setHeight("3");
 		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
-		go.nullsToValue();
+		go.nullsToValue(this.getActivity());
 		sql.addUserPicogram(go);
 		go = new GriddlerOne();
 		go.setName("Cat");
@@ -566,7 +566,7 @@ public class SuperAwesomeCardFragment extends Fragment implements
 		go.setWidth("8");
 		go.setHeight("4");
 		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
-		go.nullsToValue();
+		go.nullsToValue(this.getActivity());
 		sql.addUserPicogram(go);
 		go = new GriddlerOne();
 		go.setName("Heart");
@@ -574,7 +574,7 @@ public class SuperAwesomeCardFragment extends Fragment implements
 		go.setWidth("5");
 		go.setHeight("4");
 		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
-		go.nullsToValue();
+		go.nullsToValue(this.getActivity());
 		sql.addUserPicogram(go);
 		go = new GriddlerOne();
 		go.setName("Hourglass");
@@ -582,7 +582,7 @@ public class SuperAwesomeCardFragment extends Fragment implements
 		go.setWidth("13");
 		go.setHeight("22");
 		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
-		go.nullsToValue();
+		go.nullsToValue(this.getActivity());
 		sql.addUserPicogram(go);
 		go = new GriddlerOne();
 		go.setName("Cube");
@@ -590,7 +590,7 @@ public class SuperAwesomeCardFragment extends Fragment implements
 		go.setWidth("10");
 		go.setHeight("8");
 		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
-		go.nullsToValue();
+		go.nullsToValue(this.getActivity());
 		sql.addUserPicogram(go);
 		go = new GriddlerOne();
 		go.setName("Eye");
@@ -598,7 +598,7 @@ public class SuperAwesomeCardFragment extends Fragment implements
 		go.setWidth("10");
 		go.setHeight("7");
 		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
-		go.nullsToValue();
+		go.nullsToValue(this.getActivity());
 		sql.addUserPicogram(go);
 		go = new GriddlerOne();
 		go.setName("Note");
@@ -606,7 +606,7 @@ public class SuperAwesomeCardFragment extends Fragment implements
 		go.setWidth("6");
 		go.setHeight("5");
 		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
-		go.nullsToValue();
+		go.nullsToValue(this.getActivity());
 		sql.addUserPicogram(go);
 		go = new GriddlerOne();
 		go.setName("Shot");
@@ -614,7 +614,7 @@ public class SuperAwesomeCardFragment extends Fragment implements
 		go.setWidth("3");
 		go.setHeight("13");
 		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
-		go.nullsToValue();
+		go.nullsToValue(this.getActivity());
 		sql.addUserPicogram(go);
 		go = new GriddlerOne();
 		go.setName("Flower");
@@ -622,7 +622,7 @@ public class SuperAwesomeCardFragment extends Fragment implements
 		go.setWidth("5");
 		go.setHeight("9");
 		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
-		go.nullsToValue();
+		go.nullsToValue(this.getActivity());
 		sql.addUserPicogram(go);
 		go = new GriddlerOne();
 		go.setName("Bomb");
@@ -630,7 +630,7 @@ public class SuperAwesomeCardFragment extends Fragment implements
 		go.setWidth("11");
 		go.setHeight("13");
 		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
-		go.nullsToValue();
+		go.nullsToValue(this.getActivity());
 		sql.addUserPicogram(go);
 		go = new GriddlerOne();
 		sql.close();
@@ -648,7 +648,7 @@ public class SuperAwesomeCardFragment extends Fragment implements
 		go.setWidth("5");
 		go.setHeight("4");
 		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
-		go.nullsToValue();
+		go.nullsToValue(this.getActivity());
 		sql.addUserPicogram(go);
 		go = new GriddlerOne();
 		go.setName("Sad");
@@ -656,7 +656,7 @@ public class SuperAwesomeCardFragment extends Fragment implements
 		go.setWidth("5");
 		go.setHeight("4");
 		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
-		go.nullsToValue();
+		go.nullsToValue(this.getActivity());
 		sql.addUserPicogram(go);
 		go = new GriddlerOne();
 		go.setName("Person");
@@ -664,7 +664,7 @@ public class SuperAwesomeCardFragment extends Fragment implements
 		go.setWidth("3");
 		go.setHeight("4");
 		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
-		go.nullsToValue();
+		go.nullsToValue(this.getActivity());
 		sql.addUserPicogram(go);
 		go = new GriddlerOne();
 		go.setName("Umbrella Man");
@@ -672,7 +672,7 @@ public class SuperAwesomeCardFragment extends Fragment implements
 		go.setWidth("5");
 		go.setHeight("5");
 		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
-		go.nullsToValue();
+		go.nullsToValue(this.getActivity());
 		sql.addUserPicogram(go);
 		go = new GriddlerOne();
 		go.setName("Football Man");
@@ -680,7 +680,7 @@ public class SuperAwesomeCardFragment extends Fragment implements
 		go.setWidth("5");
 		go.setHeight("5");
 		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
-		go.nullsToValue();
+		go.nullsToValue(this.getActivity());
 		sql.addUserPicogram(go);
 		go = new GriddlerOne();
 		go.setName("Scorpion");
@@ -688,7 +688,7 @@ public class SuperAwesomeCardFragment extends Fragment implements
 		go.setWidth("5");
 		go.setHeight("5");
 		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
-		go.nullsToValue();
+		go.nullsToValue(this.getActivity());
 		sql.addUserPicogram(go);
 		go = new GriddlerOne();
 		go.setName("Drummer");
@@ -696,7 +696,7 @@ public class SuperAwesomeCardFragment extends Fragment implements
 		go.setWidth("5");
 		go.setHeight("5");
 		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
-		go.nullsToValue();
+		go.nullsToValue(this.getActivity());
 		sql.addUserPicogram(go);
 		go = new GriddlerOne();
 		go.setName("Peace");
@@ -704,7 +704,7 @@ public class SuperAwesomeCardFragment extends Fragment implements
 		go.setWidth("7");
 		go.setHeight("6");
 		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
-		go.nullsToValue();
+		go.nullsToValue(this.getActivity());
 		sql.addUserPicogram(go);
 		go = new GriddlerOne();
 		go.setName("Shopping");
@@ -712,7 +712,7 @@ public class SuperAwesomeCardFragment extends Fragment implements
 		go.setWidth("5");
 		go.setHeight("5");
 		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
-		go.nullsToValue();
+		go.nullsToValue(this.getActivity());
 		sql.addUserPicogram(go);
 		go = new GriddlerOne();
 		go.setName("Two Prayers");
@@ -720,7 +720,7 @@ public class SuperAwesomeCardFragment extends Fragment implements
 		go.setWidth("5");
 		go.setHeight("5");
 		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
-		go.nullsToValue();
+		go.nullsToValue(this.getActivity());
 		sql.addUserPicogram(go);
 		go = new GriddlerOne();
 		sql.close();

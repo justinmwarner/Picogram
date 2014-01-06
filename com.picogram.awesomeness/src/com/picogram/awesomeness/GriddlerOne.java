@@ -1,5 +1,7 @@
 package com.picogram.awesomeness;
 
+import android.app.Activity;
+import android.content.Context;
 import android.graphics.Color;
 import android.util.Log;
 
@@ -226,7 +228,7 @@ public class GriddlerOne extends StackMobModel implements Comparable {
 		this.personalRank = personalRank;
 	}
 
-	public GriddlerOne nullsToValue() {
+	public GriddlerOne nullsToValue(Context a) {
 		if (id == null) {
 			if (solution != null) {
 				id = solution.hashCode() + "";
@@ -272,6 +274,11 @@ public class GriddlerOne extends StackMobModel implements Comparable {
 		if (numberOfRatings == 0) {
 			numberOfRatings = 0;
 		}
+		// Now update the rating database, if it already exists, this will
+		// return nothing.
+		SQLiteRatingAdapter sra = new SQLiteRatingAdapter(a, "Rating", null, 2);
+		sra.insertOnOpenOnlineGame(this.getID());
+		sra.close();
 		return this;
 	}
 

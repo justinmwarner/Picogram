@@ -5,6 +5,7 @@ import java.util.regex.Pattern;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.gesture.GestureOverlayView;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.BitmapShader;
@@ -26,14 +27,20 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.NinePatchDrawable;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Vibrator;
+import android.support.v4.view.GestureDetectorCompat;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.GestureDetector.OnDoubleTapListener;
+import android.view.GestureDetector.OnGestureListener;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 
-public class TouchImageView extends ImageView {
+public class TouchImageView extends ImageView implements OnGestureListener,
+		OnDoubleTapListener {
 
 	private class ScaleListener extends
 			ScaleGestureDetector.SimpleOnScaleGestureListener {
@@ -129,7 +136,7 @@ public class TouchImageView extends ImageView {
 	int[] gColors;
 
 	/*
-	 * Interface and such to see if we win and history stuff.
+	 * Interfaces and such to see if we win and history stuff.
 	 */
 	private WinnerListener winListener;
 	private HistoryListener historyListener;
@@ -137,6 +144,9 @@ public class TouchImageView extends ImageView {
 	OnTouchListener touchListener = new OnTouchListener() {
 
 		public boolean onTouch(final View v, final MotionEvent event) {
+			mDetector.onTouchEvent(event);
+
+			// Normal touch instance between gameplay and non.
 			if (!isGameplay) {
 				mScaleDetector.onTouchEvent(event);
 				final PointF curr = new PointF(event.getX(), event.getY());
@@ -426,7 +436,6 @@ public class TouchImageView extends ImageView {
 							android.graphics.PorterDuff.Mode.SRC));
 				}
 				// Dim the color to see the gridlines.
-				Log.d(TAG, "Drawing at alpha: " + paintBitmap.getAlpha());
 				this.canvasBitmap.drawRect(r, this.paintBitmap);
 				paintBitmap.setXfermode(old);
 			}
@@ -614,8 +623,6 @@ public class TouchImageView extends ImageView {
 	}
 
 	private void drawSolvedPortions() {
-		Log.d(TAG, "Stop");
-
 		char[][] solution2D = this.puzzleTo2DArray(gSolution);
 		ArrayList<String> solutionRows = this.getRows(solution2D);
 		ArrayList<String> solutionColumns = this.getColumns(solution2D);
@@ -625,18 +632,11 @@ public class TouchImageView extends ImageView {
 		ArrayList<String> currentColumns = this.getColumns(current2D);
 		Rect r = new Rect(0, 0, 0, 0);
 		for (int i = 0; i != solutionRows.size(); ++i) {
-			String sr = solutionRows.get(i).replaceAll("^[0|X]*", "0")
-					.replaceAll("[0|X]+", "0").replaceAll("[X|0]*$", "");
-			String cr = currentRows.get(i).replaceAll("^[0|X]*", "0")
-					.replaceAll("[0|X]+", "0").replaceAll("[X|0]*$", "");
-			if (solutionRows
-					.get(i)
-					.replaceAll("^[0|X]*", "0")
-					.replaceAll("[0|X]+", "0")
-					.replaceAll("[X|0]*$", "")
-					.equals(currentRows.get(i).replaceAll("^[0|X]*", "0")
-							.replaceAll("[0|X]+", "0")
-							.replaceAll("[X|0]*$", ""))) {
+			String sr = solutionRows.get(i).replaceAll("X", "0")
+					.replaceAll("0+", "0");
+			String cr = currentRows.get(i).replaceAll("[X|x]", "0")
+					.replaceAll("0+", "0");
+			if (sr.equals(cr)) {
 				this.paintBitmap.setColor(Color.GREEN);
 				r.set(lSide * cellWidth - 1, (cellHeight * lTop)
 						+ (i * cellHeight), lSide * cellWidth + 1,
@@ -646,18 +646,11 @@ public class TouchImageView extends ImageView {
 		}
 
 		for (int i = 0; i != solutionColumns.size(); ++i) {
-			String sr = solutionColumns.get(i).replaceAll("^[0|X]*", "0")
-					.replaceAll("[0|X]+", "0").replaceAll("[X|0]*$", "");
-			String cr = currentColumns.get(i).replaceAll("^[0|X]*", "0")
-					.replaceAll("[0|X]+", "0").replaceAll("[X|0]*$", "");
-			if (solutionColumns
-					.get(i)
-					.replaceAll("^[0|X]*", "0")
-					.replaceAll("[0|X]+", "0")
-					.replaceAll("[X|0]*$", "")
-					.equals(currentColumns.get(i).replaceAll("^[0|X]*", "0")
-							.replaceAll("[0|X]+", "0")
-							.replaceAll("[X|0]*$", ""))) {
+			String sr = solutionColumns.get(i).replaceAll("X", "0")
+					.replaceAll("0+", "0");
+			String cr = currentColumns.get(i).replaceAll("[X|x]", "0")
+					.replaceAll("0+", "0");
+			if (sr.equals(cr)) {
 				this.paintBitmap.setColor(Color.GREEN);
 				r.set((i * cellWidth) + (lSide * cellWidth), lTop * cellHeight
 						- 1, (i * cellWidth) + (lSide * cellWidth) + cellWidth,
@@ -1048,7 +1041,12 @@ public class TouchImageView extends ImageView {
 		this.setScaleType(ScaleType.MATRIX);
 
 		this.setOnTouchListener(this.touchListener);
+		mDetector = new GestureDetectorCompat(context, this);
+		mDetector.setOnDoubleTapListener(this);
+
 	}
+
+	GestureDetectorCompat mDetector;
 
 	private char[][] puzzleTo2DArray(String in) {
 		final char[][] result = new char[this.gHeight][this.gWidth];
@@ -1059,5 +1057,50 @@ public class TouchImageView extends ImageView {
 			}
 		}
 		return result;
+	}
+
+	public boolean onDown(MotionEvent e) {
+		return false;
+	}
+
+	public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX,
+			float velocityY) {
+		return false;
+	}
+
+	public void onLongPress(MotionEvent e) {
+		Vibrator v = (Vibrator) context
+				.getSystemService(context.VIBRATOR_SERVICE);
+		v.vibrate(100);
+		((View) this.getParent()).findViewById(R.id.ibTools).performClick();
+	}
+
+	public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX,
+			float distanceY) {
+		return false;
+	}
+
+	public void onShowPress(MotionEvent e) {
+	}
+
+	public boolean onSingleTapUp(MotionEvent e) {
+		return false;
+	}
+
+	public boolean onDoubleTap(MotionEvent e) {
+		// TODO Auto-generated method stub
+		Vibrator v = (Vibrator) context
+				.getSystemService(context.VIBRATOR_SERVICE);
+		v.vibrate(100);
+		((View) this.getParent()).findViewById(R.id.ibTools).performClick();
+		return true;
+	}
+
+	public boolean onDoubleTapEvent(MotionEvent e) {
+		return false;
+	}
+
+	public boolean onSingleTapConfirmed(MotionEvent e) {
+		return false;
 	}
 }

@@ -78,7 +78,7 @@ public class PicogramListAdapter extends ArrayAdapter<GriddlerOne> {
 			this.context = this.getContext();
 		}
 		GriddlerOne picogram = this.picograms.get(position);
-		picogram.nullsToValue();// Just reset all nulls to a value.
+		picogram.nullsToValue(this.context);// Just reset all nulls to a value.
 		final LayoutInflater inflater = (LayoutInflater) this.context
 				.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		final View item = inflater.inflate(R.layout.picogram_menu_choice_item,

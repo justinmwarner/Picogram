@@ -97,7 +97,7 @@ public class AdvancedGameActivity extends FragmentActivity implements
 	@Override
 	public void onBackPressed() {
 		super.onPause();
-		this.returnIntent();
+		this.returnIntent(null);
 	}
 
 	private BroadcastReceiver mBatInfoReceiver = new BroadcastReceiver() {
@@ -162,7 +162,7 @@ public class AdvancedGameActivity extends FragmentActivity implements
 		@Override
 		public void handleMessage(Message msg) {
 			// Do the time
-			DateFormat df = new SimpleDateFormat("h:m:ss");
+			DateFormat df = new SimpleDateFormat("hh:mm:ss");
 			String curDateTime = df.format(Calendar.getInstance().getTime());
 			((TextView) activity.findViewById(R.id.tvTime))
 					.setText(curDateTime);
@@ -347,8 +347,9 @@ public class AdvancedGameActivity extends FragmentActivity implements
 		return true;
 	}
 
-	private void returnIntent() {
-
+	private void returnIntent(Dialog d) {
+		if (d != null)
+			d.dismiss();
 		final Intent returnIntent = new Intent();
 		returnIntent.putExtra("current", this.tiv.gCurrent);
 		if (tiv.gCurrent.equals(tiv.gSolution)) {
@@ -357,10 +358,12 @@ public class AdvancedGameActivity extends FragmentActivity implements
 			returnIntent.putExtra("status", "0");
 		returnIntent.putExtra("ID", this.tiv.gSolution.hashCode() + "");
 		this.setResult(Activity.RESULT_OK, returnIntent);
+		Log.d(TAG, "RETURN");
 		this.finish();
 	}
 
 	public void win() {
+		Log.d(TAG, "REturn 5");
 		final Dialog dialog = new Dialog(AdvancedGameActivity.this);
 		dialog.setContentView(R.layout.dialog_ranking);
 		dialog.setTitle("Rate this Picogram");
@@ -373,26 +376,27 @@ public class AdvancedGameActivity extends FragmentActivity implements
 			public void onRatingChanged(final RatingBar ratingBar,
 					final float rating, final boolean fromUser) {
 				if (fromUser) {
+					Log.d(TAG, "REturn 6");
 					final GriddlerOne g = new GriddlerOne();
 					g.setID(AdvancedGameActivity.this.puzzleId);
-					dialog.dismiss();
 					g.fetch(new StackMobModelCallback() {
 
 						@Override
 						public void failure(final StackMobException arg0) {
 							// If rating failed, do it next time we can, so add
 							// to database.
+							Log.d(TAG, "REturn 1");
 							SQLiteRatingAdapter sorh = new SQLiteRatingAdapter(
 									a.getApplicationContext(), "Rating", null,
-									1);
+									2);
 							sorh.updateRankDialogFail(g.getID(), (int) rating);
 							sorh.close();
-							dialog.dismiss();
-							AdvancedGameActivity.this.returnIntent();
+							AdvancedGameActivity.this.returnIntent(dialog);
 						}
 
 						@Override
 						public void success() {
+							Log.d(TAG, "REturn 4");
 							double oldRating = Double.parseDouble(g.getRating())
 									* g.getNumberOfRatings();
 							double newRating = (oldRating + rating)
@@ -410,12 +414,13 @@ public class AdvancedGameActivity extends FragmentActivity implements
 									// then a future rating.
 									SQLiteRatingAdapter sorh = new SQLiteRatingAdapter(
 											a.getApplicationContext(),
-											"Rating", null, 1);
+											"Rating", null, 2);
 									sorh.updateRankDialogFail(g.getID(),
 											(int) rating);
 									sorh.close();
-									dialog.dismiss();
-									AdvancedGameActivity.this.returnIntent();
+									Log.d(TAG, "REturn 2");
+									AdvancedGameActivity.this
+											.returnIntent(dialog);
 								}
 
 								@Override
@@ -425,12 +430,13 @@ public class AdvancedGameActivity extends FragmentActivity implements
 									// past rating and 0 for future.
 									SQLiteRatingAdapter sorh = new SQLiteRatingAdapter(
 											a.getApplicationContext(),
-											"Rating", null, 1);
+											"Rating", null, 2);
 									sorh.updateRankDialogSuccess(g.getID(),
 											(int) rating);
 									sorh.close();
-									dialog.dismiss();
-									AdvancedGameActivity.this.returnIntent();
+									Log.d(TAG, "REturn 3");
+									AdvancedGameActivity.this
+											.returnIntent(dialog);
 								}
 							});
 

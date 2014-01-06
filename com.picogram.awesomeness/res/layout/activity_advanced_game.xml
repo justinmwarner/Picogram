@@ -20,7 +20,6 @@
         android:id="@+id/sbHistory"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/ray_menu"
         android:layout_toLeftOf="@+id/bRedo"
         android:layout_toRightOf="@+id/bUndo"
         android:max="0" />
@@ -31,7 +30,6 @@
         android:layout_height="wrap_content"
         android:layout_alignBottom="@+id/sbHistory"
         android:layout_alignParentLeft="true"
-        android:layout_below="@+id/ray_menu"
         android:text="Undo"
         android:textSize="10dp" />
 
@@ -41,7 +39,6 @@
         android:layout_height="wrap_content"
         android:layout_alignBottom="@+id/sbHistory"
         android:layout_alignParentRight="true"
-        android:layout_below="@+id/ray_menu"
         android:text="Redo"
         android:textSize="10dp" />
 
