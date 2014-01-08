@@ -312,15 +312,18 @@ public class TouchImageView extends ImageView implements OnGestureListener,
 	// Convert current String to a bitmap that's drawable. This will draw
 	// everything: grid, numbers, and onclicks.
 	public void bitmapFromCurrent() {
+
 		// Get a 2D array of "current" Picogram.
 		final char current2D[][] = this.puzzleTo2DArray(gSolution);
 		// Create bitmap based on the current. Make a int array with pixel
 		// colors.
 		// Because of how we're making the top hints, it needs its own method.
 		if (this.topHints == null || isRefreshing) {
+
 			this.rows = this.getRows(current2D);
 			this.columns = this.getColumns(current2D);
 			this.sideHints = this.getSideHints(this.rows);
+
 			this.topHints = this.getTopHints(this.columns);
 			this.longestTop = this.topHints.size();
 			this.longestSide = this.getLongest(this.sideHints); // Get widest
@@ -336,21 +339,27 @@ public class TouchImageView extends ImageView implements OnGestureListener,
 					(this.gWidth + this.longestSide) * 50,
 					(this.gHeight + this.longestTop) * 50,
 					Bitmap.Config.ARGB_4444);
+
 			this.canvasBitmap = new Canvas(this.bm);
 			this.paintBitmap = new Paint();
 			// Reverse the side hints, just because. Sorry, this is really
 			// stupid, it's for colors somehow.
+
 			for (int i = 0; i != this.sideHints.size(); ++i) {
 				this.sideHints.set(i, new StringBuilder(this.sideHints.get(i))
 						.reverse().toString());
 			}
+
 		}
 		// Clear
 		// canvasBitmap.drawColor(Color.rgb((int) (Math.random() * 200),
 		// (int) (Math.random() * 200), (int) (Math.random() * 200)));
+
 		this.drawOnCanvas();
+
 		// Change canvas and it'll reflect on the bm.
 		this.setImageBitmap(this.bm);
+
 	}
 
 	public void clearGame() {
@@ -609,17 +618,22 @@ public class TouchImageView extends ImageView implements OnGestureListener,
 			// paintBitmap.setColor(Color.WHITE);
 			this.drawWhiteCanvas();
 		}
+
 		// Draw game surface.
 		this.drawGame();
+
 		// Draw gridlines and hints
-		if (isFirstTime) {
+		if (isFirstTime || isRefreshing) {
 			this.drawHints();
 			isFirstTime = false;
 		}
+
 		this.drawGridlines();
 		this.drawSolvedPortions();
+
 		this.drawCornerInfo();
 		this.paintBitmap.setColor(Color.RED);
+
 		this.canvasBitmap.drawCircle(this.lastTouchX, this.lastTouchY, 5,
 				this.paintBitmap);
 
@@ -639,8 +653,11 @@ public class TouchImageView extends ImageView implements OnGestureListener,
 	private int determineMaxTextSize(String str, float maxWidth) {
 		int size = 0;
 		Paint paint = new Paint();
+		if (str.isEmpty())
+			return 1;
 
 		do {
+
 			paint.setTextSize(++size);
 		} while (paint.measureText(str) < maxWidth);
 
@@ -648,18 +665,22 @@ public class TouchImageView extends ImageView implements OnGestureListener,
 	}
 
 	private void drawCornerInfo() {
+
 		// Draw the name and the size in the upper left corner of game board.
 		String size = gWidth + " X " + gHeight;
 
 		this.paintBitmap.setColor(gridlinesColor);
 		paintBitmap
 				.setTextSize(determineMaxTextSize(gName, lSide * cellWidth) - 5);
+
 		this.canvasBitmap.drawText(gName, 0, paintBitmap.getTextSize(),
 				paintBitmap);
+
 		paintBitmap
 				.setTextSize(determineMaxTextSize(size, lSide * cellWidth) - 5);
 		this.canvasBitmap.drawText(size, 0, paintBitmap.getTextSize() * 2 - 5,
 				paintBitmap);
+
 	}
 
 	private void drawSolvedPortions() {
@@ -1030,6 +1051,7 @@ public class TouchImageView extends ImageView implements OnGestureListener,
 
 	// Get bundled info and set it for use.
 	public void setPicogramInfo(final Bundle savedInstanceState) {
+
 		gName = savedInstanceState.getString("name", "");
 		this.gCurrent = savedInstanceState.getString("current");
 		this.gHeight = Integer.parseInt(savedInstanceState.getString("height",
@@ -1038,19 +1060,23 @@ public class TouchImageView extends ImageView implements OnGestureListener,
 				"0"));
 
 		this.gSolution = savedInstanceState.getString("solution");
+		Log.d(TAG, "Sol: " + gSolution + " " + gWidth + " " + gHeight + " " + gSolution.length());
 		this.gId = Integer.parseInt(savedInstanceState.getString("id",
 				gSolution + ""));
 		final String[] cols = savedInstanceState.getString("colors").split(",");
 		this.gColors = new int[cols.length];
+
 		for (int i = 0; i != cols.length; ++i) {
 			this.gColors[i] = Integer.parseInt(cols[i]);
 		}
+
 		this.oldCurrent = "";
 		if (gCurrent == null) {
 			gCurrent = ""; // Start it out as empty.
 			for (int i = 0; i != gHeight * gWidth; ++i)
 				gCurrent += "0";
 		}
+
 		if (gSolution == null)
 			gSolution = gCurrent; // Not a real game, so no win listener.
 		// Below is for optimization so it only draws all the squares once and

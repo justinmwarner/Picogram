@@ -432,7 +432,6 @@ public class MenuActivity extends FragmentActivity implements FlurryAdListener,
 		if (tab != TITLES.indexOf("My") && !Util.isOnline()) {
 			Crouton.makeText(this, "You can't use these offline!", Style.ALERT)
 					.show();
-			this.pager.setCurrentItem(TITLES.indexOf("My"));
 			return;
 		}
 		if (tab == TITLES.indexOf("Prefs")) {

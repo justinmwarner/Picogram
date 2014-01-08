@@ -69,7 +69,7 @@ import de.keyboardsurfer.android.widget.crouton.Crouton;
 import de.keyboardsurfer.android.widget.crouton.Style;
 
 public class CreatePicogramActivity extends FragmentActivity implements
-		OnClickListener, OnTouchListener, OnPictureTakenListener {
+		OnClickListener, OnPictureTakenListener {
 	private static final int CAMERA_REQUEST_CODE = 1888,
 			FILE_SELECT_CODE = 1337;
 	private static final String TAG = "CreatePicogramActivity";
@@ -82,7 +82,6 @@ public class CreatePicogramActivity extends FragmentActivity implements
 	CameraView cv;
 
 	Handler handler = new Handler();
-	ImageView ivOriginal, ivNew;
 	int originalColors[] = { Color.TRANSPARENT, Color.BLACK, Color.RED,
 			Color.YELLOW, Color.GRAY, Color.GREEN, Color.CYAN, Color.MAGENTA,
 			Color.DKGRAY, Color.LTGRAY, Color.WHITE };
@@ -95,7 +94,9 @@ public class CreatePicogramActivity extends FragmentActivity implements
 	TouchImageView tivGame;
 
 	private void alterPhoto() {
+
 		if (this.bmOriginal != null) {
+
 			// Subarray with the number.
 			newColors = Arrays.copyOfRange(originalColors, 0, numColors);
 			// Touch this up. It's a bit messy.
@@ -110,9 +111,8 @@ public class CreatePicogramActivity extends FragmentActivity implements
 					alter.getWidth(), alter.getHeight());
 			for (int i = 0; i < pixels.length; i++) {
 				final int rgb[] = this.getRGB(pixels[i]);
-				pixels[i] = 255 - ((rgb[0] + rgb[1] + rgb[2]) / 3); // Greyscale
-																	// and
-																	// inverse
+				// Greyscale and inverse.
+				pixels[i] = 255 - ((rgb[0] + rgb[1] + rgb[2]) / 3);
 			}
 			alter = alter.copy(Bitmap.Config.ARGB_8888, true);
 			alter.setPixels(pixels, 0, alter.getWidth(), 0, 0,
@@ -134,7 +134,6 @@ public class CreatePicogramActivity extends FragmentActivity implements
 					for (int k = 0; k <= this.numColors; ++k) {
 						if (pix[i][j] <= ((256 * (k + 1)) / (this.numColors))) {
 							// pix[i][j] = this.colors[k];
-							alter.setPixel(j, i, this.newColors[k]);
 							sol[(i * alter.getWidth()) + j] = (k + " ")
 									.charAt(0);
 							break;
@@ -142,26 +141,10 @@ public class CreatePicogramActivity extends FragmentActivity implements
 					}
 				}
 			}
-			// Set up "solution" for when it's submitted, this requires us to go
-			for (int i = 0; i < pix.length; i++) {
-				for (int j = 0; j < pix[i].length; j++) {
-					// sol[(i * j) + j] = pix[i][j];
-				}
-			}
+
 			this.solution = new String(sol);
-			alter = alter.copy(Bitmap.Config.ARGB_8888, true);
-			alter = Bitmap.createScaledBitmap(alter, this.xNum * 10,
-					this.yNum * 10, false);
-			this.bmNew = alter.copy(Bitmap.Config.ARGB_8888, true);
-			this.bmNew.setHasAlpha(true);
-			this.bmNew = alter;
-			this.bmNew.setHasAlpha(true);
 			this.bmOriginal.setHasAlpha(true);
-			ivNew.setImageBitmap((bmNew));
-			ivOriginal.setImageBitmap(bmOriginal);
-			// ivOriginal
-			// .setImageBitmap(addBorder(Bitmap.createScaledBitmap(
-			// bmOriginal, xNum, yNum, false), 2));
+
 			Bundle bundle = new Bundle();
 			// current height width id solution colors(,)
 			bundle.putString("current", solution);
@@ -170,16 +153,22 @@ public class CreatePicogramActivity extends FragmentActivity implements
 			bundle.putString("id", solution.hashCode() + "");
 			bundle.putString("solution", solution);
 			String cols = "";
+
 			for (int i : newColors)
 				cols += i + ",";
+
 			cols = cols.substring(0, cols.length() - 1);
 			bundle.putString("colors", cols);
 			tivGame.isRefreshing = true;
+
+			tivGame.gridlinesColor = Color.rgb(191,191,191);
 			tivGame.setPicogramInfo(bundle);
+
 		} else {
 			Crouton.makeText(this, "=( We need a picture first.", Style.INFO)
 					.show();
 		}
+
 	}
 
 	public void colorChanged(final String key, final int color) {
@@ -339,7 +328,7 @@ public class CreatePicogramActivity extends FragmentActivity implements
 		} else if (v.getId() == R.id.bSearch) {
 			Crouton.makeText(this, "This isn't supported due to limitations.",
 					Style.INFO).show();
-		} else if (v.getId() == R.id.ibToolsCreate) {
+		} else if (v.getId() == R.id.ibTools) {
 			Bundle bundle = new Bundle();
 			FragmentTransaction ft = getSupportFragmentManager()
 					.beginTransaction();
@@ -371,8 +360,21 @@ public class CreatePicogramActivity extends FragmentActivity implements
 		} else if (v.getId() == R.id.bColors) {
 			showNumberDialog(v.getId());
 		} else if (v.getId() == R.id.bSwitch) {
-			// Change
-			updateMainView();
+			// Show the original image on top of tivGame.
+			if (isOriginalShowing) {
+				tivGame.isRefreshing = true;
+				tivGame.bitmapFromCurrent();
+				isOriginalShowing = false;
+			} else {
+				Bitmap bm = Bitmap.createScaledBitmap(bmOriginal,
+						tivGame.gWidth * tivGame.cellWidth, tivGame.gHeight
+								* tivGame.cellHeight, false);
+				tivGame.canvasBitmap.drawBitmap(bm, tivGame.longestSide
+						* tivGame.cellWidth, tivGame.longestTop
+						* tivGame.cellHeight, tivGame.paintBitmap);
+				tivGame.invalidate();
+				isOriginalShowing = true;
+			}
 		} else if (v.getId() == R.id.bDone) {
 			// Done.
 			doDone();
@@ -385,6 +387,8 @@ public class CreatePicogramActivity extends FragmentActivity implements
 		// TODO Tell user they can change colors by clicking on it.
 
 	}
+
+	boolean isOriginalShowing = false;
 
 	@Override
 	public void onCreate(final Bundle savedInstanceState) {
@@ -405,7 +409,6 @@ public class CreatePicogramActivity extends FragmentActivity implements
 						.getParcelableExtra(Intent.EXTRA_STREAM);
 				final Bitmap bi = this.readBitmap(uri);
 				this.bmOriginal = bi;
-				this.ivOriginal.setImageBitmap(this.bmOriginal);
 			} else if (type.startsWith("text/")) {
 				String sharedText = intent.getStringExtra(Intent.EXTRA_TEXT);
 				if (sharedText != null) {
@@ -415,7 +418,7 @@ public class CreatePicogramActivity extends FragmentActivity implements
 			}
 		}
 		FlurryAgent.logEvent("CreatingPuzzle");
-		ib = (ImageButton) findViewById(R.id.ibToolsCreate);
+		ib = (ImageButton) findViewById(R.id.ibTools);
 		ib.setOnClickListener(this);
 	}
 
@@ -483,117 +486,6 @@ public class CreatePicogramActivity extends FragmentActivity implements
 		continueMusic = false;
 		MusicManager.start(this, (int) (Math.random() * 1000));
 
-	}
-
-	public boolean onTouch(final View v, final MotionEvent event) {
-		if (v.getId() == this.ivNew.getId()) {
-			// We're changing a color.
-			if ((this.bmNew != null)
-					&& (event.getAction() == MotionEvent.ACTION_DOWN)) {
-				final float eventX = event.getX();
-				final float eventY = event.getY();
-				final float[] eventXY = new float[] { eventX, eventY };
-
-				ImageView ivAlter = ((ivNew.getVisibility() == View.VISIBLE) ? ivNew
-						: tivGame);
-				final Matrix invertMatrix = new Matrix();
-				ivAlter.getImageMatrix().invert(invertMatrix);
-
-				invertMatrix.mapPoints(eventXY);
-				int x = Integer.valueOf((int) eventXY[0]);
-				int y = Integer.valueOf((int) eventXY[1]);
-
-				final Drawable imgDrawable = ivAlter.getDrawable();
-				final Bitmap bitmap = ((BitmapDrawable) imgDrawable)
-						.getBitmap();
-
-				// Limit x, y range within bitmap
-				if (x < 0) {
-					x = 0;
-				} else if (x > (bitmap.getWidth() - 1)) {
-					x = bitmap.getWidth() - 1;
-				}
-
-				if (y < 0) {
-					y = 0;
-				} else if (y > (bitmap.getHeight() - 1)) {
-					y = bitmap.getHeight() - 1;
-				}
-
-				final int touchedRGB = bitmap.getPixel(x, y);
-				if (touchedRGB == Color.TRANSPARENT)
-					return true; // Ignore if we're touching a transparent
-									// color.
-				// initialColor is the initially-selected color to be shown in
-				// the
-				// rectangle on the left of the arrow.
-				// for example, 0xff000000 is black, 0xff0000ff is blue. Please
-				// be
-				// aware
-				// of the initial 0xff which is the alpha.
-				final AmbilWarnaDialog dialog = new AmbilWarnaDialog(this,
-						touchedRGB, new OnAmbilWarnaListener() {
-
-							public void onCancel(final AmbilWarnaDialog dialog) {
-								// TODO Auto-generated method stub
-
-							}
-
-							public void onOk(final AmbilWarnaDialog dialog,
-									int color) {
-								String cols = "";
-								for (int i : newColors)
-									cols += i + " ";
-								// Change the value in the colors array.
-								for (int i = 0; i != CreatePicogramActivity.this.newColors.length; ++i) {
-									if (CreatePicogramActivity.this.newColors[i] == touchedRGB) {
-										// Make sure this color doesn't already
-										// exist, if it does, tweak the new
-										// color
-										// just a little bit.
-										/*
-										 * //TODO If color already exists, don't
-										 * let it happen. for (int j = 0; j !=
-										 * CreatePicogramActivity
-										 * .this.newColors.length; ++j) { if
-										 * (CreatePicogramActivity
-										 * .this.newColors[j] == touchedRGB) {
-										 * final int[] rgb =
-										 * CreatePicogramActivity.this
-										 * .getRGB(color); if (rgb[0] == 255) {
-										 * rgb[0] = rgb[0] - 1; } else { rgb[0]
-										 * = rgb[0] + 1; } color =
-										 * Color.rgb(rgb[0], rgb[1], rgb[2]);
-										 * break; } Log.d(TAG,
-										 * "Didn't find it =/ " + color + " " +
-										 * newColors[j]); }
-										 */
-										CreatePicogramActivity.this.newColors[i] = color;
-										break;
-									}
-								}
-								// Change values in the original colors too.
-								for (int i = 0; i != originalColors.length; ++i) {
-									if (originalColors[i] == touchedRGB)
-										originalColors[i] = color;
-								}
-								// Update photo
-								cols = "";
-								for (int i : newColors)
-									cols += i + " ";
-								CreatePicogramActivity.this.alterPhoto();
-							}
-						});
-
-				dialog.show();
-				return true;
-			} else {
-				return false;
-			}
-		} else if (v.getId() == tivGame.getId()) {
-
-		}
-		return true;
 	}
 
 	// Read bitmap - From
@@ -762,22 +654,10 @@ public class CreatePicogramActivity extends FragmentActivity implements
 			bBack.setOnClickListener(this);
 
 			// Add in ImageViews and GameView
-			ivNew = (ImageView) findViewById(R.id.ivNew);
-			ivOriginal = (ImageView) findViewById(R.id.ivOriginal);
 			tivGame = (TouchImageView) findViewById(R.id.tivGame);
-
-			ivNew.setOnTouchListener(this);
-			// tivGame.setOnTouchListener(this);
-
-			ivNew.setVisibility(View.VISIBLE);
-			ivOriginal.setVisibility(View.INVISIBLE);
-			tivGame.setVisibility(View.INVISIBLE);
+			tivGame.setVisibility(View.VISIBLE);
+			ib.setVisibility(View.VISIBLE);
 			// Update via AlterPhoto
-			this.alterPhoto();
-			ivOriginal.setImageBitmap(this.bmOriginal);
-			ivNew.setImageBitmap(this.bmNew);
-			this.bmNew.setHasAlpha(true);
-			this.bmOriginal.setHasAlpha(true);
 
 			this.alterPhoto();
 		}
@@ -790,32 +670,24 @@ public class CreatePicogramActivity extends FragmentActivity implements
 			if (tivGame.gCurrent != null)
 				this.solution = tivGame.gCurrent;
 		ib.setVisibility(View.INVISIBLE);
+		ib.setVisibility(View.INVISIBLE);
 		if (currentView == -1) {
 			// We're changing back to the get picture screen.
-			ivOriginal.setVisibility(View.INVISIBLE);
-			ivNew.setVisibility(View.INVISIBLE);
 			tivGame.setVisibility(View.INVISIBLE);
 			this.setContentView(R.layout.activity_create_advanced);
 			cv = (CameraView) findViewById(R.id.cvPreview);
 			currentView = 0; // Go to the normal view after.
 		} else if (currentView == 2) {
 			// Show Original
-			ivOriginal.setVisibility(View.VISIBLE);
-			ivNew.setVisibility(View.INVISIBLE);
 			tivGame.setVisibility(View.INVISIBLE);
 			currentView = 1;
 		} else if (currentView == 1) {
 			// Show New without grid.
 			// Update from solution.
-			ivOriginal.setVisibility(View.INVISIBLE);
-			ivNew.setVisibility(View.VISIBLE);
 			tivGame.setVisibility(View.INVISIBLE);
 			currentView = 0;
-			updatePictureFromTIV(tivGame.gCurrent);
 		} else if (currentView == 0) {
 			// Show Gameboard
-			ivOriginal.setVisibility(View.INVISIBLE);
-			ivNew.setVisibility(View.INVISIBLE);
 			tivGame.setVisibility(View.VISIBLE);
 			tivGame.gridlinesColor = Color.BLACK;
 			tivGame.gHeight = this.yNum;
@@ -829,22 +701,6 @@ public class CreatePicogramActivity extends FragmentActivity implements
 		} else {
 			currentView = 0; // Reset if problems.
 		}
-	}
-
-	private void updatePictureFromTIV(String gSolution) {
-		bmNew = Bitmap.createBitmap(xNum, yNum, Bitmap.Config.ARGB_4444);
-		int[] pixels = new int[xNum * yNum];
-		for (int i = 0; i != gSolution.length(); ++i) {
-			if (gSolution.charAt(i) == 'x')
-				pixels[i] = 0;
-			else {
-				int color = Integer.parseInt("" + gSolution.charAt(i));
-				pixels[i] = newColors[color];
-			}
-		}
-		bmNew.setPixels(pixels, 0, xNum, 0, 0, xNum, yNum);
-		bmNew = Bitmap.createScaledBitmap(bmNew, xNum * 10, yNum * 10, false);
-		ivNew.setImageBitmap(bmNew);
 	}
 
 	private void setGameViewInfo() {

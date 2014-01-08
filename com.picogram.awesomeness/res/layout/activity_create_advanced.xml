@@ -24,36 +24,6 @@
         android:layout_marginTop="6dp"
         android:background="@drawable/drop_shadow" />
 
-    <ImageView
-        android:id="@+id/ivNew"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_above="@+id/buttonBottomHolder"
-        android:layout_centerHorizontal="true"
-        android:layout_centerInParent="true"
-        android:layout_centerVertical="true"
-        android:layout_marginBottom="6dp"
-        android:layout_marginLeft="6dp"
-        android:layout_marginRight="6dp"
-        android:layout_marginTop="6dp"
-        android:background="@drawable/drop_shadow"
-        android:visibility="invisible" />
-
-    <ImageView
-        android:id="@+id/ivOriginal"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_above="@+id/buttonBottomHolder"
-        android:layout_centerHorizontal="true"
-        android:layout_centerInParent="true"
-        android:layout_centerVertical="true"
-        android:layout_marginBottom="6dp"
-        android:layout_marginLeft="6dp"
-        android:layout_marginRight="6dp"
-        android:layout_marginTop="6dp"
-        android:background="@drawable/drop_shadow"
-        android:visibility="invisible" />
-
     <com.picogram.awesomeness.TouchImageView
         android:id="@+id/tivGame"
         android:layout_width="match_parent"
@@ -70,7 +40,7 @@
         android:visibility="invisible" />
 
     <ImageButton
-        android:id="@+id/ibToolsCreate"
+        android:id="@+id/ibTools"
         android:layout_width="50dp"
         android:layout_height="50dp"
         android:layout_alignLeft="@+id/cvPreview"
