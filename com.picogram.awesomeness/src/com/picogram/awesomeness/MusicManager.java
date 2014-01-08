@@ -24,46 +24,62 @@ public class MusicManager {
 		return new Float(1).floatValue();
 	}
 
-	public static void start(Context context, int music) {
+	public static void start(Context context) {
+		start(context, Util.getPreferences(context).getString("music", "None"));
+	}
+
+	public static void start(Context context, String music) {
 		start(context, music, false);
 	}
 
-	public static void start(Context context, int music, boolean force) {
+	public static void start(Context context, String music, boolean force) {
+		Log.d(TAG, "Change 1");
 		if (!force && currentMusic > -1) {
 			// already playing some music and not forced to change
 			return;
 		}
-		if (music == MUSIC_PREVIOUS) {
-			// Log.d(TAG, "Using previous music [" + previousMusic + "]");
-			music = previousMusic;
+
+		int prefsMusicId = 0;
+		if (music.equals("Classical")) {
+			prefsMusicId = 1;
+		} else if (music.equals("Dubwub")) {
+			prefsMusicId = 2;
+		} else if (music.equals("Synth")) {
+			prefsMusicId = 3;
+		} else if (music.equals("Country")) {
+			prefsMusicId = 4;
 		}
-		if (currentMusic == music) {
+		Log.d(TAG, "Change 4 mt: " + music);
+		if (currentMusic == prefsMusicId) {
 			// already playing this music
 			return;
 		}
+		Log.d(TAG, "Change 5");
 		if (currentMusic != -1) {
 			previousMusic = currentMusic;
 			// Log.d(TAG, "Previous music was [" + previousMusic + "]");
 			// playing some other music, pause it and change
 			pause();
 		}
-		currentMusic = music;
+		Log.d(TAG, "Change 6");
+		currentMusic = prefsMusicId;
 		// Log.d(TAG, "Current music is now [" + currentMusic + "]");
 		MediaPlayer mp = (MediaPlayer) players.get(music);
+		Log.d(TAG, "Change 7");
 		if (mp != null) {
+			Log.d(TAG, "Change 8");
 			if (!mp.isPlaying()) {
 				mp.start();
 			}
 		} else {
-			String musicType = PreferenceManager.getDefaultSharedPreferences(
-					context).getString("music", "None");
-			if (musicType.equals("Classical")) {
+			Log.d(TAG, "Change 9");
+			if (music.equals("Classical")) {
 				mp = MediaPlayer.create(context, R.raw.classical);
-			} else if (musicType.equals("Dubwub")) {
+			} else if (music.equals("Dubwub")) {
 				mp = MediaPlayer.create(context, R.raw.dubstep);
-			} else if (musicType.equals("Synth")) {
+			} else if (music.equals("Synth")) {
 				mp = MediaPlayer.create(context, R.raw.chill);
-			} else if (musicType.equals("Country")) {
+			} else if (music.equals("Country")) {
 				mp = MediaPlayer.create(context, R.raw.country);
 			} else {
 				Log.e(TAG, "unsupported music number - " + music);
@@ -73,9 +89,12 @@ public class MusicManager {
 			float volume = getMusicVolume(context);
 			// Log.d(TAG, "Setting music volume to " + volume);
 			mp.setVolume(volume, volume);
+			Log.d(TAG, "Change 10");
 			if (mp == null) {
+				Log.d(TAG, "Change 11");
 				Log.e(TAG, "player was not created successfully");
 			} else {
+				Log.d(TAG, "Change 12");
 				try {
 					mp.setLooping(true);
 					mp.start();

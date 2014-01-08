@@ -484,7 +484,7 @@ public class CreatePicogramActivity extends FragmentActivity implements
 	protected void onResume() {
 		super.onResume();
 		continueMusic = false;
-		MusicManager.start(this, (int) (Math.random() * 1000));
+		MusicManager.start(this);
 
 	}
 

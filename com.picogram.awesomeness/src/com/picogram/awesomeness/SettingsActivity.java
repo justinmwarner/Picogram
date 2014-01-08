@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.Preference.OnPreferenceClickListener;
+import android.util.Log;
 
 import com.actionbarsherlock.app.SherlockPreferenceActivity;
 import com.actionbarsherlock.view.Menu;
@@ -34,6 +35,7 @@ public class SettingsActivity extends SherlockPreferenceActivity implements
 		this.prefs = this.getSharedPreferences("Picogram", 0);
 		this.findPreference("wonvisible").setOnPreferenceChangeListener(this);
 		this.findPreference("decorations").setOnPreferenceClickListener(this);
+		this.findPreference("music").setOnPreferenceChangeListener(this);
 		this.findPreference("email").setOnPreferenceClickListener(this);
 		this.findPreference("advertisements")
 				.setOnPreferenceClickListener(this);
@@ -61,6 +63,12 @@ public class SettingsActivity extends SherlockPreferenceActivity implements
 
 	public boolean onPreferenceChange(final Preference preference,
 			final Object newValue) {
+		Log.d(TAG, "Changing 1 " + preference.getKey());
+		if (preference.getKey().equals("music")) {
+			Log.d(TAG, "Changing 2 music " + newValue.toString());
+			prefs.edit().putString("music", newValue.toString()).commit();
+			MusicManager.start(this, newValue.toString(), true);
+		}
 		return true;
 	}
 
@@ -101,7 +109,8 @@ public class SettingsActivity extends SherlockPreferenceActivity implements
 		super.onResume();
 		Util.updateFullScreen(this);
 		continueMusic = false;
-		MusicManager.start(this, (int) (Math.random() * 1000));
+		Log.d(TAG, "Change resume 3");
+		MusicManager.start(this);
 	}
 
 	public void optOut() {

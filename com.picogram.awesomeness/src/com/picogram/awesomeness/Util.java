@@ -35,7 +35,7 @@ public class Util {
 		return dir.delete();
 	}
 
-	public static SharedPreferences getPreferences(final Activity a) {
+	public static SharedPreferences getPreferences(final Context a) {
 		return a.getSharedPreferences(MenuActivity.PREFS_FILE,
 				Context.MODE_PRIVATE);
 	}

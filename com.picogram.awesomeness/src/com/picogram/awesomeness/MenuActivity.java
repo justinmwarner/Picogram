@@ -382,7 +382,7 @@ public class MenuActivity extends FragmentActivity implements FlurryAdListener,
 	protected void onResume() {
 		super.onResume();
 		continueMusic = false;
-		MusicManager.start(this, (int) (Math.random() * 1000));
+		MusicManager.start(this);
 
 		if (Util.getPreferences(this).getBoolean("isFirst", true)) {
 			Bundle bundle = new Bundle();

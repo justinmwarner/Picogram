@@ -331,7 +331,7 @@ public class AdvancedGameActivity extends FragmentActivity implements
 		sql = new SQLitePicogramAdapter(this.getApplicationContext(),
 				"Picograms", null, 1);
 		continueMusic = false;
-		MusicManager.start(this, MusicManager.MUSIC_MENU);
+		MusicManager.start(this);
 	}
 
 	public boolean onTouch(final View v, final MotionEvent event) {
