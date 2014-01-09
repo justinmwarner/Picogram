@@ -1,9 +1,13 @@
 package com.picogram.awesomeness;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.TimeUnit;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -105,7 +109,8 @@ public class SuperAwesomeCardFragment extends Fragment implements
 			boolean isAdd = true;
 
 			if (prefs != null) {
-				if (prefs.getBoolean("wonvisible", false)) {
+				if (prefs.getBoolean("wonvisible", false)
+						|| prefs.getInt("mySetting", 0) == 1) {
 					if (status.equals("1")) {
 						isAdd = false;
 					}
@@ -210,10 +215,32 @@ public class SuperAwesomeCardFragment extends Fragment implements
 
 	public void getSortedPuzzles(final Activity a, final String sort) {
 		this.myAdapter.clear();
+		StackMobQuery smq = new StackMobQuery().isInRange(0, 9)
+				.fieldIsOrderedBy(sort, StackMobQuery.Ordering.DESCENDING);
+		if (sort.equals("rate")) {
+			// Weekly, Monthly, All Time. Rate only matters, createddate is in
+			// general, gonna retreive most recent.
+			Calendar date = Calendar.getInstance();
+			if (Util.getPreferences(getActivity()).getInt("topSetting", 0) == 0) {
+				Log.d(TAG, "Rate: Doing a week");
+				date.add(Calendar.DAY_OF_MONTH, -7);
+				smq.fieldIsGreaterThan(
+						"createddate",
+						TimeUnit.MILLISECONDS
+								.toMillis(date.getTime().getTime()) + "");
+			} else if (Util.getPreferences(getActivity()).getInt("topSetting",
+					0) == 1) {
+				Log.d(TAG, "Rate: Doing a Month");
+				date.add(Calendar.MONTH, -1);
+				smq.fieldIsGreaterThan(
+						"createddate",
+						TimeUnit.MILLISECONDS
+								.toMillis(date.getTime().getTime()) + "");
+			}
+		}
 		StackMobModel.query(
 				GriddlerOne.class,
-				new StackMobQuery().isInRange(0, 9).fieldIsOrderedBy(sort,
-						StackMobQuery.Ordering.DESCENDING),
+				smq,
 				new StackMobQueryCallback<GriddlerOne>() {
 
 					@Override
@@ -245,21 +272,45 @@ public class SuperAwesomeCardFragment extends Fragment implements
 
 	public void getPackPuzzles() {
 		this.myAdapter.clear();
+		boolean isHideDownloaded = Util.getPreferences(this.getActivity())
+				.getInt("packsSetting", 0) == 0;
+		Log.d(TAG,
+				"Setting "
+						+ " Got: "
+						+ Util.getPreferences(this.getActivity()).getInt(
+								"packsSetting", 0)
+						+ " "
+						+ isHideDownloaded
+						+ " "
+						+ !Util.getPreferences(this.getActivity()).getBoolean(
+								"hasDownloadedEasyTwo", false));
 		GriddlerOne go = new GriddlerOne();
 		go.setName("Easy Pack 1 (10 puzzles)");
 		go.setStatus("2");
-		myAdapter.add(go);
-		myAdapter.notifyDataSetChanged();
+		if (isHideDownloaded
+				|| !Util.getPreferences(this.getActivity()).getBoolean(
+						"hasDownloadedEasyOne", false)) {
+			myAdapter.add(go);
+			myAdapter.notifyDataSetChanged();
+		}
 		go = new GriddlerOne();
 		go.setName("Easy Pack 2 (10 puzzles)");
 		go.setStatus("2");
-		myAdapter.add(go);
-		myAdapter.notifyDataSetChanged();
+		if (isHideDownloaded
+				|| !Util.getPreferences(this.getActivity()).getBoolean(
+						"hasDownloadedEasyTwo", false)) {
+			myAdapter.add(go);
+			myAdapter.notifyDataSetChanged();
+		}
 		go = new GriddlerOne();
 		go.setName("Medium Pack 1 (10 puzzles)");
 		go.setStatus("2");
-		myAdapter.add(go);
-		myAdapter.notifyDataSetChanged();
+		if (isHideDownloaded
+				|| !Util.getPreferences(this.getActivity()).getBoolean(
+						"hasDownloadedMediumOne", false)) {
+			myAdapter.add(go);
+			myAdapter.notifyDataSetChanged();
+		}
 	}
 
 	public void getTagPuzzles(final Activity a, final String tag,
@@ -408,10 +459,17 @@ public class SuperAwesomeCardFragment extends Fragment implements
 				// We load the pack to My and prompt user.
 				if (picogram.getName().contains("Easy Pack 1")) {
 					loadEasyPackOne();
+					Util.getPreferences(this.getActivity()).edit()
+							.putBoolean("hasDownloadedEasyOne", true).commit();
 				} else if (picogram.getName().contains("Easy Pack 2")) {
 					loadEasyPackTwo();
+					Util.getPreferences(this.getActivity()).edit()
+							.putBoolean("hasDownloadedEasyTwo", true).commit();
 				} else if (picogram.getName().contains("Medium Pack 1")) {
 					loadMediumPackOne();
+					Util.getPreferences(this.getActivity()).edit()
+							.putBoolean("hasDownloadedMediumOne", true)
+							.commit();
 				} else {
 					Crouton.makeText(
 							this.getActivity(),

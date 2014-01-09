@@ -239,19 +239,41 @@ public class TouchImageView extends ImageView implements OnGestureListener,
 					oldCurrent = gCurrent;
 					final char[] temp = gCurrent.toCharArray();
 					final String past = gCurrent;
+
 					if (((indexY * gWidth) + indexX) < temp.length) {
-						Log.d(TAG, "IX: " + indexX + " IY: " + indexY + " ltX "
-								+ lastTouchX + " ltY " + lastTouchY);
-						int pos = ((indexY * gWidth) + indexX);
+						if (temp[(indexY * gWidth) + indexX] != '0'
+								&& event.getAction() == MotionEvent.ACTION_DOWN) {
+
+						}
+
 						// Get the position of the change. If it's the same as
 						// the previous, change the values.
-						temp[(indexY * gWidth) + indexX] = colorCharacter;
+						if (event.getAction() == MotionEvent.ACTION_DOWN) {
+							if (previousX == indexX && previousY == indexY) {
+								didPreviousSwitcher = true;
+								if (temp[(indexY * gWidth) + indexX] == colorCharacter) {
+									temp[(indexY * gWidth) + indexX] = 'x';
+								} else if (temp[(indexY * gWidth) + indexX] == 'x') {
+									temp[(indexY * gWidth) + indexX] = '0';
+								} else if (temp[(indexY * gWidth) + indexX] == '0') {
+									temp[(indexY * gWidth) + indexX] = colorCharacter;
+								}
+							} else
+								temp[(indexY * gWidth) + indexX] = colorCharacter;
+						} else {
+							Log.d(TAG, "Prev" + didPreviousSwitcher);
+							if (!didPreviousSwitcher) {
+								temp[(indexY * gWidth) + indexX] = colorCharacter;
+							}
+						}
+						if (event.getAction() == MotionEvent.ACTION_UP
+								|| event.getAction() == MotionEvent.ACTION_CANCEL)
+							didPreviousSwitcher = false;
+
 						gCurrent = String.valueOf(temp);
 						if (!past.equals(gCurrent)) {
-
-							Log.d(TAG, "IX: " + indexX + " IY: " + indexY
-									+ " ltX " + lastTouchX + " ltY "
-									+ lastTouchY);
+							previousX = indexX;
+							previousY = indexY;
 							new Thread(new Runnable() {
 
 								public void run() {
@@ -291,6 +313,8 @@ public class TouchImageView extends ImageView implements OnGestureListener,
 		}
 
 	};
+	int previousX = -1, previousY = -1;
+	boolean didPreviousSwitcher = false;
 	boolean didSwitch = false; // If we're switching a color to an X so it
 								// doesn't switch back on the MOVE/UP
 	ArrayList<Integer> topColors = new ArrayList();
@@ -1060,7 +1084,6 @@ public class TouchImageView extends ImageView implements OnGestureListener,
 				"0"));
 
 		this.gSolution = savedInstanceState.getString("solution");
-		Log.d(TAG, "Sol: " + gSolution + " " + gWidth + " " + gHeight + " " + gSolution.length());
 		this.gId = Integer.parseInt(savedInstanceState.getString("id",
 				gSolution + ""));
 		final String[] cols = savedInstanceState.getString("colors").split(",");

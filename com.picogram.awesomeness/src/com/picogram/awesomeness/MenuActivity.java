@@ -1,5 +1,6 @@
 package com.picogram.awesomeness;
 
+import com.actionbarsherlock.app.ActionBar;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -38,6 +39,7 @@ import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemLongClickListener;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -48,6 +50,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
+import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.astuetz.viewpager.extensions.PagerSlidingTabStrip;
 import com.crittercism.app.Crittercism;
 import com.doomonafireball.betterpickers.numberpicker.NumberPickerBuilder;
@@ -68,8 +71,9 @@ import com.stackmob.sdk.exception.StackMobException;
 import de.keyboardsurfer.android.widget.crouton.Crouton;
 import de.keyboardsurfer.android.widget.crouton.Style;
 
-public class MenuActivity extends FragmentActivity implements FlurryAdListener,
-		OnPageChangeListener, OnClickListener, OnRMMUserChoiceListener {
+public class MenuActivity extends SherlockFragmentActivity implements
+		FlurryAdListener, OnPageChangeListener, OnClickListener,
+		OnRMMUserChoiceListener, ActionBar.OnNavigationListener {
 	private static final String TAG = "MainActivity";
 
 	public class MyPagerAdapter extends FragmentPagerAdapter {
@@ -231,7 +235,7 @@ public class MenuActivity extends FragmentActivity implements FlurryAdListener,
 	@Override
 	public void onCreate(final Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		this.requestWindowFeature(Window.FEATURE_NO_TITLE);
+		// this.requestWindowFeature(Window.FEATURE_NO_TITLE);
 		this.prefs = this.getSharedPreferences(MenuActivity.PREFS_FILE,
 				MODE_PRIVATE);
 		if (!prefs.getBoolean("crashes", false)) {
@@ -266,7 +270,7 @@ public class MenuActivity extends FragmentActivity implements FlurryAdListener,
 			// Remove ads bar if offline.
 			toolbar.setVisibility(View.GONE);
 		}
-
+		this.updateActionBar(0);
 	}
 
 	private void updateFromOffline() {
@@ -299,7 +303,7 @@ public class MenuActivity extends FragmentActivity implements FlurryAdListener,
 				"Rating", null, 2);
 		offline = sorh.getAllNeededUpdates();
 		if (offline != null) {
-			Log.d(TAG, "Offline crap: " + offline.length);
+
 			for (String[] o : offline) {
 				final String id = o[0];
 				final int oldRate = Integer.parseInt(o[1]);
@@ -489,6 +493,37 @@ public class MenuActivity extends FragmentActivity implements FlurryAdListener,
 			imm.hideSoftInputFromWindow(findViewById(android.R.id.content)
 					.getWindowToken(), 0);
 		}
+		updateActionBar(tab);
+	}
+
+	private void updateActionBar(int tab) {
+		// Drop down spinner update.
+		ArrayAdapter<CharSequence> list;
+		if (tab == TITLES.indexOf("My")) {
+			list = ArrayAdapter.createFromResource(this, R.array.listMy,
+					R.layout.sherlock_spinner_item);
+		} else if (tab == TITLES.indexOf("Packs")) {
+			list = ArrayAdapter.createFromResource(this, R.array.listPacks,
+					R.layout.sherlock_spinner_item);
+		} else if (tab == TITLES.indexOf("Top")) {
+			list = ArrayAdapter.createFromResource(this, R.array.listTop,
+					R.layout.sherlock_spinner_item);
+		} else if (tab == TITLES.indexOf("Recent")) {
+			list = ArrayAdapter.createFromResource(this, R.array.listRecent,
+					R.layout.sherlock_spinner_item);
+		} else if (tab == TITLES.indexOf("Search")) {
+			list = ArrayAdapter.createFromResource(this, R.array.listSearch,
+					R.layout.sherlock_spinner_item);
+		} else {
+			return;
+		}
+		list.setDropDownViewResource(R.layout.sherlock_spinner_dropdown_item);
+
+		getSupportActionBar().setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
+		getSupportActionBar().setListNavigationCallbacks(list, this);
+		getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+		getSupportActionBar().setDisplayUseLogoEnabled(false);
+		getSupportActionBar().setDisplayShowTitleEnabled(false);
 	}
 
 	private void updateBottomBar() {
@@ -552,17 +587,9 @@ public class MenuActivity extends FragmentActivity implements FlurryAdListener,
 		if (this.adapter.frag[this.currentTab] != null)
 			this.adapter.frag[this.currentTab].clearAdapter();
 		if (this.currentTab == MenuActivity.TITLES.indexOf("My")) {
-			Log.d(TAG,
-					"Up: "
-							+ this.adapter.frag[this.currentTab].myAdapter
-									.getCount());
 			this.adapter.frag[this.currentTab]
 					.getMyPuzzles(this.adapter.frag[this.currentTab]
 							.getActivity());
-			Log.d(TAG,
-					"Up: "
-							+ this.adapter.frag[this.currentTab].myAdapter
-									.getCount());
 		} else if (this.currentTab == MenuActivity.TITLES.indexOf("Top")) {
 			this.adapter.frag[this.currentTab].getSortedPuzzles(
 					this.adapter.frag[this.currentTab].getActivity(), "rate");
@@ -582,10 +609,6 @@ public class MenuActivity extends FragmentActivity implements FlurryAdListener,
 			this.adapter.frag[this.currentTab].getPackPuzzles();
 		}
 		this.adapter.frag[this.currentTab].myAdapter.notifyDataSetChanged();
-		Log.d(TAG,
-				"Up: "
-						+ this.adapter.frag[this.currentTab].myAdapter
-								.getCount());
 	}
 
 	public void handlePositive() {
@@ -606,5 +629,29 @@ public class MenuActivity extends FragmentActivity implements FlurryAdListener,
 		Crouton.makeText(this,
 				"If you ever want to rate, go to the preferences.", Style.INFO)
 				.show();
+	}
+
+	public boolean onNavigationItemSelected(int itemPosition, long itemId) {
+		Log.d(TAG, "Setting" + itemPosition);
+		if (this.currentTab == TITLES.indexOf("My")) {
+			Util.getPreferences(this).edit().putInt("mySetting", itemPosition)
+					.commit();
+		} else if (this.currentTab == TITLES.indexOf("Packs")) {
+			Log.d(TAG, "Setting Packs" + itemPosition);
+			Util.getPreferences(this).edit()
+					.putInt("packsSetting", itemPosition).commit();
+		} else if (this.currentTab == TITLES.indexOf("Top")) {
+			Util.getPreferences(this).edit().putInt("topSetting", itemPosition)
+					.commit();
+		} else if (this.currentTab == TITLES.indexOf("Recent")) {
+			//Recent isn't special.
+			//Util.getPreferences(this).edit()
+			//		.putInt("recentSetting", itemPosition).commit();
+		} else if (this.currentTab == TITLES.indexOf("Search")) {
+			Util.getPreferences(this).edit()
+					.putInt("searchSetting", itemPosition).commit();
+		}
+		this.updateCurrentTab();
+		return true;
 	}
 }

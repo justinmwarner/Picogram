@@ -33,7 +33,6 @@ public class MusicManager {
 	}
 
 	public static void start(Context context, String music, boolean force) {
-		Log.d(TAG, "Change 1");
 		if (!force && currentMusic > -1) {
 			// already playing some music and not forced to change
 			return;
@@ -49,30 +48,24 @@ public class MusicManager {
 		} else if (music.equals("Country")) {
 			prefsMusicId = 4;
 		}
-		Log.d(TAG, "Change 4 mt: " + music);
 		if (currentMusic == prefsMusicId) {
 			// already playing this music
 			return;
 		}
-		Log.d(TAG, "Change 5");
 		if (currentMusic != -1) {
 			previousMusic = currentMusic;
 			// Log.d(TAG, "Previous music was [" + previousMusic + "]");
 			// playing some other music, pause it and change
 			pause();
 		}
-		Log.d(TAG, "Change 6");
 		currentMusic = prefsMusicId;
 		// Log.d(TAG, "Current music is now [" + currentMusic + "]");
 		MediaPlayer mp = (MediaPlayer) players.get(music);
-		Log.d(TAG, "Change 7");
 		if (mp != null) {
-			Log.d(TAG, "Change 8");
 			if (!mp.isPlaying()) {
 				mp.start();
 			}
 		} else {
-			Log.d(TAG, "Change 9");
 			if (music.equals("Classical")) {
 				mp = MediaPlayer.create(context, R.raw.classical);
 			} else if (music.equals("Dubwub")) {
@@ -89,12 +82,9 @@ public class MusicManager {
 			float volume = getMusicVolume(context);
 			// Log.d(TAG, "Setting music volume to " + volume);
 			mp.setVolume(volume, volume);
-			Log.d(TAG, "Change 10");
 			if (mp == null) {
-				Log.d(TAG, "Change 11");
 				Log.e(TAG, "player was not created successfully");
 			} else {
-				Log.d(TAG, "Change 12");
 				try {
 					mp.setLooping(true);
 					mp.start();

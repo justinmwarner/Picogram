@@ -35,8 +35,12 @@ public class Util {
 		return dir.delete();
 	}
 
+	static Context mContext = null;
+
 	public static SharedPreferences getPreferences(final Context a) {
-		return a.getSharedPreferences(MenuActivity.PREFS_FILE,
+		if (mContext == null)
+			mContext = a;
+		return mContext.getSharedPreferences(MenuActivity.PREFS_FILE,
 				Context.MODE_PRIVATE);
 	}
 
