@@ -60,6 +60,7 @@ import com.flurry.android.FlurryAdSize;
 import com.flurry.android.FlurryAdType;
 import com.flurry.android.FlurryAds;
 import com.flurry.android.FlurryAgent;
+import com.jakewharton.scalpel.ScalpelFrameLayout;
 import com.kopfgeldjaeger.ratememaybe.RateMeMaybe;
 import com.kopfgeldjaeger.ratememaybe.RateMeMaybe.OnRMMUserChoiceListener;
 import com.picogram.awesomeness.DialogMaker.OnDialogResultListener;
@@ -271,6 +272,11 @@ public class MenuActivity extends SherlockFragmentActivity implements
 			toolbar.setVisibility(View.GONE);
 		}
 		this.updateActionBar(0);
+		ScalpelFrameLayout scalpelView = (ScalpelFrameLayout ) findViewById(R.id.scalpel);
+
+		scalpelView.setLayerInteractionEnabled(true);
+		scalpelView.setDrawViews(true);
+		scalpelView.setDrawIds(true);
 	}
 
 	private void updateFromOffline() {
@@ -498,7 +504,7 @@ public class MenuActivity extends SherlockFragmentActivity implements
 
 	private void updateActionBar(int tab) {
 		// Drop down spinner update.
-		ArrayAdapter<CharSequence> list;
+		ArrayAdapter<CharSequence> list = null;
 		if (tab == TITLES.indexOf("My")) {
 			list = ArrayAdapter.createFromResource(this, R.array.listMy,
 					R.layout.sherlock_spinner_item);
@@ -509,18 +515,18 @@ public class MenuActivity extends SherlockFragmentActivity implements
 			list = ArrayAdapter.createFromResource(this, R.array.listTop,
 					R.layout.sherlock_spinner_item);
 		} else if (tab == TITLES.indexOf("Recent")) {
-			list = ArrayAdapter.createFromResource(this, R.array.listRecent,
-					R.layout.sherlock_spinner_item);
 		} else if (tab == TITLES.indexOf("Search")) {
 			list = ArrayAdapter.createFromResource(this, R.array.listSearch,
 					R.layout.sherlock_spinner_item);
 		} else {
 			return;
 		}
-		list.setDropDownViewResource(R.layout.sherlock_spinner_dropdown_item);
 
 		getSupportActionBar().setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
-		getSupportActionBar().setListNavigationCallbacks(list, this);
+		if (list != null) {
+			list.setDropDownViewResource(R.layout.sherlock_spinner_dropdown_item);
+			getSupportActionBar().setListNavigationCallbacks(list, this);
+		}
 		getSupportActionBar().setDisplayHomeAsUpEnabled(false);
 		getSupportActionBar().setDisplayUseLogoEnabled(false);
 		getSupportActionBar().setDisplayShowTitleEnabled(false);
@@ -644,9 +650,9 @@ public class MenuActivity extends SherlockFragmentActivity implements
 			Util.getPreferences(this).edit().putInt("topSetting", itemPosition)
 					.commit();
 		} else if (this.currentTab == TITLES.indexOf("Recent")) {
-			//Recent isn't special.
-			//Util.getPreferences(this).edit()
-			//		.putInt("recentSetting", itemPosition).commit();
+			// Recent isn't special.
+			// Util.getPreferences(this).edit()
+			// .putInt("recentSetting", itemPosition).commit();
 		} else if (this.currentTab == TITLES.indexOf("Search")) {
 			Util.getPreferences(this).edit()
 					.putInt("searchSetting", itemPosition).commit();

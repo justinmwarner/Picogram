@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="con" path="com.android.ide.eclipse.adt.ANDROID_FRAMEWORK"/>
-	<classpathentry exported="true" kind="con" path="com.android.ide.eclipse.adt.LIBRARIES"/>
-	<classpathentry exported="true" kind="con" path="com.android.ide.eclipse.adt.DEPENDENCIES"/>
 	<classpathentry exported="true" kind="lib" path="libs/stackmob-android-sdk-1.3.5.jar" sourcepath="C:/Users/Justin/Downloads/StackMob_Android-master">
 		<attributes>
 			<attribute name="javadoc_location" value="http://stackmob.github.io/stackmob-java-client-sdk/javadoc/apidocs/"/>
@@ -14,9 +12,11 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry exported="true" kind="lib" path="libs/android-support-v4.jar"/>
-	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="gen"/>
+	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="lib" path="libs/crittercism_v4_3_0_sdkonly.jar"/>
 	<classpathentry kind="lib" path="C:/Users/justinwarner/Desktop/copris-nonogram-v1-2.jar"/>
+	<classpathentry exported="true" kind="con" path="com.android.ide.eclipse.adt.DEPENDENCIES"/>
+	<classpathentry exported="true" kind="con" path="com.android.ide.eclipse.adt.LIBRARIES"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>

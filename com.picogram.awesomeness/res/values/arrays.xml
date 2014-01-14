@@ -40,15 +40,13 @@
         <item>Monthly</item>
         <item>All Time</item>
     </string-array>
-    <string-array name="listRecent">
-        <item>Weekly</item>
-        <item>Monthly</item>
-        <item>All Time</item>
-    </string-array>
     <string-array name="listSearch">
-        <item>Weekly</item>
-        <item>Monthly</item>
-        <item>All Time</item>
+        <item>Rating - Weekly</item>
+        <item>Rating - Monthly</item>
+        <item>Rating - All Time</item>
+        <item>Date - Weekly</item>
+        <item>Date - Monthly</item>
+        <item>Date - All Time</item>
     </string-array>
 
 </resources>
