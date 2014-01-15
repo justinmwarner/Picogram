@@ -272,11 +272,6 @@ public class MenuActivity extends SherlockFragmentActivity implements
 			toolbar.setVisibility(View.GONE);
 		}
 		this.updateActionBar(0);
-		ScalpelFrameLayout scalpelView = (ScalpelFrameLayout ) findViewById(R.id.scalpel);
-
-		scalpelView.setLayerInteractionEnabled(true);
-		scalpelView.setDrawViews(true);
-		scalpelView.setDrawIds(true);
 	}
 
 	private void updateFromOffline() {
