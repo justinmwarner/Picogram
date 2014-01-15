@@ -116,10 +116,15 @@ public class GriddlerListAdapter extends ArrayAdapter<GriddlerOne> {
 			iv.setVisibility(View.VISIBLE);
 		}
 		if (this.griddlers.get(position).getNumberOfRatings() != 0) {
-			rate.setText("Rating: "
-					+ (Integer.parseInt(this.griddlers.get(position).getRating()) / this.griddlers
-							.get(
-									position).getNumberOfRatings()));
+			try {
+				rate.setText("Rating: "
+						+ (Integer.parseInt(this.griddlers.get(position).getRating()) / this.griddlers
+								.get(
+										position).getNumberOfRatings()));
+			} catch (final Exception e)
+			{
+				rate.setText("");
+			}
 		}
 		diff.setText("Difficulty: " + this.griddlers.get(position).getDiff());
 		name.setText(this.griddlers.get(position).getName());
