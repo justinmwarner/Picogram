@@ -1,6 +1,6 @@
 package com.doomonafireball.betterpickers.datepicker;
 
-import com.doomonafireball.betterpickers.R;
+
 
 import android.app.Activity;
 import android.content.res.ColorStateList;
@@ -15,178 +15,179 @@ import android.widget.Button;
 
 import java.util.Vector;
 
+import com.doomonafireball.betterpickers.R;
 /**
  * Dialog to set alarm time.
  */
 public class DatePickerDialogFragment extends DialogFragment {
 
-    private static final String REFERENCE_KEY = "DatePickerDialogFragment_ReferenceKey";
-    private static final String THEME_RES_ID_KEY = "DatePickerDialogFragment_ThemeResIdKey";
-    private static final String MONTH_KEY = "DatePickerDialogFragment_MonthKey";
-    private static final String DAY_KEY = "DatePickerDialogFragment_DayKey";
-    private static final String YEAR_KEY = "DatePickerDialogFragment_YearKey";
+	/**
+	 * This interface allows objects to register for the Picker's set action.
+	 */
+	public interface DatePickerDialogHandler {
 
-    private Button mSet, mCancel;
-    private DatePicker mPicker;
+		void onDialogDateSet(int reference, int year, int monthOfYear, int dayOfMonth);
+	}
+	private static final String REFERENCE_KEY = "DatePickerDialogFragment_ReferenceKey";
+	private static final String THEME_RES_ID_KEY = "DatePickerDialogFragment_ThemeResIdKey";
+	private static final String MONTH_KEY = "DatePickerDialogFragment_MonthKey";
+	private static final String DAY_KEY = "DatePickerDialogFragment_DayKey";
 
-    private int mMonthOfYear = -1;
-    private int mDayOfMonth = 0;
-    private int mYear = 0;
+	private static final String YEAR_KEY = "DatePickerDialogFragment_YearKey";
+	/**
+	 * Create an instance of the Picker (used internally)
+	 *
+	 * @param reference an (optional) user-defined reference, helpful when tracking multiple Pickers
+	 * @param themeResId the style resource ID for theming
+	 * @param monthOfYear (optional) zero-indexed month of year to pre-set
+	 * @param dayOfMonth (optional) day of month to pre-set
+	 * @param year (optional) year to pre-set
+	 * @return a Picker!
+	 */
+	public static DatePickerDialogFragment newInstance(final int reference, final int themeResId, final Integer monthOfYear,
+			final Integer dayOfMonth, final Integer year) {
+		final DatePickerDialogFragment frag = new DatePickerDialogFragment();
+		final Bundle args = new Bundle();
+		args.putInt(REFERENCE_KEY, reference);
+		args.putInt(THEME_RES_ID_KEY, themeResId);
+		if (monthOfYear != null) {
+			args.putInt(MONTH_KEY, monthOfYear);
+		}
+		if (dayOfMonth != null) {
+			args.putInt(DAY_KEY, dayOfMonth);
+		}
+		if (year != null) {
+			args.putInt(YEAR_KEY, year);
+		}
+		frag.setArguments(args);
+		return frag;
+	}
 
-    private int mReference = -1;
-    private int mTheme = -1;
-    private View mDividerOne, mDividerTwo;
-    private int mDividerColor;
-    private ColorStateList mTextColor;
-    private int mButtonBackgroundResId;
-    private int mDialogBackgroundResId;
-    private Vector<DatePickerDialogHandler> mDatePickerDialogHandlers = new Vector<DatePickerDialogHandler>();
+	private Button mSet, mCancel;
+	private DatePicker mPicker;
+	private int mMonthOfYear = -1;
 
-    /**
-     * Create an instance of the Picker (used internally)
-     *
-     * @param reference an (optional) user-defined reference, helpful when tracking multiple Pickers
-     * @param themeResId the style resource ID for theming
-     * @param monthOfYear (optional) zero-indexed month of year to pre-set
-     * @param dayOfMonth (optional) day of month to pre-set
-     * @param year (optional) year to pre-set
-     * @return a Picker!
-     */
-    public static DatePickerDialogFragment newInstance(int reference, int themeResId, Integer monthOfYear,
-            Integer dayOfMonth, Integer year) {
-        final DatePickerDialogFragment frag = new DatePickerDialogFragment();
-        Bundle args = new Bundle();
-        args.putInt(REFERENCE_KEY, reference);
-        args.putInt(THEME_RES_ID_KEY, themeResId);
-        if (monthOfYear != null) {
-            args.putInt(MONTH_KEY, monthOfYear);
-        }
-        if (dayOfMonth != null) {
-            args.putInt(DAY_KEY, dayOfMonth);
-        }
-        if (year != null) {
-            args.putInt(YEAR_KEY, year);
-        }
-        frag.setArguments(args);
-        return frag;
-    }
+	private int mDayOfMonth = 0;
+	private int mYear = 0;
+	private int mReference = -1;
+	private int mTheme = -1;
+	private View mDividerOne, mDividerTwo;
+	private int mDividerColor;
+	private ColorStateList mTextColor;
+	private int mButtonBackgroundResId;
 
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-    }
+	private int mDialogBackgroundResId;
 
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+	private Vector<DatePickerDialogHandler> mDatePickerDialogHandlers = new Vector<DatePickerDialogHandler>();
 
-        Bundle args = getArguments();
-        if (args != null && args.containsKey(REFERENCE_KEY)) {
-            mReference = args.getInt(REFERENCE_KEY);
-        }
-        if (args != null && args.containsKey(THEME_RES_ID_KEY)) {
-            mTheme = args.getInt(THEME_RES_ID_KEY);
-        }
-        if (args != null && args.containsKey(MONTH_KEY)) {
-            mMonthOfYear = args.getInt(MONTH_KEY);
-        }
-        if (args != null && args.containsKey(DAY_KEY)) {
-            mDayOfMonth = args.getInt(DAY_KEY);
-        }
-        if (args != null && args.containsKey(YEAR_KEY)) {
-            mYear = args.getInt(YEAR_KEY);
-        }
+	@Override
+	public void onCreate(final Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
 
-        setStyle(DialogFragment.STYLE_NO_TITLE, 0);
+		final Bundle args = this.getArguments();
+		if ((args != null) && args.containsKey(REFERENCE_KEY)) {
+			this.mReference = args.getInt(REFERENCE_KEY);
+		}
+		if ((args != null) && args.containsKey(THEME_RES_ID_KEY)) {
+			this.mTheme = args.getInt(THEME_RES_ID_KEY);
+		}
+		if ((args != null) && args.containsKey(MONTH_KEY)) {
+			this.mMonthOfYear = args.getInt(MONTH_KEY);
+		}
+		if ((args != null) && args.containsKey(DAY_KEY)) {
+			this.mDayOfMonth = args.getInt(DAY_KEY);
+		}
+		if ((args != null) && args.containsKey(YEAR_KEY)) {
+			this.mYear = args.getInt(YEAR_KEY);
+		}
 
-        // Init defaults
-        mTextColor = getResources().getColorStateList(R.color.dialog_text_color_holo_dark);
-        mButtonBackgroundResId = R.drawable.button_background_dark;
-        mDividerColor = getResources().getColor(R.color.default_divider_color_dark);
-        mDialogBackgroundResId = R.drawable.dialog_full_holo_dark;
+		this.setStyle(DialogFragment.STYLE_NO_TITLE, 0);
 
-        if (mTheme != -1) {
+		// Init defaults
+		this.mTextColor = this.getResources().getColorStateList(R.color.dialog_text_color_holo_dark);
+		this.mButtonBackgroundResId = R.drawable.button_background_dark;
+		this.mDividerColor = this.getResources().getColor(R.color.default_divider_color_dark);
+		this.mDialogBackgroundResId = R.drawable.dialog_full_holo_dark;
 
-            TypedArray a = getActivity().getApplicationContext()
-                    .obtainStyledAttributes(mTheme, R.styleable.BetterPickersDialogFragment);
+		if (this.mTheme != -1) {
 
-            mTextColor = a.getColorStateList(R.styleable.BetterPickersDialogFragment_bpTextColor);
-            mButtonBackgroundResId = a.getResourceId(R.styleable.BetterPickersDialogFragment_bpButtonBackground,
-                    mButtonBackgroundResId);
-            mDividerColor = a.getColor(R.styleable.BetterPickersDialogFragment_bpDividerColor, mDividerColor);
-            mDialogBackgroundResId = a
-                    .getResourceId(R.styleable.BetterPickersDialogFragment_bpDialogBackground, mDialogBackgroundResId);
-        }
-    }
+			final TypedArray a = this.getActivity().getApplicationContext()
+					.obtainStyledAttributes(this.mTheme, R.styleable.BetterPickersDialogFragment);
 
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-            Bundle savedInstanceState) {
+			this.mTextColor = a.getColorStateList(R.styleable.BetterPickersDialogFragment_bpTextColor);
+			this.mButtonBackgroundResId = a.getResourceId(R.styleable.BetterPickersDialogFragment_bpButtonBackground,
+					this.mButtonBackgroundResId);
+			this.mDividerColor = a.getColor(R.styleable.BetterPickersDialogFragment_bpDividerColor, this.mDividerColor);
+			this.mDialogBackgroundResId = a
+					.getResourceId(R.styleable.BetterPickersDialogFragment_bpDialogBackground, this.mDialogBackgroundResId);
+		}
+	}
 
-        View v = inflater.inflate(R.layout.date_picker_dialog, null);
-        mSet = (Button) v.findViewById(R.id.set_button);
-        mCancel = (Button) v.findViewById(R.id.cancel_button);
-        mCancel.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                dismiss();
-            }
-        });
-        mPicker = (DatePicker) v.findViewById(R.id.date_picker);
-        mPicker.setSetButton(mSet);
-        mPicker.setDate(mYear, mMonthOfYear, mDayOfMonth);
-        mSet.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                for (DatePickerDialogHandler handler : mDatePickerDialogHandlers) {
-                    handler.onDialogDateSet(mReference, mPicker.getYear(), mPicker.getMonthOfYear(),
-                            mPicker.getDayOfMonth());
-                }
-                final Activity activity = getActivity();
-                final Fragment fragment = getTargetFragment();
-                if (activity instanceof DatePickerDialogHandler) {
-                    final DatePickerDialogHandler act =
-                            (DatePickerDialogHandler) activity;
-                    act.onDialogDateSet(mReference, mPicker.getYear(), mPicker.getMonthOfYear(),
-                            mPicker.getDayOfMonth());
-                } else if (fragment instanceof DatePickerDialogHandler) {
-                    final DatePickerDialogHandler frag =
-                            (DatePickerDialogHandler) fragment;
-                    frag.onDialogDateSet(mReference, mPicker.getYear(), mPicker.getMonthOfYear(),
-                            mPicker.getDayOfMonth());
-                }
-                dismiss();
-            }
-        });
+	@Override
+	public View onCreateView(final LayoutInflater inflater, final ViewGroup container,
+			final Bundle savedInstanceState) {
 
-        mDividerOne = v.findViewById(R.id.divider_1);
-        mDividerTwo = v.findViewById(R.id.divider_2);
-        mDividerOne.setBackgroundColor(mDividerColor);
-        mDividerTwo.setBackgroundColor(mDividerColor);
-        mSet.setTextColor(mTextColor);
-        mSet.setBackgroundResource(mButtonBackgroundResId);
-        mCancel.setTextColor(mTextColor);
-        mCancel.setBackgroundResource(mButtonBackgroundResId);
-        mPicker.setTheme(mTheme);
-        getDialog().getWindow().setBackgroundDrawableResource(mDialogBackgroundResId);
+		final View v = inflater.inflate(R.layout.date_picker_dialog, null);
+		this.mSet = (Button) v.findViewById(R.id.set_button);
+		this.mCancel = (Button) v.findViewById(R.id.cancel_button);
+		this.mCancel.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(final View view) {
+				DatePickerDialogFragment.this.dismiss();
+			}
+		});
+		this.mPicker = (DatePicker) v.findViewById(R.id.date_picker);
+		this.mPicker.setSetButton(this.mSet);
+		this.mPicker.setDate(this.mYear, this.mMonthOfYear, this.mDayOfMonth);
+		this.mSet.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(final View view) {
+				for (final DatePickerDialogHandler handler : DatePickerDialogFragment.this.mDatePickerDialogHandlers) {
+					handler.onDialogDateSet(DatePickerDialogFragment.this.mReference, DatePickerDialogFragment.this.mPicker.getYear(), DatePickerDialogFragment.this.mPicker.getMonthOfYear(),
+							DatePickerDialogFragment.this.mPicker.getDayOfMonth());
+				}
+				final Activity activity = DatePickerDialogFragment.this.getActivity();
+				final Fragment fragment = DatePickerDialogFragment.this.getTargetFragment();
+				if (activity instanceof DatePickerDialogHandler) {
+					final DatePickerDialogHandler act =
+							(DatePickerDialogHandler) activity;
+					act.onDialogDateSet(DatePickerDialogFragment.this.mReference, DatePickerDialogFragment.this.mPicker.getYear(), DatePickerDialogFragment.this.mPicker.getMonthOfYear(),
+							DatePickerDialogFragment.this.mPicker.getDayOfMonth());
+				} else if (fragment instanceof DatePickerDialogHandler) {
+					final DatePickerDialogHandler frag =
+							(DatePickerDialogHandler) fragment;
+					frag.onDialogDateSet(DatePickerDialogFragment.this.mReference, DatePickerDialogFragment.this.mPicker.getYear(), DatePickerDialogFragment.this.mPicker.getMonthOfYear(),
+							DatePickerDialogFragment.this.mPicker.getDayOfMonth());
+				}
+				DatePickerDialogFragment.this.dismiss();
+			}
+		});
 
-        return v;
-    }
+		this.mDividerOne = v.findViewById(R.id.divider_1);
+		this.mDividerTwo = v.findViewById(R.id.divider_2);
+		this.mDividerOne.setBackgroundColor(this.mDividerColor);
+		this.mDividerTwo.setBackgroundColor(this.mDividerColor);
+		this.mSet.setTextColor(this.mTextColor);
+		this.mSet.setBackgroundResource(this.mButtonBackgroundResId);
+		this.mCancel.setTextColor(this.mTextColor);
+		this.mCancel.setBackgroundResource(this.mButtonBackgroundResId);
+		this.mPicker.setTheme(this.mTheme);
+		this.getDialog().getWindow().setBackgroundDrawableResource(this.mDialogBackgroundResId);
 
-    /**
-     * This interface allows objects to register for the Picker's set action.
-     */
-    public interface DatePickerDialogHandler {
+		return v;
+	}
 
-        void onDialogDateSet(int reference, int year, int monthOfYear, int dayOfMonth);
-    }
+	@Override
+	public void onSaveInstanceState(final Bundle outState) {
+		super.onSaveInstanceState(outState);
+	}
 
-    /**
-     * Attach a Vector of handlers to be notified in addition to the Fragment's Activity and target Fragment.
-     *
-     * @param handlers a Vector of handlers
-     */
-    public void setDatePickerDialogHandlers(Vector<DatePickerDialogHandler> handlers) {
-        mDatePickerDialogHandlers = handlers;
-    }
+	/**
+	 * Attach a Vector of handlers to be notified in addition to the Fragment's Activity and target Fragment.
+	 *
+	 * @param handlers a Vector of handlers
+	 */
+	public void setDatePickerDialogHandlers(final Vector<DatePickerDialogHandler> handlers) {
+		this.mDatePickerDialogHandlers = handlers;
+	}
 }

@@ -1,6 +1,6 @@
 package com.doomonafireball.betterpickers.hmspicker;
 
-import com.doomonafireball.betterpickers.R;
+
 
 import android.content.Context;
 import android.content.res.ColorStateList;
@@ -17,403 +17,406 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.doomonafireball.betterpickers.R;
 
 public class HmsPicker extends LinearLayout implements Button.OnClickListener, Button.OnLongClickListener {
 
-    protected int mInputSize = 5;
-    protected final Button mNumbers[] = new Button[10];
-    protected int mInput[] = new int[mInputSize];
-    protected int mInputPointer = -1;
-    protected ImageButton mDelete;
-    protected Button mLeft, mRight;
-    protected HmsView mEnteredHms;
-    protected final Context mContext;
+	private static class SavedState extends BaseSavedState {
 
-    private TextView mHoursLabel, mMinutesLabel, mSecondsLabel;
-    private Button mSetButton;
+		int mInputPointer;
+		int[] mInput;
+		int mAmPmState;
 
-    protected View mDivider;
-    private ColorStateList mTextColor;
-    private int mKeyBackgroundResId;
-    private int mButtonBackgroundResId;
-    private int mDividerColor;
-    private int mDeleteDrawableSrcResId;
-    private int mTheme = -1;
+		public static final Creator<SavedState> CREATOR
+		= new Creator<SavedState>() {
+			@Override
+			public SavedState createFromParcel(final Parcel in) {
+				return new SavedState(in);
+			}
 
-    /**
-     * Instantiates an HmsPicker object
-     *
-     * @param context the Context required for creation
-     */
-    public HmsPicker(Context context) {
-        this(context, null);
-    }
+			@Override
+			public SavedState[] newArray(final int size) {
+				return new SavedState[size];
+			}
+		};
 
-    /**
-     * Instantiates an HmsPicker object
-     *
-     * @param context the Context required for creation
-     * @param attrs additional attributes that define custom colors, selectors, and backgrounds.
-     */
-    public HmsPicker(Context context, AttributeSet attrs) {
-        super(context, attrs);
-        mContext = context;
-        LayoutInflater layoutInflater =
-                (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        layoutInflater.inflate(getLayoutId(), this);
+		private SavedState(final Parcel in) {
+			super(in);
+			this.mInputPointer = in.readInt();
+			in.readIntArray(this.mInput);
+			this.mAmPmState = in.readInt();
+		}
 
-        // Init defaults
-        mTextColor = getResources().getColorStateList(R.color.dialog_text_color_holo_dark);
-        mKeyBackgroundResId = R.drawable.key_background_dark;
-        mButtonBackgroundResId = R.drawable.button_background_dark;
-        mDividerColor = getResources().getColor(R.color.default_divider_color_dark);
-        mDeleteDrawableSrcResId = R.drawable.ic_backspace_dark;
-    }
+		public SavedState(final Parcelable superState) {
+			super(superState);
+		}
 
-    protected int getLayoutId() {
-        return R.layout.hms_picker_view;
-    }
+		@Override
+		public void writeToParcel(final Parcel dest, final int flags) {
+			super.writeToParcel(dest, flags);
+			dest.writeInt(this.mInputPointer);
+			dest.writeIntArray(this.mInput);
+			dest.writeInt(this.mAmPmState);
+		}
+	}
+	protected int mInputSize = 5;
+	protected final Button mNumbers[] = new Button[10];
+	protected int mInput[] = new int[this.mInputSize];
+	protected int mInputPointer = -1;
+	protected ImageButton mDelete;
+	protected Button mLeft, mRight;
+	protected HmsView mEnteredHms;
 
-    /**
-     * Change the theme of the Picker
-     *
-     * @param themeResId the resource ID of the new style
-     */
-    public void setTheme(int themeResId) {
-        mTheme = themeResId;
-        if (mTheme != -1) {
-            TypedArray a = getContext().obtainStyledAttributes(themeResId, R.styleable.BetterPickersDialogFragment);
-            mTextColor = a.getColorStateList(R.styleable.BetterPickersDialogFragment_bpTextColor);
-            mKeyBackgroundResId = a.getResourceId(R.styleable.BetterPickersDialogFragment_bpKeyBackground,
-                    mKeyBackgroundResId);
-            mButtonBackgroundResId = a.getResourceId(R.styleable.BetterPickersDialogFragment_bpButtonBackground,
-                    mButtonBackgroundResId);
-            mDividerColor = a.getColor(R.styleable.BetterPickersDialogFragment_bpDividerColor, mDividerColor);
-            mDeleteDrawableSrcResId = a.getResourceId(R.styleable.BetterPickersDialogFragment_bpDeleteIcon,
-                    mDeleteDrawableSrcResId);
-        }
+	protected final Context mContext;
+	private TextView mHoursLabel, mMinutesLabel, mSecondsLabel;
 
-        restyleViews();
-    }
+	private Button mSetButton;
+	protected View mDivider;
+	private ColorStateList mTextColor;
+	private int mKeyBackgroundResId;
+	private int mButtonBackgroundResId;
+	private int mDividerColor;
+	private int mDeleteDrawableSrcResId;
 
-    private void restyleViews() {
-        for (Button number : mNumbers) {
-            if (number != null) {
-                number.setTextColor(mTextColor);
-                number.setBackgroundResource(mKeyBackgroundResId);
-            }
-        }
-        if (mDivider != null) {
-            mDivider.setBackgroundColor(mDividerColor);
-        }
-        if (mHoursLabel != null) {
-            mHoursLabel.setTextColor(mTextColor);
-            mHoursLabel.setBackgroundResource(mKeyBackgroundResId);
-        }
-        if (mMinutesLabel != null) {
-            mMinutesLabel.setTextColor(mTextColor);
-            mMinutesLabel.setBackgroundResource(mKeyBackgroundResId);
-        }
-        if (mSecondsLabel != null) {
-            mSecondsLabel.setTextColor(mTextColor);
-            mSecondsLabel.setBackgroundResource(mKeyBackgroundResId);
-        }
-        if (mDelete != null) {
-            mDelete.setBackgroundResource(mButtonBackgroundResId);
-            mDelete.setImageDrawable(getResources().getDrawable(mDeleteDrawableSrcResId));
-        }
-        if (mEnteredHms != null) {
-            mEnteredHms.setTheme(mTheme);
-        }
-    }
+	private int mTheme = -1;
 
-    @Override
-    protected void onFinishInflate() {
-        super.onFinishInflate();
+	/**
+	 * Instantiates an HmsPicker object
+	 *
+	 * @param context the Context required for creation
+	 */
+	 public HmsPicker(final Context context) {
+		 this(context, null);
+	 }
 
-        View v1 = findViewById(R.id.first);
-        View v2 = findViewById(R.id.second);
-        View v3 = findViewById(R.id.third);
-        View v4 = findViewById(R.id.fourth);
-        mEnteredHms = (HmsView) findViewById(R.id.hms_text);
-        mDelete = (ImageButton) findViewById(R.id.delete);
-        mDelete.setOnClickListener(this);
-        mDelete.setOnLongClickListener(this);
+	/**
+	 * Instantiates an HmsPicker object
+	 *
+	 * @param context the Context required for creation
+	 * @param attrs additional attributes that define custom colors, selectors, and backgrounds.
+	 */
+	 public HmsPicker(final Context context, final AttributeSet attrs) {
+		 super(context, attrs);
+		 this.mContext = context;
+		 final LayoutInflater layoutInflater =
+				 (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		 layoutInflater.inflate(this.getLayoutId(), this);
 
-        mNumbers[1] = (Button) v1.findViewById(R.id.key_left);
-        mNumbers[2] = (Button) v1.findViewById(R.id.key_middle);
-        mNumbers[3] = (Button) v1.findViewById(R.id.key_right);
+		 // Init defaults
+		 this.mTextColor = this.getResources().getColorStateList(R.color.dialog_text_color_holo_dark);
+		 this.mKeyBackgroundResId = R.drawable.key_background_dark;
+		 this.mButtonBackgroundResId = R.drawable.button_background_dark;
+		 this.mDividerColor = this.getResources().getColor(R.color.default_divider_color_dark);
+		 this.mDeleteDrawableSrcResId = R.drawable.ic_backspace_dark;
+	 }
 
-        mNumbers[4] = (Button) v2.findViewById(R.id.key_left);
-        mNumbers[5] = (Button) v2.findViewById(R.id.key_middle);
-        mNumbers[6] = (Button) v2.findViewById(R.id.key_right);
+	 private void addClickedNumber(final int val) {
+		 if (this.mInputPointer < (this.mInputSize - 1)) {
+			 for (int i = this.mInputPointer; i >= 0; i--) {
+				 this.mInput[i + 1] = this.mInput[i];
+			 }
+			 this.mInputPointer++;
+			 this.mInput[0] = val;
+		 }
+	 }
 
-        mNumbers[7] = (Button) v3.findViewById(R.id.key_left);
-        mNumbers[8] = (Button) v3.findViewById(R.id.key_middle);
-        mNumbers[9] = (Button) v3.findViewById(R.id.key_right);
+	 protected void doOnClick(final View v) {
+		 final Integer val = (Integer) v.getTag(R.id.numbers_key);
+		 // A number was pressed
+		 if (val != null) {
+			 this.addClickedNumber(val);
+		 } else if (v == this.mDelete) {
+			 if (this.mInputPointer >= 0) {
+				 for (int i = 0; i < this.mInputPointer; i++) {
+					 this.mInput[i] = this.mInput[i + 1];
+				 }
+				 this.mInput[this.mInputPointer] = 0;
+				 this.mInputPointer--;
+			 }
+		 }
+		 this.updateKeypad();
+	 }
 
-        mLeft = (Button) v4.findViewById(R.id.key_left);
-        mNumbers[0] = (Button) v4.findViewById(R.id.key_middle);
-        mRight = (Button) v4.findViewById(R.id.key_right);
-        setLeftRightEnabled(false);
+	 /**
+	  * Enable/disable the "Set" button
+	  */
+	 private void enableSetButton() {
+		 if (this.mSetButton == null) {
+			 return;
+		 }
 
-        for (int i = 0; i < 10; i++) {
-            mNumbers[i].setOnClickListener(this);
-            mNumbers[i].setText(String.format("%d", i));
-            mNumbers[i].setTag(R.id.numbers_key, new Integer(i));
-        }
-        updateHms();
+		 // Nothing entered - disable
+		 if (this.mInputPointer == -1) {
+			 this.mSetButton.setEnabled(false);
+			 return;
+		 }
 
-        mHoursLabel = (TextView) findViewById(R.id.hours_label);
-        mMinutesLabel = (TextView) findViewById(R.id.minutes_label);
-        mSecondsLabel = (TextView) findViewById(R.id.seconds_label);
-        mDivider = findViewById(R.id.divider);
+		 this.mSetButton.setEnabled(this.mInputPointer >= 0);
+	 }
 
-        restyleViews();
-        updateKeypad();
-    }
+	 /**
+	  * Returns the hours as currently inputted by the user.
+	  *
+	  * @return the inputted hours
+	  */
+	 public int getHours() {
+		 final int hours = this.mInput[4];
+		 return hours;
+	 }
 
-    /**
-     * Update the delete button to determine whether it is able to be clicked.
-     */
-    public void updateDeleteButton() {
-        boolean enabled = mInputPointer != -1;
-        if (mDelete != null) {
-            mDelete.setEnabled(enabled);
-        }
-    }
+	 protected int getLayoutId() {
+		 return R.layout.hms_picker_view;
+	 }
 
-    @Override
-    public void onClick(View v) {
-        v.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
-        doOnClick(v);
-        updateDeleteButton();
-    }
+	 /**
+	  * Returns the minutes as currently inputted by the user.
+	  *
+	  * @return the inputted minutes
+	  */
+	 public int getMinutes() {
+		 return (this.mInput[3] * 10) + this.mInput[2];
+	 }
 
-    protected void doOnClick(View v) {
-        Integer val = (Integer) v.getTag(R.id.numbers_key);
-        // A number was pressed
-        if (val != null) {
-            addClickedNumber(val);
-        } else if (v == mDelete) {
-            if (mInputPointer >= 0) {
-                for (int i = 0; i < mInputPointer; i++) {
-                    mInput[i] = mInput[i + 1];
-                }
-                mInput[mInputPointer] = 0;
-                mInputPointer--;
-            }
-        }
-        updateKeypad();
-    }
+	 /**
+	  * Return the seconds as currently inputted by the user.
+	  *
+	  * @return the inputted seconds
+	  */
+	 public int getSeconds() {
+		 return (this.mInput[1] * 10) + this.mInput[0];
+	 }
 
-    @Override
-    public boolean onLongClick(View v) {
-        v.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS);
-        if (v == mDelete) {
-            mDelete.setPressed(false);
+	 /**
+	  * Returns the time in seconds
+	  *
+	  * @return an int representing the time in seconds
+	  */
+	 public int getTime() {
+		 return (this.mInput[4] * 3600) + (this.mInput[3] * 600) + (this.mInput[2] * 60) + (this.mInput[1] * 10) + this.mInput[0];
+	 }
 
-            reset();
-            updateKeypad();
-            return true;
-        }
-        return false;
-    }
+	 @Override
+	 public void onClick(final View v) {
+		 v.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
+		 this.doOnClick(v);
+		 this.updateDeleteButton();
+	 }
 
-    /**
-     * Reset all inputs and the hours:minutes:seconds.
-     */
-    public void reset() {
-        for (int i = 0; i < mInputSize; i++) {
-            mInput[i] = 0;
-        }
-        mInputPointer = -1;
-        updateHms();
-    }
+	 @Override
+	 protected void onFinishInflate() {
+		 super.onFinishInflate();
 
-    private void updateKeypad() {
-        // Update the h:m:s
-        updateHms();
-        // enable/disable the "set" key
-        enableSetButton();
-        // Update the backspace button
-        updateDeleteButton();
+		 final View v1 = this.findViewById(R.id.first);
+		 final View v2 = this.findViewById(R.id.second);
+		 final View v3 = this.findViewById(R.id.third);
+		 final View v4 = this.findViewById(R.id.fourth);
+		 this.mEnteredHms = (HmsView) this.findViewById(R.id.hms_text);
+		 this.mDelete = (ImageButton) this.findViewById(R.id.delete);
+		 this.mDelete.setOnClickListener(this);
+		 this.mDelete.setOnLongClickListener(this);
 
-    }
+		 this.mNumbers[1] = (Button) v1.findViewById(R.id.key_left);
+		 this.mNumbers[2] = (Button) v1.findViewById(R.id.key_middle);
+		 this.mNumbers[3] = (Button) v1.findViewById(R.id.key_right);
 
-    /**
-     * Update the time displayed in the picker:
-     *
-     * Put "-" in digits that was not entered by passing -1
-     *
-     * Hide digit by passing -2 (for highest hours digit only);
-     */
-    protected void updateHms() {
-        mEnteredHms.setTime(mInput[4], mInput[3], mInput[2], mInput[1], mInput[0]);
-    }
+		 this.mNumbers[4] = (Button) v2.findViewById(R.id.key_left);
+		 this.mNumbers[5] = (Button) v2.findViewById(R.id.key_middle);
+		 this.mNumbers[6] = (Button) v2.findViewById(R.id.key_right);
 
-    private void addClickedNumber(int val) {
-        if (mInputPointer < mInputSize - 1) {
-            for (int i = mInputPointer; i >= 0; i--) {
-                mInput[i + 1] = mInput[i];
-            }
-            mInputPointer++;
-            mInput[0] = val;
-        }
-    }
+		 this.mNumbers[7] = (Button) v3.findViewById(R.id.key_left);
+		 this.mNumbers[8] = (Button) v3.findViewById(R.id.key_middle);
+		 this.mNumbers[9] = (Button) v3.findViewById(R.id.key_right);
 
-    /**
-     * Enable/disable the "Set" button
-     */
-    private void enableSetButton() {
-        if (mSetButton == null) {
-            return;
-        }
+		 this.mLeft = (Button) v4.findViewById(R.id.key_left);
+		 this.mNumbers[0] = (Button) v4.findViewById(R.id.key_middle);
+		 this.mRight = (Button) v4.findViewById(R.id.key_right);
+		 this.setLeftRightEnabled(false);
 
-        // Nothing entered - disable
-        if (mInputPointer == -1) {
-            mSetButton.setEnabled(false);
-            return;
-        }
+		 for (int i = 0; i < 10; i++) {
+			 this.mNumbers[i].setOnClickListener(this);
+			 this.mNumbers[i].setText(String.format("%d", i));
+			 this.mNumbers[i].setTag(R.id.numbers_key, new Integer(i));
+		 }
+		 this.updateHms();
 
-        mSetButton.setEnabled(mInputPointer >= 0);
-    }
+		 this.mHoursLabel = (TextView) this.findViewById(R.id.hours_label);
+		 this.mMinutesLabel = (TextView) this.findViewById(R.id.minutes_label);
+		 this.mSecondsLabel = (TextView) this.findViewById(R.id.seconds_label);
+		 this.mDivider = this.findViewById(R.id.divider);
 
-    /**
-     * Expose the set button to allow communication with the parent Fragment.
-     *
-     * @param b the parent Fragment's "Set" button
-     */
-    public void setSetButton(Button b) {
-        mSetButton = b;
-        enableSetButton();
-    }
+		 this.restyleViews();
+		 this.updateKeypad();
+	 }
 
-    /**
-     * Returns the hours as currently inputted by the user.
-     *
-     * @return the inputted hours
-     */
-    public int getHours() {
-        int hours = mInput[4];
-        return hours;
-    }
+	 @Override
+	 public boolean onLongClick(final View v) {
+		 v.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS);
+		 if (v == this.mDelete) {
+			 this.mDelete.setPressed(false);
 
-    /**
-     * Returns the minutes as currently inputted by the user.
-     *
-     * @return the inputted minutes
-     */
-    public int getMinutes() {
-        return mInput[3] * 10 + mInput[2];
-    }
+			 this.reset();
+			 this.updateKeypad();
+			 return true;
+		 }
+		 return false;
+	 }
 
-    /**
-     * Return the seconds as currently inputted by the user.
-     *
-     * @return the inputted seconds
-     */
-    public int getSeconds() {
-        return mInput[1] * 10 + mInput[0];
-    }
+	 @Override
+	 protected void onRestoreInstanceState(final Parcelable state) {
+		 if (!(state instanceof SavedState)) {
+			 super.onRestoreInstanceState(state);
+			 return;
+		 }
 
-    @Override
-    public Parcelable onSaveInstanceState() {
-        final Parcelable parcel = super.onSaveInstanceState();
-        final SavedState state = new SavedState(parcel);
-        state.mInput = mInput;
-        state.mInputPointer = mInputPointer;
-        return state;
-    }
+		 final SavedState savedState = (SavedState) state;
+		 super.onRestoreInstanceState(savedState.getSuperState());
 
-    @Override
-    protected void onRestoreInstanceState(Parcelable state) {
-        if (!(state instanceof SavedState)) {
-            super.onRestoreInstanceState(state);
-            return;
-        }
+		 this.mInputPointer = savedState.mInputPointer;
+		 this.mInput = savedState.mInput;
+		 if (this.mInput == null) {
+			 this.mInput = new int[this.mInputSize];
+			 this.mInputPointer = -1;
+		 }
+		 this.updateKeypad();
+	 }
 
-        final SavedState savedState = (SavedState) state;
-        super.onRestoreInstanceState(savedState.getSuperState());
+	 @Override
+	 public Parcelable onSaveInstanceState() {
+		 final Parcelable parcel = super.onSaveInstanceState();
+		 final SavedState state = new SavedState(parcel);
+		 state.mInput = this.mInput;
+		 state.mInputPointer = this.mInputPointer;
+		 return state;
+	 }
 
-        mInputPointer = savedState.mInputPointer;
-        mInput = savedState.mInput;
-        if (mInput == null) {
-            mInput = new int[mInputSize];
-            mInputPointer = -1;
-        }
-        updateKeypad();
-    }
+	 /**
+	  * Reset all inputs and the hours:minutes:seconds.
+	  */
+	  public void reset() {
+		 for (int i = 0; i < this.mInputSize; i++) {
+			 this.mInput[i] = 0;
+		 }
+		 this.mInputPointer = -1;
+		 this.updateHms();
+	  }
 
-    private static class SavedState extends BaseSavedState {
+	  public void restoreEntryState(final Bundle inState, final String key) {
+		  final int[] input = inState.getIntArray(key);
+		  if ((input != null) && (this.mInputSize == input.length)) {
+			  for (int i = 0; i < this.mInputSize; i++) {
+				  this.mInput[i] = input[i];
+				  if (this.mInput[i] != 0) {
+					  this.mInputPointer = i;
+				  }
+			  }
+			  this.updateHms();
+		  }
+	  }
 
-        int mInputPointer;
-        int[] mInput;
-        int mAmPmState;
+	  private void restyleViews() {
+		  for (final Button number : this.mNumbers) {
+			  if (number != null) {
+				  number.setTextColor(this.mTextColor);
+				  number.setBackgroundResource(this.mKeyBackgroundResId);
+			  }
+		  }
+		  if (this.mDivider != null) {
+			  this.mDivider.setBackgroundColor(this.mDividerColor);
+		  }
+		  if (this.mHoursLabel != null) {
+			  this.mHoursLabel.setTextColor(this.mTextColor);
+			  this.mHoursLabel.setBackgroundResource(this.mKeyBackgroundResId);
+		  }
+		  if (this.mMinutesLabel != null) {
+			  this.mMinutesLabel.setTextColor(this.mTextColor);
+			  this.mMinutesLabel.setBackgroundResource(this.mKeyBackgroundResId);
+		  }
+		  if (this.mSecondsLabel != null) {
+			  this.mSecondsLabel.setTextColor(this.mTextColor);
+			  this.mSecondsLabel.setBackgroundResource(this.mKeyBackgroundResId);
+		  }
+		  if (this.mDelete != null) {
+			  this.mDelete.setBackgroundResource(this.mButtonBackgroundResId);
+			  this.mDelete.setImageDrawable(this.getResources().getDrawable(this.mDeleteDrawableSrcResId));
+		  }
+		  if (this.mEnteredHms != null) {
+			  this.mEnteredHms.setTheme(this.mTheme);
+		  }
+	  }
 
-        public SavedState(Parcelable superState) {
-            super(superState);
-        }
+	  public void saveEntryState(final Bundle outState, final String key) {
+		  outState.putIntArray(key, this.mInput);
+	  }
 
-        private SavedState(Parcel in) {
-            super(in);
-            mInputPointer = in.readInt();
-            in.readIntArray(mInput);
-            mAmPmState = in.readInt();
-        }
+	  protected void setLeftRightEnabled(final boolean enabled) {
+		  this.mLeft.setEnabled(enabled);
+		  this.mRight.setEnabled(enabled);
+		  if (!enabled) {
+			  this.mLeft.setContentDescription(null);
+			  this.mRight.setContentDescription(null);
+		  }
+	  }
 
-        @Override
-        public void writeToParcel(Parcel dest, int flags) {
-            super.writeToParcel(dest, flags);
-            dest.writeInt(mInputPointer);
-            dest.writeIntArray(mInput);
-            dest.writeInt(mAmPmState);
-        }
+	  /**
+	   * Expose the set button to allow communication with the parent Fragment.
+	   *
+	   * @param b the parent Fragment's "Set" button
+	   */
+	   public void setSetButton(final Button b) {
+		  this.mSetButton = b;
+		  this.enableSetButton();
+	  }
 
-        public static final Creator<SavedState> CREATOR
-                = new Creator<SavedState>() {
-            public SavedState createFromParcel(Parcel in) {
-                return new SavedState(in);
-            }
+	  /**
+	   * Change the theme of the Picker
+	   *
+	   * @param themeResId the resource ID of the new style
+	   */
+	   public void setTheme(final int themeResId) {
+		   this.mTheme = themeResId;
+		   if (this.mTheme != -1) {
+			   final TypedArray a = this.getContext().obtainStyledAttributes(themeResId, R.styleable.BetterPickersDialogFragment);
+			   this.mTextColor = a.getColorStateList(R.styleable.BetterPickersDialogFragment_bpTextColor);
+			   this.mKeyBackgroundResId = a.getResourceId(R.styleable.BetterPickersDialogFragment_bpKeyBackground,
+					   this.mKeyBackgroundResId);
+			   this.mButtonBackgroundResId = a.getResourceId(R.styleable.BetterPickersDialogFragment_bpButtonBackground,
+					   this.mButtonBackgroundResId);
+			   this.mDividerColor = a.getColor(R.styleable.BetterPickersDialogFragment_bpDividerColor, this.mDividerColor);
+			   this.mDeleteDrawableSrcResId = a.getResourceId(R.styleable.BetterPickersDialogFragment_bpDeleteIcon,
+					   this.mDeleteDrawableSrcResId);
+		   }
 
-            public SavedState[] newArray(int size) {
-                return new SavedState[size];
-            }
-        };
-    }
+		   this.restyleViews();
+	   }
 
-    /**
-     * Returns the time in seconds
-     *
-     * @return an int representing the time in seconds
-     */
-    public int getTime() {
-        return mInput[4] * 3600 + mInput[3] * 600 + mInput[2] * 60 + mInput[1] * 10 + mInput[0];
-    }
+	   /**
+	    * Update the delete button to determine whether it is able to be clicked.
+	    */
+	   public void updateDeleteButton() {
+		   final boolean enabled = this.mInputPointer != -1;
+		   if (this.mDelete != null) {
+			   this.mDelete.setEnabled(enabled);
+		   }
+	   }
 
-    public void saveEntryState(Bundle outState, String key) {
-        outState.putIntArray(key, mInput);
-    }
+	   /**
+	    * Update the time displayed in the picker:
+	    *
+	    * Put "-" in digits that was not entered by passing -1
+	    *
+	    * Hide digit by passing -2 (for highest hours digit only);
+	    */
+	   protected void updateHms() {
+		   this.mEnteredHms.setTime(this.mInput[4], this.mInput[3], this.mInput[2], this.mInput[1], this.mInput[0]);
+	   }
 
-    public void restoreEntryState(Bundle inState, String key) {
-        int[] input = inState.getIntArray(key);
-        if (input != null && mInputSize == input.length) {
-            for (int i = 0; i < mInputSize; i++) {
-                mInput[i] = input[i];
-                if (mInput[i] != 0) {
-                    mInputPointer = i;
-                }
-            }
-            updateHms();
-        }
-    }
+	   private void updateKeypad() {
+		   // Update the h:m:s
+		   this.updateHms();
+		   // enable/disable the "set" key
+		   this.enableSetButton();
+		   // Update the backspace button
+		   this.updateDeleteButton();
 
-    protected void setLeftRightEnabled(boolean enabled) {
-        mLeft.setEnabled(enabled);
-        mRight.setEnabled(enabled);
-        if (!enabled) {
-            mLeft.setContentDescription(null);
-            mRight.setContentDescription(null);
-        }
-    }
+	   }
 }

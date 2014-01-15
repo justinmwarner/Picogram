@@ -15,7 +15,7 @@
  */
 package com.doomonafireball.betterpickers.widget;
 
-import com.doomonafireball.betterpickers.R;
+
 
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -32,311 +32,313 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
 
+import com.doomonafireball.betterpickers.R;
 /**
  * Draws a line for each page. The current page line is colored differently than the unselected page lines.
  */
 public class UnderlinePageIndicatorPicker extends View implements PageIndicator {
 
-    private int mColorUnderline;
+	static class SavedState extends BaseSavedState {
 
-    private static final int INVALID_POINTER = -1;
+		int currentPage;
 
-    private final Paint mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+		@SuppressWarnings("UnusedDeclaration")
+		public static final Creator<SavedState> CREATOR = new Creator<SavedState>() {
+			@Override
+			public SavedState createFromParcel(final Parcel in) {
+				return new SavedState(in);
+			}
 
-    private ViewPager mViewPager;
-    private ViewPager.OnPageChangeListener mListener;
-    private int mScrollState;
-    private int mCurrentPage;
-    private float mPositionOffset;
+			@Override
+			public SavedState[] newArray(final int size) {
+				return new SavedState[size];
+			}
+		};
 
-    private int mTouchSlop;
-    private float mLastMotionX = -1;
-    private int mActivePointerId = INVALID_POINTER;
-    private boolean mIsDragging;
+		private SavedState(final Parcel in) {
+			super(in);
+			this.currentPage = in.readInt();
+		}
 
-    private PickerLinearLayout mTitleView = null;
-    private Paint rectPaint;
+		public SavedState(final Parcelable superState) {
+			super(superState);
+		}
 
-    public UnderlinePageIndicatorPicker(Context context) {
-        this(context, null);
-    }
+		@Override
+		public void writeToParcel(final Parcel dest, final int flags) {
+			super.writeToParcel(dest, flags);
+			dest.writeInt(this.currentPage);
+		}
+	}
 
-    public UnderlinePageIndicatorPicker(Context context, AttributeSet attrs) {
-        super(context, attrs);
+	private int mColorUnderline;
+
+	private static final int INVALID_POINTER = -1;
+
+	private final Paint mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+	private ViewPager mViewPager;
+	private ViewPager.OnPageChangeListener mListener;
+	private int mScrollState;
+	private int mCurrentPage;
+
+	private float mPositionOffset;
+	private int mTouchSlop;
+	private float mLastMotionX = -1;
+	private int mActivePointerId = INVALID_POINTER;
+
+	private boolean mIsDragging;
+	private PickerLinearLayout mTitleView = null;
+
+	private Paint rectPaint;
+
+	public UnderlinePageIndicatorPicker(final Context context) {
+		this(context, null);
+	}
+
+	public UnderlinePageIndicatorPicker(final Context context, final AttributeSet attrs) {
+		super(context, attrs);
 
 
-    }
+	}
 
-    public UnderlinePageIndicatorPicker(Context context, AttributeSet attrs, int defStyle) {
-        super(context, attrs, defStyle);
+	public UnderlinePageIndicatorPicker(final Context context, final AttributeSet attrs, final int defStyle) {
+		super(context, attrs, defStyle);
 
-        mColorUnderline = getResources().getColor(R.color.dialog_text_color_holo_dark);
+		this.mColorUnderline = this.getResources().getColor(R.color.dialog_text_color_holo_dark);
 
-        TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.BetterPickersDialogFragment, defStyle, 0);
-        mColorUnderline = a.getColor(R.styleable.BetterPickersDialogFragment_bpKeyboardIndicatorColor, mColorUnderline);
+		final TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.BetterPickersDialogFragment, defStyle, 0);
+		this.mColorUnderline = a.getColor(R.styleable.BetterPickersDialogFragment_bpKeyboardIndicatorColor, this.mColorUnderline);
 
-        rectPaint = new Paint();
-        rectPaint.setAntiAlias(true);
-        rectPaint.setStyle(Style.FILL);
+		this.rectPaint = new Paint();
+		this.rectPaint.setAntiAlias(true);
+		this.rectPaint.setStyle(Style.FILL);
 
-        a.recycle();
+		a.recycle();
 
-        final ViewConfiguration configuration = ViewConfiguration.get(context);
-        mTouchSlop = ViewConfigurationCompat.getScaledPagingTouchSlop(configuration);
-    }
+		final ViewConfiguration configuration = ViewConfiguration.get(context);
+		this.mTouchSlop = ViewConfigurationCompat.getScaledPagingTouchSlop(configuration);
+	}
 
-    public int getSelectedColor() {
-        return mPaint.getColor();
-    }
+	public int getSelectedColor() {
+		return this.mPaint.getColor();
+	}
 
-    public void setSelectedColor(int selectedColor) {
-        mPaint.setColor(selectedColor);
-        invalidate();
-    }
+	@Override
+	public void notifyDataSetChanged() {
+		this.invalidate();
+	}
 
-    @Override
-    protected void onDraw(Canvas canvas) {
-        super.onDraw(canvas);
+	@Override
+	protected void onDraw(final Canvas canvas) {
+		super.onDraw(canvas);
 
-        final int count = mViewPager.getAdapter().getCount();
+		final int count = this.mViewPager.getAdapter().getCount();
 
-        if (isInEditMode() || count == 0) {
-            return;
-        }
+		if (this.isInEditMode() || (count == 0)) {
+			return;
+		}
 
-        if (mTitleView != null) {
-            View currentTab = mTitleView.getViewAt(mCurrentPage);
-            float lineLeft = currentTab.getLeft();
-            float lineRight = currentTab.getRight();
+		if (this.mTitleView != null) {
+			final View currentTab = this.mTitleView.getViewAt(this.mCurrentPage);
+			float lineLeft = currentTab.getLeft();
+			float lineRight = currentTab.getRight();
 
-            // if there is an offset, start interpolating left and right
-            // coordinates
-            // between current and next tab
-            if (mPositionOffset > 0f && mCurrentPage < count - 1) {
+			// if there is an offset, start interpolating left and right
+			// coordinates
+			// between current and next tab
+			if ((this.mPositionOffset > 0f) && (this.mCurrentPage < (count - 1))) {
 
-                View nextTab = mTitleView.getViewAt(mCurrentPage + 1);
-                final float nextTabLeft = nextTab.getLeft();
-                final float nextTabRight = nextTab.getRight();
+				final View nextTab = this.mTitleView.getViewAt(this.mCurrentPage + 1);
+				final float nextTabLeft = nextTab.getLeft();
+				final float nextTabRight = nextTab.getRight();
 
-                lineLeft = (mPositionOffset * nextTabLeft + (1f - mPositionOffset) * lineLeft);
-                lineRight = (mPositionOffset * nextTabRight + (1f - mPositionOffset) * lineRight);
-            }
+				lineLeft = ((this.mPositionOffset * nextTabLeft) + ((1f - this.mPositionOffset) * lineLeft));
+				lineRight = ((this.mPositionOffset * nextTabRight) + ((1f - this.mPositionOffset) * lineRight));
+			}
 
-            canvas.drawRect(lineLeft, getPaddingBottom(), lineRight, getHeight() - getPaddingBottom(), mPaint);
-        }
-    }
+			canvas.drawRect(lineLeft, this.getPaddingBottom(), lineRight, this.getHeight() - this.getPaddingBottom(), this.mPaint);
+		}
+	}
 
-    public boolean onTouchEvent(MotionEvent ev) {
-        if (super.onTouchEvent(ev)) {
-            return true;
-        }
-        if ((mViewPager == null) || (mViewPager.getAdapter().getCount() == 0)) {
-            return false;
-        }
+	@Override
+	public void onPageScrolled(final int position, final float positionOffset, final int positionOffsetPixels) {
+		this.mCurrentPage = position;
+		this.mPositionOffset = positionOffset;
+		this.invalidate();
 
-        final int action = ev.getAction() & MotionEventCompat.ACTION_MASK;
-        switch (action) {
-            case MotionEvent.ACTION_DOWN:
-                mActivePointerId = MotionEventCompat.getPointerId(ev, 0);
-                mLastMotionX = ev.getX();
-                break;
+		if (this.mListener != null) {
+			this.mListener.onPageScrolled(position, positionOffset, positionOffsetPixels);
+		}
+	}
 
-            case MotionEvent.ACTION_MOVE: {
-                final int activePointerIndex = MotionEventCompat.findPointerIndex(ev, mActivePointerId);
-                final float x = MotionEventCompat.getX(ev, activePointerIndex);
-                final float deltaX = x - mLastMotionX;
+	@Override
+	public void onPageScrollStateChanged(final int state) {
+		this.mScrollState = state;
 
-                if (!mIsDragging) {
-                    if (Math.abs(deltaX) > mTouchSlop) {
-                        mIsDragging = true;
-                    }
-                }
+		if (this.mListener != null) {
+			this.mListener.onPageScrollStateChanged(state);
+		}
+	}
 
-                if (mIsDragging) {
-                    mLastMotionX = x;
-                    if (mViewPager.isFakeDragging() || mViewPager.beginFakeDrag()) {
-                        mViewPager.fakeDragBy(deltaX);
-                    }
-                }
+	@Override
+	public void onPageSelected(final int position) {
+		if (this.mScrollState == ViewPager.SCROLL_STATE_IDLE) {
+			this.mCurrentPage = position;
+			this.mPositionOffset = 0;
+			this.invalidate();
+		}
+		if (this.mListener != null) {
+			this.mListener.onPageSelected(position);
+		}
+	}
 
-                break;
-            }
+	@Override
+	public void onRestoreInstanceState(final Parcelable state) {
+		final SavedState savedState = (SavedState) state;
+		super.onRestoreInstanceState(savedState.getSuperState());
+		this.mCurrentPage = savedState.currentPage;
+		this.requestLayout();
+	}
 
-            case MotionEvent.ACTION_CANCEL:
-            case MotionEvent.ACTION_UP:
-                if (!mIsDragging) {
-                    final int count = mViewPager.getAdapter().getCount();
-                    final int width = getWidth();
-                    final float halfWidth = width / 2f;
-                    final float sixthWidth = width / 6f;
+	@Override
+	public Parcelable onSaveInstanceState() {
+		final Parcelable superState = super.onSaveInstanceState();
+		final SavedState savedState = new SavedState(superState);
+		savedState.currentPage = this.mCurrentPage;
+		return savedState;
+	}
 
-                    if ((mCurrentPage > 0) && (ev.getX() < halfWidth - sixthWidth)) {
-                        if (action != MotionEvent.ACTION_CANCEL) {
-                            mViewPager.setCurrentItem(mCurrentPage - 1);
-                        }
-                        return true;
-                    } else if ((mCurrentPage < count - 1) && (ev.getX() > halfWidth + sixthWidth)) {
-                        if (action != MotionEvent.ACTION_CANCEL) {
-                            mViewPager.setCurrentItem(mCurrentPage + 1);
-                        }
-                        return true;
-                    }
-                }
+	@Override
+	public boolean onTouchEvent(final MotionEvent ev) {
+		if (super.onTouchEvent(ev)) {
+			return true;
+		}
+		if ((this.mViewPager == null) || (this.mViewPager.getAdapter().getCount() == 0)) {
+			return false;
+		}
 
-                mIsDragging = false;
-                mActivePointerId = INVALID_POINTER;
-                if (mViewPager.isFakeDragging()) {
-                    mViewPager.endFakeDrag();
-                }
-                break;
+		final int action = ev.getAction() & MotionEventCompat.ACTION_MASK;
+		switch (action) {
+			case MotionEvent.ACTION_DOWN:
+				this.mActivePointerId = MotionEventCompat.getPointerId(ev, 0);
+				this.mLastMotionX = ev.getX();
+				break;
 
-            case MotionEventCompat.ACTION_POINTER_DOWN: {
-                final int index = MotionEventCompat.getActionIndex(ev);
-                mLastMotionX = MotionEventCompat.getX(ev, index);
-                mActivePointerId = MotionEventCompat.getPointerId(ev, index);
-                break;
-            }
+			case MotionEvent.ACTION_MOVE: {
+				final int activePointerIndex = MotionEventCompat.findPointerIndex(ev, this.mActivePointerId);
+				final float x = MotionEventCompat.getX(ev, activePointerIndex);
+				final float deltaX = x - this.mLastMotionX;
 
-            case MotionEventCompat.ACTION_POINTER_UP:
-                final int pointerIndex = MotionEventCompat.getActionIndex(ev);
-                final int pointerId = MotionEventCompat.getPointerId(ev, pointerIndex);
-                if (pointerId == mActivePointerId) {
-                    final int newPointerIndex = pointerIndex == 0 ? 1 : 0;
-                    mActivePointerId = MotionEventCompat.getPointerId(ev, newPointerIndex);
-                }
-                mLastMotionX = MotionEventCompat.getX(ev, MotionEventCompat.findPointerIndex(ev, mActivePointerId));
-                break;
-        }
+				if (!this.mIsDragging) {
+					if (Math.abs(deltaX) > this.mTouchSlop) {
+						this.mIsDragging = true;
+					}
+				}
 
-        return true;
-    }
+				if (this.mIsDragging) {
+					this.mLastMotionX = x;
+					if (this.mViewPager.isFakeDragging() || this.mViewPager.beginFakeDrag()) {
+						this.mViewPager.fakeDragBy(deltaX);
+					}
+				}
 
-    @Override
-    public void setViewPager(ViewPager viewPager) {
-        if (mViewPager == viewPager) {
-            return;
-        }
-        if (mViewPager != null) {
-            // Clear us from the old pager.
-            mViewPager.setOnPageChangeListener(null);
-        }
-        if (viewPager.getAdapter() == null) {
-            throw new IllegalStateException("ViewPager does not have adapter instance.");
-        }
-        mViewPager = viewPager;
-        mViewPager.setOnPageChangeListener(this);
-        invalidate();
-    }
+				break;
+			}
 
-    @Override
-    public void setViewPager(ViewPager view, int initialPosition) {
-        setViewPager(view);
-        setCurrentItem(initialPosition);
-    }
+			case MotionEvent.ACTION_CANCEL:
+			case MotionEvent.ACTION_UP:
+				if (!this.mIsDragging) {
+					final int count = this.mViewPager.getAdapter().getCount();
+					final int width = this.getWidth();
+					final float halfWidth = width / 2f;
+					final float sixthWidth = width / 6f;
 
-    @Override
-    public void setCurrentItem(int item) {
-        if (mViewPager == null) {
-            throw new IllegalStateException("ViewPager has not been bound.");
-        }
-        mViewPager.setCurrentItem(item);
-        mCurrentPage = item;
-        invalidate();
-    }
+					if ((this.mCurrentPage > 0) && (ev.getX() < (halfWidth - sixthWidth))) {
+						if (action != MotionEvent.ACTION_CANCEL) {
+							this.mViewPager.setCurrentItem(this.mCurrentPage - 1);
+						}
+						return true;
+					} else if ((this.mCurrentPage < (count - 1)) && (ev.getX() > (halfWidth + sixthWidth))) {
+						if (action != MotionEvent.ACTION_CANCEL) {
+							this.mViewPager.setCurrentItem(this.mCurrentPage + 1);
+						}
+						return true;
+					}
+				}
 
-    @Override
-    public void notifyDataSetChanged() {
-        invalidate();
-    }
+				this.mIsDragging = false;
+				this.mActivePointerId = INVALID_POINTER;
+				if (this.mViewPager.isFakeDragging()) {
+					this.mViewPager.endFakeDrag();
+				}
+				break;
 
-    @Override
-    public void onPageScrollStateChanged(int state) {
-        mScrollState = state;
+			case MotionEventCompat.ACTION_POINTER_DOWN: {
+				final int index = MotionEventCompat.getActionIndex(ev);
+				this.mLastMotionX = MotionEventCompat.getX(ev, index);
+				this.mActivePointerId = MotionEventCompat.getPointerId(ev, index);
+				break;
+			}
 
-        if (mListener != null) {
-            mListener.onPageScrollStateChanged(state);
-        }
-    }
+			case MotionEventCompat.ACTION_POINTER_UP:
+				final int pointerIndex = MotionEventCompat.getActionIndex(ev);
+				final int pointerId = MotionEventCompat.getPointerId(ev, pointerIndex);
+				if (pointerId == this.mActivePointerId) {
+					final int newPointerIndex = pointerIndex == 0 ? 1 : 0;
+					this.mActivePointerId = MotionEventCompat.getPointerId(ev, newPointerIndex);
+				}
+				this.mLastMotionX = MotionEventCompat.getX(ev, MotionEventCompat.findPointerIndex(ev, this.mActivePointerId));
+				break;
+		}
 
-    @Override
-    public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-        mCurrentPage = position;
-        mPositionOffset = positionOffset;
-        invalidate();
+		return true;
+	}
 
-        if (mListener != null) {
-            mListener.onPageScrolled(position, positionOffset, positionOffsetPixels);
-        }
-    }
+	@Override
+	public void setCurrentItem(final int item) {
+		if (this.mViewPager == null) {
+			throw new IllegalStateException("ViewPager has not been bound.");
+		}
+		this.mViewPager.setCurrentItem(item);
+		this.mCurrentPage = item;
+		this.invalidate();
+	}
 
-    @Override
-    public void onPageSelected(int position) {
-        if (mScrollState == ViewPager.SCROLL_STATE_IDLE) {
-            mCurrentPage = position;
-            mPositionOffset = 0;
-            invalidate();
-        }
-        if (mListener != null) {
-            mListener.onPageSelected(position);
-        }
-    }
+	@Override
+	public void setOnPageChangeListener(final ViewPager.OnPageChangeListener listener) {
+		this.mListener = listener;
+	}
 
-    @Override
-    public void setOnPageChangeListener(ViewPager.OnPageChangeListener listener) {
-        mListener = listener;
-    }
+	public void setSelectedColor(final int selectedColor) {
+		this.mPaint.setColor(selectedColor);
+		this.invalidate();
+	}
 
-    @Override
-    public void onRestoreInstanceState(Parcelable state) {
-        SavedState savedState = (SavedState) state;
-        super.onRestoreInstanceState(savedState.getSuperState());
-        mCurrentPage = savedState.currentPage;
-        requestLayout();
-    }
+	public void setTitleView(final PickerLinearLayout titleView) {
+		this.mTitleView = titleView;
+		this.invalidate();
+	}
 
-    @Override
-    public Parcelable onSaveInstanceState() {
-        Parcelable superState = super.onSaveInstanceState();
-        SavedState savedState = new SavedState(superState);
-        savedState.currentPage = mCurrentPage;
-        return savedState;
-    }
+	@Override
+	public void setViewPager(final ViewPager viewPager) {
+		if (this.mViewPager == viewPager) {
+			return;
+		}
+		if (this.mViewPager != null) {
+			// Clear us from the old pager.
+			this.mViewPager.setOnPageChangeListener(null);
+		}
+		if (viewPager.getAdapter() == null) {
+			throw new IllegalStateException("ViewPager does not have adapter instance.");
+		}
+		this.mViewPager = viewPager;
+		this.mViewPager.setOnPageChangeListener(this);
+		this.invalidate();
+	}
 
-    static class SavedState extends BaseSavedState {
-
-        int currentPage;
-
-        public SavedState(Parcelable superState) {
-            super(superState);
-        }
-
-        private SavedState(Parcel in) {
-            super(in);
-            currentPage = in.readInt();
-        }
-
-        @Override
-        public void writeToParcel(Parcel dest, int flags) {
-            super.writeToParcel(dest, flags);
-            dest.writeInt(currentPage);
-        }
-
-        @SuppressWarnings("UnusedDeclaration")
-        public static final Creator<SavedState> CREATOR = new Creator<SavedState>() {
-            @Override
-            public SavedState createFromParcel(Parcel in) {
-                return new SavedState(in);
-            }
-
-            @Override
-            public SavedState[] newArray(int size) {
-                return new SavedState[size];
-            }
-        };
-    }
-
-    public void setTitleView(PickerLinearLayout titleView) {
-        mTitleView = titleView;
-        invalidate();
-    }
+	@Override
+	public void setViewPager(final ViewPager view, final int initialPosition) {
+		this.setViewPager(view);
+		this.setCurrentItem(initialPosition);
+	}
 }

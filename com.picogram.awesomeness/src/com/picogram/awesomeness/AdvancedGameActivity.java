@@ -1,11 +1,10 @@
+
 package com.picogram.awesomeness;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-
-import nonogram.Solver;
 
 import android.app.Activity;
 import android.app.Dialog;
@@ -14,14 +13,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
-import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.graphics.Matrix;
-import android.graphics.PointF;
 import android.graphics.drawable.AnimationDrawable;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.os.BatteryManager;
 import android.os.Bundle;
 import android.os.Handler;
@@ -29,22 +23,16 @@ import android.os.Message;
 import android.os.Vibrator;
 import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.Menu;
 import android.view.MotionEvent;
-import android.view.ScaleGestureDetector;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
-import android.view.ViewGroup.LayoutParams;
 import android.view.Window;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.RatingBar.OnRatingBarChangeListener;
@@ -60,12 +48,33 @@ import com.stackmob.sdk.callback.StackMobCallback;
 import com.stackmob.sdk.callback.StackMobModelCallback;
 import com.stackmob.sdk.exception.StackMobException;
 
-import de.keyboardsurfer.android.widget.crouton.Crouton;
-import de.keyboardsurfer.android.widget.crouton.Style;
-
 public class AdvancedGameActivity extends FragmentActivity implements
 		OnTouchListener, WinnerListener, View.OnClickListener,
 		OnSeekBarChangeListener {
+	class RefreshHandler extends Handler {
+		Activity activity;
+
+		@Override
+		public void handleMessage(final Message msg) {
+			// Do the time
+			final DateFormat df = new SimpleDateFormat("hh:mm:ss");
+			final String curDateTime = df.format(Calendar.getInstance().getTime());
+			((TextView) this.activity.findViewById(R.id.tvTime))
+					.setText(curDateTime);
+			// Do the battery.
+			AdvancedGameActivity.this.registerReceiver(AdvancedGameActivity.this.mBatInfoReceiver,
+					new IntentFilter(
+							Intent.ACTION_BATTERY_CHANGED));
+			this.sleep(100, this.activity);
+		}
+
+		public void sleep(final long delayMillis, final Activity a) {
+			this.removeMessages(0);
+			this.activity = a;
+			this.sendMessageDelayed(this.obtainMessage(0), delayMillis);
+		}
+	}
+
 	private static final String TAG = "AdvancedGameActivity";
 	TouchImageView tiv;
 	Handler handle = new Handler();
@@ -73,11 +82,91 @@ public class AdvancedGameActivity extends FragmentActivity implements
 	private static SQLitePicogramAdapter sql;
 	int colors[];
 	String strColors[];
+
 	ArrayList<ImageView> ivs = new ArrayList<ImageView>();
 
 	String puzzleId;
 
 	boolean isDialogueShowing = false;
+
+	private final BroadcastReceiver mBatInfoReceiver = new BroadcastReceiver() {
+		@Override
+		public void onReceive(final Context arg0, final Intent intent) {
+			// TODO Auto-generated method stub
+			// this will give you battery current status
+			final ImageView ivBattery = (ImageView) AdvancedGameActivity.this
+					.findViewById(R.id.ivBattery);
+			final int level = intent.getIntExtra("level", 0);
+			final int status = intent.getIntExtra(BatteryManager.EXTRA_STATUS, -1);
+			final boolean isCharging = (status == BatteryManager.BATTERY_STATUS_CHARGING)
+					|| (status == BatteryManager.BATTERY_STATUS_FULL);
+			if (isCharging) {
+				if (AdvancedGameActivity.this.isLight) {
+					ivBattery.setImageBitmap(BitmapFactory.decodeResource(
+							AdvancedGameActivity.this.getResources(),
+							R.drawable.batterychargingdark));
+				} else {
+					ivBattery.setImageBitmap(BitmapFactory.decodeResource(
+							AdvancedGameActivity.this.getResources(),
+							R.drawable.batterycharginglight));
+				}
+			} else {
+				if (level >= 95) {
+					if (AdvancedGameActivity.this.isLight) {
+						ivBattery.setImageBitmap(BitmapFactory.decodeResource(
+								AdvancedGameActivity.this.getResources(),
+								R.drawable.batteryfulldark));
+					} else {
+						ivBattery.setImageBitmap(BitmapFactory
+								.decodeResource(AdvancedGameActivity.this.getResources(),
+										R.drawable.batterycharginglight));
+					}
+				} else if (level >= 30) {
+					if (AdvancedGameActivity.this.isLight) {
+						ivBattery.setImageBitmap(BitmapFactory.decodeResource(
+								AdvancedGameActivity.this.getResources(),
+								R.drawable.batteryhalfdark));
+					} else {
+						ivBattery.setImageBitmap(BitmapFactory.decodeResource(
+								AdvancedGameActivity.this.getResources(),
+								R.drawable.batteryhalflight));
+					}
+				} else if (level >= 5) {
+					if (AdvancedGameActivity.this.isLight) {
+						ivBattery
+								.setImageBitmap(BitmapFactory.decodeResource(
+										AdvancedGameActivity.this.getResources(),
+										R.drawable.batterylowdark));
+					} else {
+						ivBattery.setImageBitmap(BitmapFactory.decodeResource(
+								AdvancedGameActivity.this.getResources(),
+								R.drawable.batterylowlight));
+					}
+				} else {
+					if (AdvancedGameActivity.this.isLight) {
+						ivBattery.setImageBitmap(BitmapFactory.decodeResource(
+								AdvancedGameActivity.this.getResources(),
+								R.drawable.batteryemptydark));
+					} else {
+						ivBattery.setImageBitmap(BitmapFactory.decodeResource(
+								AdvancedGameActivity.this.getResources(),
+								R.drawable.batteryemptylight));
+					}
+				}
+			}
+		}
+	};
+
+	private final RefreshHandler mRedrawHandler = new RefreshHandler();
+
+	boolean isLight;
+
+	boolean isFirstUndo = true;
+	boolean continueMusic = true;
+
+	HistoryListener historyListener;
+
+	SeekBar sbHistory;
 
 	private void doFacebookStuff() {
 	}
@@ -91,7 +180,9 @@ public class AdvancedGameActivity extends FragmentActivity implements
 		final int r = (i >> 16) & 0xff;
 		final int g = (i >> 8) & 0xff;
 		final int b = (i & 0xff);
-		return new int[] { a, r, g, b };
+		return new int[] {
+				a, r, g, b
+		};
 	}
 
 	@Override
@@ -100,88 +191,75 @@ public class AdvancedGameActivity extends FragmentActivity implements
 		this.returnIntent(null);
 	}
 
-	private BroadcastReceiver mBatInfoReceiver = new BroadcastReceiver() {
-		@Override
-		public void onReceive(Context arg0, Intent intent) {
-			// TODO Auto-generated method stub
-			// this will give you battery current status
-			ImageView ivBattery = (ImageView) findViewById(R.id.ivBattery);
-			int level = intent.getIntExtra("level", 0);
-			int status = intent.getIntExtra(BatteryManager.EXTRA_STATUS, -1);
-			boolean isCharging = status == BatteryManager.BATTERY_STATUS_CHARGING
-					|| status == BatteryManager.BATTERY_STATUS_FULL;
-			if (isCharging) {
-				if (isLight) {
-					ivBattery.setImageBitmap(BitmapFactory.decodeResource(
-							getResources(), R.drawable.batterychargingdark));
-				} else {
-					ivBattery.setImageBitmap(BitmapFactory.decodeResource(
-							getResources(), R.drawable.batterycharginglight));
-				}
-			} else {
-				if (level >= 95) {
-					if (isLight) {
-						ivBattery.setImageBitmap(BitmapFactory.decodeResource(
-								getResources(), R.drawable.batteryfulldark));
-					} else {
-						ivBattery.setImageBitmap(BitmapFactory
-								.decodeResource(getResources(),
-										R.drawable.batterycharginglight));
-					}
-				} else if (level >= 30) {
-					if (isLight) {
-						ivBattery.setImageBitmap(BitmapFactory.decodeResource(
-								getResources(), R.drawable.batteryhalfdark));
-					} else {
-						ivBattery.setImageBitmap(BitmapFactory.decodeResource(
-								getResources(), R.drawable.batteryhalflight));
-					}
-				} else if (level >= 5) {
-					if (isLight) {
-						ivBattery.setImageBitmap(BitmapFactory.decodeResource(
-								getResources(), R.drawable.batterylowdark));
-					} else {
-						ivBattery.setImageBitmap(BitmapFactory.decodeResource(
-								getResources(), R.drawable.batterylowlight));
-					}
-				} else {
-					if (isLight) {
-						ivBattery.setImageBitmap(BitmapFactory.decodeResource(
-								getResources(), R.drawable.batteryemptydark));
-					} else {
-						ivBattery.setImageBitmap(BitmapFactory.decodeResource(
-								getResources(), R.drawable.batteryemptylight));
-					}
-				}
+	public void onClick(final View v) {
+		final char[] curr = this.tiv.gCurrent.toCharArray();
+		if (v.getId() == R.id.bUndo) {
+			if (this.sbHistory.getProgress() == 0) {
+				return;
 			}
-		}
-	};
-	private RefreshHandler mRedrawHandler = new RefreshHandler();
+			if (this.isFirstUndo) {
+				this.isFirstUndo = false;
 
-	class RefreshHandler extends Handler {
-		@Override
-		public void handleMessage(Message msg) {
-			// Do the time
-			DateFormat df = new SimpleDateFormat("hh:mm:ss");
-			String curDateTime = df.format(Calendar.getInstance().getTime());
-			((TextView) activity.findViewById(R.id.tvTime))
-					.setText(curDateTime);
-			// Do the battery.
-			registerReceiver(mBatInfoReceiver, new IntentFilter(
-					Intent.ACTION_BATTERY_CHANGED));
-			sleep(100, activity);
-		}
+				this.tiv.history.add(this.tiv.gCurrent);
+				this.sbHistory.setMax(this.sbHistory.getMax() + 1);
 
-		Activity activity;
+				this.sbHistory.setProgress(this.sbHistory.getProgress() - 1);
+				this.tiv.gCurrent = this.tiv.history.get(this.sbHistory.getProgress());
+			}
+		} else if (v.getId() == R.id.bRedo) {
+			if (this.sbHistory.getProgress() == (this.sbHistory.getMax() - 1)) {
+				return;
+			}
+			this.tiv.gCurrent = this.tiv.history.get(this.sbHistory.getProgress() + 1);
+			this.sbHistory.setProgress(this.sbHistory.getProgress() + 1);
+		} else if (v.getId() == R.id.ibTools) {
+			final Bundle bundle = new Bundle();
+			final FragmentTransaction ft = this.getSupportFragmentManager()
+					.beginTransaction();
+			bundle.putInt("layoutId", R.layout.dialog_color_choice);
+			bundle.putStringArray("colors", this.strColors);
+			final DialogMaker newFragment = new DialogMaker();
+			newFragment.setArguments(bundle);
+			newFragment.setOnDialogResultListner(new OnDialogResultListener() {
 
-		public void sleep(long delayMillis, Activity a) {
-			this.removeMessages(0);
-			this.activity = a;
-			sendMessageDelayed(obtainMessage(0), delayMillis);
+				public void onDialogResult(final Bundle result) {
+					if (result.containsKey("colors")) {
+						AdvancedGameActivity.this.tiv.gColors = result.getIntArray("colors");
+						AdvancedGameActivity.this.tiv.isFirstTime = true;
+						AdvancedGameActivity.this.tiv.bitmapFromCurrent();
+						final String[] cols = new String[AdvancedGameActivity.this.tiv.gColors.length];
+						for (int i = 0; i != cols.length; ++i) {
+							cols[i] = "" + AdvancedGameActivity.this.tiv.gColors[i];
+						}
+						AdvancedGameActivity.this.strColors = cols;
+						AdvancedGameActivity.this.tiv.colorCharacter = (result.getInt("color") + "")
+								.charAt(0);
+						AdvancedGameActivity.this.tiv.isGameplay = true;
+						sql.updateColorsById(AdvancedGameActivity.this.tiv.gId,
+								AdvancedGameActivity.this.strColors);
+						newFragment.dismiss();
+					} else {
+						AdvancedGameActivity.this.tiv.isGameplay = result.getBoolean("isGameplay");
+						AdvancedGameActivity.this.tiv.colorCharacter = result
+								.getChar("colorCharacter");
+						if (Character.isDigit(AdvancedGameActivity.this.tiv.colorCharacter)) {
+							((ImageButton) v)
+									.setBackgroundColor(AdvancedGameActivity.this.tiv.gColors[Integer
+											.parseInt(""
+													+ AdvancedGameActivity.this.tiv.colorCharacter)]);
+						} else {
+							((ImageButton) v).setBackgroundColor(Color.WHITE);
+						}
+
+						newFragment.dismiss();
+					}
+				}
+			});
+			newFragment.show(ft, "dialog");
+			return;
 		}
+		this.tiv.bitmapFromCurrent();
 	}
-
-	boolean isLight;
 
 	@Override
 	protected void onCreate(final Bundle savedInstanceState) {
@@ -190,12 +268,12 @@ public class AdvancedGameActivity extends FragmentActivity implements
 		this.setContentView(R.layout.activity_advanced_game);
 		this.tiv = (TouchImageView) this.findViewById(R.id.tivGame);
 		// Do background stuff.
-		RelativeLayout rlMain = (RelativeLayout) this
+		final RelativeLayout rlMain = (RelativeLayout) this
 				.findViewById(R.id.rlGameActivity);
-		SharedPreferences prefs = PreferenceManager
+		final SharedPreferences prefs = PreferenceManager
 				.getDefaultSharedPreferences(this);
 
-		String bg = Util.getPreferences(this)
+		final String bg = Util.getPreferences(this)
 				.getString("background", "bgWhite");
 		String line = Util.getPreferences(this).getString("lines", "Auto");
 		boolean isAnimating = false;
@@ -225,79 +303,85 @@ public class AdvancedGameActivity extends FragmentActivity implements
 			line = Color.rgb(64, 64, 64) + "";
 		}
 		if (Util.getPreferences(this).getString("lines", "Auto").equals("Auto")) {
-			tiv.gridlinesColor = Integer.parseInt(line);
+			this.tiv.gridlinesColor = Integer.parseInt(line);
 			if (line.equals("" + Color.WHITE)) {
-				isLight = false;
+				this.isLight = false;
 			} else {
-				isLight = true;
+				this.isLight = true;
 			}
 		} else {
 			if (Util.getPreferences(this).getString("lines", "Auto")
 					.equals("Light")) {
-				tiv.gridlinesColor = Color.rgb(64, 64, 64);
-				isLight = true;
+				this.tiv.gridlinesColor = Color.rgb(64, 64, 64);
+				this.isLight = true;
 			} else {
-				tiv.gridlinesColor = Color.rgb(191, 191, 191);
-				isLight = false;
+				this.tiv.gridlinesColor = Color.rgb(191, 191, 191);
+				this.isLight = false;
 			}
 		}
 
 		if (isAnimating) {
-			AnimationDrawable progressAnimation = (AnimationDrawable) findViewById(
+			final AnimationDrawable progressAnimation = (AnimationDrawable) this.findViewById(
 					R.id.rlGameActivity).getBackground();
 			progressAnimation.start();
 		}
 		Util.setTheme(this);
 
 		// Time
-		mRedrawHandler.sleep(100, this);
-		if (isLight)
-			((TextView) findViewById(R.id.tvTime)).setTextColor(Color.BLACK);
-		else
-			((TextView) findViewById(R.id.tvTime)).setTextColor(Color.WHITE);
+		this.mRedrawHandler.sleep(100, this);
+		if (this.isLight) {
+			((TextView) this.findViewById(R.id.tvTime)).setTextColor(Color.BLACK);
+		} else {
+			((TextView) this.findViewById(R.id.tvTime)).setTextColor(Color.WHITE);
+		}
 
 		this.tiv.setWinListener(this);
-		tiv.setPicogramInfo(getIntent().getExtras());
+		this.tiv.setPicogramInfo(this.getIntent().getExtras());
 
 		this.puzzleId = this.getIntent().getExtras().getString("id");
 		FlurryAgent.logEvent("UserPlayingGame");
 		// Create colors for pallet.
 		final String thing = this.getIntent().getExtras().getString("colors");
-		strColors = this.getIntent().getExtras().getString("colors").split(",");
-		this.colors = new int[strColors.length];
-		for (int i = 0; i != strColors.length; ++i) {
-			this.colors[i] = Integer.parseInt(strColors[i]);
+		this.strColors = this.getIntent().getExtras().getString("colors").split(",");
+		this.colors = new int[this.strColors.length];
+		for (int i = 0; i != this.strColors.length; ++i) {
+			this.colors[i] = Integer.parseInt(this.strColors[i]);
 		}
 		// History Bar.
-		sbHistory = (SeekBar) findViewById(R.id.sbHistory);
-		sbHistory.setOnSeekBarChangeListener(this);
-		Button bUndo = (Button) findViewById(R.id.bUndo);
-		Button bRedo = (Button) findViewById(R.id.bRedo);
+		this.sbHistory = (SeekBar) this.findViewById(R.id.sbHistory);
+		this.sbHistory.setOnSeekBarChangeListener(this);
+		final Button bUndo = (Button) this.findViewById(R.id.bUndo);
+		final Button bRedo = (Button) this.findViewById(R.id.bRedo);
 		bUndo.setOnClickListener(this);
 		bRedo.setOnClickListener(this);
 
 		final Vibrator myVib = (Vibrator) this
 				.getSystemService(VIBRATOR_SERVICE);
-		historyListener = new HistoryListener() {
+		this.historyListener = new HistoryListener() {
 
-			public void action(String curr) {
+			public void action(final String curr) {
 				myVib.vibrate(40);
-				if (sbHistory.getProgress() != sbHistory.getMax()) {
-					for (int i = sbHistory.getProgress(); i != sbHistory
+				if (AdvancedGameActivity.this.sbHistory.getProgress() != AdvancedGameActivity.this.sbHistory
+						.getMax()) {
+					for (int i = AdvancedGameActivity.this.sbHistory.getProgress(); i != AdvancedGameActivity.this.sbHistory
 							.getMax(); ++i) {
-						tiv.history.remove(tiv.history.size() - 1);
+						AdvancedGameActivity.this.tiv.history
+								.remove(AdvancedGameActivity.this.tiv.history.size() - 1);
 					}
-					sbHistory.setMax(sbHistory.getProgress());
+					AdvancedGameActivity.this.sbHistory.setMax(AdvancedGameActivity.this.sbHistory
+							.getProgress());
 				}
-				sbHistory.setMax(sbHistory.getMax() + 1);
-				sbHistory.setProgress(sbHistory.getMax());
-				tiv.history.add(curr);
-				isFirstUndo = true;
+				AdvancedGameActivity.this.sbHistory.setMax(AdvancedGameActivity.this.sbHistory
+						.getMax() + 1);
+				AdvancedGameActivity.this.sbHistory.setProgress(AdvancedGameActivity.this.sbHistory
+						.getMax());
+				AdvancedGameActivity.this.tiv.history.add(curr);
+				AdvancedGameActivity.this.isFirstUndo = true;
 			}
 		};
-		tiv.setHistoryListener(historyListener);
+		this.tiv.setHistoryListener(this.historyListener);
 
-		ImageButton tools = (ImageButton) this.findViewById(R.id.ibTools);
+		final ImageButton tools = (ImageButton) this.findViewById(R.id.ibTools);
 		tools.setBackgroundColor(Color.WHITE);
 		tools.setOnClickListener(this);
 
@@ -319,9 +403,32 @@ public class AdvancedGameActivity extends FragmentActivity implements
 				this.tiv.gCurrent);
 		sql.close();
 
-		if (!continueMusic) {
+		if (!this.continueMusic) {
 			MusicManager.pause();
 		}
+	}
+
+	public void onProgressChanged(final SeekBar seekBar, final int progress,
+			final boolean fromUser) {
+		// Ignore if done programmatically.
+		if (fromUser) {
+			if (!(progress >= this.tiv.history.size())) {
+				this.tiv.gCurrent = this.tiv.history.get(progress);
+				this.tiv.bitmapFromCurrent();
+			}
+		}
+	}
+
+	@Override
+	protected void onRestoreInstanceState(final Bundle savedInstanceState) {
+		super.onRestoreInstanceState(savedInstanceState);
+		this.tiv.gCurrent = savedInstanceState.getString("current");
+		this.tiv.colorCharacter = savedInstanceState.getChar("drawCharacter");
+		this.tiv.isGameplay = savedInstanceState.getBoolean("isGame");
+		this.tiv.history = savedInstanceState.getStringArrayList("history");
+		this.sbHistory.setMax(savedInstanceState.getInt("sbMax"));
+		this.sbHistory.setProgress(savedInstanceState.getInt("sbProgress"));
+		this.tiv.bitmapFromCurrent();
 	}
 
 	@Override
@@ -330,8 +437,29 @@ public class AdvancedGameActivity extends FragmentActivity implements
 		Util.updateFullScreen(this);
 		sql = new SQLitePicogramAdapter(this.getApplicationContext(),
 				"Picograms", null, 1);
-		continueMusic = false;
+		this.continueMusic = false;
 		MusicManager.start(this);
+	}
+
+	@Override
+	protected void onSaveInstanceState(final Bundle outState) {
+		super.onSaveInstanceState(outState);
+		outState.putString("current", this.tiv.gCurrent);
+		outState.putChar("drawCharacter", this.tiv.colorCharacter);
+		outState.putBoolean("isGame", this.tiv.isGameplay);
+		outState.putStringArrayList("history", this.tiv.history);
+		outState.putInt("sbMax", this.sbHistory.getMax());
+		outState.putInt("sbProgress", this.sbHistory.getProgress());
+	}
+
+	public void onStartTrackingTouch(final SeekBar seekBar) {
+		// TODO Auto-generated method stub
+
+	}
+
+	public void onStopTrackingTouch(final SeekBar seekBar) {
+		// TODO Auto-generated method stub
+
 	}
 
 	public boolean onTouch(final View v, final MotionEvent event) {
@@ -345,15 +473,17 @@ public class AdvancedGameActivity extends FragmentActivity implements
 		return true;
 	}
 
-	private void returnIntent(Dialog d) {
-		if (d != null)
+	private void returnIntent(final Dialog d) {
+		if (d != null) {
 			d.dismiss();
+		}
 		final Intent returnIntent = new Intent();
 		returnIntent.putExtra("current", this.tiv.gCurrent);
-		if (tiv.gCurrent.equals(tiv.gSolution)) {
+		if (this.tiv.gCurrent.equals(this.tiv.gSolution)) {
 			returnIntent.putExtra("status", "1");
-		} else
+		} else {
 			returnIntent.putExtra("status", "0");
+		}
 		returnIntent.putExtra("ID", this.tiv.gSolution.hashCode() + "");
 		this.setResult(Activity.RESULT_OK, returnIntent);
 		Log.d(TAG, "RETURN");
@@ -384,7 +514,7 @@ public class AdvancedGameActivity extends FragmentActivity implements
 							// If rating failed, do it next time we can, so add
 							// to database.
 							Log.d(TAG, "REturn 1");
-							SQLiteRatingAdapter sorh = new SQLiteRatingAdapter(
+							final SQLiteRatingAdapter sorh = new SQLiteRatingAdapter(
 									a.getApplicationContext(), "Rating", null,
 									2);
 							sorh.updateRankDialogFail(g.getID(), (int) rating);
@@ -395,9 +525,9 @@ public class AdvancedGameActivity extends FragmentActivity implements
 						@Override
 						public void success() {
 							Log.d(TAG, "REturn 4");
-							double oldRating = Double.parseDouble(g.getRating())
+							final double oldRating = Double.parseDouble(g.getRating())
 									* g.getNumberOfRatings();
-							double newRating = (oldRating + rating)
+							final double newRating = (oldRating + rating)
 									/ (g.getNumberOfRatings() + 1);
 							g.setRating(newRating + "");
 							g.setNumberOfRatings(g.getNumberOfRatings() + 1);
@@ -406,11 +536,11 @@ public class AdvancedGameActivity extends FragmentActivity implements
 							g.save(new StackMobCallback() {
 
 								@Override
-								public void failure(StackMobException arg0) {
+								public void failure(final StackMobException arg0) {
 									// Save the rating in the rating table, but
 									// we failed, so add it as a no rating yet,
 									// then a future rating.
-									SQLiteRatingAdapter sorh = new SQLiteRatingAdapter(
+									final SQLiteRatingAdapter sorh = new SQLiteRatingAdapter(
 											a.getApplicationContext(),
 											"Rating", null, 2);
 									sorh.updateRankDialogFail(g.getID(),
@@ -422,11 +552,11 @@ public class AdvancedGameActivity extends FragmentActivity implements
 								}
 
 								@Override
-								public void success(String arg0) {
+								public void success(final String arg0) {
 									// Save the rating in the rating table.
 									// If successful, we want to just add the
 									// past rating and 0 for future.
-									SQLiteRatingAdapter sorh = new SQLiteRatingAdapter(
+									final SQLiteRatingAdapter sorh = new SQLiteRatingAdapter(
 											a.getApplicationContext(),
 											"Rating", null, 2);
 									sorh.updateRankDialogSuccess(g.getID(),
@@ -450,120 +580,5 @@ public class AdvancedGameActivity extends FragmentActivity implements
 			this.isDialogueShowing = !this.isDialogueShowing;
 		}
 	}
-
-	@Override
-	protected void onRestoreInstanceState(Bundle savedInstanceState) {
-		super.onRestoreInstanceState(savedInstanceState);
-		tiv.gCurrent = savedInstanceState.getString("current");
-		tiv.colorCharacter = savedInstanceState.getChar("drawCharacter");
-		tiv.isGameplay = savedInstanceState.getBoolean("isGame");
-		this.tiv.history = savedInstanceState.getStringArrayList("history");
-		sbHistory.setMax(savedInstanceState.getInt("sbMax"));
-		sbHistory.setProgress(savedInstanceState.getInt("sbProgress"));
-		tiv.bitmapFromCurrent();
-	}
-
-	@Override
-	protected void onSaveInstanceState(Bundle outState) {
-		super.onSaveInstanceState(outState);
-		outState.putString("current", tiv.gCurrent);
-		outState.putChar("drawCharacter", tiv.colorCharacter);
-		outState.putBoolean("isGame", tiv.isGameplay);
-		outState.putStringArrayList("history", tiv.history);
-		outState.putInt("sbMax", sbHistory.getMax());
-		outState.putInt("sbProgress", sbHistory.getProgress());
-	}
-
-	boolean isFirstUndo = true;
-
-	public void onClick(final View v) {
-		char[] curr = tiv.gCurrent.toCharArray();
-		if (v.getId() == R.id.bUndo) {
-			if (sbHistory.getProgress() == 0) {
-				return;
-			}
-			if (isFirstUndo) {
-				isFirstUndo = false;
-
-				tiv.history.add(tiv.gCurrent);
-				sbHistory.setMax(sbHistory.getMax() + 1);
-
-				sbHistory.setProgress(sbHistory.getProgress() - 1);
-				tiv.gCurrent = tiv.history.get(sbHistory.getProgress());
-			}
-		} else if (v.getId() == R.id.bRedo) {
-			if (sbHistory.getProgress() == sbHistory.getMax() - 1) {
-				return;
-			}
-			tiv.gCurrent = tiv.history.get(sbHistory.getProgress() + 1);
-			sbHistory.setProgress(sbHistory.getProgress() + 1);
-		} else if (v.getId() == R.id.ibTools) {
-			Bundle bundle = new Bundle();
-			FragmentTransaction ft = getSupportFragmentManager()
-					.beginTransaction();
-			bundle.putInt("layoutId", R.layout.dialog_color_choice);
-			bundle.putStringArray("colors", strColors);
-			final DialogMaker newFragment = new DialogMaker();
-			newFragment.setArguments(bundle);
-			newFragment.setOnDialogResultListner(new OnDialogResultListener() {
-
-				public void onDialogResult(Bundle result) {
-					if (result.containsKey("colors")) {
-						tiv.gColors = result.getIntArray("colors");
-						tiv.isFirstTime = true;
-						tiv.bitmapFromCurrent();
-						String[] cols = new String[tiv.gColors.length];
-						for (int i = 0; i != cols.length; ++i)
-							cols[i] = "" + tiv.gColors[i];
-						strColors = cols;
-						tiv.colorCharacter = (result.getInt("color") + "")
-								.charAt(0);
-						tiv.isGameplay = true;
-						sql.updateColorsById(tiv.gId, strColors);
-						newFragment.dismiss();
-					} else {
-						tiv.isGameplay = result.getBoolean("isGameplay");
-						tiv.colorCharacter = result.getChar("colorCharacter");
-						if (Character.isDigit(tiv.colorCharacter))
-							((ImageButton) v).setBackgroundColor(tiv.gColors[Integer
-									.parseInt("" + tiv.colorCharacter)]);
-						else
-							((ImageButton) v).setBackgroundColor(Color.WHITE);
-
-						newFragment.dismiss();
-					}
-				}
-			});
-			newFragment.show(ft, "dialog");
-			return;
-		}
-		tiv.bitmapFromCurrent();
-	}
-
-	boolean continueMusic = true;
-
-	public void onProgressChanged(SeekBar seekBar, int progress,
-			boolean fromUser) {
-		// Ignore if done programmatically.
-		if (fromUser) {
-			if (!(progress >= tiv.history.size())) {
-				tiv.gCurrent = tiv.history.get(progress);
-				tiv.bitmapFromCurrent();
-			}
-		}
-	}
-
-	public void onStartTrackingTouch(SeekBar seekBar) {
-		// TODO Auto-generated method stub
-
-	}
-
-	public void onStopTrackingTouch(SeekBar seekBar) {
-		// TODO Auto-generated method stub
-
-	}
-
-	HistoryListener historyListener;
-	SeekBar sbHistory;
 
 }

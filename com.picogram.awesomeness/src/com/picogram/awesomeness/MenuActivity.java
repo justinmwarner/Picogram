@@ -1,3 +1,4 @@
+
 package com.picogram.awesomeness;
 
 import com.actionbarsherlock.app.ActionBar;
@@ -106,8 +107,10 @@ public class MenuActivity extends SherlockFragmentActivity implements
 	}
 
 	static final ArrayList<String> TITLES = new ArrayList<String>(
-			Arrays.asList(new String[] { "My", "Packs", "Top", "Recent",
-					"Search", "Prefs" }));
+			Arrays.asList(new String[] {
+					"My", "Packs", "Top", "Recent",
+					"Search", "Prefs"
+			}));
 
 	public static final int CREATE_CODE = 8008;
 	public static final int GAME_CODE = 1337;
@@ -272,11 +275,6 @@ public class MenuActivity extends SherlockFragmentActivity implements
 			toolbar.setVisibility(View.GONE);
 		}
 		this.updateActionBar(0);
-		ScalpelFrameLayout scalpelView = (ScalpelFrameLayout ) findViewById(R.id.scalpel);
-
-		scalpelView.setLayerInteractionEnabled(true);
-		scalpelView.setDrawViews(true);
-		scalpelView.setDrawIds(true);
 	}
 
 	private void updateFromOffline() {

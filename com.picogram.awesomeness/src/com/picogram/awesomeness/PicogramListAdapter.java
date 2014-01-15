@@ -1,3 +1,4 @@
+
 package com.picogram.awesomeness;
 
 import java.util.ArrayList;
@@ -120,7 +121,9 @@ public class PicogramListAdapter extends ArrayAdapter<GriddlerOne> {
 			else if (cols.contains(" "))
 				colors = cols.split(" ");
 			else
-				colors = new String[] { "000000" };// Problem.
+				colors = new String[] {
+					"000000"
+				};// Problem.
 
 			for (int i = 0; i < height; i++) {
 				for (int j = 0; j < width; j++) {
