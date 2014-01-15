@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<animation-list xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/darkbridge"
+    android:oneshot="false" >
+
+    <item
+        android:drawable="@drawable/darkbridge01"
+        android:duration="70"/>
+    <item
+        android:drawable="@drawable/darkbridge02"
+        android:duration="70"/>
+    <item
+        android:drawable="@drawable/darkbridge03"
+        android:duration="70"/>
+    <item
+        android:drawable="@drawable/darkbridge04"
+        android:duration="70"/>
+    <item
+        android:drawable="@drawable/darkbridge05"
+        android:duration="70"/>
+    <item
+        android:drawable="@drawable/darkbridge06"
+        android:duration="70"/>
+
+</animation-list>

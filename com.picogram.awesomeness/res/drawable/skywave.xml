@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<animation-list xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/darkbridge"
+    android:oneshot="false" >
+
+    <item
+        android:drawable="@drawable/skywave00"
+        android:duration="70"/>
+    <item
+        android:drawable="@drawable/skywave01"
+        android:duration="70"/>
+    <item
+        android:drawable="@drawable/skywave02"
+        android:duration="70"/>
+    <item
+        android:drawable="@drawable/skywave03"
+        android:duration="70"/>
+    <item
+        android:drawable="@drawable/skywave04"
+        android:duration="70"/>
+    <item
+        android:drawable="@drawable/skywave05"
+        android:duration="70"/>
+    <item
+        android:drawable="@drawable/skywave06"
+        android:duration="70"/>
+    <item
+        android:drawable="@drawable/skywave07"
+        android:duration="70"/>
+    <item
+        android:drawable="@drawable/skywave08"
+        android:duration="70"/>
+    <item
+        android:drawable="@drawable/skywave09"
+        android:duration="70"/>
+    <item
+        android:drawable="@drawable/skywave10"
+        android:duration="70"/>
+    <item
+        android:drawable="@drawable/skywave11"
+        android:duration="70"/>
+    <item
+        android:drawable="@drawable/skywave12"
+        android:duration="70"/>
+    <item
+        android:drawable="@drawable/skywave13"
+        android:duration="70"/>
+    <item
+        android:drawable="@drawable/skywave14"
+        android:duration="70"/>
+    <item
+        android:drawable="@drawable/skywave15"
+        android:duration="70"/>
+    <item
+        android:drawable="@drawable/skywave16"
+        android:duration="70"/>
+    <item
+        android:drawable="@drawable/skywave17"
+        android:duration="70"/>
+    <item
+        android:drawable="@drawable/skywave18"
+        android:duration="70"/>
+    <item
+        android:drawable="@drawable/skywave19"
+        android:duration="70"/>
+
+</animation-list>

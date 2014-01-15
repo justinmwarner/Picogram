@@ -1,33 +1,72 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/rlGameActivity"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/light_grid"
+    android:background="@drawable/skywave"
     android:tileMode="repeat" >
 
     <com.picogram.awesomeness.TouchImageView
         android:id="@+id/tivGame"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@+id/llPallet"
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
-        android:paddingBottom="10dp"
-        android:paddingLeft="10dp"
-        android:paddingRight="10dp"
-        android:paddingTop="10dp" />
+        android:layout_marginBottom="10dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginTop="10dp" />
 
-    <LinearLayout
-        android:id="@+id/llPallet"
+    <SeekBar
+        android:id="@+id/sbHistory"
         android:layout_width="match_parent"
-        android:layout_height="75dp"
-        android:layout_alignParentBottom="true"
-        android:background="@drawable/border"
-        android:clickable="true" >
+        android:layout_height="wrap_content"
+        android:layout_toLeftOf="@+id/bRedo"
+        android:layout_toRightOf="@+id/bUndo"
+        android:max="0" />
 
-        <ImageView
-            android:id="@+id/ivOne"
-            android:layout_width="50dp"
-            android:layout_height="50dp" />
-    </LinearLayout>
+    <Button
+        android:id="@+id/bUndo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/sbHistory"
+        android:layout_alignParentLeft="true"
+        android:text="Undo"
+        android:textSize="10dp" />
+
+    <Button
+        android:id="@+id/bRedo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/sbHistory"
+        android:layout_alignParentRight="true"
+        android:text="Redo"
+        android:textSize="10dp" />
+
+    <ImageButton
+        android:id="@+id/ibTools"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_alignLeft="@+id/tivGame"
+        android:layout_below="@+id/sbHistory"
+        android:scaleType="fitCenter"
+        android:src="@drawable/properties" />
+
+    <ImageView
+        android:id="@+id/ivBattery"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_alignTop="@+id/ibTools"
+        android:layout_centerHorizontal="true"
+        android:src="@drawable/batteryfulldark" />
+
+    <TextView
+        android:id="@+id/tvTime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/ibTools"
+        android:layout_alignParentRight="true"
+        android:padding="15dp"
+        android:gravity="center"
+        android:text="12:00" />
 
 </RelativeLayout>

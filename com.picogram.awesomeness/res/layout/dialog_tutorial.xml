@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#FFFFFF" >
+
+    <TextView
+        android:id="@+id/tvInstructions"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="20dp"
+        android:padding="3dp"
+        android:text="Instructions go here." />
+
+    <ImageView
+        android:id="@+id/ivInstructions"
+        android:layout_width="400dp"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/bNever"
+        android:layout_below="@+id/tvInstructions"
+        android:layout_centerHorizontal="true"
+        android:padding="3dp" />
+
+    <Button
+        android:id="@+id/bNever"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:padding="3dp"
+        android:text="Never" />
+
+    <Button
+        android:id="@+id/bLater"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/bNever"
+        android:layout_alignBottom="@+id/bNever"
+        android:layout_centerHorizontal="true"
+        android:padding="3dp"
+        android:text="Later" />
+
+    <Button
+        android:id="@+id/bNext"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/ivInstructions"
+        android:padding="3dp"
+        android:text="Next" />
+
+</RelativeLayout>

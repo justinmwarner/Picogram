@@ -1,4 +1,3 @@
-
 package com.picogram.awesomeness;
 
 import com.stackmob.sdk.model.StackMobModel;
@@ -8,6 +7,6 @@ public class GriddlerTag extends StackMobModel {
 
 	public GriddlerTag(final String tag) {
 		super(GriddlerTag.class);
-		this.tag = tag;
+		this.tag = tag.toLowerCase();
 	}
 }

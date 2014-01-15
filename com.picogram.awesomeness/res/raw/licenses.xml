@@ -1,0 +1,50 @@
+<notices>
+    <notice>
+        <name>Picogram</name>
+        <url>https://github.com/justinmwarner/Picogram</url>
+        <copyright>Copyright 2013 Justin Warner</copyright>
+        <license>Apache Software License 2.0</license>
+    </notice>
+    <notice>
+        <name>ActionBarSherlock</name>
+        <url>https://github.com/JakeWharton/ActionBarSherlock</url>
+        <copyright>Copyright 2012 Jake Wharton</copyright>
+        <license>Apache Software License 2.0</license>
+    </notice>
+    <notice>
+        <name>AmbilWarna</name>
+        <url>https://code.google.com/p/android-color-picker//</url>
+        <copyright>(C) AmbilWarna Copyright </copyright>
+        <license>Apache Software License 2.0</license>
+    </notice>
+    <notice>
+        <name>Crouton</name>
+        <url>https://github.com/keyboardsurfer/Crouton/</url>
+        <copyright>(C) Crouton Copyright</copyright>
+        <license>Apache Software License 2.0</license>
+    </notice>
+    <notice>
+        <name>Pager Sliding Tab Strip</name>
+        <url>https://github.com/astuetz/PagerSlidingTabStrip/</url>
+        <copyright>Copyright 2013 Andreas Stuetz</copyright>
+        <license>Apache Software License 2.0</license>
+    </notice>
+    <notice>
+        <name>LicensesDialog</name>
+        <url>https://github.com/PSDev/LicensesDialog/</url>
+        <copyright>Copyright 2013 Philip Schiffer</copyright>
+        <license>Apache Software License 2.0</license>
+    </notice>
+    <notice>
+        <name>SuperToolTips</name>
+        <url>https://github.com/nhaarman/supertooltips/</url>
+        <copyright>Copyright 2013 Niek Haarman</copyright>
+        <license>Apache Software License 2.0</license>
+    </notice>
+    <notice>
+        <name>NineOldAndroids</name>
+        <url>https://github.com/JakeWharton/NineOldAndroids/</url>
+        <copyright>Copyright 2012 Jake Wharton</copyright>
+        <license>Apache Software License 2.0</license>
+    </notice>
+</notices>

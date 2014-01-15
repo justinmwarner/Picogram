@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string-array name="listBackgroundName">
+        <item>Solid White</item>
+        <item>Solid Black</item>
+        <item>Rolling Sky (Light)</item>
+        <item>City Bridge (Dark)</item>
+        <item>Spaceman (Dark)</item>
+    </string-array>
+    <string-array name="listBackgroundValue">
+        <item>bgWhite</item>
+        <item>bgBlack</item>
+        <item>skywave</item>
+        <item>darkbridge</item>
+        <item>spaceman</item>
+    </string-array>
+    <string-array name="listListValue">
+        <item>Auto</item>
+        <item>Dark</item>
+        <item>Light</item>
+    </string-array>
+    <string-array name="listSoundValue">
+        <item>None</item>
+        <item>Classical</item>
+        <item>Synth</item>
+        <item>Dubwub</item>
+        <item>Country</item>
+    </string-array>
+    <string-array name="listMy">
+        <item>Show Completed</item>
+        <item>Hide Completed</item>
+    </string-array>
+    <string-array name="listPacks">
+        <item>Show Downloaded</item>
+        <item>Hide Downloaded</item>
+    </string-array>
+    <string-array name="listTop">
+        <item>Weekly</item>
+        <item>Monthly</item>
+        <item>All Time</item>
+    </string-array>
+    <string-array name="listSearch">
+        <item>Rating - Weekly</item>
+        <item>Rating - Monthly</item>
+        <item>Rating - All Time</item>
+        <item>Date - Weekly</item>
+        <item>Date - Monthly</item>
+        <item>Date - All Time</item>
+    </string-array>
+
+</resources>

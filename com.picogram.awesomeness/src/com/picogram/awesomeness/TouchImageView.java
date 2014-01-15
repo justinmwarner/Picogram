@@ -1,7 +1,11 @@
-
 package com.picogram.awesomeness;
 
+import java.util.ArrayList;
+import java.util.regex.Pattern;
+
 import android.content.Context;
+import android.content.res.Resources;
+import android.gesture.GestureOverlayView;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.BitmapShader;
@@ -9,60 +13,75 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
-import android.graphics.Typeface;
 import android.graphics.Paint.Align;
 import android.graphics.PointF;
+import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
+import android.graphics.RectF;
 import android.graphics.Shader;
 import android.graphics.Shader.TileMode;
+import android.graphics.Typeface;
+import android.graphics.Xfermode;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.NinePatchDrawable;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Vibrator;
+import android.support.v4.view.GestureDetectorCompat;
 import android.util.AttributeSet;
+import android.util.Log;
+import android.view.GestureDetector.OnDoubleTapListener;
+import android.view.GestureDetector.OnGestureListener;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 
-import java.util.ArrayList;
+public class TouchImageView extends ImageView implements OnGestureListener,
+		OnDoubleTapListener {
 
-public class TouchImageView extends ImageView {
-
-	private class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureListener {
+	private class ScaleListener extends
+			ScaleGestureDetector.SimpleOnScaleGestureListener {
 		@Override
 		public boolean onScale(final ScaleGestureDetector detector) {
 			float mScaleFactor = detector.getScaleFactor();
-			final float origScale = TouchImageView.this.saveScale;
-			TouchImageView.this.saveScale *= mScaleFactor;
-			if (TouchImageView.this.saveScale > TouchImageView.this.maxScale) {
-				TouchImageView.this.saveScale = TouchImageView.this.maxScale;
-				mScaleFactor = TouchImageView.this.maxScale / origScale;
-			} else if (TouchImageView.this.saveScale < TouchImageView.this.minScale) {
-				TouchImageView.this.saveScale = TouchImageView.this.minScale;
-				mScaleFactor = TouchImageView.this.minScale / origScale;
+			final float origScale = saveScale;
+			saveScale *= mScaleFactor;
+			if (saveScale > maxScale) {
+				saveScale = maxScale;
+				mScaleFactor = maxScale / origScale;
+			} else if (saveScale < minScale) {
+				saveScale = minScale;
+				mScaleFactor = minScale / origScale;
 			}
 
-			if (((TouchImageView.this.origWidth * TouchImageView.this.saveScale) <= TouchImageView.this.viewWidth)
-					|| ((TouchImageView.this.origHeight * TouchImageView.this.saveScale) <= TouchImageView.this.viewHeight)) {
-				TouchImageView.this.matrix.postScale(mScaleFactor, mScaleFactor,
-						TouchImageView.this.viewWidth / 2, TouchImageView.this.viewHeight / 2);
+			if (((origWidth * saveScale) <= viewWidth)
+					|| ((origHeight * saveScale) <= viewHeight)) {
+				matrix.postScale(mScaleFactor, mScaleFactor, viewWidth / 2,
+						viewHeight / 2);
 			} else {
-				TouchImageView.this.matrix.postScale(mScaleFactor, mScaleFactor,
+				matrix.postScale(mScaleFactor, mScaleFactor,
 						detector.getFocusX(), detector.getFocusY());
 			}
-			TouchImageView.this.fixTrans();
+			fixTrans();
 			return true;
 		}
 
 		@Override
 		public boolean onScaleBegin(final ScaleGestureDetector detector) {
-			TouchImageView.this.mode = ZOOM;
+			mode = ZOOM;
 			return true;
 		}
 	}
 
 	public interface WinnerListener {
 		public void win();
+	}
+
+	public interface HistoryListener {
+		public void action(String curr);
 	}
 
 	Matrix matrix;
@@ -81,7 +100,6 @@ public class TouchImageView extends ImageView {
 
 	int viewWidth, viewHeight;
 	static final int CLICK = 3;
-	protected static final String TAG = "TouchImageView";
 	float saveScale = 1f;
 
 	protected float origWidth, origHeight;
@@ -97,6 +115,7 @@ public class TouchImageView extends ImageView {
 	int lastTouchX = 0;
 	int lastTouchY = 0;
 	char colorCharacter = '0';
+	protected static final String TAG = "TouchImageView";
 
 	// These take a long time to calculate and don't change. Only do it once.
 	ArrayList<String[]> topHints;
@@ -107,108 +126,165 @@ public class TouchImageView extends ImageView {
 	Bitmap bm;
 	Canvas canvasBitmap;
 	Paint paintBitmap;
-
-	// Griddler specifics.
-	String gCurrent, gSolution;
+	int gridlinesColor;
+	ArrayList<String> history = new ArrayList();
+	// Picogram specifics.
+	String gCurrent, gSolution, gName;
 
 	int gWidth, gHeight, gId, lTop, lSide, cellWidth, cellHeight;
 
 	int[] gColors;
 
 	/*
-	 * Interface and such to see if we win.
+	 * Interfaces and such to see if we win and history stuff.
 	 */
 	private WinnerListener winListener;
+	private HistoryListener historyListener;
 
 	OnTouchListener touchListener = new OnTouchListener() {
 
 		public boolean onTouch(final View v, final MotionEvent event) {
-			if (!TouchImageView.this.isGameplay) {
-				TouchImageView.this.mScaleDetector.onTouchEvent(event);
+			mDetector.onTouchEvent(event);
+
+			// Normal touch instance between gameplay and non.
+			if (!isGameplay) {
+				mScaleDetector.onTouchEvent(event);
 				final PointF curr = new PointF(event.getX(), event.getY());
 
 				switch (event.getAction()) {
-					case MotionEvent.ACTION_DOWN:
-						TouchImageView.this.last.set(curr);
-						TouchImageView.this.start.set(TouchImageView.this.last);
-						TouchImageView.this.mode = DRAG;
-						break;
+				case MotionEvent.ACTION_DOWN:
+					last.set(curr);
+					start.set(last);
+					mode = DRAG;
+					break;
 
-					case MotionEvent.ACTION_MOVE:
-						if (TouchImageView.this.mode == DRAG) {
-							final float deltaX = curr.x - TouchImageView.this.last.x;
-							final float deltaY = curr.y - TouchImageView.this.last.y;
-							final float fixTransX = TouchImageView.this.getFixDragTrans(deltaX,
-									TouchImageView.this.viewWidth,
-									TouchImageView.this.origWidth
-											* TouchImageView.this.saveScale);
-							final float fixTransY = TouchImageView.this.getFixDragTrans(deltaY,
-									TouchImageView.this.viewHeight,
-									TouchImageView.this.origHeight
-											* TouchImageView.this.saveScale);
-							TouchImageView.this.matrix.postTranslate(fixTransX, fixTransY);
-							TouchImageView.this.fixTrans();
-							TouchImageView.this.last.set(curr.x, curr.y);
-						}
-						break;
+				case MotionEvent.ACTION_MOVE:
+					if (mode == DRAG) {
+						final float deltaX = curr.x - last.x;
+						final float deltaY = curr.y - last.y;
+						final float fixTransX = TouchImageView.this
+								.getFixDragTrans(deltaX, viewWidth, origWidth
+										* saveScale);
+						final float fixTransY = TouchImageView.this
+								.getFixDragTrans(deltaY, viewHeight, origHeight
+										* saveScale);
+						matrix.postTranslate(fixTransX, fixTransY);
+						fixTrans();
+						last.set(curr.x, curr.y);
+					}
+					break;
 
-					case MotionEvent.ACTION_UP:
-						TouchImageView.this.mode = NONE;
-						final int xDiff = (int) Math.abs(curr.x - TouchImageView.this.start.x);
-						final int yDiff = (int) Math.abs(curr.y - TouchImageView.this.start.y);
-						if ((xDiff < CLICK) && (yDiff < CLICK)) {
-							TouchImageView.this.performClick();
-						}
-						break;
+				case MotionEvent.ACTION_UP:
+					mode = NONE;
+					final int xDiff = (int) Math.abs(curr.x - start.x);
+					final int yDiff = (int) Math.abs(curr.y - start.y);
+					if ((xDiff < CLICK) && (yDiff < CLICK)) {
+						performClick();
+					}
+					break;
 
-					case MotionEvent.ACTION_POINTER_UP:
-						TouchImageView.this.mode = NONE;
-						break;
+				case MotionEvent.ACTION_POINTER_UP:
+					mode = NONE;
+					break;
 				}
 
-				TouchImageView.this.setImageMatrix(TouchImageView.this.matrix);
-				TouchImageView.this.invalidate();
+				setImageMatrix(matrix);
+				invalidate();
 			} else {
 				if ((event.getAction() == MotionEvent.ACTION_MOVE)
-						|| (event.getAction() == MotionEvent.ACTION_DOWN)) {
-					TouchImageView.this.matrix.getValues(TouchImageView.this.m);
-					final float transX = TouchImageView.this.m[Matrix.MTRANS_X] * -1;
-					final float transY = TouchImageView.this.m[Matrix.MTRANS_Y] * -1;
-					final float scaleX = TouchImageView.this.m[Matrix.MSCALE_X];
-					final float scaleY = TouchImageView.this.m[Matrix.MSCALE_Y];
-					TouchImageView.this.lastTouchX = (int) ((event.getX() + transX) / scaleX);
-					TouchImageView.this.lastTouchY = (int) ((event.getY() + transY) / scaleY);
-					TouchImageView.this.lastTouchX = Math.abs(TouchImageView.this.lastTouchX);
-					TouchImageView.this.lastTouchY = Math.abs(TouchImageView.this.lastTouchY);
-					final int indexX = (int) Math
-							.floor((TouchImageView.this.lastTouchX - (TouchImageView.this.cellWidth * TouchImageView.this.lSide))
-									/ TouchImageView.this.cellWidth);
-					final int indexY = (int) Math
-							.floor((TouchImageView.this.lastTouchY - (TouchImageView.this.cellHeight * TouchImageView.this.lTop))
-									/ TouchImageView.this.cellHeight);
-					if ((TouchImageView.this.lastTouchX < (TouchImageView.this.cellWidth * TouchImageView.this.lSide))
-							|| (TouchImageView.this.lastTouchY < (TouchImageView.this.cellHeight * TouchImageView.this.lTop))
-							|| (TouchImageView.this.lastTouchX > TouchImageView.this.getWidth())
-							|| (TouchImageView.this.lastTouchY > ((TouchImageView.this.lTop + TouchImageView.this.gHeight) * TouchImageView.this.cellHeight))) {
-						// If we're on the hints, just get out of there.
-						// Don't do anything.
-						if (TouchImageView.this.lastTouchY > ((TouchImageView.this.lTop + TouchImageView.this.gHeight) * TouchImageView.this.cellHeight)) {
+						|| (event.getAction() == MotionEvent.ACTION_DOWN || (event
+								.getAction() == MotionEvent.ACTION_UP))) {
+					matrix.getValues(m);
+					final float transX = m[Matrix.MTRANS_X] * -1;
+					final float transY = m[Matrix.MTRANS_Y] * -1;
+					final float scaleX = m[Matrix.MSCALE_X];
+					final float scaleY = m[Matrix.MSCALE_Y];
+					lastTouchX = (int) ((event.getX() + transX) / scaleX);
+					lastTouchY = (int) ((event.getY() + transY) / scaleY);
+					lastTouchX = Math.abs(lastTouchX);
+					lastTouchY = Math.abs(lastTouchY);
+
+					int indexX = (int) Math
+							.floor((lastTouchX - (cellWidth * lSide))
+									/ cellWidth);
+					int indexY = (int) Math
+							.floor((lastTouchY - (cellHeight * lTop))
+									/ cellHeight);
+					if (lastTouchX >= (lSide + gWidth) * cellWidth)
+						indexX -= 1;
+					if (lastTouchY >= (lTop + gHeight) * cellHeight)
+						indexY -= 1;
+					if (event.getAction() == MotionEvent.ACTION_UP) {
+						if ((lastTouchX < (cellWidth * lSide) && lastTouchY > (cellHeight * lTop))
+								|| (lastTouchY < (cellHeight * lTop) && lastTouchX > (cellWidth * lSide))) {
+							// Only do this if we're in the hints.
+							int xx = lastTouchX / cellWidth;
+							int yy = lastTouchY / cellHeight;
+							int ccc = bm.getPixel(xx * cellWidth + 5, yy
+									* cellHeight + 5);
+							for (int i = 0; i != gColors.length; ++i)
+								if (gColors[i] == ccc)
+									ccc = i;
+							// ccc now has the color id, if 0, transparent.
+							colorCharacter = (ccc + "").charAt(0);
+							// TODO: Update the color indicator.
+							int[] rgb = getRGB(gColors[ccc]);
+							((View) getParent()).findViewById(R.id.ibTools)
+									.setBackgroundColor(
+											Color.argb(100, rgb[0], rgb[1],
+													rgb[2]));
 						}
-						return true;
+						return true;// Ignore up actions if not above.
 					}
-					final char[] temp = TouchImageView.this.gCurrent.toCharArray();
-					final String past = TouchImageView.this.gCurrent;
-					if (((indexY * TouchImageView.this.gWidth) + indexX) < temp.length) {
-						temp[(indexY * TouchImageView.this.gWidth) + indexX] = TouchImageView.this.colorCharacter;
-						TouchImageView.this.gCurrent = String.valueOf(temp);
-						if (!past.equals(TouchImageView.this.gCurrent)) {
+					oldCurrent = gCurrent;
+					final char[] temp = gCurrent.toCharArray();
+					final String past = gCurrent;
+
+					if (((indexY * gWidth) + indexX) < temp.length) {
+						if (temp[(indexY * gWidth) + indexX] != '0'
+								&& event.getAction() == MotionEvent.ACTION_DOWN) {
+
+						}
+
+						// Get the position of the change. If it's the same as
+						// the previous, change the values.
+						if (event.getAction() == MotionEvent.ACTION_DOWN) {
+							if (previousX == indexX && previousY == indexY) {
+								didPreviousSwitcher = true;
+								if (temp[(indexY * gWidth) + indexX] == colorCharacter) {
+									temp[(indexY * gWidth) + indexX] = 'x';
+								} else if (temp[(indexY * gWidth) + indexX] == 'x') {
+									temp[(indexY * gWidth) + indexX] = '0';
+								} else if (temp[(indexY * gWidth) + indexX] == '0') {
+									temp[(indexY * gWidth) + indexX] = colorCharacter;
+								}
+							} else
+								temp[(indexY * gWidth) + indexX] = colorCharacter;
+						} else {
+							Log.d(TAG, "Prev" + didPreviousSwitcher);
+							if (!didPreviousSwitcher) {
+								temp[(indexY * gWidth) + indexX] = colorCharacter;
+							}
+						}
+						if (event.getAction() == MotionEvent.ACTION_UP
+								|| event.getAction() == MotionEvent.ACTION_CANCEL)
+							didPreviousSwitcher = false;
+
+						gCurrent = String.valueOf(temp);
+						if (!past.equals(gCurrent)) {
+							previousX = indexX;
+							previousY = indexY;
 							new Thread(new Runnable() {
 
 								public void run() {
-									TouchImageView.this.h.post(new Runnable() {
+									h.post(new Runnable() {
 
 										public void run() {
-											TouchImageView.this.bitmapFromCurrent();
+											if (historyListener != null)
+												historyListener
+														.action(oldCurrent);
+											TouchImageView.this
+													.bitmapFromCurrent();
 										}
 
 									});
@@ -217,9 +293,9 @@ public class TouchImageView extends ImageView {
 							}).start();
 						}
 					}
-					if (TouchImageView.this.gCurrent.equals(TouchImageView.this.gSolution)) {
-						if (TouchImageView.this.winListener != null) {
-							TouchImageView.this.winListener.win();
+					if (gCurrent.replaceAll("x", "0").equals(gSolution)) {
+						if (winListener != null) {
+							winListener.win();
 						} else {
 							try {
 								throw new Exception("No WinListener!");
@@ -237,9 +313,13 @@ public class TouchImageView extends ImageView {
 		}
 
 	};
-
+	int previousX = -1, previousY = -1;
+	boolean didPreviousSwitcher = false;
+	boolean didSwitch = false; // If we're switching a color to an X so it
+								// doesn't switch back on the MOVE/UP
 	ArrayList<Integer> topColors = new ArrayList();
 	ArrayList<Integer> sideColors = new ArrayList();
+	String oldCurrent = "";
 
 	public TouchImageView(final Context context) {
 		super(context);
@@ -251,38 +331,59 @@ public class TouchImageView extends ImageView {
 		this.sharedConstructing(context);
 	}
 
-	// Convert current String to a bitmap that's drawable. This will draw everything: grid, numbers, and onclicks.
-	private void bitmapFromCurrent() {
-		// Get a 2D array of "current" griddler.
-		final char current2D[][] = this.solutionTo2DArray();
-		// Create bitmap based on the current. Make a int array with pixel colors.
+	public boolean isRefreshing = false;
+
+	// Convert current String to a bitmap that's drawable. This will draw
+	// everything: grid, numbers, and onclicks.
+	public void bitmapFromCurrent() {
+
+		// Get a 2D array of "current" Picogram.
+		final char current2D[][] = this.puzzleTo2DArray(gSolution);
+		// Create bitmap based on the current. Make a int array with pixel
+		// colors.
 		// Because of how we're making the top hints, it needs its own method.
-		if (this.topHints == null) {
+		if (this.topHints == null || isRefreshing) {
+
 			this.rows = this.getRows(current2D);
 			this.columns = this.getColumns(current2D);
 			this.sideHints = this.getSideHints(this.rows);
+
 			this.topHints = this.getTopHints(this.columns);
 			this.longestTop = this.topHints.size();
-			this.longestSide = this.getLongest(this.sideHints); // Get widest "layer"
+			this.longestSide = this.getLongest(this.sideHints); // Get widest
+																// "layer"
 			this.topColors = this.getColors(this.columns, true);
 			this.sideColors = this.getColors(this.rows, false);
 			// Since this is layered, we just need number of layers.
 			this.lTop = this.longestTop;
 			this.lSide = this.longestSide;
-			// this.bm = Bitmap.createBitmap((this.gWidth + this.longestSide) * 50,(this.gHeight + this.longestTop) * 50, Bitmap.Config.RGB_565);
-			this.bm = Bitmap.createBitmap((this.gWidth + this.longestSide) * 50,
-					(this.gHeight + this.longestTop) * 50, Bitmap.Config.ARGB_4444);
+			// this.bm = Bitmap.createBitmap((this.gWidth + this.longestSide) *
+			// 50,(this.gHeight + this.longestTop) * 50, Bitmap.Config.RGB_565);
+			this.bm = Bitmap.createBitmap(
+					(this.gWidth + this.longestSide) * 50,
+					(this.gHeight + this.longestTop) * 50,
+					Bitmap.Config.ARGB_4444);
+
 			this.canvasBitmap = new Canvas(this.bm);
 			this.paintBitmap = new Paint();
-			// Reverse the side hints, just because. Sorry, this is really stupid, it's for colors somehow.
+			// Reverse the side hints, just because. Sorry, this is really
+			// stupid, it's for colors somehow.
+
 			for (int i = 0; i != this.sideHints.size(); ++i) {
-				this.sideHints
-						.set(i, new StringBuilder(this.sideHints.get(i)).reverse().toString());
+				this.sideHints.set(i, new StringBuilder(this.sideHints.get(i))
+						.reverse().toString());
 			}
+
 		}
+		// Clear
+		// canvasBitmap.drawColor(Color.rgb((int) (Math.random() * 200),
+		// (int) (Math.random() * 200), (int) (Math.random() * 200)));
+
 		this.drawOnCanvas();
+
 		// Change canvas and it'll reflect on the bm.
 		this.setImageBitmap(this.bm);
+
 	}
 
 	public void clearGame() {
@@ -292,8 +393,8 @@ public class TouchImageView extends ImageView {
 
 	// Site
 	// http://stackoverflow.com/questions/8629202/fast-conversion-from-one-dimensional-array-to-two-dimensional-in-java
-	private char[][] convertOneDimensionalToTwoDimensional(final int numberOfRows,
-			final int rowSize, final char[] srcMatrix) {
+	private char[][] convertOneDimensionalToTwoDimensional(
+			final int numberOfRows, final int rowSize, final char[] srcMatrix) {
 
 		final int srcMatrixLength = srcMatrix.length;
 		int srcPosition = 0;
@@ -315,8 +416,10 @@ public class TouchImageView extends ImageView {
 	}
 
 	private void drawGame() {
-		final int heightTrim = this.canvasBitmap.getHeight() % (this.gHeight + this.longestTop);
-		final int widthTrim = this.canvasBitmap.getWidth() % (this.gWidth + this.longestSide);
+		final int heightTrim = this.canvasBitmap.getHeight()
+				% (this.gHeight + this.longestTop);
+		final int widthTrim = this.canvasBitmap.getWidth()
+				% (this.gWidth + this.longestSide);
 		this.paintBitmap.setColor(Color.RED);
 		final int widthOffset = (this.canvasBitmap.getWidth() - widthTrim)
 				/ (this.longestSide + this.gWidth);
@@ -325,12 +428,10 @@ public class TouchImageView extends ImageView {
 		this.cellWidth = widthOffset;
 		this.cellHeight = heightOffset;
 		int row = -1, column = 0;
-		if (this.gCurrent == null)
-		{
+		if (this.gCurrent == null) {
 			// User hasn't played yet, make it a new game.
 			this.gCurrent = "";
-			for (int i = 0; i != this.gSolution.length(); ++i)
-			{
+			for (int i = 0; i != this.gSolution.length(); ++i) {
 				this.gCurrent += "0";
 			}
 		}
@@ -339,62 +440,106 @@ public class TouchImageView extends ImageView {
 				column = 0;
 				++row;
 			}
-			final Rect r = new Rect(widthOffset * (this.longestSide + column), heightOffset
-					* (this.longestTop + row), widthOffset * (this.longestSide + column + 1),
-					heightOffset * (this.longestTop + row + 1));
+			final Rect r = new Rect(widthOffset * (this.longestSide + column),
+					heightOffset * (this.longestTop + row), widthOffset
+							* (this.longestSide + column + 1), heightOffset
+							* (this.longestTop + row + 1));
 			// INFO: This is where we draw the board.
-			this.paintBitmap
-					.setColor(this.gColors[Integer.parseInt(this.gCurrent.charAt(i) + "")]);
-			this.canvasBitmap.drawRect(r, this.paintBitmap);
-			/*
-			 * if (i != 0) { if (this.gCurrent.charAt(i) != this.gCurrent.charAt(i - 1)) { if (this.gCurrent.charAt(i) == '0') { this.paintBitmap.setColor(Color.WHITE); } else { this.paintBitmap.setColor(Color.BLACK); } } } else { if (this.gCurrent.charAt(i) == '0') { this.paintBitmap.setColor(Color.WHITE); } else { this.paintBitmap.setColor(Color.BLACK); } }
-			 */
-			// this.paintBitmap.setColor(this.gColors[Integer.parseInt(this.colorCharacter + "")]);
-			// this.canvasBitmap.drawRect(r, this.paintBitmap);
+
+			// if (oldCurrent.charAt(i) != gCurrent.charAt(i)) {
+			Xfermode old = paintBitmap.getXfermode();
+			if (gCurrent.charAt(i) == 'x') {
+				// We have an x.
+				paintBitmap.setColor(Color.TRANSPARENT);
+				paintBitmap.setTextSize(this.cellHeight);
+				this.paintBitmap.setXfermode(new PorterDuffXfermode(
+						android.graphics.PorterDuff.Mode.SRC));
+				this.canvasBitmap.drawRect(r, this.paintBitmap);// White out
+																// this spot
+				this.paintBitmap.setXfermode(old);
+				this.paintBitmap.setColor(Color.BLACK);
+				Paint.Align first = paintBitmap.getTextAlign();
+				this.paintBitmap.setTextAlign(Paint.Align.CENTER);
+				canvasBitmap.drawText("X", r.left + cellWidth / 2, r.top
+						+ cellHeight * 9 / 10, paintBitmap);
+				this.paintBitmap.setTextAlign(first);
+			} else {
+				this.paintBitmap.setColor(this.gColors[Integer
+						.parseInt(this.gCurrent.charAt(i) + "")]);
+				if (this.gColors[Integer.parseInt(this.gCurrent.charAt(i) + "")] == Color.TRANSPARENT) {
+					// Draw white ontop for transparency.
+					this.paintBitmap.setXfermode(new PorterDuffXfermode(
+							android.graphics.PorterDuff.Mode.SRC));
+				}
+				// Dim the color to see the gridlines.
+				this.canvasBitmap.drawRect(r, this.paintBitmap);
+				paintBitmap.setXfermode(old);
+			}
 			++column;
 		}
 	}
 
 	private void drawGridlines() {
 		this.paintBitmap.setStrokeWidth(3);
-		final int heightTrim = this.canvasBitmap.getHeight() % (this.gHeight + this.longestTop);
-		final int widthTrim = this.canvasBitmap.getWidth() % (this.gWidth + this.longestSide);
+		final int heightTrim = this.canvasBitmap.getHeight()
+				% (this.gHeight + this.longestTop);
+		final int widthTrim = this.canvasBitmap.getWidth()
+				% (this.gWidth + this.longestSide);
 		// Up down.
-		this.paintBitmap.setColor(this.getResources().getColor(R.color.foreground));
+		this.paintBitmap.setColor(gridlinesColor);
 		final int widthOffset = (this.canvasBitmap.getWidth() - widthTrim)
 				/ (this.longestSide + this.gWidth);
 		final int heightOffset = (this.canvasBitmap.getHeight() - heightTrim)
 				/ (this.gHeight + this.longestTop);
-
+		int runner = 0;
 		for (int i = this.longestSide; i != ((this.gWidth + this.longestSide) + 1); ++i) {
-			if ((i % 5) == 0) {
-				this.paintBitmap.setStrokeWidth(this.paintBitmap.getStrokeWidth() + 4);
+			if ((runner % 5) == 0) {
+				this.paintBitmap.setStrokeWidth(this.paintBitmap
+						.getStrokeWidth() + 4);
 			}
 			this.canvasBitmap.drawLine(widthOffset * i, 0, widthOffset * i,
 					this.canvasBitmap.getHeight(), this.paintBitmap);
-			if ((i % 5) == 0) {
-				this.paintBitmap.setStrokeWidth(this.paintBitmap.getStrokeWidth() - 4);
+			if ((runner % 5) == 0) {
+				this.paintBitmap.setStrokeWidth(this.paintBitmap
+						.getStrokeWidth() - 4);
 			}
+			runner++;
 		}
 		// Side side.
+		runner = 0;
 		for (int i = this.longestTop; i != ((this.gHeight + this.longestTop) + 1); ++i) {
-			if ((i % 5) == 0) {
-				this.paintBitmap.setStrokeWidth(this.paintBitmap.getStrokeWidth() + 4);
+			if ((runner % 5) == 0) {
+				this.paintBitmap.setStrokeWidth(this.paintBitmap
+						.getStrokeWidth() + 4);
 			}
-			this.canvasBitmap.drawLine(0, heightOffset * i, this.canvasBitmap.getWidth(),
-					heightOffset * i, this.paintBitmap);
-			if ((i % 5) == 0) {
-				this.paintBitmap.setStrokeWidth(this.paintBitmap.getStrokeWidth() - 4);
+			this.canvasBitmap.drawLine(0, heightOffset * i,
+					this.canvasBitmap.getWidth(), heightOffset * i,
+					this.paintBitmap);
+			if ((runner % 5) == 0) {
+				this.paintBitmap.setStrokeWidth(this.paintBitmap
+						.getStrokeWidth() - 4);
 			}
+			runner++;
 		}
+	}
+
+	private int[] getRGB(final int i) {
+
+		final int r = (i >> 16) & 0xff;
+		final int g = (i >> 8) & 0xff;
+		final int b = (i & 0xff);
+		return new int[] { r, g, b };
 	}
 
 	private void drawHints() {
 		this.paintBitmap.setAntiAlias(true);
-		this.paintBitmap.setColor(this.getResources().getColor(R.color.foreground));
+		this.paintBitmap.setColor(this.getResources().getColor(
+				R.color.foreground));
 		this.paintBitmap.setStrokeWidth(1);
-		final int widthOffset = this.canvasBitmap.getWidth() / (this.longestSide + this.gWidth);
-		final int heightOffset = this.canvasBitmap.getHeight() / (this.gHeight + this.longestTop);
+		final int widthOffset = this.canvasBitmap.getWidth()
+				/ (this.longestSide + this.gWidth);
+		final int heightOffset = this.canvasBitmap.getHeight()
+				/ (this.gHeight + this.longestTop);
 		this.paintBitmap.setTextSize(heightOffset / 2);
 		this.paintBitmap.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
 		// Draw top hints.
@@ -402,14 +547,38 @@ public class TouchImageView extends ImageView {
 		for (int i = 0; i != this.longestTop; ++i) {
 			for (int j = 0; j != this.topHints.get(i).length; ++j) {
 				if (Character.isDigit(this.topHints.get(i)[j].charAt(0))) {
-					this.paintBitmap.setColor(this.gColors[this.topColors.get(colorRun)]);
+					this.paintBitmap.setColor(this.gColors[this.topColors
+							.get(colorRun)]);
 					colorRun++;
 				}
+				if (topHints.get(i)[j].equals("0"))
+					paintBitmap.setColor(Color.TRANSPARENT);
+
 				this.canvasBitmap
-						.drawText(this.topHints.get(i)[j], ((this.longestSide * widthOffset)
-								+ (widthOffset / 2) + (j * widthOffset)) - 5,
-								(this.longestTop * heightOffset) - (heightOffset * i) - 5,
+						.drawRect(
+								new Rect(
+										((this.longestSide * widthOffset) + (j * widthOffset)),
+										((this.longestTop * heightOffset)
+												- (heightOffset * i) - heightOffset),
+										((this.longestSide * widthOffset) + (j * widthOffset))
+												+ (widthOffset),
+										((this.longestTop * heightOffset) - (heightOffset * i))),
+								paintBitmap);
+				int[] rgbOriginal = getRGB(paintBitmap.getColor());
+				if (paintBitmap.getColor() == Color.TRANSPARENT)
+					paintBitmap.setColor(this.gridlinesColor);
+				else
+					paintBitmap.setColor(Color.rgb(255 - rgbOriginal[0],
+							255 - rgbOriginal[1], 255 - rgbOriginal[2]));
+				this.canvasBitmap
+						.drawText(
+								this.topHints.get(i)[j],
+								((this.longestSide * widthOffset)
+										+ (widthOffset / 2) + (j * widthOffset)) - 5,
+								(this.longestTop * heightOffset)
+										- (heightOffset * i) - 5,
 								this.paintBitmap);
+				paintBitmap.setColor(Color.TRANSPARENT);
 			}
 		}
 		// Draw side hints.
@@ -420,14 +589,34 @@ public class TouchImageView extends ImageView {
 		for (int i = 0; i != this.sideHints.size(); ++i) {
 			// The 2 * heightOffset/3 is for balance issues.
 			for (int j = 0; j != this.sideHints.get(i).split(" ").length; ++j) {
-				this.paintBitmap.setColor(this.gColors[this.sideColors.get(colorRun)]);
+				this.paintBitmap.setColor(this.gColors[this.sideColors
+						.get(colorRun)]);
 
 				colorRun++;
 
-				this.canvasBitmap.drawText(
-						this.sideHints.get(i).split(" ")[j] + " ",
+				String side = this.sideHints.get(i).split(" ")[j];
+				if (side.length() > 1) {
+					side = new StringBuilder(side).reverse().toString();
+				}
+				if (side.equals("0"))
+					paintBitmap.setColor(Color.TRANSPARENT);
+
+				canvasBitmap.drawRect(new Rect((this.longestSide * widthOffset)
+						- (j * widthOffset), (this.longestTop * heightOffset)
+						+ (i * heightOffset), (this.longestSide * widthOffset)
+						- (j * widthOffset) - (widthOffset),
+						(this.longestTop * heightOffset) + (i * heightOffset)
+								+ heightOffset), paintBitmap);
+
+				int[] rgbOriginal = getRGB(paintBitmap.getColor());
+				if (paintBitmap.getColor() == Color.TRANSPARENT)
+					paintBitmap.setColor(this.gridlinesColor);
+				else
+					paintBitmap.setColor(Color.rgb(255 - rgbOriginal[0],
+							255 - rgbOriginal[1], 255 - rgbOriginal[2]));
+				this.canvasBitmap.drawText(side + "  ",
 						(this.longestSide * widthOffset) - 5
-								- (j * this.paintBitmap.getFontSpacing()),
+								- (j * widthOffset),
 						(this.longestTop * heightOffset) + (i * heightOffset)
 								+ ((2 * heightOffset) / 3), this.paintBitmap);
 			}
@@ -435,24 +624,135 @@ public class TouchImageView extends ImageView {
 		this.paintBitmap.setTextAlign(oldAlign);
 	}
 
+	boolean isFirstTime = true;
+
 	private void drawOnCanvas() {
-		// White out whole canvas.
-		this.drawWhiteCanvas();
+		if (false) {
+			BitmapDrawable background;
+			background = new BitmapDrawable(BitmapFactory.decodeResource(
+					getResources(), R.drawable.light_grid));
+
+			// in this case, you want to tile the entire view
+			background.setBounds(0, 0, canvasBitmap.getWidth(),
+					canvasBitmap.getHeight());
+
+			background.setTileModeXY(Shader.TileMode.REPEAT,
+					Shader.TileMode.REPEAT);
+			background.draw(canvasBitmap);
+			// paintBitmap.setColor(Color.WHITE);
+			this.drawWhiteCanvas();
+		}
+
 		// Draw game surface.
 		this.drawGame();
+
 		// Draw gridlines and hints
+		if (isFirstTime || isRefreshing) {
+			this.drawHints();
+			isFirstTime = false;
+		}
+
 		this.drawGridlines();
-		this.drawHints();
+		this.drawSolvedPortions();
+
+		this.drawCornerInfo();
 		this.paintBitmap.setColor(Color.RED);
-		this.canvasBitmap.drawCircle(this.lastTouchX, this.lastTouchY, 5, this.paintBitmap);
+
+		this.canvasBitmap.drawCircle(this.lastTouchX, this.lastTouchY, 5,
+				this.paintBitmap);
+
+	}
+
+	/**
+	 * http://stackoverflow.com/questions/12166476/android-canvas-drawtext-set-
+	 * font-size-from-width Retrieve the maximum text size to fit in a given
+	 * width.
+	 * 
+	 * @param str
+	 *            (String): Text to check for size.
+	 * @param maxWidth
+	 *            (float): Maximum allowed width.
+	 * @return (int): The desired text size.
+	 */
+	private int determineMaxTextSize(String str, float maxWidth) {
+		int size = 0;
+		Paint paint = new Paint();
+		if (str.isEmpty())
+			return 1;
+
+		do {
+
+			paint.setTextSize(++size);
+		} while (paint.measureText(str) < maxWidth);
+
+		return size;
+	}
+
+	private void drawCornerInfo() {
+
+		// Draw the name and the size in the upper left corner of game board.
+		String size = gWidth + " X " + gHeight;
+
+		this.paintBitmap.setColor(gridlinesColor);
+		paintBitmap
+				.setTextSize(determineMaxTextSize(gName, lSide * cellWidth) - 5);
+
+		this.canvasBitmap.drawText(gName, 0, paintBitmap.getTextSize(),
+				paintBitmap);
+
+		paintBitmap
+				.setTextSize(determineMaxTextSize(size, lSide * cellWidth) - 5);
+		this.canvasBitmap.drawText(size, 0, paintBitmap.getTextSize() * 2 - 5,
+				paintBitmap);
+
+	}
+
+	private void drawSolvedPortions() {
+		char[][] solution2D = this.puzzleTo2DArray(gSolution);
+		ArrayList<String> solutionRows = this.getRows(solution2D);
+		ArrayList<String> solutionColumns = this.getColumns(solution2D);
+
+		char[][] current2D = this.puzzleTo2DArray(gCurrent);
+		ArrayList<String> currentRows = this.getRows(current2D);
+		ArrayList<String> currentColumns = this.getColumns(current2D);
+		Rect r = new Rect(0, 0, 0, 0);
+		for (int i = 0; i != solutionRows.size(); ++i) {
+			String sr = solutionRows.get(i).replaceAll("X", "0")
+					.replaceAll("0+", "0");
+			String cr = currentRows.get(i).replaceAll("[X|x]", "0")
+					.replaceAll("0+", "0");
+			if (sr.equals(cr)) {
+				this.paintBitmap.setColor(Color.GREEN);
+				r.set(lSide * cellWidth - 1, (cellHeight * lTop)
+						+ (i * cellHeight), lSide * cellWidth + 1,
+						(cellHeight * lTop) + (i * cellHeight) + cellHeight);
+				this.canvasBitmap.drawRect(r, paintBitmap);
+			}
+		}
+
+		for (int i = 0; i != solutionColumns.size(); ++i) {
+			String sr = solutionColumns.get(i).replaceAll("X", "0")
+					.replaceAll("0+", "0");
+			String cr = currentColumns.get(i).replaceAll("[X|x]", "0")
+					.replaceAll("0+", "0");
+			if (sr.equals(cr)) {
+				this.paintBitmap.setColor(Color.GREEN);
+				r.set((i * cellWidth) + (lSide * cellWidth), lTop * cellHeight
+						- 1, (i * cellWidth) + (lSide * cellWidth) + cellWidth,
+						lTop * cellHeight + 1);
+				this.canvasBitmap.drawRect(r, paintBitmap);
+			}
+		}
 	}
 
 	private void drawWhiteCanvas() {
-		final Bitmap draw = BitmapFactory
-				.decodeResource(this.getResources(), R.drawable.light_grid);
+		final Bitmap draw = BitmapFactory.decodeResource(this.getResources(),
+				R.drawable.light_grid);
 		final Shader old = this.paintBitmap.getShader();
-		this.paintBitmap.setShader(new BitmapShader(draw, TileMode.REPEAT, TileMode.REPEAT));
-		this.paintBitmap.setColor(this.getResources().getColor(R.color.background));
+		this.paintBitmap.setShader(new BitmapShader(draw, TileMode.REPEAT,
+				TileMode.REPEAT));
+		this.paintBitmap.setColor(this.getResources().getColor(
+				R.color.background));
 		this.paintBitmap.setColor(Color.TRANSPARENT);
 		this.canvasBitmap.drawRect(0, 0, this.canvasBitmap.getWidth(),
 				this.canvasBitmap.getHeight(), this.paintBitmap);
@@ -464,44 +764,38 @@ public class TouchImageView extends ImageView {
 		final float transX = this.m[Matrix.MTRANS_X];
 		final float transY = this.m[Matrix.MTRANS_Y];
 
-		final float fixTransX = this.getFixTrans(transX, this.viewWidth, this.origWidth
-				* this.saveScale);
-		final float fixTransY = this.getFixTrans(transY, this.viewHeight, this.origHeight
-				* this.saveScale);
+		final float fixTransX = this.getFixTrans(transX, this.viewWidth,
+				this.origWidth * this.saveScale);
+		final float fixTransY = this.getFixTrans(transY, this.viewHeight,
+				this.origHeight * this.saveScale);
 
 		if ((fixTransX != 0) || (fixTransY != 0)) {
 			this.matrix.postTranslate(fixTransX, fixTransY);
 		}
 	}
 
-	private ArrayList<Integer> getColors(final ArrayList<String> segments, final boolean isTop) {
+	private ArrayList<Integer> getColors(final ArrayList<String> segments,
+			final boolean isTop) {
 		final ArrayList<Integer> result = new ArrayList();
 		final ArrayList<char[]> chars = new ArrayList();
-		for (final String segment : segments)
-		{
-			if (segment.matches("[0]+"))
-			{
-				chars.add(new char[] {
-						'0'
-				});
+		for (final String segment : segments) {
+			if (segment.matches("[0]+")) {
+				chars.add(new char[] { '0' });
 				continue;
 			}
 			final String middle = this.removeDuplicates(segment);
 			final String last = middle.replaceAll("0", "");
-			final char[] whole = new StringBuilder(last).reverse().toString().toCharArray();
+			final char[] whole = new StringBuilder(last).reverse().toString()
+					.toCharArray();
 			chars.add(whole);
 		}
 		int longest;
 		longest = (isTop) ? this.longestTop : this.longestSide;
 		if (isTop) {
-			for (int i = 0; i != longest; ++i)
-			{
-				for (final char[] c : chars)
-				{
-					if (i < c.length)
-					{
-						if (c[i] != '0')
-						{
+			for (int i = 0; i != longest; ++i) {
+				for (final char[] c : chars) {
+					if (i < c.length) {
+						if (c[i] != '0') {
 							result.add(Integer.parseInt(c[i] + ""));
 						} else {
 							result.add(1);
@@ -509,12 +803,10 @@ public class TouchImageView extends ImageView {
 					}
 				}
 			}
-		}
-		else
-		{
-			for (final char[] c : chars)
-			{
-				// c = new StringBuilder(new String(c)).reverse().toString().toCharArray();
+		} else {
+			for (final char[] c : chars) {
+				// c = new StringBuilder(new
+				// String(c)).reverse().toString().toCharArray();
 				for (int i = 0; i != c.length; ++i) {
 					if (c[i] != '0') {
 						result.add(Integer.parseInt(c[i] + ""));
@@ -539,14 +831,16 @@ public class TouchImageView extends ImageView {
 		return result;
 	}
 
-	float getFixDragTrans(final float delta, final float viewSize, final float contentSize) {
+	float getFixDragTrans(final float delta, final float viewSize,
+			final float contentSize) {
 		if (contentSize <= viewSize) {
 			return 0;
 		}
 		return delta;
 	}
 
-	float getFixTrans(final float trans, final float viewSize, final float contentSize) {
+	float getFixTrans(final float trans, final float viewSize,
+			final float contentSize) {
 		float minTrans, maxTrans;
 
 		if (contentSize <= viewSize) {
@@ -627,8 +921,7 @@ public class TouchImageView extends ImageView {
 		for (int i = 0; i != parsed.size(); ++i) {
 			String temp = parsed.get(i);
 			final String[] split = temp.split(" ");
-			for (int j = 0; j != split.length; ++j)
-			{
+			for (int j = 0; j != split.length; ++j) {
 				split[j] = new StringBuilder(split[j]).reverse().toString();
 			}
 			String emp = "";
@@ -681,7 +974,8 @@ public class TouchImageView extends ImageView {
 	}
 
 	@Override
-	protected void onMeasure(final int widthMeasureSpec, final int heightMeasureSpec) {
+	protected void onMeasure(final int widthMeasureSpec,
+			final int heightMeasureSpec) {
 		super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 		this.viewWidth = MeasureSpec.getSize(widthMeasureSpec);
 		this.viewHeight = MeasureSpec.getSize(heightMeasureSpec);
@@ -754,10 +1048,10 @@ public class TouchImageView extends ImageView {
 	}
 
 	// Just add on fluff area for the hints on the top and on the side.
-	private int[] resizeBitMapsForHints(final int[] colors, final int longestTop,
-			final int longestSide) {
-		final int result[] = new int[(longestTop * (longestSide + this.gWidth)) + colors.length
-				+ (this.gHeight * longestSide)];
+	private int[] resizeBitMapsForHints(final int[] colors,
+			final int longestTop, final int longestSide) {
+		final int result[] = new int[(longestTop * (longestSide + this.gWidth))
+				+ colors.length + (this.gHeight * longestSide)];
 		int runner;
 		// Fill up the top with blank white.
 		for (runner = 0; runner != (longestTop * (longestSide + this.gWidth)); ++runner) {
@@ -780,19 +1074,38 @@ public class TouchImageView extends ImageView {
 	}
 
 	// Get bundled info and set it for use.
-	public void setGriddlerInfo(final Bundle savedInstanceState) {
+	public void setPicogramInfo(final Bundle savedInstanceState) {
+
+		gName = savedInstanceState.getString("name", "");
 		this.gCurrent = savedInstanceState.getString("current");
-		this.gHeight = Integer.parseInt(savedInstanceState.getString("height"));
-		this.gWidth = Integer.parseInt(savedInstanceState.getString("width"));
-		if (savedInstanceState.getString("id") != null) {
-			this.gId = Integer.parseInt(savedInstanceState.getString("id"));
-		}
+		this.gHeight = Integer.parseInt(savedInstanceState.getString("height",
+				"0"));
+		this.gWidth = Integer.parseInt(savedInstanceState.getString("width",
+				"0"));
+
 		this.gSolution = savedInstanceState.getString("solution");
+		this.gId = Integer.parseInt(savedInstanceState.getString("id",
+				gSolution + ""));
 		final String[] cols = savedInstanceState.getString("colors").split(",");
 		this.gColors = new int[cols.length];
+
 		for (int i = 0; i != cols.length; ++i) {
 			this.gColors[i] = Integer.parseInt(cols[i]);
 		}
+
+		this.oldCurrent = "";
+		if (gCurrent == null) {
+			gCurrent = ""; // Start it out as empty.
+			for (int i = 0; i != gHeight * gWidth; ++i)
+				gCurrent += "0";
+		}
+
+		if (gSolution == null)
+			gSolution = gCurrent; // Not a real game, so no win listener.
+		// Below is for optimization so it only draws all the squares once and
+		// only again after it's changed.
+		for (int i = 0; i != gSolution.length(); i++)
+			this.oldCurrent += "-";
 
 		this.bitmapFromCurrent();
 	}
@@ -805,26 +1118,80 @@ public class TouchImageView extends ImageView {
 		this.winListener = winListener;
 	}
 
+	public void setHistoryListener(final HistoryListener hl) {
+		historyListener = hl;
+	}
+
 	private void sharedConstructing(final Context context) {
 		super.setClickable(true);
 		this.context = context;
-		this.mScaleDetector = new ScaleGestureDetector(context, new ScaleListener());
+		this.mScaleDetector = new ScaleGestureDetector(context,
+				new ScaleListener());
 		this.matrix = new Matrix();
 		this.m = new float[9];
 		this.setImageMatrix(this.matrix);
 		this.setScaleType(ScaleType.MATRIX);
 
 		this.setOnTouchListener(this.touchListener);
+		mDetector = new GestureDetectorCompat(context, this);
+		mDetector.setOnDoubleTapListener(this);
+
 	}
 
-	private char[][] solutionTo2DArray() {
+	GestureDetectorCompat mDetector;
+
+	private char[][] puzzleTo2DArray(String in) {
 		final char[][] result = new char[this.gHeight][this.gWidth];
 		int runner = 0;
 		for (int i = 0; i != result.length; ++i) {
 			for (int j = 0; j != result[i].length; ++j) {
-				result[i][j] = this.gSolution.charAt(runner++);
+				result[i][j] = in.charAt(runner++);
 			}
 		}
 		return result;
+	}
+
+	public boolean onDown(MotionEvent e) {
+		return false;
+	}
+
+	public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX,
+			float velocityY) {
+		return false;
+	}
+
+	public void onLongPress(MotionEvent e) {
+		Vibrator v = (Vibrator) context
+				.getSystemService(context.VIBRATOR_SERVICE);
+		v.vibrate(100);
+		((View) this.getParent()).findViewById(R.id.ibTools).performClick();
+	}
+
+	public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX,
+			float distanceY) {
+		return false;
+	}
+
+	public void onShowPress(MotionEvent e) {
+	}
+
+	public boolean onSingleTapUp(MotionEvent e) {
+		return false;
+	}
+
+	public boolean onDoubleTap(MotionEvent e) {
+		Vibrator v = (Vibrator) context
+				.getSystemService(context.VIBRATOR_SERVICE);
+		v.vibrate(100);
+		((View) this.getParent()).findViewById(R.id.ibTools).performClick();
+		return true;
+	}
+
+	public boolean onDoubleTapEvent(MotionEvent e) {
+		return false;
+	}
+
+	public boolean onSingleTapConfirmed(MotionEvent e) {
+		return false;
 	}
 }

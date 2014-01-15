@@ -6,12 +6,31 @@
 
         <CheckBoxPreference
             android:key="wonvisible"
-            android:summary="Hardcore griddler master?  Remove all those pesky games to find new challenges faster!"
+            android:summary="Hardcore Picogram master?  Remove all those pesky games to find new challenges faster!"
             android:title="Remove Won Games" />
         <CheckBoxPreference
             android:key="decorations"
-            android:summary="Show the bar with the time and notifications while you play."
+            android:summary="Show the bar with the time, battery, and notifications while you play."
             android:title="Show Top Bar?" />
+        <ListPreference
+            android:entries="@array/listBackgroundName"
+            android:entryValues="@array/listBackgroundValue"
+            android:key="background"
+            android:summary="Select the background of your game."
+            android:title="Background" />
+        <ListPreference
+            android:entries="@array/listListValue"
+            android:entryValues="@array/listListValue"
+            android:key="lines"
+            android:summary="Select the line colors."
+            android:title="Gridlines" />
+        <ListPreference
+            android:entries="@array/listSoundValue"
+            android:entryValues="@array/listSoundValue"
+            android:key="music"
+            android:summary="Have some short semi-annoying background music ;)"
+            android:title="Music" />
+        
     </PreferenceCategory>
     <!-- Privacy, let the user control anything we can/will collect. -->
     <PreferenceCategory android:title="Privacy Preferences" >
@@ -26,20 +45,32 @@
         <CheckBoxPreference
             android:key="logging"
             android:summary="We collect what you do so if the app crashes, we know how to reproduce what you did.  We can also fix more problematic bugs."
-            android:title="Stop Events and Crashes" />
+            android:title="Stop Events Sharing" />
+        <CheckBoxPreference
+            android:key="crashes"
+            android:summary="We track when and why you crash so we can fix bugs."
+            android:title="Stop Crash Sharing" />
     </PreferenceCategory>
     <!-- Simple changelog.  Remember to update when we release/update. -->
-    <PreferenceCategory android:title="Changelog" >
+    <PreferenceCategory android:title="Extras" >
         <Preference
             android:key="changelog"
             android:summary="View the changelog."
-            android:title="View the changelog." />
+            android:title="Changelog" />
+        <Preference
+            android:key="licenses"
+            android:summary="View the licenses of libraries we use"
+            android:title="Licenses" />
+        <Preference
+            android:key="rateapp"
+            android:summary="Rating our app gets us more people (If it&apos;s positive) and helps us improve the program! If you have problems, please contact us below."
+            android:title="Rate the App" />
     </PreferenceCategory>
     <PreferenceCategory android:title="Contact" >
         <Preference
             android:key="email"
             android:summary="Email me your problems, concerns, suggestions, request, or even a thank you."
-            android:title="Email" />
+            android:title="Email and Feedback" />
     </PreferenceCategory>
 
 </PreferenceScreen>

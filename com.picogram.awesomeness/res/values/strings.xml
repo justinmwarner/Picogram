@@ -4,7 +4,7 @@
     <string name="app_name">Picogram</string>
     <string name="hello_world">Hello world!</string>
     <string name="menu_settings">Picogram</string>
-    <string name="create_griddler">Griddler Creator</string>
+    <string name="create_Picogram">Picogram Creator</string>
     <string name="testPrompt">This my prompt</string>
     <string name="xBlocks">X Block</string>
     <string name="yBlock">Y Blocks</string>
@@ -12,8 +12,8 @@
     <string name="title_activity_menu">MenuActivity</string>
     <string name="title_activity_game">GameActivity</string>
     <string name="title_activity_level_select">Picogram</string>
-    <string name="title_activity_user_griddlers">UserGriddlers</string>
-    <string name="title_activity_world_griddlers">WorldGriddlers</string>
+    <string name="title_activity_user_Picograms">UserPicograms</string>
+    <string name="title_activity_world_Picograms">WorldPicograms</string>
     <string name="title_activity_settings">SettingsActivity</string>
     <string name="title_activity_advanced_game">AdvancedGameActivity</string>
     <string name="title_activity_facebook_login">FacebookLoginActivity</string>

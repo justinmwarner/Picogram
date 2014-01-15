@@ -1,6 +1,8 @@
+<!-- <com.jakewharton.scalpel.ScalpelFrameLayout -->
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/scalpel"
     android:layout_width="match_parent"
     android:layout_height="match_parent" >
 
@@ -9,8 +11,8 @@
         android:layout_width="match_parent"
         android:layout_height="48dip"
         android:background="@drawable/background_tabs"
-        android:isScrollContainer="false" 
-         android:windowSoftInputMode="adjustPan" />
+        android:isScrollContainer="false"
+        android:windowSoftInputMode="adjustPan" />
 
     <android.support.v4.view.ViewPager
         android:id="@+id/pager"
@@ -18,9 +20,9 @@
         android:layout_height="wrap_content"
         android:layout_above="@+id/bottomToolbar"
         android:layout_below="@+id/tabs"
-        tools:context=".MainActivity"
-        android:isScrollContainer="false" 
-         android:windowSoftInputMode="adjustPan" />
+        android:isScrollContainer="false"
+        android:windowSoftInputMode="adjustPan"
+        tools:context=".MainActivity" />
 
     <LinearLayout
         android:id="@+id/bottomToolbar"
@@ -30,8 +32,8 @@
         android:layout_marginBottom="8dip"
         android:layout_marginLeft="4dip"
         android:layout_marginRight="4dip"
-        android:orientation="horizontal"
         android:isScrollContainer="false"
-         android:windowSoftInputMode="adjustPan"  />
+        android:orientation="horizontal"
+        android:windowSoftInputMode="adjustPan" />
 
-</RelativeLayout>
+</RelativeLayout> <!-- </com.jakewharton.scalpel.ScalpelFrameLayout> -->

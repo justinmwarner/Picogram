@@ -25,7 +25,7 @@
 		</attributes>
 	</classpathentry>
 =======
->>>>>>> 24bc4dffdcdc5ca5e07ee39ab9d0e9e1109683ed:com.anthracoid.Pic2Griddler/.classpath
+>>>>>>> 24bc4dffdcdc5ca5e07ee39ab9d0e9e1109683ed:com.anthracoid.Pic2Picogram/.classpath
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="gen"/>
 	<classpathentry kind="output" path="bin/classes"/>
