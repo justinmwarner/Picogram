@@ -190,129 +190,13 @@ public class TouchImageView extends ImageView implements OnGestureListener,
 
 				setImageMatrix(matrix);
 				invalidate();
-			} else {
-				if ((event.getAction() == MotionEvent.ACTION_MOVE)
-						|| (event.getAction() == MotionEvent.ACTION_DOWN || (event
-								.getAction() == MotionEvent.ACTION_UP))) {
-					matrix.getValues(m);
-					final float transX = m[Matrix.MTRANS_X] * -1;
-					final float transY = m[Matrix.MTRANS_Y] * -1;
-					final float scaleX = m[Matrix.MSCALE_X];
-					final float scaleY = m[Matrix.MSCALE_Y];
-					lastTouchX = (int) ((event.getX() + transX) / scaleX);
-					lastTouchY = (int) ((event.getY() + transY) / scaleY);
-					lastTouchX = Math.abs(lastTouchX);
-					lastTouchY = Math.abs(lastTouchY);
-
-					int indexX = (int) Math
-							.floor((lastTouchX - (cellWidth * lSide))
-									/ cellWidth);
-					int indexY = (int) Math
-							.floor((lastTouchY - (cellHeight * lTop))
-									/ cellHeight);
-					if (lastTouchX >= (lSide + gWidth) * cellWidth)
-						indexX -= 1;
-					if (lastTouchY >= (lTop + gHeight) * cellHeight)
-						indexY -= 1;
-					if (event.getAction() == MotionEvent.ACTION_UP) {
-						if ((lastTouchX < (cellWidth * lSide) && lastTouchY > (cellHeight * lTop))
-								|| (lastTouchY < (cellHeight * lTop) && lastTouchX > (cellWidth * lSide))) {
-							// Only do this if we're in the hints.
-							int xx = lastTouchX / cellWidth;
-							int yy = lastTouchY / cellHeight;
-							int ccc = bm.getPixel(xx * cellWidth + 5, yy
-									* cellHeight + 5);
-							for (int i = 0; i != gColors.length; ++i)
-								if (gColors[i] == ccc)
-									ccc = i;
-							// ccc now has the color id, if 0, transparent.
-							colorCharacter = (ccc + "").charAt(0);
-							// TODO: Update the color indicator.
-							int[] rgb = getRGB(gColors[ccc]);
-							((View) getParent()).findViewById(R.id.ibTools)
-									.setBackgroundColor(
-											Color.argb(100, rgb[0], rgb[1],
-													rgb[2]));
-						}
-						return true;// Ignore up actions if not above.
-					}
-					oldCurrent = gCurrent;
-					final char[] temp = gCurrent.toCharArray();
-					final String past = gCurrent;
-
-					if (((indexY * gWidth) + indexX) < temp.length) {
-						if (temp[(indexY * gWidth) + indexX] != '0'
-								&& event.getAction() == MotionEvent.ACTION_DOWN) {
-
-						}
-
-						// Get the position of the change. If it's the same as
-						// the previous, change the values.
-						if (event.getAction() == MotionEvent.ACTION_DOWN) {
-							if (previousX == indexX && previousY == indexY) {
-								didPreviousSwitcher = true;
-								if (temp[(indexY * gWidth) + indexX] == colorCharacter) {
-									temp[(indexY * gWidth) + indexX] = 'x';
-								} else if (temp[(indexY * gWidth) + indexX] == 'x') {
-									temp[(indexY * gWidth) + indexX] = '0';
-								} else if (temp[(indexY * gWidth) + indexX] == '0') {
-									temp[(indexY * gWidth) + indexX] = colorCharacter;
-								}
-							} else
-								temp[(indexY * gWidth) + indexX] = colorCharacter;
-						} else {
-							Log.d(TAG, "Prev" + didPreviousSwitcher);
-							if (!didPreviousSwitcher) {
-								temp[(indexY * gWidth) + indexX] = colorCharacter;
-							}
-						}
-						if (event.getAction() == MotionEvent.ACTION_UP
-								|| event.getAction() == MotionEvent.ACTION_CANCEL)
-							didPreviousSwitcher = false;
-
-						gCurrent = String.valueOf(temp);
-						if (!past.equals(gCurrent)) {
-							previousX = indexX;
-							previousY = indexY;
-							new Thread(new Runnable() {
-
-								public void run() {
-									h.post(new Runnable() {
-
-										public void run() {
-											if (historyListener != null)
-												historyListener
-														.action(oldCurrent);
-											TouchImageView.this
-													.bitmapFromCurrent();
-										}
-
-									});
-								}
-
-							}).start();
-						}
-					}
-					if (gCurrent.replaceAll("x", "0").equals(gSolution)) {
-						if (winListener != null) {
-							winListener.win();
-						} else {
-							try {
-								throw new Exception("No WinListener!");
-							} catch (final Exception e) {
-								// Should never get here.
-								e.printStackTrace();
-								return false;
-							}
-						}
-					}
-				}
-
+				return true;
 			}
-			return true; // indicate event was handled
+			return false;
 		}
 
 	};
+
 	int previousX = -1, previousY = -1;
 	boolean didPreviousSwitcher = false;
 	boolean didSwitch = false; // If we're switching a color to an X so it
@@ -699,11 +583,11 @@ public class TouchImageView extends ImageView implements OnGestureListener,
 
 		this.canvasBitmap.drawText(gName, 0, paintBitmap.getTextSize(),
 				paintBitmap);
-
+		float oldSize = paintBitmap.getTextSize();
 		paintBitmap
 				.setTextSize(determineMaxTextSize(size, lSide * cellWidth) - 5);
-		this.canvasBitmap.drawText(size, 0, paintBitmap.getTextSize() * 2 - 5,
-				paintBitmap);
+		this.canvasBitmap.drawText(size, 0,
+				paintBitmap.getTextSize() + oldSize, paintBitmap);
 
 	}
 
@@ -1151,7 +1035,61 @@ public class TouchImageView extends ImageView implements OnGestureListener,
 		return result;
 	}
 
-	public boolean onDown(MotionEvent e) {
+	public boolean onDown(MotionEvent event) {
+		if (isGameplay) {
+			matrix.getValues(m);
+			final float transX = m[Matrix.MTRANS_X] * -1;
+			final float transY = m[Matrix.MTRANS_Y] * -1;
+			final float scaleX = m[Matrix.MSCALE_X];
+			final float scaleY = m[Matrix.MSCALE_Y];
+			lastTouchX = (int) ((event.getX() + transX) / scaleX);
+			lastTouchY = (int) ((event.getY() + transY) / scaleY);
+			lastTouchX = Math.abs(lastTouchX);
+			lastTouchY = Math.abs(lastTouchY);
+
+			int indexX = (int) Math.floor((lastTouchX - (cellWidth * lSide))
+					/ cellWidth);
+			int indexY = (int) Math.floor((lastTouchY - (cellHeight * lTop))
+					/ cellHeight);
+			if (lastTouchX >= (lSide + gWidth) * cellWidth)
+				indexX -= 1;
+			if (lastTouchY >= (lTop + gHeight) * cellHeight)
+				indexY -= 1;
+			oldCurrent = gCurrent;
+			final char[] temp = gCurrent.toCharArray();
+			final String past = gCurrent;
+			if (temp[(indexY * gWidth) + indexX] == '0') {
+				temp[(indexY * gWidth) + indexX] = colorCharacter;
+			} else if (temp[(indexY * gWidth) + indexX] == 'x')
+				temp[(indexY * gWidth) + indexX] = '0';
+			else if (temp[(indexY * gWidth) + indexX] == colorCharacter)
+				temp[(indexY * gWidth) + indexX] = 'x';
+			else
+				temp[(indexY * gWidth) + indexX] = colorCharacter;
+			gCurrent = String.valueOf(temp);
+			if (!past.equals(gCurrent)) {
+
+				previousX = indexX;
+				previousY = indexY;
+				new Thread(new Runnable() {
+
+					public void run() {
+						h.post(new Runnable() {
+
+							public void run() {
+								if (historyListener != null)
+									historyListener.action(oldCurrent);
+								TouchImageView.this.bitmapFromCurrent();
+							}
+
+						});
+					}
+
+				}).start();
+			}
+			this.checkWin();
+			return true;
+		}
 		return false;
 	}
 
@@ -1167,12 +1105,72 @@ public class TouchImageView extends ImageView implements OnGestureListener,
 		((View) this.getParent()).findViewById(R.id.ibTools).performClick();
 	}
 
-	public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX,
+	public boolean onScroll(MotionEvent e1, MotionEvent event, float distanceX,
 			float distanceY) {
+		if (isGameplay) {
+			matrix.getValues(m);
+			final float transX = m[Matrix.MTRANS_X] * -1;
+			final float transY = m[Matrix.MTRANS_Y] * -1;
+			final float scaleX = m[Matrix.MSCALE_X];
+			final float scaleY = m[Matrix.MSCALE_Y];
+			lastTouchX = (int) ((event.getX() + transX) / scaleX);
+			lastTouchY = (int) ((event.getY() + transY) / scaleY);
+			lastTouchX = Math.abs(lastTouchX);
+			lastTouchY = Math.abs(lastTouchY);
+
+			int indexX = (int) Math.floor((lastTouchX - (cellWidth * lSide))
+					/ cellWidth);
+			int indexY = (int) Math.floor((lastTouchY - (cellHeight * lTop))
+					/ cellHeight);
+			if (lastTouchX >= (lSide + gWidth) * cellWidth)
+				indexX -= 1;
+			if (lastTouchY >= (lTop + gHeight) * cellHeight)
+				indexY -= 1;
+			oldCurrent = gCurrent;
+			final char[] temp = gCurrent.toCharArray();
+			final String past = gCurrent;
+			if (indexX != previousX || previousY != indexY) {
+				previousX = indexX;
+				previousY = indexY;
+				if (temp[(indexY * gWidth) + indexX] == '0') {
+					temp[(indexY * gWidth) + indexX] = colorCharacter;
+				} else if (temp[(indexY * gWidth) + indexX] == 'x')
+					temp[(indexY * gWidth) + indexX] = '0';
+				else if (temp[(indexY * gWidth) + indexX] == colorCharacter)
+					temp[(indexY * gWidth) + indexX] = 'x';
+				else
+					temp[(indexY * gWidth) + indexX] = colorCharacter;
+			}
+			gCurrent = String.valueOf(temp);
+			if (!past.equals(gCurrent)) {
+
+				previousX = indexX;
+				previousY = indexY;
+				new Thread(new Runnable() {
+
+					public void run() {
+						h.post(new Runnable() {
+
+							public void run() {
+								if (historyListener != null)
+									historyListener.action(oldCurrent);
+								TouchImageView.this.bitmapFromCurrent();
+							}
+
+						});
+					}
+
+				}).start();
+			}
+			this.checkWin();
+			return true;
+		}
 		return false;
 	}
 
-	public void onShowPress(MotionEvent e) {
+	boolean onScrollingDraw = false;
+
+	public void onShowPress(MotionEvent event) {
 	}
 
 	public boolean onSingleTapUp(MotionEvent e) {
@@ -1191,7 +1189,22 @@ public class TouchImageView extends ImageView implements OnGestureListener,
 		return false;
 	}
 
-	public boolean onSingleTapConfirmed(MotionEvent e) {
+	public boolean onSingleTapConfirmed(MotionEvent event) {
 		return false;
+	}
+
+	public void checkWin() {
+		if (gCurrent.replaceAll("x", "0").equals(gSolution)) {
+			if (winListener != null) {
+				winListener.win();
+			} else {
+				try {
+					throw new Exception("No WinListener!");
+				} catch (final Exception e) {
+					// Should never get here.
+					e.printStackTrace();
+				}
+			}
+		}
 	}
 }

@@ -54,7 +54,7 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback {
 		mListener = optl;
 	}
 
-	@Override
+	
 	public void surfaceChanged(SurfaceHolder arg0, int arg1, int arg2, int arg3) {
 		if (previewing) {
 			camera1.stopPreview();
@@ -72,11 +72,11 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback {
 		}
 	}
 
-	@Override
+	
 	public void surfaceCreated(SurfaceHolder arg0) {
 	}
 
-	@Override
+	
 	public void surfaceDestroyed(SurfaceHolder arg0) {
 		if (camera1 != null) {
 			camera1.stopPreview();
@@ -97,7 +97,7 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback {
 		btn_capture.setOnClickListener(new OnClickListener() {
 			final ShutterCallback myShutterCallback = new ShutterCallback() {
 
-				@Override
+				
 				public void onShutter() {
 					// Called as near as possible to the moment when a photo is
 					// captured from the sensor. This is a good opportunity to
@@ -113,7 +113,7 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback {
 
 			final PictureCallback myPictureCallback_RAW = new PictureCallback() {
 
-				@Override
+				
 				public void onPictureTaken(byte[] data, Camera cam) {
 					Log.d(TAG, "RAW Picture");
 					// TODO: Add on picture taken.
@@ -121,7 +121,7 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback {
 			};
 
 			PictureCallback myPictureCallback_JPG = new PictureCallback() {
-				@Override
+				
 				public void onPictureTaken(byte[] arg0, Camera arg1) {
 					BitmapFactory.Options options = new BitmapFactory.Options();
 					options.inSampleSize = 6;
@@ -166,7 +166,7 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback {
 				}
 			};
 
-			@Override
+			
 			public void onClick(View arg0) {
 				if (camera1 != null) {
 					camera1.takePicture(myShutterCallback,
@@ -220,7 +220,7 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback {
 
 		final ShutterCallback myShutterCallback = new ShutterCallback() {
 
-			@Override
+			
 			public void onShutter() {
 				// Called as near as possible to the moment when a photo is
 				// captured from the sensor. This is a good opportunity to play
@@ -233,7 +233,7 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback {
 
 		final PictureCallback myPictureCallback_RAW = new PictureCallback() {
 
-			@Override
+			
 			public void onPictureTaken(byte[] data, Camera cam) {
 				// TODO: Add on picture taken.
 			}
@@ -241,7 +241,7 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback {
 
 		final PictureCallback myPictureCallback_JPG = new PictureCallback() {
 
-			@Override
+			
 			public void onPictureTaken(byte[] data, Camera cam) {
 				Bitmap bitmapPicture = BitmapFactory.decodeByteArray(data, 0,
 						data.length);
@@ -289,7 +289,7 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback {
 
 		btn_capture.setOnClickListener(new OnClickListener() {
 
-			@Override
+			
 			public void onClick(View arg0) {
 				if (camera1 != null) {
 					camera1.takePicture(myShutterCallback,
@@ -298,7 +298,6 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback {
 				}
 
 			}
-
 		});
 	}
 

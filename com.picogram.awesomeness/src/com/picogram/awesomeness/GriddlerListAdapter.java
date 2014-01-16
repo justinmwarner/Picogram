@@ -76,7 +76,7 @@ public class GriddlerListAdapter extends ArrayAdapter<GriddlerOne> {
 		}
 		final LayoutInflater inflater = (LayoutInflater) this.context
 				.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		final View item = inflater.inflate(R.layout.griddler_menu_choice_item,
+		final View item = inflater.inflate(R.layout.picogram_menu_choice_item,
 				parent, false);
 		final TextView rate = (TextView) item.findViewById(R.id.tvRating);
 		final TextView diff = (TextView) item.findViewById(R.id.tvDiff);
@@ -137,16 +137,16 @@ public class GriddlerListAdapter extends ArrayAdapter<GriddlerOne> {
 		final RelativeLayout rl = (RelativeLayout) item
 				.findViewById(R.id.rlMenuHolder);
 		final Drawable gd = rl.getBackground().mutate();
-		item.setBackgroundResource(R.drawable.griddler_menu_choice_border_red);
+		item.setBackgroundResource(R.drawable.picogram_menu_choice_border_red);
 		if (status == 0) {
 			// In progress.
-			item.setBackgroundResource(R.drawable.griddler_menu_choice_border_red);
+			item.setBackgroundResource(R.drawable.picogram_menu_choice_border_red);
 		} else if (status == 1) {
 			// Won.
-			item.setBackgroundResource(R.drawable.griddler_menu_choice_border_green);
+			item.setBackgroundResource(R.drawable.picogram_menu_choice_border_green);
 		} else {
 			// Other (Custom, special levels, etc.).
-			item.setBackgroundResource(R.drawable.griddler_menu_choice_border_other);
+			item.setBackgroundResource(R.drawable.picogram_menu_choice_border_other);
 		}
 		// Change background of the linear view based on theme.
 		final View themeChange = item.findViewById(R.id.mainBackgroundItem);
