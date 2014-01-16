@@ -1,3 +1,4 @@
+
 package com.picogram.awesomeness;
 
 import java.io.FileNotFoundException;
@@ -82,9 +83,11 @@ public class CreatePicogramActivity extends FragmentActivity implements
 	CameraView cv;
 
 	Handler handler = new Handler();
-	int originalColors[] = { Color.TRANSPARENT, Color.BLACK, Color.RED,
+	int originalColors[] = {
+			Color.TRANSPARENT, Color.BLACK, Color.RED,
 			Color.YELLOW, Color.GRAY, Color.GREEN, Color.CYAN, Color.MAGENTA,
-			Color.DKGRAY, Color.LTGRAY, Color.WHITE };
+			Color.DKGRAY, Color.LTGRAY, Color.WHITE
+	};
 	int newColors[] = originalColors;
 	private int numColors = 2, yNum = 20, xNum = 20;
 	long oldTime = 0;
@@ -161,7 +164,7 @@ public class CreatePicogramActivity extends FragmentActivity implements
 			bundle.putString("colors", cols);
 			tivGame.isRefreshing = true;
 
-			tivGame.gridlinesColor = Color.rgb(191,191,191);
+			tivGame.gridlinesColor = Color.rgb(191, 191, 191);
 			tivGame.setPicogramInfo(bundle);
 
 		} else {
@@ -235,7 +238,9 @@ public class CreatePicogramActivity extends FragmentActivity implements
 		final int r = (i >> 16) & 0xff;
 		final int g = (i >> 8) & 0xff;
 		final int b = (i & 0xff);
-		return new int[] { r, g, b };
+		return new int[] {
+				r, g, b
+		};
 	}
 
 	@Override

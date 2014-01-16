@@ -1,3 +1,4 @@
+
 package com.picogram.awesomeness;
 
 import java.util.ArrayList;
@@ -80,27 +81,27 @@ public class DialogMaker extends DialogFragment implements View.OnClickListener 
 			setupLongClick(v);
 		} else if (layoutId == R.layout.dialog_random_picogram) {
 			builder
-			// Add action buttons
-			.setPositiveButton("Done", new DialogInterface.OnClickListener() {
-				public void onClick(DialogInterface dialog, int id) {
-					Bundle bundle = new Bundle();
-					if (layoutId == R.layout.dialog_random_picogram) {
-						bundle.putInt("width", randomWidth);
-						bundle.putInt("height", randomHeight);
-						bundle.putInt("numColors", randomColors);
-						bundle.putString("solution", randomPuzzle);
-						bundle.putString("name",
-								"Random #" + randomPuzzle.hashCode());
-						bundle.putString("tags", "random");
-					}
-					listener.onDialogResult(bundle);
-				}
-			}).setNegativeButton("Cancel",
-					new DialogInterface.OnClickListener() {
+					// Add action buttons
+					.setPositiveButton("Done", new DialogInterface.OnClickListener() {
 						public void onClick(DialogInterface dialog, int id) {
-							dialog.cancel();
+							Bundle bundle = new Bundle();
+							if (layoutId == R.layout.dialog_random_picogram) {
+								bundle.putInt("width", randomWidth);
+								bundle.putInt("height", randomHeight);
+								bundle.putInt("numColors", randomColors);
+								bundle.putString("solution", randomPuzzle);
+								bundle.putString("name",
+										"Random #" + randomPuzzle.hashCode());
+								bundle.putString("tags", "random");
+							}
+							listener.onDialogResult(bundle);
 						}
-					});
+					}).setNegativeButton("Cancel",
+							new DialogInterface.OnClickListener() {
+								public void onClick(DialogInterface dialog, int id) {
+									dialog.cancel();
+								}
+							});
 			setupRandom(v);
 		} else if (layoutId == R.layout.dialog_ranking) {
 			// Don't need action buttons.
@@ -113,13 +114,15 @@ public class DialogMaker extends DialogFragment implements View.OnClickListener 
 			final ImageView iv = (ImageView) v
 					.findViewById(R.id.ivInstructions);
 			final TextView tv = (TextView) v.findViewById(R.id.tvInstructions);
-			final int resources[] = { R.drawable.tutorial_step_one,
+			final int resources[] = {
+					R.drawable.tutorial_step_one,
 					R.drawable.tutorial_step_two,
 					R.drawable.tutorial_step_three,
 					R.drawable.tutorial_step_four,
 					R.drawable.tutorial_step_five,
 					R.drawable.tutorial_step_six,
-					R.drawable.tutorial_step_seven };
+					R.drawable.tutorial_step_seven
+			};
 			final String[] prompts = {
 					"The 3 represents three consequtive blocks in that row, as the 1's represent a block in the column.",
 					"Thus we get...  Notice the columns are all one and have one filled in block per column.  We can have any amount of white space on either side of conseutive blocks.",
@@ -127,7 +130,8 @@ public class DialogMaker extends DialogFragment implements View.OnClickListener 
 					"However, the puzzle is small enough so that only one white spot remains.",
 					"This is also a valid solution. X's are ignored as white space (Although they're black colored in game).  Notice, also, the colors. Grey goes with grey, thus this is valid.",
 					"This is just an example of a full puzzle.",
-					"This is another but with colors. Notice the order the colors are in and the numbers going with it." };
+					"This is another but with colors. Notice the order the colors are in and the numbers going with it."
+			};
 			tv.setText(prompts[0]);
 			iv.setImageBitmap(BitmapFactory.decodeResource(getResources(),
 					resources[0]));
@@ -361,7 +365,9 @@ public class DialogMaker extends DialogFragment implements View.OnClickListener 
 		final int r = (i >> 16) & 0xff;
 		final int g = (i >> 8) & 0xff;
 		final int b = (i & 0xff);
-		return new int[] { a, r, g, b };
+		return new int[] {
+				a, r, g, b
+		};
 	}
 
 	public void setupCreate(View v) {
@@ -429,29 +435,29 @@ public class DialogMaker extends DialogFragment implements View.OnClickListener 
 	public void onClick(View v) {
 		Bundle bundle = new Bundle();
 		switch (v.getId()) {
-		case R.id.bSubmitNewRank:
-			bundle.putInt("resultInt", 0);
-			listener.onDialogResult(bundle);
-			this.getDialog().dismiss();
-			break;
-		case R.id.bClearPuzzle:
-			bundle.putInt("resultInt", 1);
-			listener.onDialogResult(bundle);
-			this.getDialog().dismiss();
-			break;
-		case R.id.bDeletePuzzle:
-			bundle.putInt("resultInt", 2);
-			listener.onDialogResult(bundle);
-			this.getDialog().dismiss();
-			break;
-		case R.id.bRandomHeight:
-		case R.id.bRandomWidth:
-		case R.id.bRandomNumColors:
-			showNumberDialog(v.getId());
-			break;
-		default:
-			// Ignore if doesn't exist.
-			break;
+			case R.id.bSubmitNewRank:
+				bundle.putInt("resultInt", 0);
+				listener.onDialogResult(bundle);
+				this.getDialog().dismiss();
+				break;
+			case R.id.bClearPuzzle:
+				bundle.putInt("resultInt", 1);
+				listener.onDialogResult(bundle);
+				this.getDialog().dismiss();
+				break;
+			case R.id.bDeletePuzzle:
+				bundle.putInt("resultInt", 2);
+				listener.onDialogResult(bundle);
+				this.getDialog().dismiss();
+				break;
+			case R.id.bRandomHeight:
+			case R.id.bRandomWidth:
+			case R.id.bRandomNumColors:
+				showNumberDialog(v.getId());
+				break;
+			default:
+				// Ignore if doesn't exist.
+				break;
 		}
 	}
 

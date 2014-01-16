@@ -15,7 +15,6 @@
 	<classpathentry kind="src" path="gen"/>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="lib" path="libs/crittercism_v4_3_0_sdkonly.jar"/>
-	<classpathentry kind="lib" path="C:/Users/justinwarner/Desktop/copris-nonogram-v1-2.jar"/>
 	<classpathentry exported="true" kind="con" path="com.android.ide.eclipse.adt.LIBRARIES"/>
 	<classpathentry exported="true" kind="con" path="com.android.ide.eclipse.adt.DEPENDENCIES"/>
 	<classpathentry kind="output" path="bin/classes"/>

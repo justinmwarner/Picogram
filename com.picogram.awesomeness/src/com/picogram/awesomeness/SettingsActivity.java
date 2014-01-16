@@ -1,3 +1,4 @@
+
 package com.picogram.awesomeness;
 
 import android.content.Intent;
@@ -86,7 +87,9 @@ public class SettingsActivity extends SherlockPreferenceActivity implements
 			final String message = "Picogram,\n\n<MESSAGE>";
 			// Contact me.
 			final Intent emailIntent = new Intent(Intent.ACTION_SEND);
-			emailIntent.putExtra(Intent.EXTRA_EMAIL, new String[] { email });
+			emailIntent.putExtra(Intent.EXTRA_EMAIL, new String[] {
+				email
+			});
 			emailIntent.putExtra(Intent.EXTRA_SUBJECT, subject);
 			emailIntent.putExtra(Intent.EXTRA_TEXT, message);
 			emailIntent.setType("message/rfc822");

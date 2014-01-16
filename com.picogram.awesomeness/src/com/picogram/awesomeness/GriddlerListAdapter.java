@@ -47,10 +47,10 @@ public class GriddlerListAdapter extends ArrayAdapter<GriddlerOne> {
 		this.griddlers.clear();
 	}
 
-	public boolean existsById(final String id){
-		for(final GriddlerOne g : this.griddlers)
+	public boolean existsById(final String id) {
+		for (final GriddlerOne g : this.griddlers)
 		{
-			if(g.getID() == id) {
+			if (g.getID() == id) {
 				return true;
 			}
 		}
@@ -159,7 +159,7 @@ public class GriddlerListAdapter extends ArrayAdapter<GriddlerOne> {
 		item.invalidate();
 		rl.invalidate();
 		((ViewGroup) item)
-		.setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
+				.setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
 		return item;
 	}
 

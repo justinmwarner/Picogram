@@ -16,6 +16,5 @@
         <item name="bpButtonBackground">@drawable/button_background_custom</item>
         <item name="bpDividerColor">@color/custom_divider_color</item>
         <item name="bpKeyboardIndicatorColor">@color/custom_keyboard_indicator_color</item>
-    </style>
-
+    </style>
 </resources>
