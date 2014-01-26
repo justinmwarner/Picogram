@@ -1,40 +1,21 @@
 
 package com.picogram.awesomeness;
 
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
-import java.util.concurrent.TimeUnit;
-
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.app.Dialog;
-import android.content.DialogInterface;
-import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.View.OnLongClickListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.EditText;
-import android.widget.RadioButton;
-import android.widget.RadioGroup;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.FrameLayout;
@@ -52,6 +33,12 @@ import com.stackmob.sdk.model.StackMobModel;
 
 import de.keyboardsurfer.android.widget.crouton.Crouton;
 import de.keyboardsurfer.android.widget.crouton.Style;
+
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
+import java.util.Locale;
+import java.util.concurrent.TimeUnit;
 
 public class SuperAwesomeCardFragment extends Fragment implements
 		OnItemClickListener, OnItemLongClickListener {
@@ -76,10 +63,74 @@ public class SuperAwesomeCardFragment extends Fragment implements
 	SQLitePicogramAdapter sql = null;
 
 	public void clearAdapter() {
-		if (myAdapter != null) {
+		if (this.myAdapter != null) {
 			this.myAdapter.clear();
 			this.myAdapter.notifyDataSetChanged();
 		}
+	}
+
+	public void generateRandomGame() {
+		final FragmentTransaction ft = this.getChildFragmentManager().beginTransaction();
+		// Create and show the dialog.
+		final Bundle bundle = new Bundle();
+		bundle.putInt("layoutId", R.layout.dialog_random_picogram);
+		final DialogMaker newFragment = new DialogMaker();
+		newFragment.setArguments(bundle);
+		newFragment.show(ft, "dialog");
+		newFragment.setOnDialogResultListner(new OnDialogResultListener() {
+
+			public void onDialogResult(final Bundle result) {
+				// Add to personal.
+				String current = "", cols = "";
+				for (int i = 0; i != result.getString("solution").length(); ++i) {
+					current += "0";
+				}
+				for (int i = 0; i != result.getInt("numColors"); ++i) {
+					if (i == 0) {
+						cols += Color.TRANSPARENT + ",";
+					} else {
+						cols += Color.rgb((int) (Math.random() * 255),
+								(int) (Math.random() * 255),
+								(int) (Math.random() * 255))
+								+ ",";
+					}
+				}
+				cols = cols.substring(0, cols.length() - 1);
+				final int w = result.getInt("width"), h = result.getInt("height"), nc = result
+						.getInt("numColors");
+				final GriddlerOne go = new GriddlerOne(result.getString(
+						"solution").hashCode()
+						+ "", "0", result.getString("name"),
+						((w * h) / 1400) + "", "3", 1, "computer", w
+								+ "", h + "", result.getString("solution"),
+						current, nc, cols, "0", "5");
+				// TODO make sure go gets saved.
+				SuperAwesomeCardFragment.this.myAdapter.add(go);
+				SuperAwesomeCardFragment.this.myAdapter.notifyDataSetChanged();
+				go.setCurrent(null);
+				go.save(new StackMobCallback() {
+
+					@Override
+					public void failure(final StackMobException arg0) {
+						SuperAwesomeCardFragment.this.sql.addUserPicogram(go);
+					}
+
+					@Override
+					public void success(final String arg0) {
+						go.setIsUploaded("1");
+						SuperAwesomeCardFragment.this.sql.addUserPicogram(go);
+					}
+				});
+				final GriddlerTag gt = new GriddlerTag("random");
+				gt.setID(go.getID());
+				gt.save();
+				final SQLiteRatingAdapter sra = new SQLiteRatingAdapter(
+						SuperAwesomeCardFragment.this.getActivity(), "Rating", null, 2);
+				sra.insertCreate(gt.getID());
+				sra.close();
+				// Start to play.
+			}
+		});
 	}
 
 	public void getMyPuzzles(final FragmentActivity a) {
@@ -111,7 +162,7 @@ public class SuperAwesomeCardFragment extends Fragment implements
 
 			if (prefs != null) {
 				if (prefs.getBoolean("wonvisible", false)
-						|| prefs.getInt("mySetting", 0) == 1) {
+						|| (prefs.getInt("mySetting", 0) == 1)) {
 					if (status.equals("1")) {
 						isAdd = false;
 					}
@@ -144,7 +195,7 @@ public class SuperAwesomeCardFragment extends Fragment implements
 					final GriddlerOne g = new GriddlerOne();
 					g.setID(id);
 					// Add the Puzzle, then update in the adapter later on.
-					myAdapter.add(tempPicogram);
+					this.myAdapter.add(tempPicogram);
 
 					g.fetch(new StackMobModelCallback() {
 						@Override
@@ -160,15 +211,17 @@ public class SuperAwesomeCardFragment extends Fragment implements
 								a.runOnUiThread(new Runnable() {
 									public void run() {
 										// TODO Test this, should update rating.
-										for (int i = 0; i != myAdapter
+										for (int i = 0; i != SuperAwesomeCardFragment.this.myAdapter
 												.getCount(); ++i) {
 
-											if (myAdapter.get(i).getID() == g
+											if (SuperAwesomeCardFragment.this.myAdapter.get(i)
+													.getID() == g
 													.getID()) {
-												myAdapter.remove(tempPicogram);
+												SuperAwesomeCardFragment.this.myAdapter
+														.remove(tempPicogram);
 												g.setStatus(oldStatus);
 												g.setCurrent(oldCurrent);
-												myAdapter.add(g);
+												SuperAwesomeCardFragment.this.myAdapter.add(g);
 												return;
 											}
 										}
@@ -183,6 +236,49 @@ public class SuperAwesomeCardFragment extends Fragment implements
 			}
 		}
 
+	}
+
+	public void getPackPuzzles() {
+		this.myAdapter.clear();
+		final boolean isHideDownloaded = Util.getPreferences(this.getActivity())
+				.getInt("packsSetting", 0) == 0;
+		Log.d(TAG,
+				"Setting "
+						+ " Got: "
+						+ Util.getPreferences(this.getActivity()).getInt(
+								"packsSetting", 0)
+						+ " "
+						+ isHideDownloaded
+						+ " "
+						+ !Util.getPreferences(this.getActivity()).getBoolean(
+								"hasDownloadedEasyTwo", false));
+		GriddlerOne go = new GriddlerOne();
+		go.setName("Easy Pack 1 (10 puzzles)");
+		go.setStatus("2");
+		if (isHideDownloaded
+				|| !Util.getPreferences(this.getActivity()).getBoolean(
+						"hasDownloadedEasyOne", false)) {
+			this.myAdapter.add(go);
+			this.myAdapter.notifyDataSetChanged();
+		}
+		go = new GriddlerOne();
+		go.setName("Easy Pack 2 (10 puzzles)");
+		go.setStatus("2");
+		if (isHideDownloaded
+				|| !Util.getPreferences(this.getActivity()).getBoolean(
+						"hasDownloadedEasyTwo", false)) {
+			this.myAdapter.add(go);
+			this.myAdapter.notifyDataSetChanged();
+		}
+		go = new GriddlerOne();
+		go.setName("Medium Pack 1 (10 puzzles)");
+		go.setStatus("2");
+		if (isHideDownloaded
+				|| !Util.getPreferences(this.getActivity()).getBoolean(
+						"hasDownloadedMediumOne", false)) {
+			this.myAdapter.add(go);
+			this.myAdapter.notifyDataSetChanged();
+		}
 	}
 
 	public void getRecentPuzzles(final Activity a) {
@@ -216,20 +312,20 @@ public class SuperAwesomeCardFragment extends Fragment implements
 
 	public void getSortedPuzzles(final Activity a, final String sort) {
 		this.myAdapter.clear();
-		StackMobQuery smq = new StackMobQuery().isInRange(0, 9)
+		final StackMobQuery smq = new StackMobQuery().isInRange(0, 9)
 				.fieldIsOrderedBy(sort, StackMobQuery.Ordering.DESCENDING);
 		if (sort.equals("rate")) {
 			// Weekly, Monthly, All Time. Rate only matters, createddate is in
 			// general, gonna retreive most recent.
-			Calendar date = Calendar.getInstance();
-			if (Util.getPreferences(getActivity()).getInt("topSetting", 0) == 0) {
+			final Calendar date = Calendar.getInstance();
+			if (Util.getPreferences(this.getActivity()).getInt("topSetting", 0) == 0) {
 				Log.d(TAG, "Rate: Doing a week");
 				date.add(Calendar.DAY_OF_MONTH, -7);
 				smq.fieldIsGreaterThan(
 						"createddate",
 						TimeUnit.MILLISECONDS
 								.toMillis(date.getTime().getTime()) + "");
-			} else if (Util.getPreferences(getActivity()).getInt("topSetting",
+			} else if (Util.getPreferences(this.getActivity()).getInt("topSetting",
 					0) == 1) {
 				Log.d(TAG, "Rate: Doing a Month");
 				date.add(Calendar.MONTH, -1);
@@ -269,49 +365,6 @@ public class SuperAwesomeCardFragment extends Fragment implements
 						}
 					}
 				});
-	}
-
-	public void getPackPuzzles() {
-		this.myAdapter.clear();
-		boolean isHideDownloaded = Util.getPreferences(this.getActivity())
-				.getInt("packsSetting", 0) == 0;
-		Log.d(TAG,
-				"Setting "
-						+ " Got: "
-						+ Util.getPreferences(this.getActivity()).getInt(
-								"packsSetting", 0)
-						+ " "
-						+ isHideDownloaded
-						+ " "
-						+ !Util.getPreferences(this.getActivity()).getBoolean(
-								"hasDownloadedEasyTwo", false));
-		GriddlerOne go = new GriddlerOne();
-		go.setName("Easy Pack 1 (10 puzzles)");
-		go.setStatus("2");
-		if (isHideDownloaded
-				|| !Util.getPreferences(this.getActivity()).getBoolean(
-						"hasDownloadedEasyOne", false)) {
-			myAdapter.add(go);
-			myAdapter.notifyDataSetChanged();
-		}
-		go = new GriddlerOne();
-		go.setName("Easy Pack 2 (10 puzzles)");
-		go.setStatus("2");
-		if (isHideDownloaded
-				|| !Util.getPreferences(this.getActivity()).getBoolean(
-						"hasDownloadedEasyTwo", false)) {
-			myAdapter.add(go);
-			myAdapter.notifyDataSetChanged();
-		}
-		go = new GriddlerOne();
-		go.setName("Medium Pack 1 (10 puzzles)");
-		go.setStatus("2");
-		if (isHideDownloaded
-				|| !Util.getPreferences(this.getActivity()).getBoolean(
-						"hasDownloadedMediumOne", false)) {
-			myAdapter.add(go);
-			myAdapter.notifyDataSetChanged();
-		}
 	}
 
 	public void getTagPuzzles(final Activity a, final String tag,
@@ -378,6 +431,272 @@ public class SuperAwesomeCardFragment extends Fragment implements
 
 					}
 				});
+	}
+
+	private void loadEasyPackOne() {
+		this.sql = new SQLitePicogramAdapter(this.getActivity(), "Picograms",
+				null, 1);
+		// These shouldn't change for these packs.
+		GriddlerOne go = new GriddlerOne();
+		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
+		// Change.
+		go.setName("Smile");
+		go.setSolution("01010000001000101110");
+		go.setWidth("5");
+		go.setHeight("4");
+		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
+		go.nullsToValue(this.getActivity());
+		this.sql.addUserPicogram(go);
+		go = new GriddlerOne();
+		go.setName("Sad");
+		go.setSolution("01010000000111010001");
+		go.setWidth("5");
+		go.setHeight("4");
+		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
+		go.nullsToValue(this.getActivity());
+		this.sql.addUserPicogram(go);
+		go = new GriddlerOne();
+		go.setName("Person");
+		go.setSolution("010111010101");
+		go.setWidth("3");
+		go.setHeight("4");
+		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
+		go.nullsToValue(this.getActivity());
+		this.sql.addUserPicogram(go);
+		go = new GriddlerOne();
+		go.setName("Umbrella Man");
+		go.setSolution("1010000110111111011010100");
+		go.setWidth("5");
+		go.setHeight("5");
+		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
+		go.nullsToValue(this.getActivity());
+		this.sql.addUserPicogram(go);
+		go = new GriddlerOne();
+		go.setName("Football Man");
+		go.setSolution("0010001111000101010100100");
+		go.setWidth("5");
+		go.setHeight("5");
+		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
+		go.nullsToValue(this.getActivity());
+		this.sql.addUserPicogram(go);
+		go = new GriddlerOne();
+		go.setName("Scorpion");
+		go.setSolution("0110010000100110111000011");
+		go.setWidth("5");
+		go.setHeight("5");
+		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
+		go.nullsToValue(this.getActivity());
+		this.sql.addUserPicogram(go);
+		go = new GriddlerOne();
+		go.setName("Drummer");
+		go.setSolution("0100010010101001101101011");
+		go.setWidth("5");
+		go.setHeight("5");
+		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
+		go.nullsToValue(this.getActivity());
+		this.sql.addUserPicogram(go);
+		go = new GriddlerOne();
+		go.setName("Peace");
+		go.setSolution("001110001010101001001101010101000100011100");
+		go.setWidth("7");
+		go.setHeight("6");
+		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
+		go.nullsToValue(this.getActivity());
+		this.sql.addUserPicogram(go);
+		go = new GriddlerOne();
+		go.setName("Shopping");
+		go.setSolution("0001111110100100110010010");
+		go.setWidth("5");
+		go.setHeight("5");
+		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
+		go.nullsToValue(this.getActivity());
+		this.sql.addUserPicogram(go);
+		go = new GriddlerOne();
+		go.setName("Two Prayers");
+		go.setSolution("1010001010111100101001101");
+		go.setWidth("5");
+		go.setHeight("5");
+		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
+		go.nullsToValue(this.getActivity());
+		this.sql.addUserPicogram(go);
+		go = new GriddlerOne();
+		this.sql.close();
+	}
+
+	private void loadEasyPackTwo() {
+		this.sql = new SQLitePicogramAdapter(this.getActivity(), "Picograms",
+				null, 1);
+		// These shouldn't change for these packs.
+		GriddlerOne go = new GriddlerOne();
+		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
+		// Change.
+		go.setName("Key");
+		go.setSolution("000001111111110100100111");
+		go.setWidth("8");
+		go.setHeight("3");
+		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
+		go.nullsToValue(this.getActivity());
+		this.sql.addUserPicogram(go);
+		go = new GriddlerOne();
+		go.setName("Cat");
+		go.setSolution("00111111010000111011111000010100");
+		go.setWidth("8");
+		go.setHeight("4");
+		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
+		go.nullsToValue(this.getActivity());
+		this.sql.addUserPicogram(go);
+		go = new GriddlerOne();
+		go.setName("Heart");
+		go.setSolution("01010111110111000100");
+		go.setWidth("5");
+		go.setHeight("4");
+		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
+		go.nullsToValue(this.getActivity());
+		this.sql.addUserPicogram(go);
+		go = new GriddlerOne();
+		go.setName("Hourglass");
+		go.setSolution("1111111111111110000000001111111111111110100000000010010000000001001001010100100100010100010011000100011000110000011000001101011000000011011000000001101100000001100011000001100100110001100000001100100001000010010001010001001001010100100101010101010111111111111111000000000111111111111111");
+		go.setWidth("13");
+		go.setHeight("22");
+		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
+		go.nullsToValue(this.getActivity());
+		this.sql.addUserPicogram(go);
+		go = new GriddlerOne();
+		go.setName("Cube");
+		go.setSolution("00111111110100000101111111100110000010011000001001100000100110000010101111111100");
+		go.setWidth("10");
+		go.setHeight("8");
+		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
+		go.nullsToValue(this.getActivity());
+		this.sql.addUserPicogram(go);
+		go = new GriddlerOne();
+		go.setName("Eye");
+		go.setSolution("0001111000001100110001001100101000110001010011001000110011000001111000");
+		go.setWidth("10");
+		go.setHeight("7");
+		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
+		go.nullsToValue(this.getActivity());
+		this.sql.addUserPicogram(go);
+		go = new GriddlerOne();
+		go.setName("Note");
+		go.setSolution("011111010001010001110011110011");
+		go.setWidth("6");
+		go.setHeight("5");
+		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
+		go.nullsToValue(this.getActivity());
+		this.sql.addUserPicogram(go);
+		go = new GriddlerOne();
+		go.setName("Shot");
+		go.setSolution("111010010010111101101101111111111010010");
+		go.setWidth("3");
+		go.setHeight("13");
+		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
+		go.nullsToValue(this.getActivity());
+		this.sql.addUserPicogram(go);
+		go = new GriddlerOne();
+		go.setName("Flower");
+		go.setSolution("001000101010101010100010010101011100010000100");
+		go.setWidth("5");
+		go.setHeight("9");
+		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
+		go.nullsToValue(this.getActivity());
+		this.sql.addUserPicogram(go);
+		go = new GriddlerOne();
+		go.setName("Bomb");
+		go.setSolution("00000001100000000100100000010000100000100000000111100000011111100001110111100111011111101101111111011011111110011111111000011111100000011110000");
+		go.setWidth("11");
+		go.setHeight("13");
+		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
+		go.nullsToValue(this.getActivity());
+		this.sql.addUserPicogram(go);
+		go = new GriddlerOne();
+		this.sql.close();
+	}
+
+	private void loadMediumPackOne() {
+		this.sql = new SQLitePicogramAdapter(this.getActivity(), "Picograms",
+				null, 1);
+		GriddlerOne go = new GriddlerOne();
+		// go.setName("Rose");
+		// go.setSolution("000111101110000001001110011100010011001011010110110110111011111010110011010101111101111111011011111100110111101111011110011110000111100001110011111000000001111000000000010000000000111001000011100011111001111000001111011111000000110111110000000001111000000000001000000000000000100000000");
+		// go.setWidth("15");
+		// go.setHeight("20");
+		// go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
+		// go.nullsToValue(this.getActivity());
+		// sql.addUserPicogram(go);
+		go = new GriddlerOne();
+		go.setName("House");
+		go.setSolution("00000111000000001110111000011100000111011000000000111111111111111100000000000110111110000011010101011111101111101000110101010100011011111010011100000001000110000000100011111111111111");
+		go.setWidth("13");
+		go.setHeight("14");
+		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
+		go.nullsToValue(this.getActivity());
+		this.sql.addUserPicogram(go);
+		go = new GriddlerOne();
+		// go.setName("Water Drop");
+		// go.setSolution("000001000000011100000110100000100110001100010011000011110000001100000001100000001100000001110000011011100110000111100");
+		// go.setWidth("9");
+		// go.setHeight("15");
+		// go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
+		// go.nullsToValue(this.getActivity());
+		// sql.addUserPicogram(go);
+		// go = new GriddlerOne();
+		// go.setName("Arrow Heart");
+		// go.setSolution("000000000111000000000011000100010101001010101000010001010100010000100100001001001000000110010000000110100000001001000000110000000000010000000000");
+		// go.setWidth("12");
+		// go.setHeight("12");
+		// go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
+		// go.nullsToValue(this.getActivity());
+		// sql.addUserPicogram(go);
+		go = new GriddlerOne();
+		go.setName("X Wins");
+		go.setSolution("1001100001000001101000010110011010000101101001100001000011111111111111100110000100000110101101000001101011010000100110000100001111111111111110011000011001011010110101100110101101011010011000011001");
+		go.setWidth("14");
+		go.setHeight("14");
+		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
+		go.nullsToValue(this.getActivity());
+		this.sql.addUserPicogram(go);
+		go = new GriddlerOne();
+		go.setName("Ship");
+		go.setSolution("0000000000001111000000000000011000000011100000000000011100000000010000000000000010000011111111100000011111111101000000100000001000000100100000100000000100000100001000011000000001000011001111111110000001111111110000010000000000000010000011111111100000011111111111000000100000000100000101000000010000000110000100100000011100000010000010100000001011000001000001010000001000110000010000101000000100001100111110010100000011000010001101111001000000100111100011000100100111110111111000111111011110111111111001111111101000011111111100001111111000011111111100000111111111111111111110000001111111111111111111000000001111111111111100000");
+		go.setWidth("25");
+		go.setHeight("25");
+		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
+		go.nullsToValue(this.getActivity());
+		this.sql.addUserPicogram(go);
+		go = new GriddlerOne();
+		go.setName("Bird");
+		go.setSolution("0000000111000000000000000000001110110000000000000000000011111000000000000000000000111111000000000000000000011111111000000000000000001111111111000000000000000111111111110000000000000011111111111110000000000001111111111111111110011110011111111111111100011111100011111111100000011111110000010011111100001000000110010010000111000001111101111110100000000001111100011101101111100000111001111001101001111111110001111101110111001100010000111100111011100011001000111110111101111011110000011110011110111101111000001110001110011110111100000110000111001111001110000011000011100111100111000001000000110001100001100000100000001000100000100");
+		go.setWidth("25");
+		go.setHeight("25");
+		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
+		go.nullsToValue(this.getActivity());
+		this.sql.addUserPicogram(go);
+		go = new GriddlerOne();
+		go.setName("His Master's Voice");
+		go.setSolution("0000000111100000000000000011111111000000000000111110011100001100001011000001100011100000100000111000111100111010011110000111001100110111100010111010000001101000110110110000010010000110110111100001110000110110011111110100001111100100000001100110111011001000001011000000101010000010100000001010101100111000000010101010000111000000101010100001111000011110111110011111100101001000000111111001111111111111");
+		go.setWidth("20");
+		go.setHeight("20");
+		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
+		go.nullsToValue(this.getActivity());
+		this.sql.addUserPicogram(go);
+		go = new GriddlerOne();
+		go.setName("Singing");
+		go.setSolution("00000000010000000000000000000000011100000001110000000000011111000001111100000000001010100000111111100000000101010000001111111000000011011000000100111100000000111000011010001110000000011001111111100110000011111100000110011110000011111100000011000111100001100000000001111110011000110000000000100000001100011100000001111000001110000110000000100111111111011111110000110000111111111111111100010110001111111111111110011011100011110111111111001011011000111001111111001111000110011100011111001111100001111100");
+		go.setWidth("20");
+		go.setHeight("25");
+		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
+		go.nullsToValue(this.getActivity());
+		this.sql.addUserPicogram(go);
+		go = new GriddlerOne();
+		go.setName("Teddy");
+		go.setSolution("0011111011111111011110000001100111000000110011000000110010000000001101100000011001000000000010110000001101000000000001110000000011100011000110010000000000010001001101001000000000001000000000000100000000000110000000000010000000000001000000000011000000011100011111001111000111010011111111111111111110011000000011111111110000001100000100011001101000000111111110011100110111111110000001001110001101000000000111110111000110101111000110001111100011011100110010111011110001101000111001011101011000110100011100101110100000000010001110010111011100000011100111001011101011111111011011100111111100000000000111110001111100000000000000000");
+		go.setWidth("25");
+		go.setHeight("25");
+		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
+		go.nullsToValue(this.getActivity());
+		this.sql.addUserPicogram(go);
+		this.sql.close();
 	}
 
 	@Override
@@ -455,19 +774,19 @@ public class SuperAwesomeCardFragment extends Fragment implements
 			final int pos, final long id) {
 		if (pos >= 0) // If valid position to select.
 		{
-			GriddlerOne picogram = this.myAdapter.get(pos);
+			final GriddlerOne picogram = this.myAdapter.get(pos);
 			if (this.position == MenuActivity.TITLES.indexOf("Packs")) {
 				// We load the pack to My and prompt user.
 				if (picogram.getName().contains("Easy Pack 1")) {
-					loadEasyPackOne();
+					this.loadEasyPackOne();
 					Util.getPreferences(this.getActivity()).edit()
 							.putBoolean("hasDownloadedEasyOne", true).commit();
 				} else if (picogram.getName().contains("Easy Pack 2")) {
-					loadEasyPackTwo();
+					this.loadEasyPackTwo();
 					Util.getPreferences(this.getActivity()).edit()
 							.putBoolean("hasDownloadedEasyTwo", true).commit();
 				} else if (picogram.getName().contains("Medium Pack 1")) {
-					loadMediumPackOne();
+					this.loadMediumPackOne();
 					Util.getPreferences(this.getActivity()).edit()
 							.putBoolean("hasDownloadedMediumOne", true)
 							.commit();
@@ -479,14 +798,14 @@ public class SuperAwesomeCardFragment extends Fragment implements
 							Style.INFO).show();
 					return;
 				}
-				sql.close();
+				this.sql.close();
 				Crouton.makeText(this.getActivity(),
 						picogram.getName() + " loaded, go back to My tab.",
 						Style.INFO).show();
 
 			} else {
 				if ((this.position == MenuActivity.TITLES.indexOf("My"))
-						&& ((pos == 0) || pos == 1)) {
+						&& ((pos == 0) || (pos == 1))) {
 					// Can this be the Creating or Random?
 					this.sql.close();
 					if (pos == 0) {
@@ -496,17 +815,18 @@ public class SuperAwesomeCardFragment extends Fragment implements
 						this.getActivity().startActivityForResult(createIntent,
 								MenuActivity.CREATE_CODE);
 					} else if (pos == 1) {
-						generateRandomGame();
+						this.generateRandomGame();
 					}
 				} else {
 					// If this Picogram doesn't exists for the person, add it.
-					if (sql == null)
+					if (this.sql == null) {
 						this.sql = new SQLitePicogramAdapter(
 								this.getActivity(), "Picograms", null, 1);
-					if (sql.doesPuzzleExist(picogram) == -1) {
-						sql.addUserPicogram(picogram);
+					}
+					if (this.sql.doesPuzzleExist(picogram) == -1) {
+						this.sql.addUserPicogram(picogram);
 						// Add to the ranking table.
-						SQLiteRatingAdapter sra = new SQLiteRatingAdapter(
+						final SQLiteRatingAdapter sra = new SQLiteRatingAdapter(
 								this.getActivity(), "Rating", null, 2);
 						sra.insertOnOpenOnlineGame(picogram.getID());
 						sra.close();
@@ -517,277 +837,70 @@ public class SuperAwesomeCardFragment extends Fragment implements
 		}
 	}
 
-	private void loadMediumPackOne() {
-		this.sql = new SQLitePicogramAdapter(this.getActivity(), "Picograms",
-				null, 1);
-		GriddlerOne go = new GriddlerOne();
-		// go.setName("Rose");
-		// go.setSolution("000111101110000001001110011100010011001011010110110110111011111010110011010101111101111111011011111100110111101111011110011110000111100001110011111000000001111000000000010000000000111001000011100011111001111000001111011111000000110111110000000001111000000000001000000000000000100000000");
-		// go.setWidth("15");
-		// go.setHeight("20");
-		// go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
-		// go.nullsToValue(this.getActivity());
-		// sql.addUserPicogram(go);
-		go = new GriddlerOne();
-		go.setName("House");
-		go.setSolution("00000111000000001110111000011100000111011000000000111111111111111100000000000110111110000011010101011111101111101000110101010100011011111010011100000001000110000000100011111111111111");
-		go.setWidth("13");
-		go.setHeight("14");
-		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
-		go.nullsToValue(this.getActivity());
-		sql.addUserPicogram(go);
-		go = new GriddlerOne();
-		// go.setName("Water Drop");
-		// go.setSolution("000001000000011100000110100000100110001100010011000011110000001100000001100000001100000001110000011011100110000111100");
-		// go.setWidth("9");
-		// go.setHeight("15");
-		// go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
-		// go.nullsToValue(this.getActivity());
-		// sql.addUserPicogram(go);
-		// go = new GriddlerOne();
-		// go.setName("Arrow Heart");
-		// go.setSolution("000000000111000000000011000100010101001010101000010001010100010000100100001001001000000110010000000110100000001001000000110000000000010000000000");
-		// go.setWidth("12");
-		// go.setHeight("12");
-		// go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
-		// go.nullsToValue(this.getActivity());
-		// sql.addUserPicogram(go);
-		go = new GriddlerOne();
-		go.setName("X Wins");
-		go.setSolution("1001100001000001101000010110011010000101101001100001000011111111111111100110000100000110101101000001101011010000100110000100001111111111111110011000011001011010110101100110101101011010011000011001");
-		go.setWidth("14");
-		go.setHeight("14");
-		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
-		go.nullsToValue(this.getActivity());
-		sql.addUserPicogram(go);
-		go = new GriddlerOne();
-		go.setName("Ship");
-		go.setSolution("0000000000001111000000000000011000000011100000000000011100000000010000000000000010000011111111100000011111111101000000100000001000000100100000100000000100000100001000011000000001000011001111111110000001111111110000010000000000000010000011111111100000011111111111000000100000000100000101000000010000000110000100100000011100000010000010100000001011000001000001010000001000110000010000101000000100001100111110010100000011000010001101111001000000100111100011000100100111110111111000111111011110111111111001111111101000011111111100001111111000011111111100000111111111111111111110000001111111111111111111000000001111111111111100000");
-		go.setWidth("25");
-		go.setHeight("25");
-		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
-		go.nullsToValue(this.getActivity());
-		sql.addUserPicogram(go);
-		go = new GriddlerOne();
-		go.setName("Bird");
-		go.setSolution("0000000111000000000000000000001110110000000000000000000011111000000000000000000000111111000000000000000000011111111000000000000000001111111111000000000000000111111111110000000000000011111111111110000000000001111111111111111110011110011111111111111100011111100011111111100000011111110000010011111100001000000110010010000111000001111101111110100000000001111100011101101111100000111001111001101001111111110001111101110111001100010000111100111011100011001000111110111101111011110000011110011110111101111000001110001110011110111100000110000111001111001110000011000011100111100111000001000000110001100001100000100000001000100000100");
-		go.setWidth("25");
-		go.setHeight("25");
-		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
-		go.nullsToValue(this.getActivity());
-		sql.addUserPicogram(go);
-		go = new GriddlerOne();
-		go.setName("His Master's Voice");
-		go.setSolution("0000000111100000000000000011111111000000000000111110011100001100001011000001100011100000100000111000111100111010011110000111001100110111100010111010000001101000110110110000010010000110110111100001110000110110011111110100001111100100000001100110111011001000001011000000101010000010100000001010101100111000000010101010000111000000101010100001111000011110111110011111100101001000000111111001111111111111");
-		go.setWidth("20");
-		go.setHeight("20");
-		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
-		go.nullsToValue(this.getActivity());
-		sql.addUserPicogram(go);
-		go = new GriddlerOne();
-		go.setName("Singing");
-		go.setSolution("00000000010000000000000000000000011100000001110000000000011111000001111100000000001010100000111111100000000101010000001111111000000011011000000100111100000000111000011010001110000000011001111111100110000011111100000110011110000011111100000011000111100001100000000001111110011000110000000000100000001100011100000001111000001110000110000000100111111111011111110000110000111111111111111100010110001111111111111110011011100011110111111111001011011000111001111111001111000110011100011111001111100001111100");
-		go.setWidth("20");
-		go.setHeight("25");
-		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
-		go.nullsToValue(this.getActivity());
-		sql.addUserPicogram(go);
-		go = new GriddlerOne();
-		go.setName("Teddy");
-		go.setSolution("0011111011111111011110000001100111000000110011000000110010000000001101100000011001000000000010110000001101000000000001110000000011100011000110010000000000010001001101001000000000001000000000000100000000000110000000000010000000000001000000000011000000011100011111001111000111010011111111111111111110011000000011111111110000001100000100011001101000000111111110011100110111111110000001001110001101000000000111110111000110101111000110001111100011011100110010111011110001101000111001011101011000110100011100101110100000000010001110010111011100000011100111001011101011111111011011100111111100000000000111110001111100000000000000000");
-		go.setWidth("25");
-		go.setHeight("25");
-		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
-		go.nullsToValue(this.getActivity());
-		sql.addUserPicogram(go);
-		sql.close();
+	public boolean onItemLongClick(final AdapterView<?> arg0, final View arg1,
+			final int position, final long arg3) {
+		if (!this.myAdapter.get(0).getName().contains("Create")) {
+			// We only want long click support on My tab.
+			return false;
+		}
+		if ((position == 0) || (position == 1)) {
+			// Create or Random, should just ignore this?
+			return false;
+		} else {
+			final FragmentTransaction ft = this.getChildFragmentManager()
+					.beginTransaction();
+			// Create and show the dialog.
+			final Bundle bundle = new Bundle();
+			bundle.putInt("layoutId", R.layout.dialog_listview_contextmenu);
+			final DialogMaker newFragment = new DialogMaker();
+			newFragment.setArguments(bundle);
+			newFragment.show(ft, "dialog");
+			newFragment.setOnDialogResultListner(new OnDialogResultListener() {
+
+				public void onDialogResult(final Bundle res) {
+					if (res == null) {
+						return;
+					}
+					final int result = res.getInt("resultInt");
+					if (result == 0) {
+						// Nothing
+						// TODO
+					} else if (result == 1) {
+						// Clear.
+						String newCurrent = "";
+						for (int i = 0; i != SuperAwesomeCardFragment.this.myAdapter.get(position)
+								.getCurrent().length(); ++i) {
+							newCurrent += "0";
+						}
+						SuperAwesomeCardFragment.this.myAdapter.updateCurrentById(
+								SuperAwesomeCardFragment.this.myAdapter.get(position)
+										.getID(), newCurrent, "0");
+						SuperAwesomeCardFragment.this.sql.updateCurrentPicogram(
+								SuperAwesomeCardFragment.this.myAdapter.get(position)
+										.getID(), "0", newCurrent);
+					} else if (result == 2) {
+						// Delete.
+						SuperAwesomeCardFragment.this.sql
+								.deletePicogram(SuperAwesomeCardFragment.this.myAdapter.get(
+										position).getID());
+						SuperAwesomeCardFragment.this.myAdapter
+								.removeById(SuperAwesomeCardFragment.this.myAdapter.get(position)
+										.getID());
+						// TODO Remove from personal ranking table.
+					}
+					SuperAwesomeCardFragment.this.myAdapter.notifyDataSetChanged();
+				}
+			});
+
+		}
+		return true;
 	}
 
-	private void loadEasyPackTwo() {
-		this.sql = new SQLitePicogramAdapter(this.getActivity(), "Picograms",
-				null, 1);
-		// These shouldn't change for these packs.
-		GriddlerOne go = new GriddlerOne();
-		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
-		// Change.
-		go.setName("Key");
-		go.setSolution("000001111111110100100111");
-		go.setWidth("8");
-		go.setHeight("3");
-		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
-		go.nullsToValue(this.getActivity());
-		sql.addUserPicogram(go);
-		go = new GriddlerOne();
-		go.setName("Cat");
-		go.setSolution("00111111010000111011111000010100");
-		go.setWidth("8");
-		go.setHeight("4");
-		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
-		go.nullsToValue(this.getActivity());
-		sql.addUserPicogram(go);
-		go = new GriddlerOne();
-		go.setName("Heart");
-		go.setSolution("01010111110111000100");
-		go.setWidth("5");
-		go.setHeight("4");
-		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
-		go.nullsToValue(this.getActivity());
-		sql.addUserPicogram(go);
-		go = new GriddlerOne();
-		go.setName("Hourglass");
-		go.setSolution("1111111111111110000000001111111111111110100000000010010000000001001001010100100100010100010011000100011000110000011000001101011000000011011000000001101100000001100011000001100100110001100000001100100001000010010001010001001001010100100101010101010111111111111111000000000111111111111111");
-		go.setWidth("13");
-		go.setHeight("22");
-		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
-		go.nullsToValue(this.getActivity());
-		sql.addUserPicogram(go);
-		go = new GriddlerOne();
-		go.setName("Cube");
-		go.setSolution("00111111110100000101111111100110000010011000001001100000100110000010101111111100");
-		go.setWidth("10");
-		go.setHeight("8");
-		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
-		go.nullsToValue(this.getActivity());
-		sql.addUserPicogram(go);
-		go = new GriddlerOne();
-		go.setName("Eye");
-		go.setSolution("0001111000001100110001001100101000110001010011001000110011000001111000");
-		go.setWidth("10");
-		go.setHeight("7");
-		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
-		go.nullsToValue(this.getActivity());
-		sql.addUserPicogram(go);
-		go = new GriddlerOne();
-		go.setName("Note");
-		go.setSolution("011111010001010001110011110011");
-		go.setWidth("6");
-		go.setHeight("5");
-		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
-		go.nullsToValue(this.getActivity());
-		sql.addUserPicogram(go);
-		go = new GriddlerOne();
-		go.setName("Shot");
-		go.setSolution("111010010010111101101101111111111010010");
-		go.setWidth("3");
-		go.setHeight("13");
-		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
-		go.nullsToValue(this.getActivity());
-		sql.addUserPicogram(go);
-		go = new GriddlerOne();
-		go.setName("Flower");
-		go.setSolution("001000101010101010100010010101011100010000100");
-		go.setWidth("5");
-		go.setHeight("9");
-		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
-		go.nullsToValue(this.getActivity());
-		sql.addUserPicogram(go);
-		go = new GriddlerOne();
-		go.setName("Bomb");
-		go.setSolution("00000001100000000100100000010000100000100000000111100000011111100001110111100111011111101101111111011011111110011111111000011111100000011110000");
-		go.setWidth("11");
-		go.setHeight("13");
-		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
-		go.nullsToValue(this.getActivity());
-		sql.addUserPicogram(go);
-		go = new GriddlerOne();
-		sql.close();
-	}
-
-	private void loadEasyPackOne() {
-		this.sql = new SQLitePicogramAdapter(this.getActivity(), "Picograms",
-				null, 1);
-		// These shouldn't change for these packs.
-		GriddlerOne go = new GriddlerOne();
-		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
-		// Change.
-		go.setName("Smile");
-		go.setSolution("01010000001000101110");
-		go.setWidth("5");
-		go.setHeight("4");
-		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
-		go.nullsToValue(this.getActivity());
-		sql.addUserPicogram(go);
-		go = new GriddlerOne();
-		go.setName("Sad");
-		go.setSolution("01010000000111010001");
-		go.setWidth("5");
-		go.setHeight("4");
-		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
-		go.nullsToValue(this.getActivity());
-		sql.addUserPicogram(go);
-		go = new GriddlerOne();
-		go.setName("Person");
-		go.setSolution("010111010101");
-		go.setWidth("3");
-		go.setHeight("4");
-		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
-		go.nullsToValue(this.getActivity());
-		sql.addUserPicogram(go);
-		go = new GriddlerOne();
-		go.setName("Umbrella Man");
-		go.setSolution("1010000110111111011010100");
-		go.setWidth("5");
-		go.setHeight("5");
-		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
-		go.nullsToValue(this.getActivity());
-		sql.addUserPicogram(go);
-		go = new GriddlerOne();
-		go.setName("Football Man");
-		go.setSolution("0010001111000101010100100");
-		go.setWidth("5");
-		go.setHeight("5");
-		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
-		go.nullsToValue(this.getActivity());
-		sql.addUserPicogram(go);
-		go = new GriddlerOne();
-		go.setName("Scorpion");
-		go.setSolution("0110010000100110111000011");
-		go.setWidth("5");
-		go.setHeight("5");
-		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
-		go.nullsToValue(this.getActivity());
-		sql.addUserPicogram(go);
-		go = new GriddlerOne();
-		go.setName("Drummer");
-		go.setSolution("0100010010101001101101011");
-		go.setWidth("5");
-		go.setHeight("5");
-		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
-		go.nullsToValue(this.getActivity());
-		sql.addUserPicogram(go);
-		go = new GriddlerOne();
-		go.setName("Peace");
-		go.setSolution("001110001010101001001101010101000100011100");
-		go.setWidth("7");
-		go.setHeight("6");
-		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
-		go.nullsToValue(this.getActivity());
-		sql.addUserPicogram(go);
-		go = new GriddlerOne();
-		go.setName("Shopping");
-		go.setSolution("0001111110100100110010010");
-		go.setWidth("5");
-		go.setHeight("5");
-		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
-		go.nullsToValue(this.getActivity());
-		sql.addUserPicogram(go);
-		go = new GriddlerOne();
-		go.setName("Two Prayers");
-		go.setSolution("1010001010111100101001101");
-		go.setWidth("5");
-		go.setHeight("5");
-		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
-		go.nullsToValue(this.getActivity());
-		sql.addUserPicogram(go);
-		go = new GriddlerOne();
-		sql.close();
-	}
-
-	private void startGame(GriddlerOne go) {
+	private void startGame(final GriddlerOne go) {
 		FlurryAgent.logEvent("UserPlayGame");
 		// Intent gameIntent = new Intent(this, AdvancedGameActivity.class);
 		final Intent gameIntent = new Intent(this.getActivity(),
-				AdvancedGameActivity.class);
+				PicogramPreGame.class);
 		gameIntent.putExtra("name", go.getName());
 		gameIntent.putExtra("solution", go.getSolution());
 		gameIntent.putExtra("current", go.getCurrent());
@@ -798,119 +911,5 @@ public class SuperAwesomeCardFragment extends Fragment implements
 		gameIntent.putExtra("colors", go.getColors());
 		this.getActivity().startActivityForResult(gameIntent,
 				MenuActivity.GAME_CODE);
-	}
-
-	public void generateRandomGame() {
-		FragmentTransaction ft = getChildFragmentManager().beginTransaction();
-		// Create and show the dialog.
-		Bundle bundle = new Bundle();
-		bundle.putInt("layoutId", R.layout.dialog_random_picogram);
-		DialogMaker newFragment = new DialogMaker();
-		newFragment.setArguments(bundle);
-		newFragment.show(ft, "dialog");
-		newFragment.setOnDialogResultListner(new OnDialogResultListener() {
-
-			public void onDialogResult(Bundle result) {
-				// Add to personal.
-				String current = "", cols = "";
-				for (int i = 0; i != result.getString("solution").length(); ++i)
-					current += "0";
-				for (int i = 0; i != result.getInt("numColors"); ++i)
-					if (i == 0)
-						cols += Color.TRANSPARENT + ",";
-					else
-						cols += Color.rgb((int) (Math.random() * 255),
-								(int) (Math.random() * 255),
-								(int) (Math.random() * 255))
-								+ ",";
-				cols = cols.substring(0, cols.length() - 1);
-				int w = result.getInt("width"), h = result.getInt("height"), nc = result
-						.getInt("numColors");
-				final GriddlerOne go = new GriddlerOne(result.getString(
-						"solution").hashCode()
-						+ "", "0", result.getString("name"),
-						((int) ((w * h) / 1400)) + "", "3", 1, "computer", w
-								+ "", h + "", result.getString("solution"),
-						current, nc, cols, "0", "5");
-				// TODO make sure go gets saved.
-				myAdapter.add(go);
-				myAdapter.notifyDataSetChanged();
-				go.setCurrent(null);
-				go.save(new StackMobCallback() {
-
-					@Override
-					public void failure(StackMobException arg0) {
-						sql.addUserPicogram(go);
-					}
-
-					@Override
-					public void success(String arg0) {
-						go.setIsUploaded("1");
-						sql.addUserPicogram(go);
-					}
-				});
-				GriddlerTag gt = new GriddlerTag("random");
-				gt.setID(go.getID());
-				gt.save();
-				SQLiteRatingAdapter sra = new SQLiteRatingAdapter(
-						getActivity(), "Rating", null, 2);
-				sra.insertCreate(gt.getID());
-				sra.close();
-				// Start to play.
-			}
-		});
-	}
-
-	public boolean onItemLongClick(AdapterView<?> arg0, View arg1,
-			final int position, long arg3) {
-		if (!myAdapter.get(0).getName().contains("Create")) {
-			// We only want long click support on My tab.
-			return false;
-		}
-		if (position == 0 || position == 1) {
-			// Create or Random, should just ignore this?
-			return false;
-		} else {
-			FragmentTransaction ft = getChildFragmentManager()
-					.beginTransaction();
-			// Create and show the dialog.
-			Bundle bundle = new Bundle();
-			bundle.putInt("layoutId", R.layout.dialog_listview_contextmenu);
-			DialogMaker newFragment = new DialogMaker();
-			newFragment.setArguments(bundle);
-			newFragment.show(ft, "dialog");
-			newFragment.setOnDialogResultListner(new OnDialogResultListener() {
-
-				public void onDialogResult(Bundle res) {
-					if (res == null) {
-						return;
-					}
-					int result = res.getInt("resultInt");
-					if (result == 0) {
-						// Nothing
-						// TODO
-					} else if (result == 1) {
-						// Clear.
-						String newCurrent = "";
-						for (int i = 0; i != myAdapter.get(position)
-								.getCurrent().length(); ++i) {
-							newCurrent += "0";
-						}
-						myAdapter.updateCurrentById(myAdapter.get(position)
-								.getID(), newCurrent, "0");
-						sql.updateCurrentPicogram(myAdapter.get(position)
-								.getID(), "0", newCurrent);
-					} else if (result == 2) {
-						// Delete.
-						sql.deletePicogram(myAdapter.get(position).getID());
-						myAdapter.removeById(myAdapter.get(position).getID());
-						// TODO Remove from personal ranking table.
-					}
-					myAdapter.notifyDataSetChanged();
-				}
-			});
-
-		}
-		return true;
 	}
 }

@@ -1,18 +1,12 @@
 
 package com.picogram.awesomeness;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.SharedPreferences;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.AnimationDrawable;
@@ -21,7 +15,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Vibrator;
-import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
@@ -34,11 +27,11 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RatingBar;
-import android.widget.TextView;
 import android.widget.RatingBar.OnRatingBarChangeListener;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
+import android.widget.TextView;
 
 import com.flurry.android.FlurryAgent;
 import com.picogram.awesomeness.DialogMaker.OnDialogResultListener;
@@ -48,9 +41,14 @@ import com.stackmob.sdk.callback.StackMobCallback;
 import com.stackmob.sdk.callback.StackMobModelCallback;
 import com.stackmob.sdk.exception.StackMobException;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+
 public class AdvancedGameActivity extends FragmentActivity implements
-		OnTouchListener, WinnerListener, View.OnClickListener,
-		OnSeekBarChangeListener {
+OnTouchListener, WinnerListener, View.OnClickListener,
+OnSeekBarChangeListener {
 	class RefreshHandler extends Handler {
 		Activity activity;
 
@@ -60,7 +58,7 @@ public class AdvancedGameActivity extends FragmentActivity implements
 			final DateFormat df = new SimpleDateFormat("hh:mm:ss");
 			final String curDateTime = df.format(Calendar.getInstance().getTime());
 			((TextView) this.activity.findViewById(R.id.tvTime))
-					.setText(curDateTime);
+			.setText(curDateTime);
 			// Do the battery.
 			AdvancedGameActivity.this.registerReceiver(AdvancedGameActivity.this.mBatInfoReceiver,
 					new IntentFilter(
@@ -134,9 +132,9 @@ public class AdvancedGameActivity extends FragmentActivity implements
 				} else if (level >= 5) {
 					if (AdvancedGameActivity.this.isLight) {
 						ivBattery
-								.setImageBitmap(BitmapFactory.decodeResource(
-										AdvancedGameActivity.this.getResources(),
-										R.drawable.batterylowdark));
+						.setImageBitmap(BitmapFactory.decodeResource(
+								AdvancedGameActivity.this.getResources(),
+								R.drawable.batterylowdark));
 					} else {
 						ivBattery.setImageBitmap(BitmapFactory.decodeResource(
 								AdvancedGameActivity.this.getResources(),
@@ -167,6 +165,8 @@ public class AdvancedGameActivity extends FragmentActivity implements
 	HistoryListener historyListener;
 
 	SeekBar sbHistory;
+
+	long score;
 
 	private void doFacebookStuff() {
 	}
@@ -244,9 +244,9 @@ public class AdvancedGameActivity extends FragmentActivity implements
 								.getChar("colorCharacter");
 						if (Character.isDigit(AdvancedGameActivity.this.tiv.colorCharacter)) {
 							((ImageButton) v)
-									.setBackgroundColor(AdvancedGameActivity.this.tiv.gColors[Integer
-											.parseInt(""
-													+ AdvancedGameActivity.this.tiv.colorCharacter)]);
+							.setBackgroundColor(AdvancedGameActivity.this.tiv.gColors[Integer
+							                                                          .parseInt(""
+							                                                        		  + AdvancedGameActivity.this.tiv.colorCharacter)]);
 						} else {
 							((ImageButton) v).setBackgroundColor(Color.WHITE);
 						}
@@ -270,9 +270,6 @@ public class AdvancedGameActivity extends FragmentActivity implements
 		// Do background stuff.
 		final RelativeLayout rlMain = (RelativeLayout) this
 				.findViewById(R.id.rlGameActivity);
-		final SharedPreferences prefs = PreferenceManager
-				.getDefaultSharedPreferences(this);
-
 		final String bg = Util.getPreferences(this)
 				.getString("background", "bgWhite");
 		String line = Util.getPreferences(this).getString("lines", "Auto");
@@ -341,7 +338,6 @@ public class AdvancedGameActivity extends FragmentActivity implements
 		this.puzzleId = this.getIntent().getExtras().getString("id");
 		FlurryAgent.logEvent("UserPlayingGame");
 		// Create colors for pallet.
-		final String thing = this.getIntent().getExtras().getString("colors");
 		this.strColors = this.getIntent().getExtras().getString("colors").split(",");
 		this.colors = new int[this.strColors.length];
 		for (int i = 0; i != this.strColors.length; ++i) {
@@ -366,7 +362,7 @@ public class AdvancedGameActivity extends FragmentActivity implements
 					for (int i = AdvancedGameActivity.this.sbHistory.getProgress(); i != AdvancedGameActivity.this.sbHistory
 							.getMax(); ++i) {
 						AdvancedGameActivity.this.tiv.history
-								.remove(AdvancedGameActivity.this.tiv.history.size() - 1);
+						.remove(AdvancedGameActivity.this.tiv.history.size() - 1);
 					}
 					AdvancedGameActivity.this.sbHistory.setMax(AdvancedGameActivity.this.sbHistory
 							.getProgress());
@@ -387,6 +383,31 @@ public class AdvancedGameActivity extends FragmentActivity implements
 
 		// TODO Check for multiple solutions. If they exist tell the user as a
 		// heads up.
+
+		// High score stuff.
+		if (Util.getPreferences(this).contains("highscore-" + this.puzzleId))
+		{
+			if (this.getIntent().getExtras().getString("status").equals("1"))
+			{
+				// Make it negative if we've beaten this already and don't want to add more to their time.
+				Util.getPreferences(this)
+				.edit()
+				.putLong("highscore-" + this.puzzleId,
+						-1
+						* Util.getPreferences(this).getLong(
+								"highscore-" + this.puzzleId, 0)).commit();
+			}
+			// If it exists, just subtract what we've already done.
+			Util.getPreferences(this).edit()
+			.putLong(
+					"highscore-" + this.puzzleId,
+					System.currentTimeMillis()
+					- Util.getPreferences(this).getLong(
+							"highscore-" + this.puzzleId, 0)).commit();
+		} else {
+			Util.getPreferences(this).edit()
+			.putLong("highscore-" + this.puzzleId, System.currentTimeMillis()).commit();
+		}
 	}
 
 	@Override
@@ -401,11 +422,22 @@ public class AdvancedGameActivity extends FragmentActivity implements
 		super.onPause();
 		sql.updateCurrentPicogram(this.tiv.gSolution.hashCode() + "", "0",
 				this.tiv.gCurrent);
-		sql.close();
 
 		if (!this.continueMusic) {
 			MusicManager.pause();
 		}
+
+		// Highscore management.
+		final long newScore = Util.getPreferences(this).getLong("highscore-" + this.puzzleId, 0)
+				+ (System.currentTimeMillis() - this.score);
+		if (newScore >= 0)
+		{
+			// We've not won the game.
+			Util.getPreferences(this).edit().putLong("" + this.puzzleId, newScore).commit();
+			// Save this score in the database.
+			sql.updateScore(this.puzzleId, newScore);
+		}
+		sql.close();
 	}
 
 	public void onProgressChanged(final SeekBar seekBar, final int progress,
@@ -428,6 +460,7 @@ public class AdvancedGameActivity extends FragmentActivity implements
 		this.tiv.history = savedInstanceState.getStringArrayList("history");
 		this.sbHistory.setMax(savedInstanceState.getInt("sbMax"));
 		this.sbHistory.setProgress(savedInstanceState.getInt("sbProgress"));
+		this.score = savedInstanceState.getLong("score");
 		this.tiv.bitmapFromCurrent();
 	}
 
@@ -439,6 +472,7 @@ public class AdvancedGameActivity extends FragmentActivity implements
 				"Picograms", null, 1);
 		this.continueMusic = false;
 		MusicManager.start(this);
+		this.score = System.currentTimeMillis();
 	}
 
 	@Override
@@ -450,6 +484,7 @@ public class AdvancedGameActivity extends FragmentActivity implements
 		outState.putStringArrayList("history", this.tiv.history);
 		outState.putInt("sbMax", this.sbHistory.getMax());
 		outState.putInt("sbProgress", this.sbHistory.getProgress());
+		outState.putLong("score", this.score);
 	}
 
 	public void onStartTrackingTouch(final SeekBar seekBar) {
@@ -548,7 +583,7 @@ public class AdvancedGameActivity extends FragmentActivity implements
 									sorh.close();
 									Log.d(TAG, "REturn 2");
 									AdvancedGameActivity.this
-											.returnIntent(dialog);
+									.returnIntent(dialog);
 								}
 
 								@Override
@@ -564,7 +599,7 @@ public class AdvancedGameActivity extends FragmentActivity implements
 									sorh.close();
 									Log.d(TAG, "REturn 3");
 									AdvancedGameActivity.this
-											.returnIntent(dialog);
+									.returnIntent(dialog);
 								}
 							});
 

@@ -1,13 +1,12 @@
 
 package com.picogram.awesomeness;
 
-import java.util.Collection;
-import java.util.HashMap;
-
 import android.content.Context;
 import android.media.MediaPlayer;
-import android.preference.PreferenceManager;
 import android.util.Log;
+
+import java.util.Collection;
+import java.util.HashMap;
 
 //From: http://www.rbgrn.net/content/307-light-racer-20-days-61-64-completion
 public class MusicManager {

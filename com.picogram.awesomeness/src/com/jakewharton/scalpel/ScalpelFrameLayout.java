@@ -6,9 +6,6 @@ import static android.view.MotionEvent.ACTION_DOWN;
 import static android.view.MotionEvent.ACTION_POINTER_UP;
 import static android.view.MotionEvent.INVALID_POINTER_ID;
 
-import java.util.ArrayDeque;
-import java.util.Deque;
-
 import android.content.Context;
 import android.content.res.Resources;
 import android.content.res.Resources.NotFoundException;
@@ -25,6 +22,9 @@ import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
+
+import java.util.ArrayDeque;
+import java.util.Deque;
 
 /**
  * Renders your view hierarchy as an interactive 3D visualization of layers.

@@ -15,7 +15,6 @@ import com.actionbarsherlock.app.SherlockPreferenceActivity;
 import com.actionbarsherlock.view.Menu;
 import com.flurry.android.FlurryAgent;
 import com.kopfgeldjaeger.ratememaybe.RateMeMaybe;
-import com.kopfgeldjaeger.ratememaybe.RateMeMaybe.PREF;
 
 import de.psdev.licensesdialog.LicensesDialog;
 
@@ -88,7 +87,7 @@ public class SettingsActivity extends SherlockPreferenceActivity implements
 			// Contact me.
 			final Intent emailIntent = new Intent(Intent.ACTION_SEND);
 			emailIntent.putExtra(Intent.EXTRA_EMAIL, new String[] {
-				email
+					email
 			});
 			emailIntent.putExtra(Intent.EXTRA_SUBJECT, subject);
 			emailIntent.putExtra(Intent.EXTRA_TEXT, message);

@@ -1,11 +1,6 @@
 
 package com.picogram.awesomeness;
 
-import java.io.IOException;
-
-import org.xmlpull.v1.XmlPullParser;
-import org.xmlpull.v1.XmlPullParserException;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -17,6 +12,11 @@ import android.content.res.XmlResourceParser;
 import android.util.Log;
 import android.webkit.WebView;
 import android.widget.Toast;
+
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
+
+import java.io.IOException;
 
 /*
  * Class to show a changelog dialog

@@ -1,17 +1,16 @@
 
 package com.picogram.awesomeness;
 
-import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
-import android.util.Log;
 
 import com.stackmob.sdk.model.StackMobModel;
 
 public class GriddlerOne extends StackMobModel implements Comparable {
 	private String status, name, diff, rate, author, width, height, solution,
-			current, numberOfColors, colors, personalRank, isUploaded;
+	current, numberOfColors, colors, personalRank, isUploaded;
 	private int numberOfRatings;
+	private long highscore = 0;
 
 	public GriddlerOne() {
 		super(GriddlerOne.class);
@@ -41,7 +40,7 @@ public class GriddlerOne extends StackMobModel implements Comparable {
 		this.isUploaded = isUploaded;
 	}
 
-	public GriddlerOne(String[] arr) {
+	public GriddlerOne(final String[] arr) {
 		super(GriddlerOne.class);
 		final String id = arr[0];
 		final String author = arr[1];
@@ -64,8 +63,9 @@ public class GriddlerOne extends StackMobModel implements Comparable {
 		}
 		if (current == null) {
 			current = "";
-			for (int i = 0; i != solution.length(); ++i)
+			for (int i = 0; i != solution.length(); ++i) {
 				current += "0";
+			}
 		}
 		this.id = id;
 		this.status = status;
@@ -82,14 +82,6 @@ public class GriddlerOne extends StackMobModel implements Comparable {
 		this.colors = colors;
 		this.isUploaded = isUploaded;
 		this.personalRank = personalRank;
-	}
-
-	@Override
-	public void save() {
-		// Server doesn't care about progress or rank.
-		this.current = null;
-		this.personalRank = null;
-		super.save();
 	}
 
 	public int compareTo(final Object g) {
@@ -118,6 +110,14 @@ public class GriddlerOne extends StackMobModel implements Comparable {
 		return this.height;
 	}
 
+	public long getHighscore() {
+		return this.highscore;
+	}
+
+	public String getIsUploaded() {
+		return this.isUploaded;
+	}
+
 	/*
 	 * public String getId() { return this.id; }
 	 */
@@ -131,6 +131,10 @@ public class GriddlerOne extends StackMobModel implements Comparable {
 
 	public int getNumberOfRatings() {
 		return this.numberOfRatings;
+	}
+
+	public String getPersonalRank() {
+		return this.personalRank;
 	}
 
 	public String getRating() {
@@ -147,6 +151,70 @@ public class GriddlerOne extends StackMobModel implements Comparable {
 
 	public String getWidth() {
 		return this.width;
+	}
+
+	public GriddlerOne nullsToValue(final Context a) {
+		if (this.id == null) {
+			if (this.solution != null) {
+				this.id = this.solution.hashCode() + "";
+			} else {
+				this.id = "0";
+			}
+		}
+		if (this.status == null) {
+			this.status = "0";
+		}
+		if (this.name == null) {
+			this.name = "N/A";
+		}
+		if (this.diff == null) {
+			this.diff = "Easy";
+		}
+		if (this.rate == null) {
+			this.rate = "0";
+		}
+		if (this.author == null) {
+			this.author = "N/A";
+		}
+		if (this.width == null) {
+			this.width = "0";
+		}
+		if (this.height == null) {
+			this.height = "0";
+		}
+		if (this.solution == null) {
+			this.solution = "";
+		}
+		if (this.current == null) {
+			this.current = "";
+			for (int i = 0; i != (Integer.parseInt(this.width)
+					* Integer.parseInt(this.height)); ++i) {
+				this.current += "0";
+			}
+		}
+		if (this.numberOfColors == null) {
+			this.numberOfColors = "2";
+		}
+		if (this.colors == null) {
+			this.colors = Color.TRANSPARENT + "," + Color.BLACK;
+		}
+		if (this.numberOfRatings == 0) {
+			this.numberOfRatings = 0;
+		}
+		// Now update the rating database, if it already exists, this will
+		// return nothing.
+		final SQLiteRatingAdapter sra = new SQLiteRatingAdapter(a, "Rating", null, 2);
+		sra.insertOnOpenOnlineGame(this.getID());
+		sra.close();
+		return this;
+	}
+
+	@Override
+	public void save() {
+		// Server doesn't care about progress or rank.
+		this.current = null;
+		this.personalRank = null;
+		super.save();
 	}
 
 	public void setAuthor(final String author) {
@@ -169,6 +237,14 @@ public class GriddlerOne extends StackMobModel implements Comparable {
 		this.height = height;
 	}
 
+	public void setHighscore(final long highscore) {
+		this.highscore = highscore;
+	}
+
+	public void setIsUploaded(final String isUploaded) {
+		this.isUploaded = isUploaded;
+	}
+
 	/*
 	 * public void setId(final String id) { this.id = id; }
 	 */
@@ -182,6 +258,10 @@ public class GriddlerOne extends StackMobModel implements Comparable {
 
 	public void setNumberOfRatings(final int numberOfRatings) {
 		this.numberOfRatings = numberOfRatings;
+	}
+
+	public void setPersonalRank(final String personalRank) {
+		this.personalRank = personalRank;
 	}
 
 	public void setRating(final String rank) {
@@ -211,76 +291,6 @@ public class GriddlerOne extends StackMobModel implements Comparable {
 		 * id status name diff rating - null author width height solution
 		 * current - null numColors colors numberOfRatings - 5
 		 */
-	}
-
-	public String getIsUploaded() {
-		return isUploaded;
-	}
-
-	public void setIsUploaded(String isUploaded) {
-		this.isUploaded = isUploaded;
-	}
-
-	public String getPersonalRank() {
-		return personalRank;
-	}
-
-	public void setPersonalRank(String personalRank) {
-		this.personalRank = personalRank;
-	}
-
-	public GriddlerOne nullsToValue(Context a) {
-		if (id == null) {
-			if (solution != null) {
-				id = solution.hashCode() + "";
-			} else
-				id = "0";
-		}
-		if (status == null) {
-			status = "0";
-		}
-		if (name == null) {
-			name = "N/A";
-		}
-		if (diff == null) {
-			diff = "Easy";
-		}
-		if (rate == null) {
-			rate = "0";
-		}
-		if (author == null) {
-			author = "N/A";
-		}
-		if (width == null) {
-			width = "0";
-		}
-		if (height == null) {
-			height = "0";
-		}
-		if (solution == null) {
-			solution = "";
-		}
-		if (current == null) {
-			current = "";
-			for (int i = 0; i != Integer.parseInt(width)
-					* Integer.parseInt(height); ++i)
-				current += "0";
-		}
-		if (numberOfColors == null) {
-			numberOfColors = "2";
-		}
-		if (colors == null) {
-			colors = Color.TRANSPARENT + "," + Color.BLACK;
-		}
-		if (numberOfRatings == 0) {
-			numberOfRatings = 0;
-		}
-		// Now update the rating database, if it already exists, this will
-		// return nothing.
-		SQLiteRatingAdapter sra = new SQLiteRatingAdapter(a, "Rating", null, 2);
-		sra.insertOnOpenOnlineGame(this.getID());
-		sra.close();
-		return this;
 	}
 
 }

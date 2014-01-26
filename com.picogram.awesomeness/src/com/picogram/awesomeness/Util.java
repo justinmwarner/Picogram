@@ -1,12 +1,6 @@
 
 package com.picogram.awesomeness;
 
-import java.io.File;
-import java.net.InetAddress;
-import java.net.NetworkInterface;
-import java.util.Enumeration;
-import java.util.UUID;
-
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -15,6 +9,12 @@ import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.util.Log;
 import android.view.WindowManager;
+
+import java.io.File;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.util.Enumeration;
+import java.util.UUID;
 
 public class Util {
 	private static final String PREF_UNIQUE_ID = "PREF_UNIQUE_ID";

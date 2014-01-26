@@ -1,18 +1,6 @@
 
 package com.picogram.awesomeness;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-
-import yuku.ambilwarna.AmbilWarnaDialog;
-import yuku.ambilwarna.AmbilWarnaDialog.OnAmbilWarnaListener;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -20,30 +8,17 @@ import android.content.Intent;
 import android.content.res.AssetFileDescriptor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.LinearGradient;
-import android.graphics.Matrix;
-import android.graphics.Paint;
-import android.graphics.Rect;
-import android.graphics.Shader;
-import android.graphics.Shader.TileMode;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
 import android.text.Editable;
-import android.util.Log;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
@@ -51,13 +26,10 @@ import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
-import android.widget.SeekBar.OnSeekBarChangeListener;
 
 import com.cameraview.awesomeness.CameraView;
 import com.cameraview.awesomeness.CameraView.OnPictureTakenListener;
@@ -68,6 +40,13 @@ import com.picogram.awesomeness.DialogMaker.OnDialogResultListener;
 
 import de.keyboardsurfer.android.widget.crouton.Crouton;
 import de.keyboardsurfer.android.widget.crouton.Style;
+
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.Arrays;
 
 public class CreatePicogramActivity extends FragmentActivity implements
 		OnClickListener, OnPictureTakenListener {
@@ -88,7 +67,7 @@ public class CreatePicogramActivity extends FragmentActivity implements
 			Color.YELLOW, Color.GRAY, Color.GREEN, Color.CYAN, Color.MAGENTA,
 			Color.DKGRAY, Color.LTGRAY, Color.WHITE
 	};
-	int newColors[] = originalColors;
+	int newColors[] = this.originalColors;
 	private int numColors = 2, yNum = 20, xNum = 20;
 	long oldTime = 0;
 
@@ -96,12 +75,18 @@ public class CreatePicogramActivity extends FragmentActivity implements
 
 	TouchImageView tivGame;
 
+	boolean isOriginalShowing = false;
+
+	ImageButton ib;
+
+	boolean continueMusic = true;
+
 	private void alterPhoto() {
 
 		if (this.bmOriginal != null) {
 
 			// Subarray with the number.
-			newColors = Arrays.copyOfRange(originalColors, 0, numColors);
+			this.newColors = Arrays.copyOfRange(this.originalColors, 0, this.numColors);
 			// Touch this up. It's a bit messy.
 			this.solution = ""; // Change back to nothing.
 			Bitmap alter = this.bmOriginal.copy(Bitmap.Config.ARGB_8888, true);
@@ -148,24 +133,25 @@ public class CreatePicogramActivity extends FragmentActivity implements
 			this.solution = new String(sol);
 			this.bmOriginal.setHasAlpha(true);
 
-			Bundle bundle = new Bundle();
+			final Bundle bundle = new Bundle();
 			// current height width id solution colors(,)
-			bundle.putString("current", solution);
-			bundle.putString("height", yNum + "");
-			bundle.putString("width", xNum + "");
-			bundle.putString("id", solution.hashCode() + "");
-			bundle.putString("solution", solution);
+			bundle.putString("current", this.solution);
+			bundle.putString("height", this.yNum + "");
+			bundle.putString("width", this.xNum + "");
+			bundle.putString("id", this.solution.hashCode() + "");
+			bundle.putString("solution", this.solution);
 			String cols = "";
 
-			for (int i : newColors)
+			for (final int i : this.newColors) {
 				cols += i + ",";
+			}
 
 			cols = cols.substring(0, cols.length() - 1);
 			bundle.putString("colors", cols);
-			tivGame.isRefreshing = true;
+			this.tivGame.isRefreshing = true;
 
-			tivGame.gridlinesColor = Color.rgb(191, 191, 191);
-			tivGame.setPicogramInfo(bundle);
+			this.tivGame.gridlinesColor = Color.rgb(191, 191, 191);
+			this.tivGame.setPicogramInfo(bundle);
 
 		} else {
 			Crouton.makeText(this, "=( We need a picture first.", Style.INFO)
@@ -179,31 +165,31 @@ public class CreatePicogramActivity extends FragmentActivity implements
 	}
 
 	private void doDone() {
-		LayoutInflater inflater = getLayoutInflater();
+		final LayoutInflater inflater = this.getLayoutInflater();
 		final View dialoglayout = inflater.inflate(
-				R.layout.dialog_save_picogram, (ViewGroup) getCurrentFocus());
-		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+				R.layout.dialog_save_picogram, (ViewGroup) this.getCurrentFocus());
+		final AlertDialog.Builder builder = new AlertDialog.Builder(this);
 		builder.setView(dialoglayout);
 		final Activity a = this;
 		builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-			public void onClick(DialogInterface dialog, int id) {
+			public void onClick(final DialogInterface dialog, final int id) {
 				// get user input and set it to result
 				// edit text
-				EditText name = (EditText) dialoglayout
+				final EditText name = (EditText) dialoglayout
 						.findViewById(R.id.etRandomName);
-				EditText tags = (EditText) dialoglayout
+				final EditText tags = (EditText) dialoglayout
 						.findViewById(R.id.etRandomTags);
-				RadioGroup difficulty = (RadioGroup) dialoglayout
+				final RadioGroup difficulty = (RadioGroup) dialoglayout
 						.findViewById(R.id.radioDifficulty);
 
-				int radioButtonID = difficulty.getCheckedRadioButtonId();
-				RadioButton radioButton = (RadioButton) difficulty
+				final int radioButtonID = difficulty.getCheckedRadioButtonId();
+				final RadioButton radioButton = (RadioButton) difficulty
 						.findViewById(radioButtonID);
-				String diff = radioButton.getText().toString();
-				if (userValuesValid()) {
-					final String puzzleId = solution.hashCode() + "";
+				final String diff = radioButton.getText().toString();
+				if (CreatePicogramActivity.this.userValuesValid()) {
+					final String puzzleId = CreatePicogramActivity.this.solution.hashCode() + "";
 					String cols = "";
-					for (final int color : newColors) {
+					for (final int color : CreatePicogramActivity.this.newColors) {
 						cols += color + ",";
 					}
 					final Intent returnIntent = new Intent();
@@ -211,26 +197,46 @@ public class CreatePicogramActivity extends FragmentActivity implements
 					returnIntent.putExtra("colors",
 							cols.substring(0, cols.length() - 1));
 					returnIntent.putExtra("difficulty", diff);
-					returnIntent.putExtra("height", yNum + "");
+					returnIntent.putExtra("height", CreatePicogramActivity.this.yNum + "");
 					returnIntent.putExtra("name", name.getText().toString());
-					returnIntent.putExtra("numberColors", numColors + "");
+					returnIntent.putExtra("numberColors", CreatePicogramActivity.this.numColors
+							+ "");
 					returnIntent.putExtra("numRank", 1 + "");
 					returnIntent.putExtra("id", puzzleId);
 					returnIntent.putExtra("rank", 5 + "");
 					returnIntent.putExtra("solution",
-							tivGame.gCurrent.replaceAll("x", "0"));
-					returnIntent.putExtra("width", xNum + "");
+							CreatePicogramActivity.this.tivGame.gCurrent.replaceAll("x", "0"));
+					returnIntent.putExtra("width", CreatePicogramActivity.this.xNum + "");
 					returnIntent.putExtra("tags", tags.getText().toString());
-					resultAndFinish(returnIntent);
+					CreatePicogramActivity.this.resultAndFinish(returnIntent);
 					dialog.dismiss();
 				}
 			}
 		}).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-			public void onClick(DialogInterface dialog, int id) {
+			public void onClick(final DialogInterface dialog, final int id) {
 				dialog.cancel();
 			}
 		}).show();
 
+	}
+
+	private Bitmap[] getMenuBitmaps() {
+		final Bitmap[] result = new Bitmap[this.numColors];
+		for (int i = 0; i != this.numColors; ++i) {
+			Bitmap fullColor = Bitmap.createBitmap(1, 1,
+					Bitmap.Config.ARGB_8888);
+			final int[] rgb = this.getRGB(this.newColors[i]);
+			if (rgb[0] == 0) {// This is alpha.
+				// For transparency.
+				fullColor = BitmapFactory.decodeResource(this.getResources(),
+						R.drawable.transparent);
+			} else {
+				fullColor.setPixel(0, 0, Color.rgb(rgb[0], rgb[1], rgb[2]));
+			}
+			// +2 for the X's and movement.
+			result[i] = fullColor;
+		}
+		return result;
 	}
 
 	private int[] getRGB(final int i) {
@@ -270,23 +276,25 @@ public class CreatePicogramActivity extends FragmentActivity implements
 			this.yNum = 25;
 			this.numColors = 3;
 			this.solution = "";
-			for (int i = 0; i != (xNum * yNum); ++i)
-				solution += "0";
-			Bitmap bm = Bitmap
-					.createBitmap(xNum, yNum, Bitmap.Config.ARGB_8888);
-			bmNew = bmOriginal = bm;
-			updateBottomHolder(1);
+			for (int i = 0; i != (this.xNum * this.yNum); ++i) {
+				this.solution += "0";
+			}
+			final Bitmap bm = Bitmap
+					.createBitmap(this.xNum, this.yNum, Bitmap.Config.ARGB_8888);
+			this.bmNew = this.bmOriginal = bm;
+			this.updateBottomHolder(1);
 			this.updateMainView();
-			Bundle bundle = new Bundle();
+			final Bundle bundle = new Bundle();
 			bundle.putString("current", null);
-			bundle.putString("width", "" + xNum);
-			bundle.putString("height", "" + yNum);
+			bundle.putString("width", "" + this.xNum);
+			bundle.putString("height", "" + this.yNum);
 			String cols = "";
-			for (int i = 0; i != newColors.length; ++i)
-				cols += newColors[i] + ",";
+			for (int i = 0; i != this.newColors.length; ++i) {
+				cols += this.newColors[i] + ",";
+			}
 			bundle.putString("colors", cols);
 
-			tivGame.setPicogramInfo(bundle);
+			this.tivGame.setPicogramInfo(bundle);
 
 		} else if (v.getId() == R.id.bGallery) {
 			// File stuff.
@@ -309,15 +317,15 @@ public class CreatePicogramActivity extends FragmentActivity implements
 					.setView(input)
 					.setPositiveButton("Ok",
 							new DialogInterface.OnClickListener() {
-								public void onClick(DialogInterface dialog,
-										int whichButton) {
-									Editable value = input.getText();
+								public void onClick(final DialogInterface dialog,
+										final int whichButton) {
+									final Editable value = input.getText();
 									CreatePicogramActivity.url = value
 											.toString();
-									handler.post(new Runnable() {
+									CreatePicogramActivity.this.handler.post(new Runnable() {
 
 										public void run() {
-											processURL();
+											CreatePicogramActivity.this.processURL();
 										}
 									});
 
@@ -325,8 +333,8 @@ public class CreatePicogramActivity extends FragmentActivity implements
 							})
 					.setNegativeButton("Cancel",
 							new DialogInterface.OnClickListener() {
-								public void onClick(DialogInterface dialog,
-										int whichButton) {
+								public void onClick(final DialogInterface dialog,
+										final int whichButton) {
 									// Do nothing.
 								}
 							}).show();
@@ -334,21 +342,24 @@ public class CreatePicogramActivity extends FragmentActivity implements
 			Crouton.makeText(this, "This isn't supported due to limitations.",
 					Style.INFO).show();
 		} else if (v.getId() == R.id.ibTools) {
-			Bundle bundle = new Bundle();
-			FragmentTransaction ft = getSupportFragmentManager()
+			final Bundle bundle = new Bundle();
+			final FragmentTransaction ft = this.getSupportFragmentManager()
 					.beginTransaction();
-			String strColors[] = new String[this.numColors];
-			for (int i = 0; i != numColors; ++i)
-				strColors[i] = "" + newColors[i];
+			final String strColors[] = new String[this.numColors];
+			for (int i = 0; i != this.numColors; ++i) {
+				strColors[i] = "" + this.newColors[i];
+			}
 			bundle.putInt("layoutId", R.layout.dialog_color_choice);
 			bundle.putStringArray("colors", strColors);
 			final DialogMaker newFragment = new DialogMaker();
 			newFragment.setArguments(bundle);
 			newFragment.setOnDialogResultListner(new OnDialogResultListener() {
 
-				public void onDialogResult(Bundle result) {
-					tivGame.isGameplay = result.getBoolean("isGameplay");
-					tivGame.colorCharacter = result.getChar("colorCharacter");
+				public void onDialogResult(final Bundle result) {
+					CreatePicogramActivity.this.tivGame.isGameplay = result
+							.getBoolean("isGameplay");
+					CreatePicogramActivity.this.tivGame.colorCharacter = result
+							.getChar("colorCharacter");
 					// tivGame.gridlinesColor = Color.BLACK;
 					newFragment.dismiss();
 				}
@@ -359,32 +370,32 @@ public class CreatePicogramActivity extends FragmentActivity implements
 		}
 		// We're altering the sizes and stuff.
 		if (v.getId() == R.id.bWidth) {
-			showNumberDialog(v.getId());
+			this.showNumberDialog(v.getId());
 		} else if (v.getId() == R.id.bHeight) {
-			showNumberDialog(v.getId());
+			this.showNumberDialog(v.getId());
 		} else if (v.getId() == R.id.bColors) {
-			showNumberDialog(v.getId());
+			this.showNumberDialog(v.getId());
 		} else if (v.getId() == R.id.bSwitch) {
 			// Show the original image on top of tivGame.
-			if (isOriginalShowing) {
-				tivGame.isRefreshing = true;
-				tivGame.bitmapFromCurrent();
-				isOriginalShowing = false;
+			if (this.isOriginalShowing) {
+				this.tivGame.isRefreshing = true;
+				this.tivGame.bitmapFromCurrent();
+				this.isOriginalShowing = false;
 			} else {
-				Bitmap bm = Bitmap.createScaledBitmap(bmOriginal,
-						tivGame.gWidth * tivGame.cellWidth, tivGame.gHeight
-								* tivGame.cellHeight, false);
-				tivGame.canvasBitmap.drawBitmap(bm, tivGame.longestSide
-						* tivGame.cellWidth, tivGame.longestTop
-						* tivGame.cellHeight, tivGame.paintBitmap);
-				tivGame.invalidate();
-				isOriginalShowing = true;
+				final Bitmap bm = Bitmap.createScaledBitmap(this.bmOriginal,
+						this.tivGame.gWidth * this.tivGame.cellWidth, this.tivGame.gHeight
+								* this.tivGame.cellHeight, false);
+				this.tivGame.canvasBitmap.drawBitmap(bm, this.tivGame.longestSide
+						* this.tivGame.cellWidth, this.tivGame.longestTop
+						* this.tivGame.cellHeight, this.tivGame.paintBitmap);
+				this.tivGame.invalidate();
+				this.isOriginalShowing = true;
 			}
 		} else if (v.getId() == R.id.bDone) {
 			// Done.
-			doDone();
+			this.doDone();
 		} else if (v.getId() == R.id.bBack) {
-			currentView = -1;// Used for main view.
+			this.currentView = -1;// Used for main view.
 			this.updateMainView();
 			this.updateBottomHolder(0);
 		}
@@ -392,8 +403,6 @@ public class CreatePicogramActivity extends FragmentActivity implements
 		// TODO Tell user they can change colors by clicking on it.
 
 	}
-
-	boolean isOriginalShowing = false;
 
 	@Override
 	public void onCreate(final Bundle savedInstanceState) {
@@ -415,35 +424,16 @@ public class CreatePicogramActivity extends FragmentActivity implements
 				final Bitmap bi = this.readBitmap(uri);
 				this.bmOriginal = bi;
 			} else if (type.startsWith("text/")) {
-				String sharedText = intent.getStringExtra(Intent.EXTRA_TEXT);
+				final String sharedText = intent.getStringExtra(Intent.EXTRA_TEXT);
 				if (sharedText != null) {
 					url = sharedText;
-					processURL();
+					this.processURL();
 				}
 			}
 		}
 		FlurryAgent.logEvent("CreatingPuzzle");
-		ib = (ImageButton) findViewById(R.id.ibTools);
-		ib.setOnClickListener(this);
-	}
-
-	private Bitmap[] getMenuBitmaps() {
-		Bitmap[] result = new Bitmap[this.numColors];
-		for (int i = 0; i != numColors; ++i) {
-			Bitmap fullColor = Bitmap.createBitmap(1, 1,
-					Bitmap.Config.ARGB_8888);
-			final int[] rgb = this.getRGB(this.newColors[i]);
-			if (rgb[0] == 0) {// This is alpha.
-				// For transparency.
-				fullColor = BitmapFactory.decodeResource(this.getResources(),
-						R.drawable.transparent);
-			} else {
-				fullColor.setPixel(0, 0, Color.rgb(rgb[0], rgb[1], rgb[2]));
-			}
-			// +2 for the X's and movement.
-			result[i] = fullColor;
-		}
-		return result;
+		this.ib = (ImageButton) this.findViewById(R.id.ibTools);
+		this.ib.setOnClickListener(this);
 	}
 
 	@Override
@@ -466,12 +456,12 @@ public class CreatePicogramActivity extends FragmentActivity implements
 	@Override
 	protected void onPause() {
 		super.onPause();
-		if (!continueMusic) {
+		if (!this.continueMusic) {
 			MusicManager.pause();
 		}
 	}
 
-	public void onPictureTaken(Bitmap bm) {
+	public void onPictureTaken(final Bitmap bm) {
 		this.bmOriginal = bm;
 		this.updateBottomHolder(1);
 
@@ -488,7 +478,7 @@ public class CreatePicogramActivity extends FragmentActivity implements
 	@Override
 	protected void onResume() {
 		super.onResume();
-		continueMusic = false;
+		this.continueMusic = false;
 		MusicManager.start(this);
 
 	}
@@ -511,10 +501,10 @@ public class CreatePicogramActivity extends FragmentActivity implements
 					in = conn.getInputStream();
 					final Bitmap bm = BitmapFactory.decodeStream(in);
 					CreatePicogramActivity.this.bmOriginal = bm;
-					handler.post(new Runnable() {
+					CreatePicogramActivity.this.handler.post(new Runnable() {
 						public void run() {
-							bmOriginal = bm;
-							updateBottomHolder(1);
+							CreatePicogramActivity.this.bmOriginal = bm;
+							CreatePicogramActivity.this.updateBottomHolder(1);
 						}
 
 					});
@@ -550,13 +540,28 @@ public class CreatePicogramActivity extends FragmentActivity implements
 		return bm;
 	}
 
-	public void resultAndFinish(Intent i) {
-		setResult(RESULT_OK, i);
-		finish();
+	public void resultAndFinish(final Intent i) {
+		this.setResult(RESULT_OK, i);
+		this.finish();
+	}
+
+	private void setGameViewInfo() {
+		final Bundle bundle = new Bundle();
+		bundle.putString("current", this.solution);
+		bundle.putString("width", "" + this.xNum);
+		bundle.putString("height", "" + this.yNum);
+		bundle.putString("id", "" + this.solution.hashCode());
+		bundle.putString("solution", this.solution);
+		String cols = "";
+		for (final Integer color : this.newColors) {
+			cols += color + ",";
+		}
+		bundle.putString("colors", cols.substring(0, cols.length() - 1));
+		this.tivGame.setPicogramInfo(bundle);
 	}
 
 	private void showNumberDialog(final int id) {
-		NumberPickerBuilder npb = new NumberPickerBuilder()
+		final NumberPickerBuilder npb = new NumberPickerBuilder()
 				.setStyleResId(R.style.MyCustomBetterPickerTheme)
 				.setFragmentManager(this.getSupportFragmentManager())
 				.setPlusMinusVisibility(View.INVISIBLE)
@@ -565,33 +570,34 @@ public class CreatePicogramActivity extends FragmentActivity implements
 			npb.setMinNumber(2);
 			npb.setMaxNumber(10);
 		} else {
-			if (id == R.id.bWidth)
+			if (id == R.id.bWidth) {
 				Crouton.makeText(this, "Give us a new width.", Style.INFO)
 						.show();
-			else
+			} else {
 				Crouton.makeText(this, "Give us a new height.", Style.INFO)
 						.show();
-			npb.setMaxNumber(25);
+			}
+			npb.setMaxNumber(100);
 			npb.setMinNumber(1);
 		}
 		npb.addNumberPickerDialogHandler(new NumberPickerDialogHandler() {
 
-			public void onDialogNumberSet(int reference, final int number,
-					double decimal, boolean isNegative, double fullNumber) {
+			public void onDialogNumberSet(final int reference, final int number,
+					final double decimal, final boolean isNegative, final double fullNumber) {
 				Util.log("Reference:  " + reference + " Number: " + number
 						+ " Decimal: " + decimal + " Neg: " + isNegative
 						+ " FullNum: " + fullNumber);
-				handler.post(new Runnable() {
+				CreatePicogramActivity.this.handler.post(new Runnable() {
 					public void run() {
 						if (id == R.id.bColors) {
-							numColors = number;
+							CreatePicogramActivity.this.numColors = number;
 						} else if (id == R.id.bWidth) {
-							xNum = number;
+							CreatePicogramActivity.this.xNum = number;
 						} else if (id == R.id.bHeight) {
-							yNum = number;
+							CreatePicogramActivity.this.yNum = number;
 						}
-						alterPhoto();
-						setGameViewInfo();
+						CreatePicogramActivity.this.alterPhoto();
+						CreatePicogramActivity.this.setGameViewInfo();
 					}
 				});
 			}
@@ -599,134 +605,118 @@ public class CreatePicogramActivity extends FragmentActivity implements
 		npb.show();
 	}
 
-	private void updateBottomHolder(int step) {
+	private void updateBottomHolder(final int step) {
 		if (step == 0) {
 			// We're getting a picture.
 			// Load the picture include.
-			LayoutInflater inflater = (LayoutInflater) this
+			final LayoutInflater inflater = (LayoutInflater) this
 					.getSystemService(LAYOUT_INFLATER_SERVICE);
-			View childLayout = inflater.inflate(R.layout.include_picture_input,
-					(ViewGroup) findViewById(R.layout.include_picture_input));
+			final View childLayout = inflater.inflate(R.layout.include_picture_input,
+					(ViewGroup) this.findViewById(R.layout.include_picture_input));
 
-			RelativeLayout ll = (RelativeLayout) findViewById(R.id.buttonBottomHolder);
+			final RelativeLayout ll = (RelativeLayout) this.findViewById(R.id.buttonBottomHolder);
 			ll.removeAllViews();
 			ll.addView(childLayout);
 			// Set up listeners and everything.
 
-			cv = (CameraView) findViewById(R.id.cvPreview);
-			bURL = (Button) findViewById(R.id.bLink);
-			bGallery = (Button) findViewById(R.id.bGallery);
-			bPicture = (Button) findViewById(R.id.bPicture);
-			bCustom = (Button) findViewById(R.id.bCustom);
-			bSearch = (Button) findViewById(R.id.bSearch);
+			this.cv = (CameraView) this.findViewById(R.id.cvPreview);
+			this.bURL = (Button) this.findViewById(R.id.bLink);
+			this.bGallery = (Button) this.findViewById(R.id.bGallery);
+			this.bPicture = (Button) this.findViewById(R.id.bPicture);
+			this.bCustom = (Button) this.findViewById(R.id.bCustom);
+			this.bSearch = (Button) this.findViewById(R.id.bSearch);
 
-			cv.setButton(bPicture);
-			cv.setOnPictureTakenListner(this);
-			bURL.setOnClickListener(this);
-			bGallery.setOnClickListener(this);
-			bCustom.setOnClickListener(this);
-			bSearch.setOnClickListener(this);
+			this.cv.setButton(this.bPicture);
+			this.cv.setOnPictureTakenListner(this);
+			this.bURL.setOnClickListener(this);
+			this.bGallery.setOnClickListener(this);
+			this.bCustom.setOnClickListener(this);
+			this.bSearch.setOnClickListener(this);
 
-			cv.setVisibility(View.VISIBLE);
+			this.cv.setVisibility(View.VISIBLE);
 			// this.setContentView(R.layout.activity_create_advanced);
 		} else if (step == 1) {
 			// We're altering the photo.
-			LayoutInflater inflater = (LayoutInflater) this
+			final LayoutInflater inflater = (LayoutInflater) this
 					.getSystemService(LAYOUT_INFLATER_SERVICE);
-			View childLayout = inflater
+			final View childLayout = inflater
 					.inflate(
 							R.layout.include_width_height_num,
-							(ViewGroup) findViewById(R.layout.include_width_height_num));
+							(ViewGroup) this.findViewById(R.layout.include_width_height_num));
 
-			RelativeLayout ll = (RelativeLayout) findViewById(R.id.buttonBottomHolder);
+			final RelativeLayout ll = (RelativeLayout) this.findViewById(R.id.buttonBottomHolder);
 			ll.removeAllViews();
 			ll.addView(childLayout);
 			// Hide CameraView, change the bottom bar, and update the new image.
-			cv.setVisibility(View.INVISIBLE);
+			this.cv.setVisibility(View.INVISIBLE);
 
-			bDone = (Button) findViewById(R.id.bDone);
-			bSwitch = (Button) findViewById(R.id.bSwitch);
-			bWidth = (Button) findViewById(R.id.bWidth);
-			bHeight = (Button) findViewById(R.id.bHeight);
-			bColors = (Button) findViewById(R.id.bColors);
-			bBack = (Button) findViewById(R.id.bBack);
+			this.bDone = (Button) this.findViewById(R.id.bDone);
+			this.bSwitch = (Button) this.findViewById(R.id.bSwitch);
+			this.bWidth = (Button) this.findViewById(R.id.bWidth);
+			this.bHeight = (Button) this.findViewById(R.id.bHeight);
+			this.bColors = (Button) this.findViewById(R.id.bColors);
+			this.bBack = (Button) this.findViewById(R.id.bBack);
 
-			bDone.setOnClickListener(this);
-			bSwitch.setOnClickListener(this);
-			bWidth.setOnClickListener(this);
-			bHeight.setOnClickListener(this);
-			bColors.setOnClickListener(this);
-			bBack.setOnClickListener(this);
+			this.bDone.setOnClickListener(this);
+			this.bSwitch.setOnClickListener(this);
+			this.bWidth.setOnClickListener(this);
+			this.bHeight.setOnClickListener(this);
+			this.bColors.setOnClickListener(this);
+			this.bBack.setOnClickListener(this);
 
 			// Add in ImageViews and GameView
-			tivGame = (TouchImageView) findViewById(R.id.tivGame);
-			tivGame.setVisibility(View.VISIBLE);
-			ib.setVisibility(View.VISIBLE);
+			this.tivGame = (TouchImageView) this.findViewById(R.id.tivGame);
+			this.tivGame.setVisibility(View.VISIBLE);
+			this.ib.setVisibility(View.VISIBLE);
 			// Update via AlterPhoto
 
 			this.alterPhoto();
 		}
 	}
 
-	ImageButton ib;
-
 	private void updateMainView() {
-		if (tivGame != null)
-			if (tivGame.gCurrent != null)
-				this.solution = tivGame.gCurrent;
-		ib.setVisibility(View.INVISIBLE);
-		ib.setVisibility(View.INVISIBLE);
-		if (currentView == -1) {
+		if (this.tivGame != null) {
+			if (this.tivGame.gCurrent != null) {
+				this.solution = this.tivGame.gCurrent;
+			}
+		}
+		this.ib.setVisibility(View.INVISIBLE);
+		this.ib.setVisibility(View.INVISIBLE);
+		if (this.currentView == -1) {
 			// We're changing back to the get picture screen.
-			tivGame.setVisibility(View.INVISIBLE);
+			this.tivGame.setVisibility(View.INVISIBLE);
 			this.setContentView(R.layout.activity_create_advanced);
-			cv = (CameraView) findViewById(R.id.cvPreview);
-			currentView = 0; // Go to the normal view after.
-		} else if (currentView == 2) {
+			this.cv = (CameraView) this.findViewById(R.id.cvPreview);
+			this.currentView = 0; // Go to the normal view after.
+		} else if (this.currentView == 2) {
 			// Show Original
-			tivGame.setVisibility(View.INVISIBLE);
-			currentView = 1;
-		} else if (currentView == 1) {
+			this.tivGame.setVisibility(View.INVISIBLE);
+			this.currentView = 1;
+		} else if (this.currentView == 1) {
 			// Show New without grid.
 			// Update from solution.
-			tivGame.setVisibility(View.INVISIBLE);
-			currentView = 0;
-		} else if (currentView == 0) {
+			this.tivGame.setVisibility(View.INVISIBLE);
+			this.currentView = 0;
+		} else if (this.currentView == 0) {
 			// Show Gameboard
-			tivGame.setVisibility(View.VISIBLE);
-			tivGame.gridlinesColor = Color.BLACK;
-			tivGame.gHeight = this.yNum;
-			tivGame.gWidth = this.xNum;
-			tivGame.gCurrent = this.solution;
-			tivGame.bitmapFromCurrent();
-			currentView = 2;
-			ib.setVisibility(View.VISIBLE);
+			this.tivGame.setVisibility(View.VISIBLE);
+			this.tivGame.gridlinesColor = Color.BLACK;
+			this.tivGame.gHeight = this.yNum;
+			this.tivGame.gWidth = this.xNum;
+			this.tivGame.gCurrent = this.solution;
+			this.tivGame.bitmapFromCurrent();
+			this.currentView = 2;
+			this.ib.setVisibility(View.VISIBLE);
 			Crouton.makeText(this, "Draw on screen to edit", Style.INFO).show();
 			// current width height id solution colors(string,)
 		} else {
-			currentView = 0; // Reset if problems.
+			this.currentView = 0; // Reset if problems.
 		}
-	}
-
-	private void setGameViewInfo() {
-		Bundle bundle = new Bundle();
-		bundle.putString("current", this.solution);
-		bundle.putString("width", "" + xNum);
-		bundle.putString("height", "" + yNum);
-		bundle.putString("id", "" + this.solution.hashCode());
-		bundle.putString("solution", this.solution);
-		String cols = "";
-		for (Integer color : newColors)
-			cols += color + ",";
-		bundle.putString("colors", cols.substring(0, cols.length() - 1));
-		tivGame.setPicogramInfo(bundle);
 	}
 
 	private boolean userValuesValid() {
 		// TODO redo this method.
 		return true;
 	}
-
-	boolean continueMusic = true;
 
 }

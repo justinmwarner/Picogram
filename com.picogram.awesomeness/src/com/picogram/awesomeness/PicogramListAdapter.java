@@ -1,25 +1,20 @@
 
 package com.picogram.awesomeness;
 
-import java.util.ArrayList;
-
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
-import android.provider.CalendarContract.Colors;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.View.OnLongClickListener;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.AdapterView.OnItemLongClickListener;
+
+import java.util.ArrayList;
 
 public class PicogramListAdapter extends ArrayAdapter<GriddlerOne> {
 	private static final String TAG = "PicogramListAdapter";
@@ -42,8 +37,6 @@ public class PicogramListAdapter extends ArrayAdapter<GriddlerOne> {
 	public void add(final GriddlerOne object) {
 		super.add(object);
 		this.picograms.add(object);
-		// this.notifyDataSetChanged();
-		// this.notifyDataSetInvalidated();
 	}
 
 	@Override
@@ -58,7 +51,6 @@ public class PicogramListAdapter extends ArrayAdapter<GriddlerOne> {
 				return true;
 			}
 		}
-
 		return false;
 	}
 
@@ -74,11 +66,10 @@ public class PicogramListAdapter extends ArrayAdapter<GriddlerOne> {
 	@Override
 	public View getView(final int position, final View convertView,
 			final ViewGroup parent) {
-		// This might be expensive
 		if (this.context == null) {
 			this.context = this.getContext();
 		}
-		GriddlerOne picogram = this.picograms.get(position);
+		final GriddlerOne picogram = this.picograms.get(position);
 		picogram.nullsToValue(this.context);// Just reset all nulls to a value.
 		final LayoutInflater inflater = (LayoutInflater) this.context
 				.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -92,13 +83,13 @@ public class PicogramListAdapter extends ArrayAdapter<GriddlerOne> {
 		int height;
 		try {
 			height = Integer.parseInt(picogram.getHeight());
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			height = 0;
 		}
 		int width;
 		try {
 			width = Integer.parseInt(picogram.getWidth());
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			width = 0;
 		}
 		String curr = picogram.getCurrent();
@@ -114,20 +105,22 @@ public class PicogramListAdapter extends ArrayAdapter<GriddlerOne> {
 			bm = BitmapFactory.decodeResource(this.context.getResources(),
 					R.drawable.ic_launcher);
 			bm = Bitmap.createScaledBitmap(bm, width, height, true);
-			String cols = picogram.getColors();
+			final String cols = picogram.getColors();
 			String[] colors = null;
-			if (cols.contains(","))
+			if (cols.contains(",")) {
 				colors = cols.split(",");
-			else if (cols.contains(" "))
+			} else if (cols.contains(" ")) {
 				colors = cols.split(" ");
-			else
+			}
+			else {
 				colors = new String[] {
-					"000000"
+						"000000"
 				};// Problem.
+			}
 
 			for (int i = 0; i < height; i++) {
 				for (int j = 0; j < width; j++) {
-					if (curr.length() != height * width) {
+					if (curr.length() != (height * width)) {
 						// Online or something, just default to white.
 						curr += "0";
 					}
@@ -152,14 +145,15 @@ public class PicogramListAdapter extends ArrayAdapter<GriddlerOne> {
 				if (position == 0) {
 					bm = BitmapFactory.decodeResource(
 							this.context.getResources(), R.drawable.create);
-				} else if (position == 1)
+				} else if (position == 1) {
 					bm = BitmapFactory.decodeResource(
 							this.context.getResources(), R.drawable.random);
-				else
+				} else {
 					// Just show the icon if something is wrong =/.
 					bm = BitmapFactory
 							.decodeResource(this.context.getResources(),
 									R.drawable.ic_launcher);
+				}
 			}
 			bm = Bitmap.createScaledBitmap(bm, 100, 100, true);
 		}
@@ -167,19 +161,20 @@ public class PicogramListAdapter extends ArrayAdapter<GriddlerOne> {
 		iv.setImageBitmap(bm);
 		iv.setVisibility(View.VISIBLE);
 		if (picogram.getNumberOfRatings() != 0) {
-			String rateText = "Rating: "
+			final String rateText = "Rating: "
 					+ (Double.parseDouble(picogram.getRating()));
-			int index = rateText.indexOf('.');
-			if (index != -1)
-				if (rateText.length() > index + 3)
+			final int index = rateText.indexOf('.');
+			if (index != -1) {
+				if (rateText.length() > (index + 3)) {
 					rate.setText(rateText.substring(0,
 							rateText.indexOf('.') + 3));
-				else
+				} else {
 					rate.setText(rateText.substring(0,
 							rateText.indexOf('.') + 2));
-
-			else
+				}
+			} else {
 				rate.setText(rateText);
+			}
 		}
 		diff.setText(width + " X " + height + " X "
 				+ picogram.getNumberOfColors());
@@ -194,8 +189,9 @@ public class PicogramListAdapter extends ArrayAdapter<GriddlerOne> {
 				.findViewById(R.id.rlMenuHolder);
 		final Drawable gd = rl.getBackground().mutate();
 		item.setBackgroundResource(R.drawable.picogram_menu_choice_border_red);
-		if (picogram.getCurrent() == null)
+		if (picogram.getCurrent() == null) {
 			picogram.setCurrent("");
+		}
 		if (status == 2) {
 			// Other (Custom, special levels, etc.).
 			item.setBackgroundResource(R.drawable.picogram_menu_choice_border_other);
@@ -203,8 +199,8 @@ public class PicogramListAdapter extends ArrayAdapter<GriddlerOne> {
 			diff.setText("w X h X c");
 			// Erase rate
 			rate.setText("You decide ;)");
-		} else if (status == 1
-				|| picograms.get(position).getSolution().replaceAll("x", "0")
+		} else if ((status == 1)
+				|| this.picograms.get(position).getSolution().replaceAll("x", "0")
 						.equals(picogram.getCurrent().replaceAll("x", "0"))) {
 			// Won.
 			item.setBackgroundResource(R.drawable.picogram_menu_choice_border_green);
@@ -222,26 +218,26 @@ public class PicogramListAdapter extends ArrayAdapter<GriddlerOne> {
 		return item;
 	}
 
-	public void setPicograms(final ArrayList<GriddlerOne> g) {
-		this.picograms = g;
-	}
-
-	public void removeById(String id) {
-		for (int i = 0; i != picograms.size(); ++i) {
-			if (picograms.get(i).getID().equals(id)) {
-				picograms.remove(i);
+	public void removeById(final String id) {
+		for (int i = 0; i != this.picograms.size(); ++i) {
+			if (this.picograms.get(i).getID().equals(id)) {
+				this.picograms.remove(i);
 				return;
 			}
 		}
 	}
 
-	public void updateCurrentById(String id, String newCurrent, String status) {
-		for (int i = 0; i != picograms.size(); ++i) {
-			if (picograms.get(i).getID().equals(id)) {
-				GriddlerOne go = picograms.get(i);
+	public void setPicograms(final ArrayList<GriddlerOne> g) {
+		this.picograms = g;
+	}
+
+	public void updateCurrentById(final String id, final String newCurrent, final String status) {
+		for (int i = 0; i != this.picograms.size(); ++i) {
+			if (this.picograms.get(i).getID().equals(id)) {
+				final GriddlerOne go = this.picograms.get(i);
 				go.setCurrent(newCurrent);
 				go.setStatus(status);
-				picograms.set(i, go);
+				this.picograms.set(i, go);
 				return;
 			}
 		}
