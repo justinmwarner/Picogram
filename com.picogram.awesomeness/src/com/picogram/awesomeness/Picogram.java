@@ -4,30 +4,42 @@ package com.picogram.awesomeness;
 import android.content.Context;
 import android.graphics.Color;
 
-import com.stackmob.sdk.model.StackMobModel;
+import com.parse.ParseObject;
 
-public class GriddlerOne extends StackMobModel implements Comparable {
-	private String status, name, diff, rate, author, width, height, solution,
-	current, numberOfColors, colors, personalRank, isUploaded;
-	private int numberOfRatings;
+public class Picogram implements Comparable {
+	private String status, name, diff, author, width, height, solution,
+	current, numberOfColors, colors, id;
+	private int numberOfRatings, rate;
 	private long highscore = 0;
 
-	public GriddlerOne() {
-		super(GriddlerOne.class);
+	public Picogram() {
 	}
 
-	public GriddlerOne(final String id, final String status, final String name,
+	public Picogram(final ParseObject object) {
+		this.id = object.getString("id");
+		this.name = object.getString("name");
+		this.diff = object.getString("diff");
+		this.rate = object.getInt("rate");
+		this.numberOfRatings = object.getInt("numberOfRatings");
+		this.author = object.getString("author");
+		this.width = object.getString("width");
+		this.height = object.getString("height");
+		this.solution = object.getString("solution");
+		this.current = object.getString("current");
+		this.numberOfColors = object.getString("numberOfColors");
+		this.colors = object.getString("colors");
+	}
+
+	public Picogram(final String id, final String status, final String name,
 			final String difficulty, final String rank,
 			final int numberOfRatings, final String author, final String width,
 			final String height, final String solution, final String current,
-			final int numColors, final String colors, final String isUploaded,
-			final String personalRank) {
-		super(GriddlerOne.class);
-		this.id = id;
+			final int numColors, final String colors) {
+		this.setID(id);
 		this.status = status;
 		this.name = name;
 		this.diff = difficulty;
-		this.rate = rank;
+		this.rate = Integer.parseInt(rank);
 		this.author = author;
 		this.width = width;
 		this.height = height;
@@ -36,12 +48,9 @@ public class GriddlerOne extends StackMobModel implements Comparable {
 		this.colors = colors;
 		this.numberOfColors = numColors + "";
 		this.numberOfRatings = numberOfRatings;
-		this.personalRank = personalRank;
-		this.isUploaded = isUploaded;
 	}
 
-	public GriddlerOne(final String[] arr) {
-		super(GriddlerOne.class);
+	public Picogram(final String[] arr) {
 		final String id = arr[0];
 		final String author = arr[1];
 		final String name = arr[2];
@@ -67,11 +76,11 @@ public class GriddlerOne extends StackMobModel implements Comparable {
 				current += "0";
 			}
 		}
-		this.id = id;
+		this.setID(id);
 		this.status = status;
 		this.name = name;
 		this.diff = diff;
-		this.rate = rate;
+		this.rate = Integer.parseInt(rate);
 		this.numberOfRatings = nor;
 		this.author = author;
 		this.width = width;
@@ -80,14 +89,11 @@ public class GriddlerOne extends StackMobModel implements Comparable {
 		this.current = current;
 		this.numberOfColors = numColors + "";
 		this.colors = colors;
-		this.isUploaded = isUploaded;
-		this.personalRank = personalRank;
 	}
 
 	public int compareTo(final Object g) {
 		// equal is equivlant to making it less than, so no 0 needed.
-		return (Integer.parseInt(this.rate) >= Integer
-				.parseInt(((GriddlerOne) g).rate)) == true ? 1 : -1;
+		return (this.rate >= ((Picogram) g).getRating()) ? 1 : -1;
 	}
 
 	public String getAuthor() {
@@ -114,13 +120,10 @@ public class GriddlerOne extends StackMobModel implements Comparable {
 		return this.highscore;
 	}
 
-	public String getIsUploaded() {
-		return this.isUploaded;
+	public String getID() {
+		return this.id;
 	}
 
-	/*
-	 * public String getId() { return this.id; }
-	 */
 	public String getName() {
 		return this.name;
 	}
@@ -133,11 +136,7 @@ public class GriddlerOne extends StackMobModel implements Comparable {
 		return this.numberOfRatings;
 	}
 
-	public String getPersonalRank() {
-		return this.personalRank;
-	}
-
-	public String getRating() {
+	public int getRating() {
 		return this.rate;
 	}
 
@@ -153,12 +152,12 @@ public class GriddlerOne extends StackMobModel implements Comparable {
 		return this.width;
 	}
 
-	public GriddlerOne nullsToValue(final Context a) {
-		if (this.id == null) {
+	public Picogram nullsToValue(final Context a) {
+		if (this.getID() == null) {
 			if (this.solution != null) {
-				this.id = this.solution.hashCode() + "";
+				this.setID(this.solution.hashCode() + "");
 			} else {
-				this.id = "0";
+				this.setID("0");
 			}
 		}
 		if (this.status == null) {
@@ -169,9 +168,6 @@ public class GriddlerOne extends StackMobModel implements Comparable {
 		}
 		if (this.diff == null) {
 			this.diff = "Easy";
-		}
-		if (this.rate == null) {
-			this.rate = "0";
 		}
 		if (this.author == null) {
 			this.author = "N/A";
@@ -198,9 +194,6 @@ public class GriddlerOne extends StackMobModel implements Comparable {
 		if (this.colors == null) {
 			this.colors = Color.TRANSPARENT + "," + Color.BLACK;
 		}
-		if (this.numberOfRatings == 0) {
-			this.numberOfRatings = 0;
-		}
 		// Now update the rating database, if it already exists, this will
 		// return nothing.
 		final SQLiteRatingAdapter sra = new SQLiteRatingAdapter(a, "Rating", null, 2);
@@ -209,17 +202,26 @@ public class GriddlerOne extends StackMobModel implements Comparable {
 		return this;
 	}
 
-	@Override
 	public void save() {
-		// Server doesn't care about progress or rank.
-		this.current = null;
-		this.personalRank = null;
-		super.save();
+		final ParseObject gameScore = new ParseObject("Picogram");
+		gameScore.put("name", this.name);
+		gameScore.put("diff", this.diff);
+		gameScore.put("puzzleId", this.id);
+		gameScore.put("rate", this.rate);
+		gameScore.put("numRating", this.numberOfRatings);
+		gameScore.put("author", this.author);
+		gameScore.put("width", this.width);
+		gameScore.put("height", this.height);
+		gameScore.put("solution", this.solution);
+		gameScore.put("numberOfColors", this.numberOfColors);
+		gameScore.put("colors", this.colors);
+		gameScore.saveInBackground();
 	}
 
 	public void setAuthor(final String author) {
 		this.author = author;
 	}
+
 
 	public void setColors(final String colors) {
 		this.colors = colors;
@@ -232,7 +234,6 @@ public class GriddlerOne extends StackMobModel implements Comparable {
 	public void setDiff(final String diff) {
 		this.diff = diff;
 	}
-
 	public void setHeight(final String height) {
 		this.height = height;
 	}
@@ -241,13 +242,10 @@ public class GriddlerOne extends StackMobModel implements Comparable {
 		this.highscore = highscore;
 	}
 
-	public void setIsUploaded(final String isUploaded) {
-		this.isUploaded = isUploaded;
+	public void setID(final String id) {
+		this.id = id;
 	}
 
-	/*
-	 * public void setId(final String id) { this.id = id; }
-	 */
 	public void setName(final String name) {
 		this.name = name;
 	}
@@ -260,12 +258,8 @@ public class GriddlerOne extends StackMobModel implements Comparable {
 		this.numberOfRatings = numberOfRatings;
 	}
 
-	public void setPersonalRank(final String personalRank) {
-		this.personalRank = personalRank;
-	}
-
 	public void setRating(final String rank) {
-		this.rate = rank;
+		this.rate = Integer.parseInt(rank);
 	}
 
 	public void setSolution(final String solution) {
@@ -282,15 +276,10 @@ public class GriddlerOne extends StackMobModel implements Comparable {
 
 	@Override
 	public String toString() {
-		return this.id + " " + this.status + " " + this.name + " " + this.diff
+		return this.getID() + " " + this.status + " " + this.name + " " + this.diff
 				+ " " + this.rate + " " + this.author + " " + this.width + " "
 				+ this.height + " " + this.solution + " " + this.current + " "
 				+ this.numberOfColors + " " + this.colors + " "
 				+ this.numberOfRatings;
-		/*
-		 * id status name diff rating - null author width height solution
-		 * current - null numColors colors numberOfRatings - 5
-		 */
 	}
-
 }

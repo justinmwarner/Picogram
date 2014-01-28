@@ -43,12 +43,8 @@ import com.flurry.android.FlurryAds;
 import com.flurry.android.FlurryAgent;
 import com.kopfgeldjaeger.ratememaybe.RateMeMaybe;
 import com.kopfgeldjaeger.ratememaybe.RateMeMaybe.OnRMMUserChoiceListener;
+import com.parse.Parse;
 import com.picogram.awesomeness.DialogMaker.OnDialogResultListener;
-import com.stackmob.android.sdk.common.StackMobAndroid;
-import com.stackmob.sdk.callback.StackMobCallback;
-import com.stackmob.sdk.callback.StackMobModelCallback;
-import com.stackmob.sdk.exception.StackMobException;
-
 import de.keyboardsurfer.android.widget.crouton.Crouton;
 import de.keyboardsurfer.android.widget.crouton.Style;
 
@@ -166,32 +162,14 @@ OnRMMUserChoiceListener, ActionBar.OnNavigationListener {
 			final String rank = data.getStringExtra("rank");
 			final String solution = data.getStringExtra("solution");
 			final String width = data.getStringExtra("width");
-			final GriddlerOne g = new GriddlerOne(id, status, name, difficulty,
+			final Picogram g = new Picogram(id, status, name, difficulty,
 					rank, 1, author, width, height, solution, null,
-					numberOfColors, colors, "0", "5");
-			g.setIsUploaded("0");
+					numberOfColors, colors);
 			this.sql.addUserPicogram(g);
 			g.setID(id);
 			// TODO Check if Picogram already exists. If it does, just add that
 			// to the users sql database.
-			g.save(new StackMobModelCallback() {
-
-				@Override
-				public void failure(final StackMobException arg0) {
-				}
-
-				@Override
-				public void success() {
-					g.setIsUploaded("1");
-					MenuActivity.this.sql.updateUploadedPicogram(g.getID(), "1");
-				}
-			});
-			final String[] tags = data.getStringExtra("tags").split(" ");
-			for (final String tag : tags) {
-				final GriddlerTag gt = new GriddlerTag(tag.toLowerCase());
-				gt.setID(id);
-				gt.save();
-			}
+			g.save();
 			// Add this Picogram to the rating table as a 5.
 			final SQLiteRatingAdapter sra = new SQLiteRatingAdapter(this, "Rating",
 					null, 2);
@@ -244,6 +222,7 @@ OnRMMUserChoiceListener, ActionBar.OnNavigationListener {
 	@Override
 	public void onCreate(final Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		Parse.initialize(this, "3j445kDaxQ3lelflRVMetszjtpaXo2S1mjMZYNcW", "zaorBzbtWhdwMdJ0sIgBJjYvowpueuCzstLTwq1A");
 		// this.requestWindowFeature(Window.FEATURE_NO_TITLE);
 		this.prefs = this.getSharedPreferences(MenuActivity.PREFS_FILE,
 				MODE_PRIVATE);
@@ -272,11 +251,7 @@ OnRMMUserChoiceListener, ActionBar.OnNavigationListener {
 			this.setUpAds();
 		}
 		this.setUpRater();
-		StackMobAndroid.init(this.getApplicationContext(), 0,
-				"f077e098-c678-4256-b7a2-c3061d9ff0c2");// Change to production.
-		if (Util.isOnline()) {
-			this.updateFromOffline();
-		} else {
+		if (!Util.isOnline()) {
 			// Remove ads bar if offline.
 			this.toolbar.setVisibility(View.GONE);
 		}
@@ -547,12 +522,10 @@ OnRMMUserChoiceListener, ActionBar.OnNavigationListener {
 					.getMyPuzzles(this.adapter.frag[this.currentTab]
 							.getActivity());
 		} else if (this.currentTab == MenuActivity.TITLES.indexOf("Top")) {
-			this.adapter.frag[this.currentTab].getSortedPuzzles(
-					this.adapter.frag[this.currentTab].getActivity(), "rate");
+			this.adapter.frag[this.currentTab].getTopPuzzles(
+					this.adapter.frag[this.currentTab].getActivity());
 		} else if (this.currentTab == MenuActivity.TITLES.indexOf("Recent")) {
-			this.adapter.frag[this.currentTab].getSortedPuzzles(
-					this.adapter.frag[this.currentTab].getActivity(),
-					"createddate");
+			this.adapter.frag[this.currentTab].getRecentPuzzles(this);
 		} else if (this.currentTab == MenuActivity.TITLES.indexOf("Search")) {
 			this.adapter.frag[this.currentTab].getTagPuzzles(
 					this.adapter.frag[this.currentTab].getActivity(),
@@ -565,90 +538,5 @@ OnRMMUserChoiceListener, ActionBar.OnNavigationListener {
 			this.adapter.frag[this.currentTab].getPackPuzzles();
 		}
 		this.adapter.frag[this.currentTab].myAdapter.notifyDataSetChanged();
-	}
-
-	private void updateFromOffline() {
-		if (this.sql == null) {
-			this.sql = new SQLitePicogramAdapter(this, "Picograms", null, 1);
-		}
-		String[][] offline = this.sql.getUnUploadedPicograms();
-		if (offline != null) {
-			for (final String[] off : offline) {
-				final GriddlerOne go = new GriddlerOne(off);
-				go.save(new StackMobCallback() {
-
-					@Override
-					public void failure(final StackMobException arg0) {
-						// TODO Auto-generated method stub
-
-					}
-
-					@Override
-					public void success(final String arg0) {
-						MenuActivity.this.sql.updateUploadedPicogram(go.getID(), "1");
-					}
-				});
-			}
-
-		}
-
-		// Update new rankings.
-		final SQLiteRatingAdapter sorh = new SQLiteRatingAdapter(this,
-				"Rating", null, 2);
-		offline = sorh.getAllNeededUpdates();
-		if (offline != null) {
-
-			for (final String[] o : offline) {
-				final String id = o[0];
-				final int oldRate = Integer.parseInt(o[1]);
-				final int newRate = Integer.parseInt(o[2]);
-				final GriddlerOne go = new GriddlerOne();
-				go.setID(id);
-				go.fetch(new StackMobCallback() {
-
-					@Override
-					public void failure(final StackMobException arg0) {
-						// Still can't upload, no big deal, do nothing.
-						return;
-					}
-
-					@Override
-					public void success(final String arg0) {
-						// Now we got it, remove the old rating.
-						double onlineRatingTotal = Double.parseDouble(go
-								.getRating()) * go.getNumberOfRatings();
-						onlineRatingTotal = onlineRatingTotal - oldRate;
-						// Add the new rating.
-						final double newRating = (onlineRatingTotal + newRate)
-								/ (go.getNumberOfRatings());
-						go.setRating(newRating + "");
-						if (newRate == 0) {
-							// increase
-							// the num by 1.
-							go.setNumberOfRatings(go.getNumberOfRatings() + 1);
-						}
-
-						// TODO: If save fails, let us do it next time app
-						// is online.
-						go.save(new StackMobCallback() {
-
-							@Override
-							public void failure(final StackMobException arg0) {
-								// Ignore, just wait until next time.
-							}
-
-							@Override
-							public void success(final String arg0) {
-								// Remove this item from the offline sql
-								// database. Use 0 so that we don't have any
-								// more updates needed.
-								sorh.updateRecord(id, newRate + "", "0");
-							}
-						});
-					}
-				});
-			}
-		}
-		sorh.close();
 	}
 }

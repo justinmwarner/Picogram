@@ -19,10 +19,10 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.flurry.android.FlurryAgent;
-import com.stackmob.sdk.api.StackMobQuery;
-import com.stackmob.sdk.callback.StackMobCallback;
-import com.stackmob.sdk.callback.StackMobQueryCallback;
-import com.stackmob.sdk.exception.StackMobException;
+import com.parse.FindCallback;
+import com.parse.ParseException;
+import com.parse.ParseObject;
+import com.parse.ParseQuery;
 
 import de.keyboardsurfer.android.widget.crouton.Crouton;
 import de.keyboardsurfer.android.widget.crouton.Style;
@@ -42,168 +42,103 @@ public class PreGameFragment extends Fragment implements OnClickListener {
 		return f;
 	}
 
-	GriddlerOne current;
+	Picogram current;
 	private int position;
 	ListView lvComments, lvHighscores;
-	CommentAdapter comments;
+	PicogramCommentAdapter comments;
 	PicogramHighscoreAdapter highscores;
 
 	public void loadComments() {
-		this.getActivity().runOnUiThread(new Runnable() {
+		this.comments.clear();
+		this.comments.notifyDataSetChanged();
+		final ParseQuery<ParseObject> query = ParseQuery.getQuery("PicogramComment");
+		query.whereEqualTo("puzzleId", this.current.getID());
+		query.findInBackground(new FindCallback<ParseObject>() {
 
-			public void run() {
-				PreGameFragment.this.comments.clear();
-				for (int i = 0; i != 0; ++i)
+			@Override
+			public void done(final List<ParseObject> result, final ParseException e) {
+				if (e == null)
 				{
-					PreGameFragment.this.comments.add(new PicogramComment(
-							PreGameFragment.this.current.getID(), Util.id(PreGameFragment.this
-									.getActivity()
-									), "Comment is here " + i));
+					for (final ParseObject po : result)
+					{
+						final PicogramComment pc = new PicogramComment();
+						pc.setAuthor(po.getString("author"));
+						pc.setComment(po.getString("comment"));
+						pc.setPuzzleId(po.getString("puzzleId"));
+						PreGameFragment.this.comments.add(pc);
+						PreGameFragment.this.comments.notifyDataSetChanged();
+						PreGameFragment.this.lvComments.invalidate();
+					}
 				}
-				PreGameFragment.this.comments.notifyDataSetChanged();
-				Log.d(TAG, "loading");
-				PicogramComment.query(PicogramComment.class, new StackMobQuery().isInRange(0, 9)
-						.fieldIsOrderedBy("lastmoddate",
-								StackMobQuery.Ordering.DESCENDING)
-								.fieldIsEqualTo("puzzleid", PreGameFragment.this.current.getID()),
-								new StackMobQueryCallback<PicogramComment>() {
-					@Override
-					public void failure(final StackMobException e) {
-						Log.d(TAG, "Fail");
-					}
-
-					@Override
-					public void success(final List<PicogramComment> result) {
-						for (final PicogramComment pc : result)
-						{
-							PreGameFragment.this.comments.add(pc);
-							PreGameFragment.this.comments.notifyDataSetChanged();
-							Log.d(TAG, result.size() + " " + pc.getComment());
-							PreGameFragment.this.lvComments.invalidate();
-						}
-						Log.d(TAG, "Success " + result.size());
-					}
-				});
+				else
+				{
+					Log.d(TAG, "ERROR LOADING COMMENTS: " + e.getMessage());
+				}
 			}
 		});
 	}
 
 	public void loadHighScores() {
-		/*
-		 * this.getActivity().runOnUiThread(new Runnable() {
-		 * 
-		 * public void run() {
-		 * PreGameFragment.this.highscores.clear();
-		 * PreGameFragment.this.highscores.notifyDataSetChanged();
-		 * Log.d(TAG, "loading");
-		 * PicogramHighscore.query(PicogramHighscore.class, new StackMobQuery()
-		 * .isInRange(0, 9)
-		 * .fieldIsOrderedBy("score",
-		 * StackMobQuery.Ordering.DESCENDING)
-		 * .fieldIsEqualTo("puzzleid", PreGameFragment.this.current.getID()),
-		 * new StackMobQueryCallback<PicogramHighscore>() {
-		 * 
-		 * @Override
-		 * public void failure(final StackMobException e) {
-		 * Log.d(TAG, "Fail");
-		 * }
-		 * 
-		 * @Override
-		 * public void success(final List<PicogramHighscore> result) {
-		 * // Add this users score, sort it, then add it all to the list.
-		 * final SQLitePicogramAdapter sql = new SQLitePicogramAdapter(
-		 * PreGameFragment.this.getActivity(), "Picograms", null, 1);
-		 * final PicogramHighscore ph = new PicogramHighscore(Util
-		 * .id(PreGameFragment.this.getActivity()),
-		 * PreGameFragment.this.current.getID(), sql
-		 * .getHighscore(PreGameFragment.this.current.getID()));
-		 * sql.close();
-		 * result.add(ph);
-		 * Collections.sort(result);
-		 * final int loc = result.indexOf(ph);
-		 * Log.d(TAG, "Location of your highscore:  " + loc);
-		 * if (loc != result.size())
-		 * {
-		 * // Save highscore if they're not last.
-		 * // Check if our highscore already exists.
-		 * PicogramHighscore.query(
-		 * PicogramHighscore.class,
-		 * new StackMobQuery().fieldIsEqualTo("puzzleid",
-		 * ph.getPuzzleId()).fieldIsEqualTo("name",
-		 * ph.getName()),
-		 * new StackMobQueryCallback<PicogramHighscore>() {
-		 * 
-		 * @Override
-		 * public void failure(final StackMobException arg0) {
-		 * // TODO Auto-generated method stub
-		 * ph.save();
-		 * for (final PicogramHighscore pc : result)
-		 * {
-		 * PreGameFragment.this.highscores.add(pc);
-		 * PreGameFragment.this.highscores
-		 * .notifyDataSetChanged();
-		 * }
-		 * Log.d(TAG, "Adding to the online thing size "
-		 * + result.size());
-		 * PreGameFragment.this.getActivity()
-		 * .runOnUiThread(new Runnable() {
-		 * 
-		 * public void run() {
-		 * // PreGameFragment.this.lvComments
-		 * // .setAdapter(PreGameFragment.this.highscores);
-		 * PreGameFragment.this.highscores
-		 * .notifyDataSetChanged();
-		 * PreGameFragment.this.lvHighscores
-		 * .invalidate();
-		 * }
-		 * });
-		 * }
-		 * 
-		 * @Override
-		 * public void success(final List arg0) {
-		 * // Already exists, don't save it, but rather remove this fromt he list.
-		 * result.remove(ph);
-		 * for (final PicogramHighscore pc : result)
-		 * {
-		 * PreGameFragment.this.highscores.add(pc);
-		 * PreGameFragment.this.highscores
-		 * .notifyDataSetChanged();
-		 * }
-		 * Log.d(TAG, "Already added. " + result.size());
-		 * PreGameFragment.this.getActivity()
-		 * .runOnUiThread(new Runnable() {
-		 * 
-		 * public void run() {
-		 * // PreGameFragment.this.lvComments
-		 * // .setAdapter(PreGameFragment.this.highscores);
-		 * PreGameFragment.this.highscores
-		 * .notifyDataSetChanged();
-		 * PreGameFragment.this.lvHighscores
-		 * .invalidate();
-		 * }
-		 * });
-		 * }
-		 * 
-		 * });
-		 * ph.save();
-		 * }
-		 * 
-		 * }
-		 * });
-		 * }
-		 * });
-		 */
+		this.highscores.clear();
+		this.highscores.notifyDataSetChanged();
+		final ParseQuery<ParseObject> query = ParseQuery.getQuery("PicogramHighscore");
+		query.whereEqualTo("puzzleId", this.current.getID());
+		query.findInBackground(new FindCallback<ParseObject>() {
+
+			@Override
+			public void done(final List<ParseObject> result, final ParseException e) {
+				if (e == null)
+				{
+					final SQLitePicogramAdapter sql = new SQLitePicogramAdapter(
+							PreGameFragment.this.getActivity(), "Picograms", null, 1);
+
+					final PicogramHighscore mine = new PicogramHighscore(Util
+							.id(PreGameFragment.this.getActivity()),
+							PreGameFragment.this.current.getID(), sql
+							.getHighscore(PreGameFragment.this.current.getID()));
+					sql.close();
+					boolean shouldSave = false;
+					long worstScore = 0;
+					for (final ParseObject po : result)
+					{
+						final PicogramHighscore ph = new PicogramHighscore();
+						ph.setName(po.getString("name"));
+						ph.setScore(po.getLong("score"));
+						ph.setPuzzleId(po.getString("puzzleId"));
+						PreGameFragment.this.highscores.add(ph);
+						PreGameFragment.this.highscores.notifyDataSetChanged();
+						PreGameFragment.this.lvHighscores.invalidate();
+
+						if (worstScore < ph.getScore())
+						{
+							worstScore = ph.getScore();
+						}
+						if (ph.getName().equals(mine.getName()) && ph.getPuzzleId().equals(mine.getPuzzleId())) {
+							shouldSave = true;
+						}
+					}
+					if (PreGameFragment.this.current.getCurrent().equals(PreGameFragment.this.current.getSolution()))
+					{
+						// Only add users if they've beaten it.
+						PreGameFragment.this.highscores.add(mine);
+						PreGameFragment.this.highscores.notifyDataSetChanged();
+
+						// Check if user should have his score uploaded.
+						if (shouldSave && (mine.getScore() < worstScore)) {
+							mine.save();
+						}
+					}
+					PreGameFragment.this.lvHighscores.invalidate();
+				}
+				else
+				{
+					Log.d(TAG, "ERROR LOADING COMMENTS: " + e.getMessage());
+				}
+			}
+		});
 	}
 
 	public void onClick(final View v) {
-		final SQLitePicogramAdapter sql = new SQLitePicogramAdapter(
-				PreGameFragment.this.getActivity(), "Picograms", null, 1);
-		final PicogramHighscore ph = new PicogramHighscore(Util
-				.id(PreGameFragment.this.getActivity()),
-				PreGameFragment.this.current.getID(), sql
-				.getHighscore(PreGameFragment.this.current.getID()));
-		ph.save();
-		sql.close();
 		if (v instanceof Button)
 		{
 			final Button b = (Button) v;
@@ -225,62 +160,18 @@ public class PreGameFragment extends Fragment implements OnClickListener {
 				final PicogramComment pc = new PicogramComment();
 				final EditText etComment = ((EditText) this.getActivity().findViewById(
 						R.id.etComment));
-				pc.setID(this.current.getID() + "" + Util.id(this.getActivity()));
 				pc.setPuzzleId("" + this.current.getID());
 				pc.setAuthor(Util.id(this.getActivity()));
 				pc.setComment(etComment
 						.getText().toString());
-				final String commentToSave = etComment.getText().toString();
 				if (pc.getComment().isEmpty())
 				{
-					Log.d(TAG, "Empty thing.");
 					return;
 				}
-				// Check if a comment has already been made by this user for this puzzle. This will prevent spam somewhat.
-				PicogramComment.query(PicogramComment.class,
-						new StackMobQuery().fieldIsEqualTo("author", pc.getAuthor()),
-						new StackMobQueryCallback<PicogramComment>() {
-
-					@Override
-					public void failure(final StackMobException arg0) {
-						// TODO Offline comment?
-						pc.save();
-						Log.d(TAG, "Saving fail");
-					}
-
-					@Override
-					public void success(final List<PicogramComment> arg0) {
-						if (arg0.size() == 0)
-						{
-							// Create.
-							pc.save();
-							Log.d(TAG, "Saving success");
-						}
-						else
-						{
-							// Update.
-							pc.fetch(new StackMobCallback() {
-
-								@Override
-								public void failure(final StackMobException arg0) {
-									// TODO Auto-generated method stub
-
-								}
-
-								@Override
-								public void success(final String arg0) {
-									pc.setComment(commentToSave);
-									pc.save();
-									Log.d(TAG, "Updating");
-								}
-							});
-
-						}
-						PreGameFragment.this.loadComments();
-					}
-				});
+				pc.save();
+				this.loadComments();
+				// TODO Check if a comment has already been made by this user for this puzzle. This will prevent spam somewhat.
 				etComment.setText(""); // Reset it.
-
 			}
 			else if (b.getText().toString().startsWith("Facebook")) {
 			}
@@ -298,7 +189,7 @@ public class PreGameFragment extends Fragment implements OnClickListener {
 		super.onCreate(savedInstanceState);
 
 		this.position = this.getArguments().getInt(ARG_POSITION);
-		this.comments = new CommentAdapter(this.getActivity(),
+		this.comments = new PicogramCommentAdapter(this.getActivity(),
 				R.id.tvCommentAuthor);
 		this.highscores = new PicogramHighscoreAdapter(this.getActivity(), R.id.tvCommentAuthor);
 	}
@@ -412,7 +303,7 @@ public class PreGameFragment extends Fragment implements OnClickListener {
 		return ll;
 	}
 
-	private void startGame(final GriddlerOne go) {
+	private void startGame(final Picogram go) {
 		FlurryAgent.logEvent("UserPlayGame");
 		final Intent gameIntent = new Intent(this.getActivity(),
 				AdvancedGameActivity.class);
@@ -424,7 +315,7 @@ public class PreGameFragment extends Fragment implements OnClickListener {
 		gameIntent.putExtra("id", go.getID());
 		gameIntent.putExtra("status", go.getStatus());
 		gameIntent.putExtra("colors", go.getColors());
-		this.startActivityForResult(gameIntent,
+		this.getActivity().startActivityForResult(gameIntent,
 				MenuActivity.GAME_CODE);
 	}
 }

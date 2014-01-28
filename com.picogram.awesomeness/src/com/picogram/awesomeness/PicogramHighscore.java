@@ -1,18 +1,16 @@
 package com.picogram.awesomeness;
 
-import com.stackmob.sdk.model.StackMobModel;
+import com.parse.ParseObject;
 
-public class PicogramHighscore extends StackMobModel implements Comparable<PicogramHighscore> {
+public class PicogramHighscore implements Comparable<PicogramHighscore> {
 	private String name, puzzleId;
 	private long score;
 
 	PicogramHighscore() {
-		super(PicogramHighscore.class);
 	}
 
 	PicogramHighscore(final String name, final String puzzleId, final long l)
 	{
-		super(PicogramHighscore.class);
 		this.name = name;
 		this.puzzleId = puzzleId;
 		this.score = l;
@@ -33,6 +31,14 @@ public class PicogramHighscore extends StackMobModel implements Comparable<Picog
 
 	long getScore() {
 		return this.score;
+	}
+
+	public void save() {
+		final ParseObject po = new ParseObject("PicogramHighscore");
+		po.put("puzzleId", this.puzzleId);
+		po.put("score", this.score);
+		po.put("name", this.name);
+		po.saveEventually();
 	}
 
 	void setName(final String name) {

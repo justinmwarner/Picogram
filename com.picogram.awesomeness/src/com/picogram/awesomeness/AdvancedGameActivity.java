@@ -2,9 +2,11 @@
 package com.picogram.awesomeness;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.BitmapFactory;
@@ -26,20 +28,18 @@ import android.view.Window;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.RatingBar;
-import android.widget.RatingBar.OnRatingBarChangeListener;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
 
 import com.flurry.android.FlurryAgent;
+import com.parse.ParseException;
+import com.parse.ParseObject;
+import com.parse.ParseQuery;
 import com.picogram.awesomeness.DialogMaker.OnDialogResultListener;
 import com.picogram.awesomeness.TouchImageView.HistoryListener;
 import com.picogram.awesomeness.TouchImageView.WinnerListener;
-import com.stackmob.sdk.callback.StackMobCallback;
-import com.stackmob.sdk.callback.StackMobModelCallback;
-import com.stackmob.sdk.exception.StackMobException;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -83,14 +83,11 @@ OnSeekBarChangeListener {
 
 	ArrayList<ImageView> ivs = new ArrayList<ImageView>();
 
-	String puzzleId;
-
 	boolean isDialogueShowing = false;
 
 	private final BroadcastReceiver mBatInfoReceiver = new BroadcastReceiver() {
 		@Override
 		public void onReceive(final Context arg0, final Intent intent) {
-			// TODO Auto-generated method stub
 			// this will give you battery current status
 			final ImageView ivBattery = (ImageView) AdvancedGameActivity.this
 					.findViewById(R.id.ivBattery);
@@ -166,7 +163,7 @@ OnSeekBarChangeListener {
 
 	SeekBar sbHistory;
 
-	long score;
+	long score, startTime;
 
 	private void doFacebookStuff() {
 	}
@@ -335,7 +332,6 @@ OnSeekBarChangeListener {
 		this.tiv.setWinListener(this);
 		this.tiv.setPicogramInfo(this.getIntent().getExtras());
 
-		this.puzzleId = this.getIntent().getExtras().getString("id");
 		FlurryAgent.logEvent("UserPlayingGame");
 		// Create colors for pallet.
 		this.strColors = this.getIntent().getExtras().getString("colors").split(",");
@@ -383,31 +379,6 @@ OnSeekBarChangeListener {
 
 		// TODO Check for multiple solutions. If they exist tell the user as a
 		// heads up.
-
-		// High score stuff.
-		if (Util.getPreferences(this).contains("highscore-" + this.puzzleId))
-		{
-			if (this.getIntent().getExtras().getString("status").equals("1"))
-			{
-				// Make it negative if we've beaten this already and don't want to add more to their time.
-				Util.getPreferences(this)
-				.edit()
-				.putLong("highscore-" + this.puzzleId,
-						-1
-						* Util.getPreferences(this).getLong(
-								"highscore-" + this.puzzleId, 0)).commit();
-			}
-			// If it exists, just subtract what we've already done.
-			Util.getPreferences(this).edit()
-			.putLong(
-					"highscore-" + this.puzzleId,
-					System.currentTimeMillis()
-					- Util.getPreferences(this).getLong(
-							"highscore-" + this.puzzleId, 0)).commit();
-		} else {
-			Util.getPreferences(this).edit()
-			.putLong("highscore-" + this.puzzleId, System.currentTimeMillis()).commit();
-		}
 	}
 
 	@Override
@@ -426,16 +397,16 @@ OnSeekBarChangeListener {
 		if (!this.continueMusic) {
 			MusicManager.pause();
 		}
-
 		// Highscore management.
-		final long newScore = Util.getPreferences(this).getLong("highscore-" + this.puzzleId, 0)
-				+ (System.currentTimeMillis() - this.score);
-		if (newScore >= 0)
+		Log.d(TAG, "Old score:" + this.score);
+		Log.d(TAG, "StartTime score: " + this.startTime);
+		if (this.score >= 0)
 		{
-			// We've not won the game.
-			Util.getPreferences(this).edit().putLong("" + this.puzzleId, newScore).commit();
-			// Save this score in the database.
-			sql.updateScore(this.puzzleId, newScore);
+			// If the score isn't negative, we want to add update the score in the preferences
+			// and to the SQL database.
+			final long newScore = this.score + (System.currentTimeMillis() - this.startTime);
+			Log.d(TAG, "NewScore score: " + newScore);
+			sql.updateScore(this.tiv.gId, newScore);
 		}
 		sql.close();
 	}
@@ -460,7 +431,7 @@ OnSeekBarChangeListener {
 		this.tiv.history = savedInstanceState.getStringArrayList("history");
 		this.sbHistory.setMax(savedInstanceState.getInt("sbMax"));
 		this.sbHistory.setProgress(savedInstanceState.getInt("sbProgress"));
-		this.score = savedInstanceState.getLong("score");
+		this.startTime = savedInstanceState.getLong("startTime");
 		this.tiv.bitmapFromCurrent();
 	}
 
@@ -472,7 +443,16 @@ OnSeekBarChangeListener {
 				"Picograms", null, 1);
 		this.continueMusic = false;
 		MusicManager.start(this);
-		this.score = System.currentTimeMillis();
+		// Score stuff. Get the previous score, if the status is "done", make it negative.
+		// Else, keep the time going like normal until we're onPause.
+		if (this.tiv.gSolution.equals(this.tiv.gCurrent))
+		{
+			this.score = -1 * sql.getHighscore(this.tiv.gId);
+		} else {
+			this.startTime = System.currentTimeMillis();
+			this.score = sql.getHighscore(this.tiv.gId);
+		}
+		Log.d(TAG, "SavedScore score: " + this.score);
 	}
 
 	@Override
@@ -484,7 +464,7 @@ OnSeekBarChangeListener {
 		outState.putStringArrayList("history", this.tiv.history);
 		outState.putInt("sbMax", this.sbHistory.getMax());
 		outState.putInt("sbProgress", this.sbHistory.getProgress());
-		outState.putLong("score", this.score);
+		outState.putLong("startTime", this.startTime);
 	}
 
 	public void onStartTrackingTouch(final SeekBar seekBar) {
@@ -526,94 +506,48 @@ OnSeekBarChangeListener {
 	}
 
 	public void win() {
-		Log.d(TAG, "REturn 5");
-		final Dialog dialog = new Dialog(AdvancedGameActivity.this);
-		dialog.setContentView(R.layout.dialog_ranking);
-		dialog.setTitle("Rate this Picogram");
-		dialog.setCancelable(false);
-		final Activity a = this;
-
-		final RatingBar rb = (RatingBar) dialog.findViewById(R.id.rbRate);
-		rb.setOnRatingBarChangeListener(new OnRatingBarChangeListener() {
-
-			public void onRatingChanged(final RatingBar ratingBar,
-					final float rating, final boolean fromUser) {
-				if (fromUser) {
-					Log.d(TAG, "REturn 6");
-					final GriddlerOne g = new GriddlerOne();
-					g.setID(AdvancedGameActivity.this.puzzleId);
-					g.fetch(new StackMobModelCallback() {
-
-						@Override
-						public void failure(final StackMobException arg0) {
-							// If rating failed, do it next time we can, so add
-							// to database.
-							Log.d(TAG, "REturn 1");
-							final SQLiteRatingAdapter sorh = new SQLiteRatingAdapter(
-									a.getApplicationContext(), "Rating", null,
-									2);
-							sorh.updateRankDialogFail(g.getID(), (int) rating);
-							sorh.close();
-							AdvancedGameActivity.this.returnIntent(dialog);
-						}
-
-						@Override
-						public void success() {
-							Log.d(TAG, "REturn 4");
-							final double oldRating = Double.parseDouble(g.getRating())
-									* g.getNumberOfRatings();
-							final double newRating = (oldRating + rating)
-									/ (g.getNumberOfRatings() + 1);
-							g.setRating(newRating + "");
-							g.setNumberOfRatings(g.getNumberOfRatings() + 1);
-							// TODO: If save fails, let us do it next time app
-							// is online.
-							g.save(new StackMobCallback() {
-
-								@Override
-								public void failure(final StackMobException arg0) {
-									// Save the rating in the rating table, but
-									// we failed, so add it as a no rating yet,
-									// then a future rating.
-									final SQLiteRatingAdapter sorh = new SQLiteRatingAdapter(
-											a.getApplicationContext(),
-											"Rating", null, 2);
-									sorh.updateRankDialogFail(g.getID(),
-											(int) rating);
-									sorh.close();
-									Log.d(TAG, "REturn 2");
-									AdvancedGameActivity.this
-									.returnIntent(dialog);
-								}
-
-								@Override
-								public void success(final String arg0) {
-									// Save the rating in the rating table.
-									// If successful, we want to just add the
-									// past rating and 0 for future.
-									final SQLiteRatingAdapter sorh = new SQLiteRatingAdapter(
-											a.getApplicationContext(),
-											"Rating", null, 2);
-									sorh.updateRankDialogSuccess(g.getID(),
-											(int) rating);
-									sorh.close();
-									Log.d(TAG, "REturn 3");
-									AdvancedGameActivity.this
-									.returnIntent(dialog);
-								}
-							});
-
-						}
-
-					});
+		final ParseQuery<ParseObject> query = ParseQuery.getQuery("Picogram");
+		query.whereEqualTo("puzzleId", this.tiv.gId);
+		try {
+			final ParseObject po = query.getFirst();
+			final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+			builder
+			.setTitle("Rate " + this.tiv.gName)
+			.setMessage("Give " + this.tiv.gName + " a snowflake =] or frown =[ ?")
+			.setIcon(android.R.drawable.ic_dialog_alert)
+			.setPositiveButton("Snowflake", new DialogInterface.OnClickListener() {
+				public void onClick(final DialogInterface dialog, final int which) {
+					try {
+						po.increment("rate", 1);
+						po.save();
+					} catch (final ParseException e) {
+						Log.d(TAG, "Error with submitting score:  " + e.getMessage());
+						e.printStackTrace();
+					}
+					AdvancedGameActivity.this.returnIntent(null);
 				}
+			})
+			.setNegativeButton("Frown", new DialogInterface.OnClickListener() {
+				public void onClick(final DialogInterface dialog, final int which) {
+					try {
+						po.increment("rate", -1);
+						po.save();
+					} catch (final ParseException e) {
+						Log.d(TAG, "Error with submitting score:  " + e.getMessage());
+						e.printStackTrace();
+					}
+					AdvancedGameActivity.this.returnIntent(null);
+				}
+			});
 
+			if (!this.isDialogueShowing) {
+				builder.show();
+				this.isDialogueShowing = !this.isDialogueShowing;
 			}
-		});
-		if (!this.isDialogueShowing) {
-			dialog.show();
-			this.isDialogueShowing = !this.isDialogueShowing;
+		} catch (final ParseException e) {
+			Log.d(TAG, "Error with submitting score:  " + e.getMessage());
+			e.printStackTrace();
+			this.returnIntent(null);
 		}
 	}
-
 }

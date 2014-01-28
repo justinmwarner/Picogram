@@ -2,6 +2,7 @@
 package com.picogram.awesomeness;
 
 import android.os.Bundle;
+import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
@@ -15,8 +16,6 @@ import android.view.Menu;
 import android.widget.ImageView;
 
 import com.astuetz.viewpager.extensions.PagerSlidingTabStrip;
-import com.flurry.android.FlurryAgent;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -62,7 +61,27 @@ public class PicogramPreGame extends FragmentActivity implements OnPageChangeLis
 	String name, solution, current, id;
 	int width, height;
 	String[] colors;
-	GriddlerOne puzzle = new GriddlerOne();
+	Picogram puzzle = new Picogram();
+
+	@Override
+	protected void onActivityResult(final int requestCode,
+			final int resultCode, final Intent data) {
+		final SQLitePicogramAdapter sql = new SQLitePicogramAdapter(this, "Picograms", null, 1);
+		if ((resultCode == Activity.RESULT_OK)
+				&& (requestCode == MenuActivity.GAME_CODE)) {
+			// Back button pushed or won.
+			final String id = data.getStringExtra("ID");
+			final String status = data.getStringExtra("status");
+			final String current = data.getStringExtra("current");
+			sql.updateCurrentPicogram(id, status, current);
+			this.current = current;
+			this.updateImageView();
+			final Picogram updatedPicogram = this.adapter.frag[0].current;
+			updatedPicogram.setCurrent(current);
+			this.adapter.frag[0].current = updatedPicogram;
+		}
+		sql.close();
+	}
 
 	@Override
 	protected void onCreate(final Bundle savedInstanceState) {
@@ -99,34 +118,7 @@ public class PicogramPreGame extends FragmentActivity implements OnPageChangeLis
 		this.tabs.setOnPageChangeListener(this);
 
 		// Draw the ImageView with current.
-		final ImageView iv = (ImageView) this.findViewById(R.id.ivPreGame);
-		final int pix[] = new int[this.width * this.height];
-		final Bitmap bm = Bitmap.createBitmap(this.width, this.height, Config.ARGB_4444);
-		bm.getPixels(pix, 0, this.width, 0, 0, this.width, this.height);
-		int run = 0;
-		for (int i = 0; i != this.width; ++i)
-		{
-			for (int j = 0; j != this.height; ++j)
-			{
-				int col, colNumber;
-				if (this.current.charAt(run) != 'x')
-				{
-					colNumber = Integer.parseInt("" + this.current.charAt(run));
-					col = Integer.parseInt(this.colors[colNumber]);
-
-				}
-				else {
-					col = Integer.parseInt(this.colors[0]);
-				}
-
-				pix[(i * this.width) + j] = col;
-				run++;
-			}
-		}
-		iv.setImageBitmap(Bitmap.createScaledBitmap(Bitmap
-				.createBitmap(pix, this.width, this.height, Bitmap.Config.ARGB_4444),
-				this.width * 10,
-				this.height * 10, false));
+		this.updateImageView();
 	}
 
 	@Override
@@ -157,21 +149,35 @@ public class PicogramPreGame extends FragmentActivity implements OnPageChangeLis
 		}
 	}
 
-	private void startGame(final GriddlerOne go) {
-		FlurryAgent.logEvent("UserPlayGame");
-		// Intent gameIntent = new Intent(this, AdvancedGameActivity.class);
-		final Intent gameIntent = new Intent(this,
-				AdvancedGameActivity.class);
-		gameIntent.putExtra("name", go.getName());
-		gameIntent.putExtra("solution", go.getSolution());
-		gameIntent.putExtra("current", go.getCurrent());
-		gameIntent.putExtra("width", go.getWidth());
-		gameIntent.putExtra("height", go.getHeight());
-		gameIntent.putExtra("id", go.getID());
-		gameIntent.putExtra("colors", go.getColors());
-		gameIntent.putExtra("status", go.getStatus());
-		this.startActivityForResult(gameIntent,
-				MenuActivity.GAME_CODE);
+	private void updateImageView() {
+		final ImageView iv = (ImageView) this.findViewById(R.id.ivPreGame);
+		final int pix[] = new int[this.width * this.height];
+		final Bitmap bm = Bitmap.createBitmap(this.width, this.height, Config.ARGB_4444);
+		bm.getPixels(pix, 0, this.width, 0, 0, this.width, this.height);
+		int run = 0;
+		for (int i = 0; i != this.width; ++i)
+		{
+			for (int j = 0; j != this.height; ++j)
+			{
+				int col, colNumber;
+				if (this.current.charAt(run) != 'x')
+				{
+					colNumber = Integer.parseInt("" + this.current.charAt(run));
+					col = Integer.parseInt(this.colors[colNumber]);
+
+				}
+				else {
+					col = Integer.parseInt(this.colors[0]);
+				}
+				pix[run] = col;
+				// pix[(i * this.width) + j] = col;
+				run++;
+			}
+		}
+		iv.setImageBitmap(Bitmap.createScaledBitmap(Bitmap
+				.createBitmap(pix, this.width, this.height, Bitmap.Config.ARGB_4444),
+				this.width * 10,
+				this.height * 10, false));
 	}
 
 }
