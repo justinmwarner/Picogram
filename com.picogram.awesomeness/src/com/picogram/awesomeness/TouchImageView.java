@@ -3,8 +3,6 @@ package com.picogram.awesomeness;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.BitmapShader;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
@@ -13,11 +11,8 @@ import android.graphics.Paint.Align;
 import android.graphics.PointF;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
-import android.graphics.Shader;
-import android.graphics.Shader.TileMode;
 import android.graphics.Typeface;
 import android.graphics.Xfermode;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
@@ -122,11 +117,11 @@ OnDoubleTapListener {
 	Canvas canvasBitmap;
 	Paint paintBitmap;
 	int gridlinesColor;
-	ArrayList<String> history = new ArrayList();
+	ArrayList<String> history = new ArrayList<String>();
 	// Picogram specifics.
-	String gCurrent, gSolution, gName;
+	String gCurrent, gSolution, gName, gId;
 
-	int gWidth, gHeight, gId, lTop, lSide, cellWidth, cellHeight;
+	int gWidth, gHeight, lTop, lSide, cellWidth, cellHeight;
 
 	int[] gColors;
 
@@ -198,8 +193,8 @@ OnDoubleTapListener {
 	boolean didPreviousSwitcher = false;
 	boolean didSwitch = false; // If we're switching a color to an X so it
 	// doesn't switch back on the MOVE/UP
-	ArrayList<Integer> topColors = new ArrayList();
-	ArrayList<Integer> sideColors = new ArrayList();
+	ArrayList<Integer> topColors = new ArrayList<Integer>();
+	ArrayList<Integer> sideColors = new ArrayList<Integer>();
 	String oldCurrent = "";
 
 	public boolean isRefreshing = false;
@@ -301,30 +296,6 @@ OnDoubleTapListener {
 		this.bitmapFromCurrent();
 	}
 
-	// Site
-	// http://stackoverflow.com/questions/8629202/fast-conversion-from-one-dimensional-array-to-two-dimensional-in-java
-	private char[][] convertOneDimensionalToTwoDimensional(
-			final int numberOfRows, final int rowSize, final char[] srcMatrix) {
-
-		final int srcMatrixLength = srcMatrix.length;
-		int srcPosition = 0;
-
-		final char[][] returnMatrix = new char[numberOfRows][];
-		for (int i = 0; i < numberOfRows; i++) {
-			final char[] row = new char[rowSize];
-			final int nextSrcPosition = srcPosition + rowSize;
-			if (srcMatrixLength >= nextSrcPosition) {
-				// Copy the data from the file if it has been written before.
-				// Otherwise we just keep row empty.
-				System.arraycopy(srcMatrix, srcPosition, row, 0, rowSize);
-			}
-			returnMatrix[i] = row;
-			srcPosition = nextSrcPosition;
-		}
-		return returnMatrix;
-
-	}
-
 	/**
 	 * http://stackoverflow.com/questions/12166476/android-canvas-drawtext-set-
 	 * font-size-from-width Retrieve the maximum text size to fit in a given
@@ -399,9 +370,7 @@ OnDoubleTapListener {
 					heightOffset * (this.longestTop + row), widthOffset
 					* (this.longestSide + column + 1), heightOffset
 					* (this.longestTop + row + 1));
-			// INFO: This is where we draw the board.
 
-			// if (oldCurrent.charAt(i) != gCurrent.charAt(i)) {
 			final Xfermode old = this.paintBitmap.getXfermode();
 			if (this.gCurrent.charAt(i) == 'x') {
 				// We have an x.
@@ -576,22 +545,6 @@ OnDoubleTapListener {
 	}
 
 	private void drawOnCanvas() {
-		if (false) {
-			BitmapDrawable background;
-			background = new BitmapDrawable(BitmapFactory.decodeResource(
-					this.getResources(), R.drawable.light_grid));
-
-			// in this case, you want to tile the entire view
-			background.setBounds(0, 0, this.canvasBitmap.getWidth(),
-					this.canvasBitmap.getHeight());
-
-			background.setTileModeXY(Shader.TileMode.REPEAT,
-					Shader.TileMode.REPEAT);
-			background.draw(this.canvasBitmap);
-			// paintBitmap.setColor(Color.WHITE);
-			this.drawWhiteCanvas();
-		}
-
 		// Draw game surface.
 		this.drawGame();
 
@@ -651,20 +604,6 @@ OnDoubleTapListener {
 		}
 	}
 
-	private void drawWhiteCanvas() {
-		final Bitmap draw = BitmapFactory.decodeResource(this.getResources(),
-				R.drawable.light_grid);
-		final Shader old = this.paintBitmap.getShader();
-		this.paintBitmap.setShader(new BitmapShader(draw, TileMode.REPEAT,
-				TileMode.REPEAT));
-		this.paintBitmap.setColor(this.getResources().getColor(
-				R.color.background));
-		this.paintBitmap.setColor(Color.TRANSPARENT);
-		this.canvasBitmap.drawRect(0, 0, this.canvasBitmap.getWidth(),
-				this.canvasBitmap.getHeight(), this.paintBitmap);
-		this.paintBitmap.setShader(old);
-	}
-
 	void fixTrans() {
 		this.matrix.getValues(this.m);
 		final float transX = this.m[Matrix.MTRANS_X];
@@ -682,8 +621,8 @@ OnDoubleTapListener {
 
 	private ArrayList<Integer> getColors(final ArrayList<String> segments,
 			final boolean isTop) {
-		final ArrayList<Integer> result = new ArrayList();
-		final ArrayList<char[]> chars = new ArrayList();
+		final ArrayList<Integer> result = new ArrayList<Integer>();
+		final ArrayList<char[]> chars = new ArrayList<char[]>();
 		for (final String segment : segments) {
 			if (segment.matches("[0]+")) {
 				chars.add(new char[] {
@@ -777,18 +716,6 @@ OnDoubleTapListener {
 			}
 		}
 		return longest;
-	}
-
-	private int[] getPixelArrayFromString(final String from, final int length) {
-		final int[] colors = new int[length];
-		for (int i = 0; i != colors.length; ++i) {
-			if (from.charAt(i) == '0') {
-				colors[i] = Color.WHITE;
-			} else {
-				colors[i] = Color.BLACK;
-			}
-		}
-		return colors;
 	}
 
 	private int[] getRGB(final int i) {
@@ -893,7 +820,7 @@ OnDoubleTapListener {
 
 	public boolean onDoubleTap(final MotionEvent e) {
 		final Vibrator v = (Vibrator) this.context
-				.getSystemService(this.context.VIBRATOR_SERVICE);
+				.getSystemService(Context.VIBRATOR_SERVICE);
 		v.vibrate(100);
 		((View) this.getParent()).findViewById(R.id.ibTools).performClick();
 		return true;
@@ -973,7 +900,7 @@ OnDoubleTapListener {
 
 	public void onLongPress(final MotionEvent e) {
 		final Vibrator v = (Vibrator) this.context
-				.getSystemService(this.context.VIBRATOR_SERVICE);
+				.getSystemService(Context.VIBRATOR_SERVICE);
 		v.vibrate(100);
 		((View) this.getParent()).findViewById(R.id.ibTools).performClick();
 	}
@@ -1142,32 +1069,6 @@ OnDoubleTapListener {
 		return noDupes.toString();
 	}
 
-	// Just add on fluff area for the hints on the top and on the side.
-	private int[] resizeBitMapsForHints(final int[] colors,
-			final int longestTop, final int longestSide) {
-		final int result[] = new int[(longestTop * (longestSide + this.gWidth))
-		                             + colors.length + (this.gHeight * longestSide)];
-		int runner;
-		// Fill up the top with blank white.
-		for (runner = 0; runner != (longestTop * (longestSide + this.gWidth)); ++runner) {
-			result[runner] = Color.WHITE;
-		}
-		// Fill side hints with white, and the image with what was in it
-		// previously.
-		int colorRunner = 0; // Used to run through original colors.
-		for (int i = 0; i != this.gHeight; ++i) {
-			// Draw side for hints.
-			for (int j = 0; j != longestSide; ++j) {
-				result[runner++] = Color.WHITE;
-			}
-			// Add in the array/picture.
-			for (int j = 0; j != this.gWidth; ++j) {
-				result[runner++] = colors[colorRunner++];
-			}
-		}
-		return result;
-	}
-
 	public void setHistoryListener(final HistoryListener hl) {
 		this.historyListener = hl;
 	}
@@ -1187,8 +1088,8 @@ OnDoubleTapListener {
 				"0"));
 
 		this.gSolution = savedInstanceState.getString("solution");
-		this.gId = Integer.parseInt(savedInstanceState.getString("id",
-				this.gSolution + ""));
+		this.gId = savedInstanceState.getString("id",
+				this.gSolution + "");
 		final String[] cols = savedInstanceState.getString("colors").split(",");
 		this.gColors = new int[cols.length];
 

@@ -2,6 +2,7 @@
 package com.picogram.awesomeness;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,17 +12,17 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
-public class CommentAdapter extends ArrayAdapter<PicogramComment> {
+public class PicogramCommentAdapter extends ArrayAdapter<PicogramComment> {
 	private static final String TAG = "CommentAdapter";
 	private Context context;
 	ArrayList<PicogramComment> comments = new ArrayList<PicogramComment>();
 
-	public CommentAdapter(final Context context, final int resource) {
+	public PicogramCommentAdapter(final Context context, final int resource) {
 		super(context, resource);
 		this.context = context;
 	}
 
-	public CommentAdapter(final Context context, final int resource,
+	public PicogramCommentAdapter(final Context context, final int resource,
 			final ArrayList<PicogramComment> objects) {
 		super(context, resource, objects);
 		this.context = context;
@@ -67,6 +68,11 @@ public class CommentAdapter extends ArrayAdapter<PicogramComment> {
 		final TextView tvPicogramComment = (TextView) item.findViewById(R.id.tvComment);
 		tvAuthor.setText(comment.getAuthor());
 		tvPicogramComment.setText(comment.getComment());
+		if (Util.id(this.context) == comment.getAuthor())
+		{
+			// This is the person, so change background.
+			item.setBackgroundColor(Color.YELLOW);
+		}
 		item.invalidate();
 		return item;
 	}
