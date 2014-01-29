@@ -12,6 +12,7 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.util.TypedValue;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,6 +22,7 @@ import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.FrameLayout;
 import android.widget.FrameLayout.LayoutParams;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.flurry.android.FlurryAgent;
 import com.parse.FindCallback;
@@ -608,6 +610,8 @@ OnItemClickListener, OnItemLongClickListener {
 	@Override
 	public View onCreateView(final LayoutInflater inflater,
 			final ViewGroup container, final Bundle savedInstanceState) {
+		this.myAdapter = new PicogramListAdapter(this.getActivity(),
+				R.id.tvName);
 
 		final LayoutParams params = new LayoutParams(
 				android.view.ViewGroup.LayoutParams.MATCH_PARENT,
@@ -619,15 +623,25 @@ OnItemClickListener, OnItemLongClickListener {
 		final int margin = (int) TypedValue.applyDimension(
 				TypedValue.COMPLEX_UNIT_DIP, 8, this.getResources()
 				.getDisplayMetrics());
+		if (!Util.isOnline() && (this.position != 0))
+		{
+			final TextView v = new TextView(this.getActivity());
+			params.setMargins(margin, margin, margin, margin);
+			v.setLayoutParams(params);
+			v.setLayoutParams(params);
+			v.setGravity(Gravity.CENTER);
+			v.setBackgroundResource(R.drawable.background_card);
+			v.setText("You're currently offline, and this functionality is online only.  We apologize.\nIf you think this is a mistake, please email us.");
+
+			fl.addView(v);
+			return fl;
+		}
 
 		final ListView v = new ListView(this.getActivity());
 		params.setMargins(margin, margin, margin, margin);
 		v.setLayoutParams(params);
 		v.setLayoutParams(params);
 		v.setBackgroundResource(R.drawable.background_card);
-		// final List<String> items = new ArrayList();
-		this.myAdapter = new PicogramListAdapter(this.getActivity(),
-				R.id.tvName);
 		if (this.position == MenuActivity.TITLES.indexOf("My")) {
 			this.getMyPuzzles(this.getActivity());
 		} else if (this.position == MenuActivity.TITLES.indexOf("Top")) {
@@ -739,6 +753,7 @@ OnItemClickListener, OnItemLongClickListener {
 
 	public boolean onItemLongClick(final AdapterView<?> arg0, final View arg1,
 			final int position, final long arg3) {
+
 		if (!this.myAdapter.get(0).getName().contains("Create")) {
 			// We only want long click support on My tab.
 			return false;

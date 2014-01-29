@@ -296,69 +296,67 @@ OnRMMUserChoiceListener, ActionBar.OnNavigationListener {
 		// TODO Auto-generated method stub
 	}
 
-	public void onPageSelected(final int tab) {
-		// Handle bottom toolbar changes.
-		if ((tab != TITLES.indexOf("My")) && !Util.isOnline()) {
-			Crouton.makeText(this, "You can't use these offline!", Style.ALERT)
-			.show();
-			return;
-		}
+	public void onPageSelected(final int tab) {// Handle bottom toolbar changes.
 		if (tab == TITLES.indexOf("Prefs")) {
 			final Intent i = new Intent(this, SettingsActivity.class);
 			this.startActivityForResult(i, PREFERENCES_CODE);
-		} else if (tab == TITLES.indexOf("Search")) {
-			if (this.toolbar.getVisibility() == View.GONE) {
-				this.toolbar.setVisibility(View.VISIBLE);
-			}
-			final RelativeLayout.LayoutParams paramsButton = new RelativeLayout.LayoutParams(
-					LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-			paramsButton.addRule(RelativeLayout.ALIGN_PARENT_RIGHT,
-					RelativeLayout.TRUE);
-
-			final RelativeLayout rl = new RelativeLayout(this);
-			// Search, get rid of ad, and replace with search stuff.
-			this.bSearch = new Button(this);
-			this.bSearch.setText("Search");
-			this.bSearch.setOnClickListener(this);
-			final RelativeLayout.LayoutParams paramsEditText = new RelativeLayout.LayoutParams(
-					LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
-			paramsEditText.addRule(RelativeLayout.ALIGN_PARENT_LEFT,
-					RelativeLayout.TRUE);
-			paramsEditText
-			.addRule(RelativeLayout.LEFT_OF, this.bSearch.getId());
-			this.etTags = new EditText(this);
-			this.etTags.setOnEditorActionListener(new OnEditorActionListener() {
-
-				public boolean onEditorAction(final TextView v,
-						final int actionId, final KeyEvent event) {
-					if ((actionId == EditorInfo.IME_NULL)
-							&& (event.getAction() == KeyEvent.ACTION_DOWN)) {
-						return MenuActivity.this.bSearch.performClick();
-					}
-
-					return false;
+		}
+		if (Util.isOnline())
+		{
+			if (tab == TITLES.indexOf("Search")) {
+				if (this.toolbar.getVisibility() == View.GONE) {
+					this.toolbar.setVisibility(View.VISIBLE);
 				}
-			});
-			this.etTags.setHint("Tags...");
-			rl.addView(this.etTags, paramsEditText);
-			rl.addView(this.bSearch, paramsButton);
-			this.toolbar.removeAllViews();
-			this.toolbar.addView(rl);
-			// Show keyboard
-			this.etTags.requestFocus();
-			final InputMethodManager imm = (InputMethodManager) this.getSystemService(Context.INPUT_METHOD_SERVICE);
-			imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
-		} else {
-			this.updateBottomBar();
+				final RelativeLayout.LayoutParams paramsButton = new RelativeLayout.LayoutParams(
+						LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+				paramsButton.addRule(RelativeLayout.ALIGN_PARENT_RIGHT,
+						RelativeLayout.TRUE);
+
+				final RelativeLayout rl = new RelativeLayout(this);
+				// Search, get rid of ad, and replace with search stuff.
+				this.bSearch = new Button(this);
+				this.bSearch.setText("Search");
+				this.bSearch.setOnClickListener(this);
+				final RelativeLayout.LayoutParams paramsEditText = new RelativeLayout.LayoutParams(
+						LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
+				paramsEditText.addRule(RelativeLayout.ALIGN_PARENT_LEFT,
+						RelativeLayout.TRUE);
+				paramsEditText
+				.addRule(RelativeLayout.LEFT_OF, this.bSearch.getId());
+				this.etTags = new EditText(this);
+				this.etTags.setOnEditorActionListener(new OnEditorActionListener() {
+
+					public boolean onEditorAction(final TextView v,
+							final int actionId, final KeyEvent event) {
+						if ((actionId == EditorInfo.IME_NULL)
+								&& (event.getAction() == KeyEvent.ACTION_DOWN)) {
+							return MenuActivity.this.bSearch.performClick();
+						}
+
+						return false;
+					}
+				});
+				this.etTags.setHint("Tags...");
+				rl.addView(this.etTags, paramsEditText);
+				rl.addView(this.bSearch, paramsButton);
+				this.toolbar.removeAllViews();
+				this.toolbar.addView(rl);
+				// Show keyboard
+				this.etTags.requestFocus();
+				final InputMethodManager imm = (InputMethodManager) this.getSystemService(Context.INPUT_METHOD_SERVICE);
+				imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
+			} else {
+				this.updateBottomBar();
+			}
+			this.currentTab = tab;
+			this.updateCurrentTab();
+			if (tab != TITLES.indexOf("Search")) {// Hide keyboard
+				final InputMethodManager imm = (InputMethodManager) this.getSystemService(Context.INPUT_METHOD_SERVICE);
+				imm.hideSoftInputFromWindow(this.findViewById(android.R.id.content)
+						.getWindowToken(), 0);
+			}
+			this.updateActionBar(tab);
 		}
-		this.currentTab = tab;
-		this.updateCurrentTab();
-		if (tab != TITLES.indexOf("Search")) {// Hide keyboard
-			final InputMethodManager imm = (InputMethodManager) this.getSystemService(Context.INPUT_METHOD_SERVICE);
-			imm.hideSoftInputFromWindow(this.findViewById(android.R.id.content)
-					.getWindowToken(), 0);
-		}
-		this.updateActionBar(tab);
 	}
 
 	@Override

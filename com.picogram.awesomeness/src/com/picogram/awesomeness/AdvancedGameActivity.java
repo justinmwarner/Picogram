@@ -391,6 +391,7 @@ OnSeekBarChangeListener {
 	@Override
 	public void onPause() {
 		super.onPause();
+		this.unregisterReceiver(this.mBatInfoReceiver);
 		sql.updateCurrentPicogram(this.tiv.gSolution.hashCode() + "", "0",
 				this.tiv.gCurrent);
 

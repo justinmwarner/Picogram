@@ -13,6 +13,7 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
 import android.widget.ListView;
@@ -69,9 +70,22 @@ public class PreGameFragment extends Fragment implements OnClickListener {
 						PreGameFragment.this.comments.notifyDataSetChanged();
 						PreGameFragment.this.lvComments.invalidate();
 					}
+					if (PreGameFragment.this.comments.getCount() == 0)
+					{
+						final PicogramComment temp = new PicogramComment();
+						temp.setComment("No one has commented yet.");
+						PreGameFragment.this.comments.add(temp);
+						PreGameFragment.this.comments.notifyDataSetChanged();
+						PreGameFragment.this.lvComments.invalidate();
+					}
 				}
 				else
 				{
+					final PicogramComment temp = new PicogramComment();
+					temp.setComment("Sorry, we had an error loading fromt he interwebs.");
+					PreGameFragment.this.comments.add(temp);
+					PreGameFragment.this.comments.notifyDataSetChanged();
+					PreGameFragment.this.lvComments.invalidate();
 					Log.d(TAG, "ERROR LOADING COMMENTS: " + e.getMessage());
 				}
 			}
@@ -97,41 +111,62 @@ public class PreGameFragment extends Fragment implements OnClickListener {
 							PreGameFragment.this.current.getID(), sql
 							.getHighscore(PreGameFragment.this.current.getID()));
 					sql.close();
-					boolean shouldSave = false;
-					long worstScore = 0;
+					boolean shouldSave = true;
+					long worstScore = Long.MAX_VALUE;
 					for (final ParseObject po : result)
 					{
 						final PicogramHighscore ph = new PicogramHighscore();
 						ph.setName(po.getString("name"));
 						ph.setScore(po.getLong("score"));
 						ph.setPuzzleId(po.getString("puzzleId"));
+						if (!PreGameFragment.this.highscores.doesHighscoreExist(ph.getName(), ph.getScore()))
+						{
+							PreGameFragment.this.highscores.add(ph);
+							PreGameFragment.this.highscores.notifyDataSetChanged();
+							PreGameFragment.this.lvHighscores.invalidate();
+							if (worstScore < ph.getScore())
+							{
+								worstScore = ph.getScore();
+							}
+							if (ph.getName().equals(mine.getName()) && ph.getPuzzleId().equals(mine.getPuzzleId())) {
+								shouldSave = false;
+							}
+						}
+					}
+					Log.d(TAG, "ph ShouldSave :  " + shouldSave + " Score: " + mine.getScore() + " Worst: " + worstScore + " Extra: " + (mine.getScore() < worstScore));
+
+					if (PreGameFragment.this.current.getCurrent().replaceAll("x", "0").equals(PreGameFragment.this.current.getSolution()))
+					{
+						// Only add users if they've beaten it.
+						if (!PreGameFragment.this.highscores.doesHighscoreExist(mine.getName(), mine.getScore())) {
+
+							// Check if user should have his score uploaded.
+							if (shouldSave && (mine.getScore() < worstScore)) {
+								Log.d(TAG, "ph saving.");
+								mine.save();
+							}
+							PreGameFragment.this.highscores.add(mine);
+							PreGameFragment.this.highscores.notifyDataSetChanged();
+
+						}
+					}
+					if (PreGameFragment.this.highscores.getCount() == 0)
+					{
+						final PicogramHighscore ph = new PicogramHighscore();
+						ph.setName("No one has publically beaten the game.");
 						PreGameFragment.this.highscores.add(ph);
 						PreGameFragment.this.highscores.notifyDataSetChanged();
 						PreGameFragment.this.lvHighscores.invalidate();
-
-						if (worstScore < ph.getScore())
-						{
-							worstScore = ph.getScore();
-						}
-						if (ph.getName().equals(mine.getName()) && ph.getPuzzleId().equals(mine.getPuzzleId())) {
-							shouldSave = true;
-						}
-					}
-					if (PreGameFragment.this.current.getCurrent().equals(PreGameFragment.this.current.getSolution()))
-					{
-						// Only add users if they've beaten it.
-						PreGameFragment.this.highscores.add(mine);
-						PreGameFragment.this.highscores.notifyDataSetChanged();
-
-						// Check if user should have his score uploaded.
-						if (shouldSave && (mine.getScore() < worstScore)) {
-							mine.save();
-						}
 					}
 					PreGameFragment.this.lvHighscores.invalidate();
 				}
 				else
 				{
+					final PicogramHighscore ph = new PicogramHighscore();
+					ph.setName("Error loading highscores from the interwebs.");
+					PreGameFragment.this.highscores.add(ph);
+					PreGameFragment.this.highscores.notifyDataSetChanged();
+					PreGameFragment.this.lvHighscores.invalidate();
 					Log.d(TAG, "ERROR LOADING COMMENTS: " + e.getMessage());
 				}
 			}
@@ -197,7 +232,29 @@ public class PreGameFragment extends Fragment implements OnClickListener {
 	@Override
 	public View onCreateView(final LayoutInflater inflater, final ViewGroup container,
 			final Bundle savedInstanceState) {
+		if (!Util.isOnline() && (this.position != 0))
+		{
+			final LayoutParams params = new LayoutParams(
+					android.view.ViewGroup.LayoutParams.MATCH_PARENT,
+					android.view.ViewGroup.LayoutParams.MATCH_PARENT);
 
+			final FrameLayout fl = new FrameLayout(this.getActivity());
+			fl.setLayoutParams(params);
+
+			final int margin = (int) TypedValue.applyDimension(
+					TypedValue.COMPLEX_UNIT_DIP, 8, this.getResources()
+					.getDisplayMetrics());
+			final TextView v = new TextView(this.getActivity());
+			params.setMargins(margin, margin, margin, margin);
+			v.setLayoutParams(params);
+			v.setLayoutParams(params);
+			v.setGravity(Gravity.CENTER);
+			v.setBackgroundResource(R.drawable.background_card);
+			v.setText("You're currently offline, and this functionality is online only.  We apologize.\nIf you think this is a mistake, please email us.");
+
+			fl.addView(v);
+			return fl;
+		}
 		LayoutParams params = new LayoutParams(LayoutParams.MATCH_PARENT,
 				LayoutParams.MATCH_PARENT);
 

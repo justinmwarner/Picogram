@@ -39,14 +39,24 @@ public class PicogramHighscoreAdapter extends ArrayAdapter<PicogramHighscore> {
 		this.scores.clear();
 	}
 
+	public boolean doesHighscoreExist(final String name, final long score) {
+		for (final PicogramHighscore s : this.scores)
+		{
+			if (s.getName().equals(name) && (s.getScore() == score)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	public PicogramHighscore get(final int pos) {
 		return this.scores.get(pos);
 	}
-
 	@Override
 	public int getCount() {
 		return this.scores.size();
 	}
+
 	@Override
 	public View getView(final int position, final View convertView,
 			final ViewGroup parent) {
