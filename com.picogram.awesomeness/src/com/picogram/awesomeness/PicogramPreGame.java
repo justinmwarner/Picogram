@@ -149,7 +149,7 @@ public class PicogramPreGame extends FragmentActivity implements OnPageChangeLis
 		}
 	}
 
-	private void updateImageView() {
+	protected void updateImageView() {
 		final ImageView iv = (ImageView) this.findViewById(R.id.ivPreGame);
 		final int pix[] = new int[this.width * this.height];
 		final Bitmap bm = Bitmap.createBitmap(this.width, this.height, Config.ARGB_4444);

@@ -174,6 +174,9 @@ public class PreGameFragment extends Fragment implements OnClickListener {
 	}
 
 	public void onClick(final View v) {
+		final SQLitePicogramAdapter sql = new SQLitePicogramAdapter(
+				PreGameFragment.this.getActivity(), "Picograms", null, 1);
+
 		if (v instanceof Button)
 		{
 			final Button b = (Button) v;
@@ -186,8 +189,17 @@ public class PreGameFragment extends Fragment implements OnClickListener {
 				}
 			}
 			else if (b.getText().toString().startsWith("Clear")) {
+				final String newCurrent = this.current.getCurrent().replaceAll("[^0]", "0");
+				sql.updateCurrentPicogram(this.current.getID(), "0", newCurrent);
+				this.current.setCurrent(newCurrent);
+				((PicogramPreGame) this.getActivity()).current = this.current.getCurrent();
+				((PicogramPreGame) this.getActivity()).updateImageView();
 			}
 			else if (b.getText().toString().startsWith("Delete")) {
+				Log.d(TAG, "bb DELETE");
+				sql.deletePicogram(this.current.getID());
+				sql.close();
+				this.getActivity().finish();
 			}
 			else if (b.getText().toString().startsWith("Comment")) {
 				// Making a comment to server based on ID.
@@ -217,6 +229,7 @@ public class PreGameFragment extends Fragment implements OnClickListener {
 			else if (b.getText().toString().startsWith("Email")) {
 			}
 		}
+		sql.close();
 	}
 
 	@Override
@@ -266,7 +279,6 @@ public class PreGameFragment extends Fragment implements OnClickListener {
 				this.getResources()
 				.getDisplayMetrics());
 
-		final TextView v = new TextView(this.getActivity());
 		params = new LayoutParams(LayoutParams.MATCH_PARENT,
 				LayoutParams.WRAP_CONTENT);
 		if (this.current == null)
@@ -277,6 +289,11 @@ public class PreGameFragment extends Fragment implements OnClickListener {
 		if (this.position == 0)
 		{
 			// Options
+			TextView tv = new TextView(this.getActivity());
+			tv.setLayoutParams(params);
+			tv.setGravity(Gravity.CENTER);
+			tv.setText("Puzzle");
+			ll.addView(tv);
 			Button b = new Button(this.getActivity());
 			b.setLayoutParams(params);
 			b.setGravity(Gravity.CENTER);
@@ -295,30 +312,13 @@ public class PreGameFragment extends Fragment implements OnClickListener {
 			b.setText("Delete " + this.current.getName());
 			b.setOnClickListener(this);
 			ll.addView(b);
-		}
-		else if (this.position == 1)
-		{
-			// Load comments.
-			final View childLayout = inflater.inflate(R.layout.include_comments, null);
-			ll.addView(childLayout);
-			this.lvComments = (ListView) childLayout.findViewById(R.id.lvComments);
-			this.lvComments.setAdapter(this.comments);
-			final Button b = (Button) childLayout.findViewById(R.id.bComment);
-			b.setOnClickListener(this);
-			this.loadComments();
-		}
-		else if (this.position == 2)
-		{
-			// Load high scores.
-			this.lvHighscores = new ListView(this.getActivity());
-			this.lvHighscores.setAdapter(this.highscores);
-			ll.addView(this.lvHighscores);
-			this.loadHighScores();
-		}
-		else if (this.position == 3)
-		{
 			// Sharing.
-			Button b = new Button(this.getActivity());
+			tv = new TextView(this.getActivity());
+			tv.setLayoutParams(params);
+			tv.setGravity(Gravity.CENTER);
+			tv.setText("Sharing");
+			ll.addView(tv);
+			b = new Button(this.getActivity());
 			b.setLayoutParams(params);
 			b.setGravity(Gravity.CENTER);
 			b.setText("Facebook");
@@ -343,12 +343,35 @@ public class PreGameFragment extends Fragment implements OnClickListener {
 			b.setOnClickListener(this);
 			ll.addView(b);
 		}
+		else if (this.position == 1)
+		{
+			// Load comments.
+			final View childLayout = inflater.inflate(R.layout.include_comments, null);
+			ll.addView(childLayout);
+			this.lvComments = (ListView) childLayout.findViewById(R.id.lvComments);
+			this.lvComments.setAdapter(this.comments);
+			final Button b = (Button) childLayout.findViewById(R.id.bComment);
+			b.setOnClickListener(this);
+			this.loadComments();
+		}
+		else if (this.position == 2)
+		{
+			// Load high scores.
+			this.lvHighscores = new ListView(this.getActivity());
+			this.lvHighscores.setAdapter(this.highscores);
+			ll.addView(this.lvHighscores);
+			this.loadHighScores();
+		}
+		else if (this.position == 3)
+		{
+		}
 
 		else if (this.position == 4)
 		{
 		} else
 		{
 			// Default.
+			final TextView v = new TextView(this.getActivity());
 			params.setMargins(margin, margin, margin, margin);
 			v.setLayoutParams(params);
 			v.setLayoutParams(params);
