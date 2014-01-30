@@ -17,6 +17,7 @@ import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
 import android.widget.ListView;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.flurry.android.FlurryAgent;
@@ -185,7 +186,15 @@ public class PreGameFragment extends Fragment implements OnClickListener {
 					Crouton.makeText(this.getActivity(),
 							"You must clear the game first to play again.", Style.INFO);
 				} else {
-					this.startGame(this.current);
+					if ((Integer.parseInt(this.current.getWidth()) < 26) && (Integer.parseInt(this.current.getHeight()) < 26))
+					{
+						this.startGame(this.current);
+					}
+					else
+					{
+						// Multipart, so show the part selector.
+						((PicogramPreGame) this.getActivity()).showPartSelector();
+					}
 				}
 			}
 			else if (b.getText().toString().startsWith("Clear")) {
@@ -193,7 +202,7 @@ public class PreGameFragment extends Fragment implements OnClickListener {
 				sql.updateCurrentPicogram(this.current.getID(), "0", newCurrent);
 				this.current.setCurrent(newCurrent);
 				((PicogramPreGame) this.getActivity()).current = this.current.getCurrent();
-				((PicogramPreGame) this.getActivity()).updateImageView();
+				((PicogramPreGame) this.getActivity()).updateAndGetImageView();
 			}
 			else if (b.getText().toString().startsWith("Delete")) {
 				Log.d(TAG, "bb DELETE");
@@ -288,60 +297,66 @@ public class PreGameFragment extends Fragment implements OnClickListener {
 		}
 		if (this.position == 0)
 		{
+			final ScrollView sv = new ScrollView(this.getActivity());
+			final LinearLayout llSub = new LinearLayout(this.getActivity());
+			llSub.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.FILL_PARENT));
+			llSub.setOrientation(LinearLayout.VERTICAL);
 			// Options
 			TextView tv = new TextView(this.getActivity());
 			tv.setLayoutParams(params);
 			tv.setGravity(Gravity.CENTER);
 			tv.setText("Puzzle");
-			ll.addView(tv);
+			llSub.addView(tv);
 			Button b = new Button(this.getActivity());
 			b.setLayoutParams(params);
 			b.setGravity(Gravity.CENTER);
 			b.setText("Play " + this.current.getName());
 			b.setOnClickListener(this);
-			ll.addView(b);
+			llSub.addView(b);
 			b = new Button(this.getActivity());
 			b.setLayoutParams(params);
 			b.setGravity(Gravity.CENTER);
 			b.setText("Clear " + this.current.getName());
 			b.setOnClickListener(this);
-			ll.addView(b);
+			llSub.addView(b);
 			b = new Button(this.getActivity());
 			b.setLayoutParams(params);
 			b.setGravity(Gravity.CENTER);
 			b.setText("Delete " + this.current.getName());
 			b.setOnClickListener(this);
-			ll.addView(b);
+			llSub.addView(b);
 			// Sharing.
 			tv = new TextView(this.getActivity());
 			tv.setLayoutParams(params);
 			tv.setGravity(Gravity.CENTER);
 			tv.setText("Sharing");
-			ll.addView(tv);
+			llSub.addView(tv);
 			b = new Button(this.getActivity());
 			b.setLayoutParams(params);
 			b.setGravity(Gravity.CENTER);
 			b.setText("Facebook");
 			b.setOnClickListener(this);
-			ll.addView(b);
+			llSub.addView(b);
 			b = new Button(this.getActivity());
 			b.setLayoutParams(params);
 			b.setGravity(Gravity.CENTER);
 			b.setText("Twitter");
 			b.setOnClickListener(this);
-			ll.addView(b);
+			llSub.addView(b);
 			b = new Button(this.getActivity());
 			b.setLayoutParams(params);
 			b.setGravity(Gravity.CENTER);
 			b.setText("Pinterest");
 			b.setOnClickListener(this);
-			ll.addView(b);
+			llSub.addView(b);
 			b = new Button(this.getActivity());
 			b.setLayoutParams(params);
 			b.setGravity(Gravity.CENTER);
 			b.setText("Email");
 			b.setOnClickListener(this);
-			ll.addView(b);
+			llSub.addView(b);
+			sv.addView(llSub);
+			ll.addView(sv);
 		}
 		else if (this.position == 1)
 		{
@@ -383,7 +398,23 @@ public class PreGameFragment extends Fragment implements OnClickListener {
 		return ll;
 	}
 
-	private void startGame(final Picogram go) {
+	protected void startGame() {
+		FlurryAgent.logEvent("UserPlayGame");
+		final Intent gameIntent = new Intent(this.getActivity(),
+				AdvancedGameActivity.class);
+		gameIntent.putExtra("name", this.current.getName());
+		gameIntent.putExtra("solution", this.current.getSolution());
+		gameIntent.putExtra("current", this.current.getCurrent());
+		gameIntent.putExtra("width", this.current.getWidth());
+		gameIntent.putExtra("height", this.current.getHeight());
+		gameIntent.putExtra("id", this.current.getID());
+		gameIntent.putExtra("status", this.current.getStatus());
+		gameIntent.putExtra("colors", this.current.getColors());
+		this.getActivity().startActivityForResult(gameIntent,
+				MenuActivity.GAME_CODE);
+	}
+
+	protected void startGame(final Picogram go) {
 		FlurryAgent.logEvent("UserPlayGame");
 		final Intent gameIntent = new Intent(this.getActivity(),
 				AdvancedGameActivity.class);

@@ -82,9 +82,7 @@ public class CreatePicogramActivity extends FragmentActivity implements
 	boolean continueMusic = true;
 
 	private void alterPhoto() {
-
 		if (this.bmOriginal != null) {
-
 			// Subarray with the number.
 			this.newColors = Arrays.copyOfRange(this.originalColors, 0, this.numColors);
 			// Touch this up. It's a bit messy.

@@ -269,6 +269,7 @@ OnItemClickListener, OnItemLongClickListener {
 					if (pos != null)
 					{
 						for (final ParseObject po : pos) {
+							Log.d(TAG, "PO ID: " + po.getString("puzzleId") + " Adapter? " + SuperAwesomeCardFragment.this.myAdapter);
 							if (!SuperAwesomeCardFragment.this.myAdapter.existsById(po.getString("puzzleId")))
 							{
 								SuperAwesomeCardFragment.this.myAdapter.add(new Picogram(po));

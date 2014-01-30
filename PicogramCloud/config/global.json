@@ -1,0 +1,11 @@
+{
+    "applications": {
+        "Picogram": {
+            "applicationId": "3j445kDaxQ3lelflRVMetszjtpaXo2S1mjMZYNcW", 
+            "masterKey": "1x37LjyRCaBEoTv9SyOlFFAqpmL5pGjO4a6VUcvR"
+        }, 
+        "_default": {
+            "link": "Picogram"
+        }
+    }
+}

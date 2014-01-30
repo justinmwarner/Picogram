@@ -47,8 +47,10 @@ public class PicogramListAdapter extends ArrayAdapter<Picogram> {
 
 	public boolean existsById(final String id) {
 		for (final Picogram g : this.picograms) {
-			if (g.getID().equals(id)) {
-				return true;
+			if ((g.getID() != null)) {
+				if (g.getID().equals(id)) {
+					return true;
+				}
 			}
 		}
 		return false;

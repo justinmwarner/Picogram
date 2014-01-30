@@ -983,14 +983,19 @@ OnDoubleTapListener {
 			if ((indexX != this.previousX) || (this.previousY != indexY)) {
 				this.previousX = indexX;
 				this.previousY = indexY;
-				if (temp[(indexY * this.gWidth) + indexX] == '0') {
-					temp[(indexY * this.gWidth) + indexX] = this.colorCharacter;
-				} else if (temp[(indexY * this.gWidth) + indexX] == 'x') {
-					temp[(indexY * this.gWidth) + indexX] = '0';
-				} else if (temp[(indexY * this.gWidth) + indexX] == this.colorCharacter) {
-					temp[(indexY * this.gWidth) + indexX] = 'x';
+				if (((indexY * this.gWidth) + indexX) < temp.length)
+				{
+					if (temp[(indexY * this.gWidth) + indexX] == '0') {
+						temp[(indexY * this.gWidth) + indexX] = this.colorCharacter;
+					} else if (temp[(indexY * this.gWidth) + indexX] == 'x') {
+						temp[(indexY * this.gWidth) + indexX] = '0';
+					} else if (temp[(indexY * this.gWidth) + indexX] == this.colorCharacter) {
+						temp[(indexY * this.gWidth) + indexX] = 'x';
+					} else {
+						temp[(indexY * this.gWidth) + indexX] = this.colorCharacter;
+					}
 				} else {
-					temp[(indexY * this.gWidth) + indexX] = this.colorCharacter;
+					return false;
 				}
 			}
 			this.gCurrent = String.valueOf(temp);
