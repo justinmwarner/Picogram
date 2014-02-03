@@ -21,6 +21,8 @@ public class Util {
 	public static String PREFS_FILE = "com.picogram.awesomeness_preferences";
 	public static int THEME = R.style.Theme_Sherlock_Light;
 
+	static Context mContext = null;
+
 	public static boolean deleteDir(final File dir) {
 		if ((dir != null) && dir.isDirectory()) {
 			final String[] children = dir.list();
@@ -36,11 +38,10 @@ public class Util {
 		return dir.delete();
 	}
 
-	static Context mContext = null;
-
 	public static SharedPreferences getPreferences(final Context a) {
-		if (mContext == null)
+		if (mContext == null) {
 			mContext = a;
+		}
 		return mContext.getSharedPreferences(MenuActivity.PREFS_FILE,
 				Context.MODE_PRIVATE);
 	}
@@ -123,7 +124,7 @@ public class Util {
 			a.getWindow().addFlags(
 					WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
 			a.getWindow()
-					.clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+			.clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
 		}
 
 		(a.findViewById(android.R.id.content)).requestLayout();

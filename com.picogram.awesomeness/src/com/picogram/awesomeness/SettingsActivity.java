@@ -14,15 +14,31 @@ import android.util.Log;
 import com.actionbarsherlock.app.SherlockPreferenceActivity;
 import com.actionbarsherlock.view.Menu;
 import com.flurry.android.FlurryAgent;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesClient;
+import com.google.android.gms.games.GamesClient;
 import com.kopfgeldjaeger.ratememaybe.RateMeMaybe;
 
+import de.keyboardsurfer.android.widget.crouton.Crouton;
+import de.keyboardsurfer.android.widget.crouton.Style;
 import de.psdev.licensesdialog.LicensesDialog;
 
 public class SettingsActivity extends SherlockPreferenceActivity implements
-		OnPreferenceChangeListener, OnPreferenceClickListener {
+OnPreferenceChangeListener, OnPreferenceClickListener, GooglePlayServicesClient.ConnectionCallbacks, GooglePlayServicesClient.OnConnectionFailedListener {
 	private static final String TAG = "SettingsActivity";
 	SharedPreferences prefs;
 	boolean continueMusic = true;
+
+	GamesClient gc;
+
+	public void onConnected(final Bundle arg0) {
+		this.gc.signOut();
+		Crouton.makeText(this, "Logout successful.", Style.INFO).show();
+	}
+
+	public void onConnectionFailed(final ConnectionResult cr) {
+		Crouton.makeText(this, "Logout failed "+cr.getErrorCode()+".", Style.INFO).show();
+	}
 
 	@Override
 	public void onCreate(final Bundle savedInstanceState) {
@@ -38,12 +54,13 @@ public class SettingsActivity extends SherlockPreferenceActivity implements
 		this.findPreference("music").setOnPreferenceChangeListener(this);
 		this.findPreference("email").setOnPreferenceClickListener(this);
 		this.findPreference("advertisements")
-				.setOnPreferenceClickListener(this);
+		.setOnPreferenceClickListener(this);
 		this.findPreference("analytics").setOnPreferenceClickListener(this);
 		this.findPreference("logging").setOnPreferenceClickListener(this);
 		this.findPreference("crashes").setOnPreferenceClickListener(this);
 		this.findPreference("licenses").setOnPreferenceClickListener(this);
 		this.findPreference("rateapp").setOnPreferenceClickListener(this);
+		this.findPreference("logout").setOnPreferenceClickListener(this);
 
 		FlurryAgent.logEvent("PreferencesOpened");
 	}
@@ -53,10 +70,15 @@ public class SettingsActivity extends SherlockPreferenceActivity implements
 		return super.onCreateOptionsMenu(menu);
 	}
 
+	public void onDisconnected() {
+		// TODO Auto-generated method stub
+
+	}
+
 	@Override
 	public void onPause() {
 		super.onPause();
-		if (!continueMusic) {
+		if (!this.continueMusic) {
 			MusicManager.pause();
 		}
 	}
@@ -66,7 +88,7 @@ public class SettingsActivity extends SherlockPreferenceActivity implements
 		Log.d(TAG, "Changing 1 " + preference.getKey());
 		if (preference.getKey().equals("music")) {
 			Log.d(TAG, "Changing 2 music " + newValue.toString());
-			prefs.edit().putString("music", newValue.toString()).commit();
+			this.prefs.edit().putString("music", newValue.toString()).commit();
 			MusicManager.start(this, newValue.toString(), true);
 		}
 		return true;
@@ -96,21 +118,25 @@ public class SettingsActivity extends SherlockPreferenceActivity implements
 					"Send Mail Using :"));
 		} else if (preference.getKey().equals("rateapp")) {
 			// TODO fix this when we publish.
-			startActivity(new Intent(Intent.ACTION_VIEW,
+			this.startActivity(new Intent(Intent.ACTION_VIEW,
 					Uri.parse("market://details?id=Picogram")));
 
-			Editor editor = prefs.edit();
+			final Editor editor = this.prefs.edit();
 			editor.putBoolean(RateMeMaybe.PREF.DONT_SHOW_AGAIN, true);
 			editor.commit();
 		}
+		else if (preference.getKey().equals("logout"))
+		{
+			this.gc = (new GamesClient.Builder(this.getBaseContext(), this, this)).create();
+			this.gc.connect();
+		}
 		return false;
 	}
-
 	@Override
 	public void onResume() {
 		super.onResume();
 		Util.updateFullScreen(this);
-		continueMusic = false;
+		this.continueMusic = false;
 		Log.d(TAG, "Change resume 3");
 		MusicManager.start(this);
 	}

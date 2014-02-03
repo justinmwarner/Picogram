@@ -2,6 +2,7 @@
 package com.picogram.awesomeness;
 
 import android.app.Activity;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -33,7 +34,6 @@ import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
 import com.actionbarsherlock.app.ActionBar;
-import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.astuetz.viewpager.extensions.PagerSlidingTabStrip;
 import com.crittercism.app.Crittercism;
 import com.flurry.android.FlurryAdListener;
@@ -41,6 +41,12 @@ import com.flurry.android.FlurryAdSize;
 import com.flurry.android.FlurryAdType;
 import com.flurry.android.FlurryAds;
 import com.flurry.android.FlurryAgent;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesClient.ConnectionCallbacks;
+import com.google.android.gms.common.GooglePlayServicesClient.OnConnectionFailedListener;
+import com.google.android.gms.games.GamesClient;
+import com.google.android.gms.games.Player;
+import com.google.example.games.basegameutils.BaseGameActivity;
 import com.kopfgeldjaeger.ratememaybe.RateMeMaybe;
 import com.kopfgeldjaeger.ratememaybe.RateMeMaybe.OnRMMUserChoiceListener;
 import com.parse.Parse;
@@ -51,13 +57,11 @@ import de.keyboardsurfer.android.widget.crouton.Style;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class MenuActivity extends SherlockFragmentActivity implements
-FlurryAdListener, OnPageChangeListener, OnClickListener,
-OnRMMUserChoiceListener, ActionBar.OnNavigationListener {
+public class MenuActivity extends BaseGameActivity implements
+FlurryAdListener, OnPageChangeListener, OnClickListener, OnRMMUserChoiceListener, ActionBar.OnNavigationListener, ConnectionCallbacks, OnConnectionFailedListener {
 	public class MyPagerAdapter extends FragmentPagerAdapter {
 
-		public SuperAwesomeCardFragment frag[] = new SuperAwesomeCardFragment[this
-		                                                                      .getCount()];
+		public SuperAwesomeCardFragment frag[] = new SuperAwesomeCardFragment[this.getCount()];
 
 		public MyPagerAdapter(final FragmentManager fm) {
 			super(fm);
@@ -117,6 +121,10 @@ OnRMMUserChoiceListener, ActionBar.OnNavigationListener {
 	SQLitePicogramAdapter sql = null;
 
 	boolean continueMusic = true;
+
+	GamesClient client;
+
+	Dialog dialog;
 
 	public void handleNegative() {
 		// Don't do it again.
@@ -219,11 +227,20 @@ OnRMMUserChoiceListener, ActionBar.OnNavigationListener {
 		}
 	}
 
+	public void onConnected(final Bundle arg0) {
+		// TODO Auto-generated method stub
+
+	}
+
+	public void onConnectionFailed(final ConnectionResult arg0) {
+		// TODO Auto-generated method stub
+
+	}
+
 	@Override
 	public void onCreate(final Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		Parse.initialize(this, "3j445kDaxQ3lelflRVMetszjtpaXo2S1mjMZYNcW", "zaorBzbtWhdwMdJ0sIgBJjYvowpueuCzstLTwq1A");
-		// this.requestWindowFeature(Window.FEATURE_NO_TITLE);
 		this.prefs = this.getSharedPreferences(MenuActivity.PREFS_FILE,
 				MODE_PRIVATE);
 		if (!this.prefs.getBoolean("crashes", false)) {
@@ -256,12 +273,24 @@ OnRMMUserChoiceListener, ActionBar.OnNavigationListener {
 			this.toolbar.setVisibility(View.GONE);
 		}
 		this.updateActionBar(0);
+
+		// Google Sign-in stuff.
+		if (!this.isSignedIn())
+		{
+			// Ask user to login if they haven't before.
+			this.showSignInDialog();
+		}
 	}
 
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
 		this.sql.close();
+	}
+
+	public void onDisconnected() {
+		// TODO Auto-generated method stub
+
 	}
 
 	public boolean onNavigationItemSelected(final int itemPosition, final long itemId) {
@@ -394,6 +423,28 @@ OnRMMUserChoiceListener, ActionBar.OnNavigationListener {
 		}
 	}
 
+	public void onSignInFailed() {
+		Log.d(TAG, "Sign in fsiled");
+		Crouton.makeText(this, "Sign in failed. Try again next time.", Style.ALERT).show();
+		this.dialog.show();
+	}
+
+	public void onSignInSucceeded() {
+		Crouton.makeText(this, "We've signed in.  Thanks!", Style.CONFIRM).show();
+		final Player p = this.getGamesClient().getCurrentPlayer();
+		this.dialog.hide();
+		Log.d(TAG, p.getDisplayName() + " " + p.toString());
+		Log.d(TAG, "Sign in success");
+		// Add to preferences that user has logged in successfully.
+		Util.getPreferences(this).edit().putBoolean("hasLoggedInSuccessfully", true).commit();
+	}
+
+	protected void onSkipSignIn() {
+		Crouton.makeText(this, "We require sign in for various activities.", Style.INFO).show();
+		Util.getPreferences(this).edit().putBoolean("hasLoggedInSuccessfully", false).commit();
+		this.showSignInDialog();
+	}
+
 	@Override
 	public void onStart() {
 		super.onStart();
@@ -449,9 +500,34 @@ OnRMMUserChoiceListener, ActionBar.OnNavigationListener {
 		rmm.setDialogTitle("Rate Picogram!");
 		rmm.run();
 	}
-
 	public boolean shouldDisplayAd(final String arg0, final FlurryAdType arg1) {
 		return true;
+	}
+	private void showSignInDialog() {
+		this.dialog = new Dialog(this);
+		this.dialog.setContentView(R.layout.dialog_login);
+		// set the custom dialog components - text, image and button
+		this.dialog.findViewById(R.id.bSignIn).setOnClickListener(new OnClickListener() {
+
+			public void onClick(final View v) {
+				MenuActivity.this.beginUserInitiatedSignIn();
+				MenuActivity.this.dialog.hide();
+			}
+
+		});
+		this.dialog.findViewById(R.id.bSkipSignIn).setOnClickListener(new OnClickListener() {
+
+			public void onClick(final View v) {
+				MenuActivity.this.onSkipSignIn();
+				MenuActivity.this.dialog.hide();
+			}
+
+		});
+		final boolean isLoggedInBefore = Util.getPreferences(this).getBoolean("hasLoggedInSuccessfully", false);
+		if (!isLoggedInBefore) {
+			// Only show if we've never logged in successfully yet.
+			this.dialog.show();
+		}
 	}
 
 	public void spaceDidFailToReceiveAd(final String arg0) {
@@ -480,7 +556,12 @@ OnRMMUserChoiceListener, ActionBar.OnNavigationListener {
 		} else {
 			return;
 		}
-
+		final ActionBar ab = this.getSupportActionBar();
+		if (ab == null) {
+			Log.d(TAG, "ActionBar is null");
+			return;
+		}
+		Log.d(TAG, "ActionBar good.");
 		this.getSupportActionBar().setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
 		if (list != null) {
 			list.setDropDownViewResource(R.layout.sherlock_spinner_dropdown_item);

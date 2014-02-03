@@ -12,6 +12,10 @@
             android:key="decorations"
             android:summary="Show the bar with the time, battery, and notifications while you play."
             android:title="Show Top Bar?" />
+        <Preference 
+            android:key="logout"
+            android:summary="Logout of your user profile. You will be prompted again when you start the app."
+            android:title="Logout?"/>
         <ListPreference
             android:entries="@array/listBackgroundName"
             android:entryValues="@array/listBackgroundValue"

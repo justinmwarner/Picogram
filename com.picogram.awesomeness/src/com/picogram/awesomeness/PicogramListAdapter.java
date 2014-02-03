@@ -17,8 +17,12 @@ import android.widget.TextView;
 import java.util.ArrayList;
 
 public class PicogramListAdapter extends ArrayAdapter<Picogram> {
+	static class ViewHolder{
+
+	}
 	private static final String TAG = "PicogramListAdapter";
 	private Context context;
+
 	ArrayList<Picogram> picograms = new ArrayList<Picogram>();
 
 	public PicogramListAdapter(final Context context,
@@ -64,17 +68,31 @@ public class PicogramListAdapter extends ArrayAdapter<Picogram> {
 	public int getCount() {
 		return this.picograms.size();
 	}
-
 	@Override
-	public View getView(final int position, final View convertView,
+	public View getView(final int position, View convertView,
 			final ViewGroup parent) {
 		if (this.context == null) {
 			this.context = this.getContext();
 		}
-		final Picogram picogram = this.picograms.get(position);
-		picogram.nullsToValue(this.context);// Just reset all nulls to a value.
 		final LayoutInflater inflater = (LayoutInflater) this.context
 				.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+
+		// TODO Implement viewholder: http://gmariotti.blogspot.com/2013/06/tips-for-listview-view-recycling-use.html
+		ViewHolder holder;
+		if (convertView == null)
+		{
+			convertView = inflater.inflate(R.layout.picogram_menu_choice_item,
+					parent, false);
+			holder = new ViewHolder();
+
+		}
+		else
+		{
+			holder = (ViewHolder) convertView.getTag();
+		}
+
+		final Picogram picogram = this.picograms.get(position);
+		picogram.nullsToValue(this.context);// Just reset all nulls to a value.
 		final View item = inflater.inflate(R.layout.picogram_menu_choice_item,
 				parent, false);
 		final TextView rate = (TextView) item.findViewById(R.id.tvRating);

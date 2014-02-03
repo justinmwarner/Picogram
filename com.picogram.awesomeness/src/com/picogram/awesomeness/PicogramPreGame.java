@@ -74,7 +74,31 @@ public class PicogramPreGame extends FragmentActivity implements OnPageChangeLis
 	String[] colors;
 	Picogram puzzle = new Picogram();
 	final int proportion = 10; // For how much we scale the ImageView. =).
-	int xGrid = 1, yGrid = 1;
+	int xGridWidth = 1, yGridWidth = 1, xGridNum = 1, yGridNum = 1;
+
+	private String[][] getCells() {
+		final String[][] result = new String[this.yGridNum][this.xGridNum];
+		// Init.
+		for (int i = 0; i != result.length; ++i) {
+			for (int j = 0; j != result[i].length; ++j) {
+				result[i][j] = "";
+			}
+		}
+		int x = 1;
+		final int y = 1;
+		for (int i = 0; i != this.current.length(); ++i)
+		{
+			if (i > (x * this.xGridWidth))
+			{
+				x++;
+				// if()
+			}
+
+			// result[]
+		}
+
+		return result;
+	}
 
 	@Override
 	protected void onActivityResult(final int requestCode,
@@ -162,7 +186,8 @@ public class PicogramPreGame extends FragmentActivity implements OnPageChangeLis
 
 	public boolean onTouch(final View v, final MotionEvent event) {
 		v.setOnTouchListener(null);
-		if (event.equals(MotionEvent.ACTION_UP) && (v.getId() == R.id.ivPreGame)) {
+		Log.d(TAG, event.getAction() + " " + v.getId() + " " + R.id.ivPartSelector);
+		if (event.equals(MotionEvent.ACTION_DOWN) && (v.getId() == R.id.ivPreGame)) {
 			if ((this.width <= 25) && (this.height <= 25))
 			{
 				// Just start it normally.
@@ -173,23 +198,35 @@ public class PicogramPreGame extends FragmentActivity implements OnPageChangeLis
 			this.showPartSelector();
 			return true;
 		}
-		else if ((event.getAction() == (MotionEvent.ACTION_UP)) && (v.getId() == R.id.ivPartSelector))
+		else if ((event.getAction() == (MotionEvent.ACTION_DOWN)) && (v.getId() == R.id.ivPartSelector))
 		{
+			// Get row and column tapped.
+			// int row = (int) Math.floor(v.getHeight() / );
+			// int col = (int) Math.floor();
+
 			// Now a part was chosen, so play it.
-			return true;
+			final char[][] current2D = new char[this.height][this.width];
+			final int run = 0;
+			for (int i = 0; i != current2D.length; ++i) {
+				for (int j = 0; j != current2D[i].length; ++j) {
+					current2D[i][j] = this.current.charAt(run);
+				}
+			}
+
 		}
 		// If we fail, add the listener again.
 		v.setOnTouchListener(this);
 		return false;
 	}
+
 	protected void showPartSelector() {
 		final Dialog dialog = new Dialog(this);
 		dialog.getWindow().requestFeature(Window.FEATURE_NO_TITLE);
-		dialog.setContentView(this.getLayoutInflater().inflate(R.layout.dialog_part_selector
-				, null));
+		dialog.setContentView(this.getLayoutInflater().inflate(R.layout.dialog_part_selector, null));
 		dialog.show();
 		final ImageView iv = (ImageView) dialog.findViewById(R.id.ivPartSelector);
 		iv.setImageBitmap(this.updateAndGetImageView());
+		iv.setBackgroundColor(Color.RED);
 		iv.setOnTouchListener(this);
 	}
 
@@ -226,10 +263,15 @@ public class PicogramPreGame extends FragmentActivity implements OnPageChangeLis
 			int highest = 0;
 			for (int i = 20; i != 26; ++i)
 			{
+				if ((this.width % i) == 0)
+				{
+					this.xGridWidth = i;
+					break;
+				}
 				if ((this.width % i) > highest)
 				{
 					highest = this.width % i;
-					this.xGrid = i;
+					this.xGridWidth = i;
 				}
 			}
 		}
@@ -238,39 +280,47 @@ public class PicogramPreGame extends FragmentActivity implements OnPageChangeLis
 			int highest = 0;
 			for (int i = 20; i != 26; ++i)
 			{
+				if ((this.height % i) == 0)
+				{
+					this.yGridWidth = i;
+					break;
+				}
 				if ((this.height % i) > highest)
 				{
 					highest = this.width % i;
-					this.yGrid = i;
+					this.yGridWidth = i;
 				}
 			}
 		}
-		Log.d(TAG, "XG: " + this.xGrid + " YG: " + this.yGrid);
+		this.xGridNum = bm.getWidth() / this.xGridWidth;
+		this.yGridNum = bm.getHeight() / this.yGridWidth;
+
+		Log.d(TAG, "XG: " + this.xGridWidth + " YG: " + this.yGridWidth);
 		// Now draw these on a Canvas and save it.
 		bm = Bitmap.createScaledBitmap(bm, this.width * this.proportion, this.height * this.proportion, false);
-		if ((this.xGrid != 1) && (this.yGrid != 1))
+		if ((this.xGridWidth != 1) && (this.yGridWidth != 1))
 		{
 			final Canvas canvas = new Canvas(bm);
 			final Paint p = new Paint();
-			for (int i = 0; i != this.xGrid; ++i)
+			for (int i = 0; i != this.xGridWidth; ++i)
 			{
 				// Drawing up and down.
 				p.setColor(Color.BLACK);
 				p.setStrokeWidth(5);
-				canvas.drawLine((i + 1) * this.proportion * this.xGrid, 0, (i + 1) * this.proportion * this.xGrid, canvas.getHeight(), p);
+				canvas.drawLine((i + 1) * this.proportion * this.xGridWidth, 0, (i + 1) * this.proportion * this.xGridWidth, canvas.getHeight(), p);
 				p.setColor(Color.GRAY);
 				p.setStrokeWidth(2);
-				canvas.drawLine((i + 1) * this.proportion * this.xGrid, 0, (i + 1) * this.proportion * this.xGrid, canvas.getHeight(), p);
+				canvas.drawLine((i + 1) * this.proportion * this.xGridWidth, 0, (i + 1) * this.proportion * this.xGridWidth, canvas.getHeight(), p);
 			}
-			for (int i = 0; i != this.yGrid; ++i)
+			for (int i = 0; i != this.yGridWidth; ++i)
 			{
 				// Drawing side to side.
 				p.setColor(Color.BLACK);
 				p.setStrokeWidth(5);
-				canvas.drawLine(0, (i + 1) * this.proportion * this.yGrid, canvas.getWidth(), (i + 1) * this.proportion * this.yGrid, p);
+				canvas.drawLine(0, (i + 1) * this.proportion * this.yGridWidth, canvas.getWidth(), (i + 1) * this.proportion * this.yGridWidth, p);
 				p.setColor(Color.GRAY);
 				p.setStrokeWidth(2);
-				canvas.drawLine(0, (i + 1) * this.proportion * this.yGrid, canvas.getWidth(), (i + 1) * this.proportion * this.yGrid, p);
+				canvas.drawLine(0, (i + 1) * this.proportion * this.yGridWidth, canvas.getWidth(), (i + 1) * this.proportion * this.yGridWidth, p);
 			}
 		}
 		// Check if bm is smaller than 150 height, the default height so it isn't huge.
