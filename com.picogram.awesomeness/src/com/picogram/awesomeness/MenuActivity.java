@@ -2,8 +2,10 @@
 package com.picogram.awesomeness;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
@@ -280,6 +282,9 @@ FlurryAdListener, OnPageChangeListener, OnClickListener, OnRMMUserChoiceListener
 			// Ask user to login if they haven't before.
 			this.showSignInDialog();
 		}
+
+		// Show beta.
+		this.showBetaDialog();
 	}
 
 	@Override
@@ -500,8 +505,46 @@ FlurryAdListener, OnPageChangeListener, OnClickListener, OnRMMUserChoiceListener
 		rmm.setDialogTitle("Rate Picogram!");
 		rmm.run();
 	}
+
 	public boolean shouldDisplayAd(final String arg0, final FlurryAdType arg1) {
 		return true;
+	}
+	private void showBetaDialog() {
+		final Activity a = this;
+		AlertDialog dialog;
+		final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		builder.setMessage("Hello.\n\nThis is a timed message. Please read while you wait.\n\nThis app is currently in beta.  We thank you for downloading and using this app." +
+				"  Currently, we're collecting as much information on crashes and bugs, so please feel free to email us.  " +
+				"If you have any features you'd like to see, we're activly developing it.  So please let us know as well.  " +
+				"We hope you enjoy.\n\nThanks!\nJustin Warner\nwarner.73@wright.edu")
+				.setPositiveButton("Okay",new DialogInterface.OnClickListener() {
+					public void onClick(final DialogInterface dialog, final int id) {
+						Util.getPreferences(a).edit().putBoolean("hasSeenBetaDialog", true).commit();
+						dialog.cancel();
+					}
+				});
+		// Create the AlertDialog object and return it
+		dialog = builder.create();
+		final boolean isLoggedInBefore = Util.getPreferences(this).getBoolean("hasSeenBetaDialog", false);
+		if (!isLoggedInBefore) {
+			// Only show if we've never logged in successfully yet.
+			dialog.setCancelable(false);
+			dialog.show();
+			final Button b = dialog.getButton(Dialog.BUTTON_POSITIVE);
+			b.setEnabled(false);
+			Runnable mRunnable;
+			final Handler mHandler = new Handler();
+
+			mRunnable = new Runnable() {
+
+				public void run() {
+					// TODO Auto-generated method stub
+					b.setEnabled(true);
+				}
+			};
+			mHandler.removeCallbacks(mRunnable);
+			mHandler.postDelayed(mRunnable, 10000);
+		}
 	}
 	private void showSignInDialog() {
 		this.dialog = new Dialog(this);
