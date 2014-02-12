@@ -127,7 +127,8 @@ OnPreferenceChangeListener, OnPreferenceClickListener, GooglePlayServicesClient.
 		}
 		else if (preference.getKey().equals("logout"))
 		{
-			this.gc = (new GamesClient.Builder(this.getBaseContext(), this, this)).create();
+			final GamesClient.Builder builder = new GamesClient.Builder(this.getBaseContext(), this, this);
+			this.gc = builder.create();
 			this.gc.connect();
 		}
 		return false;

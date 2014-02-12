@@ -78,7 +78,7 @@ OnSeekBarChangeListener {
 	Handler handle = new Handler();
 	int tutorialStep = 0;
 	private static SQLitePicogramAdapter sql;
-	int colors[];
+	int colors[], row, column;
 	String strColors[];
 
 	ArrayList<ImageView> ivs = new ArrayList<ImageView>();
@@ -347,6 +347,9 @@ OnSeekBarChangeListener {
 		bUndo.setOnClickListener(this);
 		bRedo.setOnClickListener(this);
 
+		this.row = this.getIntent().getExtras().getInt("row");
+		this.column = this.getIntent().getExtras().getInt("column");
+
 		final Vibrator myVib = (Vibrator) this
 				.getSystemService(VIBRATOR_SERVICE);
 		this.historyListener = new HistoryListener() {
@@ -399,14 +402,11 @@ OnSeekBarChangeListener {
 			MusicManager.pause();
 		}
 		// Highscore management.
-		Log.d(TAG, "Old score:" + this.score);
-		Log.d(TAG, "StartTime score: " + this.startTime);
 		if (this.score >= 0)
 		{
 			// If the score isn't negative, we want to add update the score in the preferences
 			// and to the SQL database.
 			final long newScore = this.score + (System.currentTimeMillis() - this.startTime);
-			Log.d(TAG, "NewScore score: " + newScore);
 			sql.updateScore(this.tiv.gId, newScore);
 		}
 		sql.close();
@@ -453,7 +453,6 @@ OnSeekBarChangeListener {
 			this.startTime = System.currentTimeMillis();
 			this.score = sql.getHighscore(this.tiv.gId);
 		}
-		Log.d(TAG, "SavedScore score: " + this.score);
 	}
 
 	@Override
@@ -501,8 +500,10 @@ OnSeekBarChangeListener {
 			returnIntent.putExtra("status", "0");
 		}
 		returnIntent.putExtra("ID", this.tiv.gSolution.hashCode() + "");
+		returnIntent.putExtra("row", this.row);
+		returnIntent.putExtra("column", this.column);
+
 		this.setResult(Activity.RESULT_OK, returnIntent);
-		Log.d(TAG, "RETURN");
 		this.finish();
 	}
 

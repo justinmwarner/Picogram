@@ -4,6 +4,7 @@ package com.picogram.awesomeness;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.app.SearchManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -20,22 +21,16 @@ import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.util.Log;
 import android.util.TypedValue;
-import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.ViewGroup.LayoutParams;
-import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
-import android.widget.TextView.OnEditorActionListener;
-
 import com.actionbarsherlock.app.ActionBar;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.widget.SearchView;
 import com.astuetz.viewpager.extensions.PagerSlidingTabStrip;
 import com.crittercism.app.Crittercism;
 import com.flurry.android.FlurryAdListener;
@@ -114,18 +109,11 @@ FlurryAdListener, OnPageChangeListener, OnClickListener, OnRMMUserChoiceListener
 	private ViewPager pager;
 	private MyPagerAdapter adapter;
 	int currentTab = 0;
-	Button bSearch;
-	EditText etTags;
 	static ListView lv;
-
 	static PicogramListAdapter lvAdapter;
-
 	SQLitePicogramAdapter sql = null;
-
 	boolean continueMusic = true;
-
 	GamesClient client;
-
 	Dialog dialog;
 
 	public void handleNegative() {
@@ -151,7 +139,6 @@ FlurryAdListener, OnPageChangeListener, OnClickListener, OnRMMUserChoiceListener
 	@Override
 	protected void onActivityResult(final int requestCode,
 			final int resultCode, final Intent data) {
-		this.updateBottomBar();
 		if (this.sql == null) {
 			this.sql = new SQLitePicogramAdapter(this, "Picograms", null, 1);
 		}
@@ -214,19 +201,6 @@ FlurryAdListener, OnPageChangeListener, OnClickListener, OnRMMUserChoiceListener
 	}
 
 	public void onClick(final View v) {
-		// Should be search.
-		if (v.getId() == this.bSearch.getId()) {
-			this.updateCurrentTab();
-			// Hide keyboard.
-			final InputMethodManager imm = (InputMethodManager) this.getSystemService(Context.INPUT_METHOD_SERVICE);
-			imm.hideSoftInputFromWindow(this.etTags.getWindowToken(), 0);
-			final InputMethodManager inputManager = (InputMethodManager) this
-					.getSystemService(Context.INPUT_METHOD_SERVICE);
-			if (inputManager != null) {
-				inputManager.hideSoftInputFromWindow(this.getCurrentFocus()
-						.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
-			}
-		}
 	}
 
 	public void onConnected(final Bundle arg0) {
@@ -286,6 +260,46 @@ FlurryAdListener, OnPageChangeListener, OnClickListener, OnRMMUserChoiceListener
 		// Show beta.
 		this.showBetaDialog();
 	}
+	@Override
+	public boolean onCreateOptionsMenu(final Menu menu)
+	{
+		if (this.currentTab == TITLES.indexOf("Search"))
+		{
+
+			this.getSupportMenuInflater().inflate(R.menu.activity_menu, menu);
+
+			final SearchManager searchManager = (SearchManager) this.getSystemService(Context.SEARCH_SERVICE);
+
+			final SearchView abSearch = (SearchView) menu.findItem(R.id.menu_search).getActionView();
+			if (null != abSearch)
+			{
+				abSearch.setSearchableInfo(searchManager.getSearchableInfo(this.getComponentName()));
+				abSearch.setIconifiedByDefault(true);
+			}
+
+			final SearchView.OnQueryTextListener queryTextListener = new SearchView.OnQueryTextListener()
+			{
+				public boolean onQueryTextChange(final String newText)
+				{
+					// this is your adapter that will be filtered
+					return true;
+				}
+
+				public boolean onQueryTextSubmit(final String query)
+				{
+					// this is your adapter that will be filtered
+					Log.d(TAG, "ACTIONBAR SEARCH " + query);
+					MenuActivity.this.adapter.frag[MenuActivity.this.currentTab].getTagPuzzles(
+							MenuActivity.this.adapter.frag[MenuActivity.this.currentTab].getActivity(),
+							query, true);
+					return true;
+				}
+			};
+			abSearch.setOnQueryTextListener(queryTextListener);
+
+		}
+		return super.onCreateOptionsMenu(menu);
+	}
 
 	@Override
 	public void onDestroy() {
@@ -299,12 +313,10 @@ FlurryAdListener, OnPageChangeListener, OnClickListener, OnRMMUserChoiceListener
 	}
 
 	public boolean onNavigationItemSelected(final int itemPosition, final long itemId) {
-		Log.d(TAG, "Setting" + itemPosition);
 		if (this.currentTab == TITLES.indexOf("My")) {
 			Util.getPreferences(this).edit().putInt("mySetting", itemPosition)
 			.commit();
 		} else if (this.currentTab == TITLES.indexOf("Packs")) {
-			Log.d(TAG, "Setting Packs" + itemPosition);
 			Util.getPreferences(this).edit()
 			.putInt("packsSetting", itemPosition).commit();
 		} else if (this.currentTab == TITLES.indexOf("Top")) {
@@ -335,62 +347,14 @@ FlurryAdListener, OnPageChangeListener, OnClickListener, OnRMMUserChoiceListener
 			final Intent i = new Intent(this, SettingsActivity.class);
 			this.startActivityForResult(i, PREFERENCES_CODE);
 		}
-		if (Util.isOnline())
-		{
-			if (tab == TITLES.indexOf("Search")) {
-				if (this.toolbar.getVisibility() == View.GONE) {
-					this.toolbar.setVisibility(View.VISIBLE);
-				}
-				final RelativeLayout.LayoutParams paramsButton = new RelativeLayout.LayoutParams(
-						LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-				paramsButton.addRule(RelativeLayout.ALIGN_PARENT_RIGHT,
-						RelativeLayout.TRUE);
-
-				final RelativeLayout rl = new RelativeLayout(this);
-				// Search, get rid of ad, and replace with search stuff.
-				this.bSearch = new Button(this);
-				this.bSearch.setText("Search");
-				this.bSearch.setOnClickListener(this);
-				final RelativeLayout.LayoutParams paramsEditText = new RelativeLayout.LayoutParams(
-						LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
-				paramsEditText.addRule(RelativeLayout.ALIGN_PARENT_LEFT,
-						RelativeLayout.TRUE);
-				paramsEditText
-				.addRule(RelativeLayout.LEFT_OF, this.bSearch.getId());
-				this.etTags = new EditText(this);
-				this.etTags.setOnEditorActionListener(new OnEditorActionListener() {
-
-					public boolean onEditorAction(final TextView v,
-							final int actionId, final KeyEvent event) {
-						if ((actionId == EditorInfo.IME_NULL)
-								&& (event.getAction() == KeyEvent.ACTION_DOWN)) {
-							return MenuActivity.this.bSearch.performClick();
-						}
-
-						return false;
-					}
-				});
-				this.etTags.setHint("Tags...");
-				rl.addView(this.etTags, paramsEditText);
-				rl.addView(this.bSearch, paramsButton);
-				this.toolbar.removeAllViews();
-				this.toolbar.addView(rl);
-				// Show keyboard
-				this.etTags.requestFocus();
-				final InputMethodManager imm = (InputMethodManager) this.getSystemService(Context.INPUT_METHOD_SERVICE);
-				imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
-			} else {
-				this.updateBottomBar();
-			}
-			this.currentTab = tab;
-			this.updateCurrentTab();
-			if (tab != TITLES.indexOf("Search")) {// Hide keyboard
-				final InputMethodManager imm = (InputMethodManager) this.getSystemService(Context.INPUT_METHOD_SERVICE);
-				imm.hideSoftInputFromWindow(this.findViewById(android.R.id.content)
-						.getWindowToken(), 0);
-			}
-			this.updateActionBar(tab);
+		this.currentTab = tab;
+		this.updateCurrentTab();
+		if (tab != TITLES.indexOf("Search")) {// Hide keyboard
+			final InputMethodManager imm = (InputMethodManager) this.getSystemService(Context.INPUT_METHOD_SERVICE);
+			imm.hideSoftInputFromWindow(this.findViewById(android.R.id.content)
+					.getWindowToken(), 0);
 		}
+		this.updateActionBar(tab);
 	}
 
 	@Override
@@ -429,7 +393,6 @@ FlurryAdListener, OnPageChangeListener, OnClickListener, OnRMMUserChoiceListener
 	}
 
 	public void onSignInFailed() {
-		Log.d(TAG, "Sign in fsiled");
 		Crouton.makeText(this, "Sign in failed. Try again next time.", Style.ALERT).show();
 		this.dialog.show();
 	}
@@ -439,7 +402,6 @@ FlurryAdListener, OnPageChangeListener, OnClickListener, OnRMMUserChoiceListener
 		final Player p = this.getGamesClient().getCurrentPlayer();
 		this.dialog.hide();
 		Log.d(TAG, p.getDisplayName() + " " + p.toString());
-		Log.d(TAG, "Sign in success");
 		// Add to preferences that user has logged in successfully.
 		Util.getPreferences(this).edit().putBoolean("hasLoggedInSuccessfully", true).commit();
 	}
@@ -505,7 +467,6 @@ FlurryAdListener, OnPageChangeListener, OnClickListener, OnRMMUserChoiceListener
 		rmm.setDialogTitle("Rate Picogram!");
 		rmm.run();
 	}
-
 	public boolean shouldDisplayAd(final String arg0, final FlurryAdType arg1) {
 		return true;
 	}
@@ -530,7 +491,7 @@ FlurryAdListener, OnPageChangeListener, OnClickListener, OnRMMUserChoiceListener
 			// Only show if we've never logged in successfully yet.
 			dialog.setCancelable(false);
 			dialog.show();
-			final Button b = dialog.getButton(Dialog.BUTTON_POSITIVE);
+			final Button b = dialog.getButton(DialogInterface.BUTTON_POSITIVE);
 			b.setEnabled(false);
 			Runnable mRunnable;
 			final Handler mHandler = new Handler();
@@ -546,6 +507,7 @@ FlurryAdListener, OnPageChangeListener, OnClickListener, OnRMMUserChoiceListener
 			mHandler.postDelayed(mRunnable, 10000);
 		}
 	}
+
 	private void showSignInDialog() {
 		this.dialog = new Dialog(this);
 		this.dialog.setContentView(R.layout.dialog_login);
@@ -582,6 +544,7 @@ FlurryAdListener, OnPageChangeListener, OnClickListener, OnRMMUserChoiceListener
 
 	private void updateActionBar(final int tab) {
 		// Drop down spinner update.
+		this.invalidateOptionsMenu();
 		ArrayAdapter<CharSequence> list = null;
 		if (tab == TITLES.indexOf("My")) {
 			list = ArrayAdapter.createFromResource(this, R.array.listMy,
@@ -601,35 +564,16 @@ FlurryAdListener, OnPageChangeListener, OnClickListener, OnRMMUserChoiceListener
 		}
 		final ActionBar ab = this.getSupportActionBar();
 		if (ab == null) {
-			Log.d(TAG, "ActionBar is null");
 			return;
 		}
-		Log.d(TAG, "ActionBar good.");
-		this.getSupportActionBar().setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
+		ab.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
 		if (list != null) {
 			list.setDropDownViewResource(R.layout.sherlock_spinner_dropdown_item);
-			this.getSupportActionBar().setListNavigationCallbacks(list, this);
+			ab.setListNavigationCallbacks(list, this);
 		}
-		this.getSupportActionBar().setDisplayHomeAsUpEnabled(false);
-		this.getSupportActionBar().setDisplayUseLogoEnabled(false);
-		this.getSupportActionBar().setDisplayShowTitleEnabled(false);
-	}
-
-	private void updateBottomBar() {
-		if ((this.currentTab == TITLES.indexOf("Search"))
-				|| (this.currentTab == TITLES.indexOf("Prefs"))) { // If previous tab
-			// was search or
-			// prefs.
-			this.toolbar.removeAllViews();
-			this.toolbar.setVisibility(!this.prefs.getBoolean("advertisements",
-					false) ? View.VISIBLE : View.GONE);
-			if (!this.prefs.getBoolean("advertisements", false)) {
-				if (!Debug.isDebuggerConnected()) {
-					FlurryAds.fetchAd(this, "MainScreen", this.toolbar,
-							FlurryAdSize.BANNER_BOTTOM);
-				}
-			}
-		}
+		ab.setDisplayHomeAsUpEnabled(false);
+		ab.setDisplayUseLogoEnabled(false);
+		ab.setDisplayShowTitleEnabled(false);
 	}
 
 	public void updateCurrentTab() {
@@ -649,9 +593,7 @@ FlurryAdListener, OnPageChangeListener, OnClickListener, OnRMMUserChoiceListener
 		} else if (this.currentTab == MenuActivity.TITLES.indexOf("Recent")) {
 			this.adapter.frag[this.currentTab].getRecentPuzzles(this);
 		} else if (this.currentTab == MenuActivity.TITLES.indexOf("Search")) {
-			this.adapter.frag[this.currentTab].getTagPuzzles(
-					this.adapter.frag[this.currentTab].getActivity(),
-					this.etTags.getText().toString(), true);
+			// Done in CreateOptionsMenu
 		} else if (this.currentTab == MenuActivity.TITLES.indexOf("Prefs")) {
 			this.adapter.frag[this.currentTab]
 					.getMyPuzzles(this.adapter.frag[this.currentTab]

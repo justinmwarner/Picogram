@@ -183,17 +183,14 @@ OnItemClickListener, OnItemLongClickListener {
 
 				} else {
 					final ParseQuery<ParseObject> query = ParseQuery.getQuery("Picogram");
-					Log.d(TAG, "Finding with id: " + id + " Name: " + name);
 					query.whereEqualTo("puzzleId", id);
 					query.getFirstInBackground(new GetCallback<ParseObject>() {
 						@Override
 						public void done(final ParseObject object, final ParseException e) {
 							if (object != null) {
-								Log.d(TAG, "Successfully updated puzzle: " + tempPicogram.getName());
 								tempPicogram.setRating("" + object.getInt("rating"));
 								tempPicogram.setNumberOfRatings(object.getInt("numberOfRatings"));
 							} else {
-
 								Log.d(TAG, "Failed Updating the puzzle. " + e.getMessage());
 							}
 							a.runOnUiThread(new Runnable() {
@@ -218,16 +215,6 @@ OnItemClickListener, OnItemLongClickListener {
 		this.myAdapter.clear();
 		final boolean isHideDownloaded = Util.getPreferences(this.getActivity())
 				.getInt("packsSetting", 0) == 0;
-		Log.d(TAG,
-				"Setting "
-						+ " Got: "
-						+ Util.getPreferences(this.getActivity()).getInt(
-								"packsSetting", 0)
-								+ " "
-								+ isHideDownloaded
-								+ " "
-								+ !Util.getPreferences(this.getActivity()).getBoolean(
-										"hasDownloadedEasyTwo", false));
 		Picogram go = new Picogram();
 		go.setName("Easy Pack 1 (10 puzzles)");
 		go.setStatus("2");
@@ -269,7 +256,6 @@ OnItemClickListener, OnItemLongClickListener {
 					if (pos != null)
 					{
 						for (final ParseObject po : pos) {
-							Log.d(TAG, "PO ID: " + po.getString("puzzleId") + " Adapter? " + SuperAwesomeCardFragment.this.myAdapter);
 							if (!SuperAwesomeCardFragment.this.myAdapter.existsById(po.getString("puzzleId")))
 							{
 								SuperAwesomeCardFragment.this.myAdapter.add(new Picogram(po));
@@ -291,14 +277,16 @@ OnItemClickListener, OnItemLongClickListener {
 			final boolean isSortByRate) {
 		this.myAdapter.clear();
 		ParseQuery<ParseObject> query = ParseQuery.getQuery("PicogramTag");
-		query.whereEqualTo("tag", tag.toLowerCase());
+		query.whereEqualTo("tag", tag.trim().toLowerCase());
 		List<ParseObject> puzzleIds = null;
 		try {
 			puzzleIds = query.find();
 		} catch (final ParseException e) {
 			Log.d(TAG, "Error with tags 1: " + e.getMessage());
 		}
+		Log.d(TAG, "PuzzleIds here");
 		if (puzzleIds != null) {
+			Log.d(TAG, "PuzzleIds from tag (" + tag + "): " + puzzleIds.size());
 			for (ParseObject po : puzzleIds)
 			{
 				try {

@@ -151,6 +151,36 @@ public class SQLitePicogramAdapter extends SQLiteOpenHelper {
 		}
 	}
 
+	public Picogram getPicogram(final String id) {
+		final SQLiteDatabase db = this.getWritableDatabase();
+		final String query = "SELECT * FROM " + PicogramTable + " WHERE "
+				+ SQLitePicogramAdapter.id + "='" + id + "'";
+		final Cursor c = db.rawQuery(query, null);
+		if (c.moveToFirst()) {
+			final Picogram p = new Picogram();
+			p.setName(c.getString(c.getColumnIndex(name)));
+			p.setColors(c.getString(c.getColumnIndex(SQLitePicogramAdapter.colors)));
+			p.setAuthor(c.getString(c.getColumnIndex(SQLitePicogramAdapter.author)));
+			p.setCurrent(c.getString(c.getColumnIndex(SQLitePicogramAdapter.current)));
+			p.setDiff(c.getString(c.getColumnIndex(SQLitePicogramAdapter.difficulty)));
+			p.setHeight(c.getString(c.getColumnIndex(SQLitePicogramAdapter.height)));
+			p.setHighscore(Long.parseLong(c.getString(c.getColumnIndex(SQLitePicogramAdapter.highscore))));
+			p.setNumberOfColors(c.getString(c.getColumnIndex(SQLitePicogramAdapter.numberOfColors)));
+			p.setRating(c.getString(c.getColumnIndex(SQLitePicogramAdapter.rank)));
+			p.setSolution(c.getString(c.getColumnIndex(SQLitePicogramAdapter.solution)));
+			p.setStatus(c.getString(c.getColumnIndex(SQLitePicogramAdapter.status)));
+			p.setWidth(c.getString(c.getColumnIndex(SQLitePicogramAdapter.width)));
+			p.setID(c.getString(c.getColumnIndex(SQLitePicogramAdapter.id)));
+			p.setName(c.getString(c.getColumnIndex(name)));
+			c.close();
+
+			return p;
+		} else {
+			c.close();
+			return null;
+		}
+	}
+
 	public String[][] getPicograms() {
 		// Page is the page of Picograms to get. Might change.
 		// Returns String array of Picogram infos to be processed internally.
@@ -240,6 +270,7 @@ public class SQLitePicogramAdapter extends SQLiteOpenHelper {
 		// Don't do anything... Yet. Need to read up on what/how this works.
 	}
 
+
 	public void updateColorsById(final String gId, final String[] strColors) {
 		String colors = "";
 		for (int i = 0; i != strColors.length; ++i) {
@@ -251,7 +282,6 @@ public class SQLitePicogramAdapter extends SQLiteOpenHelper {
 		cv.put(SQLitePicogramAdapter.colors, colors);
 		db.update(SQLitePicogramAdapter.PicogramTable, cv, id + "=" + gId, null);
 	}
-
 
 	public int updateCurrentPicogram(final String id, final String status,
 			final String current) {

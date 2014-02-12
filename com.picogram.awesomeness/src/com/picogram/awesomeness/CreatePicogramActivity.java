@@ -49,7 +49,7 @@ import java.net.URL;
 import java.util.Arrays;
 
 public class CreatePicogramActivity extends FragmentActivity implements
-		OnClickListener, OnPictureTakenListener {
+OnClickListener, OnPictureTakenListener {
 	private static final int CAMERA_REQUEST_CODE = 1888,
 			FILE_SELECT_CODE = 1337;
 	private static final String TAG = "CreatePicogramActivity";
@@ -57,7 +57,7 @@ public class CreatePicogramActivity extends FragmentActivity implements
 
 	private Bitmap bmOriginal, bmNew;
 	Button bURL, bGallery, bCustom, bPicture, bSearch, bDone, bColors, bWidth,
-			bHeight, bSwitch, bBack;
+	bHeight, bSwitch, bBack;
 	int currentView = 0;
 	CameraView cv;
 
@@ -153,7 +153,7 @@ public class CreatePicogramActivity extends FragmentActivity implements
 
 		} else {
 			Crouton.makeText(this, "=( We need a picture first.", Style.INFO)
-					.show();
+			.show();
 		}
 
 	}
@@ -310,32 +310,32 @@ public class CreatePicogramActivity extends FragmentActivity implements
 			final EditText input = new EditText(this);
 			input.setText("http://static.tumblr.com/b81c7dadf0e20919a038a85c933062a6/4w8r7zy/2ifmvnsrg/tumblr_static_tumblr_static_tumblr_inline_mkqs46qvu21qz4rgp.gif");
 			new AlertDialog.Builder(CreatePicogramActivity.this)
-					.setTitle("URL Sumittion")
-					.setMessage("Url Link to Image File...")
-					.setView(input)
-					.setPositiveButton("Ok",
-							new DialogInterface.OnClickListener() {
-								public void onClick(final DialogInterface dialog,
-										final int whichButton) {
-									final Editable value = input.getText();
-									CreatePicogramActivity.url = value
-											.toString();
-									CreatePicogramActivity.this.handler.post(new Runnable() {
+			.setTitle("URL Sumittion")
+			.setMessage("Url Link to Image File...")
+			.setView(input)
+			.setPositiveButton("Ok",
+					new DialogInterface.OnClickListener() {
+				public void onClick(final DialogInterface dialog,
+						final int whichButton) {
+					final Editable value = input.getText();
+					CreatePicogramActivity.url = value
+							.toString();
+					CreatePicogramActivity.this.handler.post(new Runnable() {
 
-										public void run() {
-											CreatePicogramActivity.this.processURL();
-										}
-									});
+						public void run() {
+							CreatePicogramActivity.this.processURL();
+						}
+					});
 
-								}
-							})
-					.setNegativeButton("Cancel",
-							new DialogInterface.OnClickListener() {
-								public void onClick(final DialogInterface dialog,
-										final int whichButton) {
-									// Do nothing.
-								}
-							}).show();
+				}
+			})
+			.setNegativeButton("Cancel",
+					new DialogInterface.OnClickListener() {
+				public void onClick(final DialogInterface dialog,
+						final int whichButton) {
+					// Do nothing.
+				}
+			}).show();
 		} else if (v.getId() == R.id.bSearch) {
 			Crouton.makeText(this, "This isn't supported due to limitations.",
 					Style.INFO).show();
@@ -382,7 +382,7 @@ public class CreatePicogramActivity extends FragmentActivity implements
 			} else {
 				final Bitmap bm = Bitmap.createScaledBitmap(this.bmOriginal,
 						this.tivGame.gWidth * this.tivGame.cellWidth, this.tivGame.gHeight
-								* this.tivGame.cellHeight, false);
+						* this.tivGame.cellHeight, false);
 				this.tivGame.canvasBitmap.drawBitmap(bm, this.tivGame.longestSide
 						* this.tivGame.cellWidth, this.tivGame.longestTop
 						* this.tivGame.cellHeight, this.tivGame.paintBitmap);
@@ -508,7 +508,7 @@ public class CreatePicogramActivity extends FragmentActivity implements
 					});
 				} catch (final IOException e) {
 					Crouton.makeText(a, "Failed to get image.", Style.ALERT)
-							.show();
+					.show();
 					e.printStackTrace();
 				}
 			}
@@ -560,20 +560,20 @@ public class CreatePicogramActivity extends FragmentActivity implements
 
 	private void showNumberDialog(final int id) {
 		final NumberPickerBuilder npb = new NumberPickerBuilder()
-				.setStyleResId(R.style.MyCustomBetterPickerTheme)
-				.setFragmentManager(this.getSupportFragmentManager())
-				.setPlusMinusVisibility(View.INVISIBLE)
-				.setDecimalVisibility(View.INVISIBLE);
+		.setStyleResId(R.style.MyCustomBetterPickerTheme)
+		.setFragmentManager(this.getSupportFragmentManager())
+		.setPlusMinusVisibility(View.INVISIBLE)
+		.setDecimalVisibility(View.INVISIBLE);
 		if (id == R.id.bColors) {
 			npb.setMinNumber(2);
 			npb.setMaxNumber(10);
 		} else {
 			if (id == R.id.bWidth) {
 				Crouton.makeText(this, "Give us a new width.", Style.INFO)
-						.show();
+				.show();
 			} else {
 				Crouton.makeText(this, "Give us a new height.", Style.INFO)
-						.show();
+				.show();
 			}
 			npb.setMaxNumber(100);
 			npb.setMinNumber(1);

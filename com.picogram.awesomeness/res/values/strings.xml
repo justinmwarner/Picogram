@@ -3,7 +3,7 @@
 
     <string name="app_name">Picogram</string>
     <string name="hello_world">Hello world!</string>
-    <string name="menu_settings">Picogram</string>
+    <string name="menu_settings">Settings</string>
     <string name="create_Picogram">Picogram Creator</string>
     <string name="testPrompt">This my prompt</string>
     <string name="xBlocks">X Block</string>

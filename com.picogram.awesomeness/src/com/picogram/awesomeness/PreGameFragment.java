@@ -193,7 +193,8 @@ public class PreGameFragment extends Fragment implements OnClickListener {
 					else
 					{
 						// Multipart, so show the part selector.
-						((PicogramPreGame) this.getActivity()).showPartSelector();
+						// ((PicogramPreGame) this.getActivity()).showPartSelector();
+						this.startGame(this.current);
 					}
 				}
 			}
@@ -277,8 +278,8 @@ public class PreGameFragment extends Fragment implements OnClickListener {
 			fl.addView(v);
 			return fl;
 		}
-		LayoutParams params = new LayoutParams(LayoutParams.MATCH_PARENT,
-				LayoutParams.MATCH_PARENT);
+		LayoutParams params = new LayoutParams(android.view.ViewGroup.LayoutParams.MATCH_PARENT,
+				android.view.ViewGroup.LayoutParams.MATCH_PARENT);
 
 		final LinearLayout ll = new LinearLayout(this.getActivity());
 		ll.setOrientation(LinearLayout.VERTICAL);
@@ -288,8 +289,8 @@ public class PreGameFragment extends Fragment implements OnClickListener {
 				this.getResources()
 				.getDisplayMetrics());
 
-		params = new LayoutParams(LayoutParams.MATCH_PARENT,
-				LayoutParams.WRAP_CONTENT);
+		params = new LayoutParams(android.view.ViewGroup.LayoutParams.MATCH_PARENT,
+				android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
 		if (this.current == null)
 		{
 			// TODO Catch error.
@@ -299,7 +300,7 @@ public class PreGameFragment extends Fragment implements OnClickListener {
 		{
 			final ScrollView sv = new ScrollView(this.getActivity());
 			final LinearLayout llSub = new LinearLayout(this.getActivity());
-			llSub.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.FILL_PARENT));
+			llSub.setLayoutParams(new LinearLayout.LayoutParams(android.view.ViewGroup.LayoutParams.FILL_PARENT, android.view.ViewGroup.LayoutParams.FILL_PARENT));
 			llSub.setOrientation(LinearLayout.VERTICAL);
 			// Options
 			TextView tv = new TextView(this.getActivity());
@@ -410,10 +411,11 @@ public class PreGameFragment extends Fragment implements OnClickListener {
 		gameIntent.putExtra("id", this.current.getID());
 		gameIntent.putExtra("status", this.current.getStatus());
 		gameIntent.putExtra("colors", this.current.getColors());
+		gameIntent.putExtra("row", 0);
+		gameIntent.putExtra("column", 0);
 		this.getActivity().startActivityForResult(gameIntent,
 				MenuActivity.GAME_CODE);
 	}
-
 	protected void startGame(final Picogram go) {
 		FlurryAgent.logEvent("UserPlayGame");
 		final Intent gameIntent = new Intent(this.getActivity(),
@@ -426,6 +428,8 @@ public class PreGameFragment extends Fragment implements OnClickListener {
 		gameIntent.putExtra("id", go.getID());
 		gameIntent.putExtra("status", go.getStatus());
 		gameIntent.putExtra("colors", go.getColors());
+		gameIntent.putExtra("row", 0);
+		gameIntent.putExtra("column", 0);
 		this.getActivity().startActivityForResult(gameIntent,
 				MenuActivity.GAME_CODE);
 	}
