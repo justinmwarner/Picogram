@@ -6,10 +6,12 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -18,7 +20,11 @@ import java.util.ArrayList;
 
 public class PicogramListAdapter extends ArrayAdapter<Picogram> {
 	static class ViewHolder{
-
+		TextView name, diff, rate;
+		ImageView pic;
+		RelativeLayout rl;
+		FrameLayout fl;
+		Picogram p;
 	}
 	private static final String TAG = "PicogramListAdapter";
 	private Context context;
@@ -79,27 +85,31 @@ public class PicogramListAdapter extends ArrayAdapter<Picogram> {
 
 		// TODO Implement viewholder: http://gmariotti.blogspot.com/2013/06/tips-for-listview-view-recycling-use.html
 		ViewHolder holder;
+		final Picogram picogram = this.picograms.get(position);
+		Log.d(TAG, "ADD: " + picogram.getName());
+		String first = "";
 		if (convertView == null)
 		{
 			convertView = inflater.inflate(R.layout.picogram_menu_choice_item,
 					parent, false);
 			holder = new ViewHolder();
-
+			holder.diff = (TextView) convertView.findViewById(R.id.tvDiff);
+			holder.name = (TextView) convertView.findViewById(R.id.tvName);
+			holder.rate = (TextView) convertView.findViewById(R.id.tvRating);
+			holder.pic = (ImageView) convertView.findViewById(R.id.ivCurrent);
+			holder.rl = (RelativeLayout) convertView.findViewById(R.id.rlMenuHolder);
+			convertView.setTag(holder);
 		}
 		else
 		{
 			holder = (ViewHolder) convertView.getTag();
+
+			first = holder.name.getText().toString();
+			// picogram = holder.p;
 		}
 
-		final Picogram picogram = this.picograms.get(position);
 		picogram.nullsToValue(this.context);// Just reset all nulls to a value.
-		final View item = inflater.inflate(R.layout.picogram_menu_choice_item,
-				parent, false);
-		final TextView rate = (TextView) item.findViewById(R.id.tvRating);
-		final TextView diff = (TextView) item.findViewById(R.id.tvDiff);
-		final TextView name = (TextView) item.findViewById(R.id.tvName);
-		final ImageView iv = (ImageView) item.findViewById(R.id.ivCurrent);
-		iv.setVisibility(0);
+		holder.pic.setVisibility(0);
 		int height;
 		try {
 			height = Integer.parseInt(picogram.getHeight());
@@ -178,64 +188,72 @@ public class PicogramListAdapter extends ArrayAdapter<Picogram> {
 			bm = Bitmap.createScaledBitmap(bm, 100, 100, true);
 		}
 		bm = Bitmap.createScaledBitmap(bm, 100, 100, false);
-		iv.setImageBitmap(bm);
-		iv.setVisibility(View.VISIBLE);
+		holder.pic.setImageBitmap(bm);
+		holder.pic.setVisibility(View.VISIBLE);
 		if (picogram.getNumberOfRatings() != 0) {
 			final String rateText = "Rating: "
 					+ picogram.getRating();
 			final int index = rateText.indexOf('.');
 			if (index != -1) {
 				if (rateText.length() > (index + 3)) {
-					rate.setText(rateText.substring(0,
+					holder.rate.setText(rateText.substring(0,
 							rateText.indexOf('.') + 3));
 				} else {
-					rate.setText(rateText.substring(0,
+					holder.rate.setText(rateText.substring(0,
 							rateText.indexOf('.') + 2));
 				}
 			} else {
-				rate.setText(rateText);
+				holder.rate.setText(rateText);
 			}
 		}
-		diff.setText(width + " X " + height + " X "
-				+ picogram.getNumberOfColors());
-		name.setText(picogram.getName());
 		// Change color if user has beaten level.
 		int status = 0;
 		try {
 			status = Integer.parseInt(picogram.getStatus());
 		} catch (final NumberFormatException e) {
 		}
-		final RelativeLayout rl = (RelativeLayout) item
-				.findViewById(R.id.rlMenuHolder);
-		final Drawable gd = rl.getBackground().mutate();
-		item.setBackgroundResource(R.drawable.picogram_menu_choice_border_red);
+		final Drawable gd = holder.rl.getBackground().mutate();
+		convertView.setBackgroundResource(R.drawable.picogram_menu_choice_border_red);
+		holder.rl.setBackgroundResource(R.drawable.picogram_menu_choice_border_red);
 		if (picogram.getCurrent() == null) {
 			picogram.setCurrent("");
 		}
+		String rate = picogram.getRating() + "";
 		if (status == 2) {
 			// Other (Custom, special levels, etc.).
-			item.setBackgroundResource(R.drawable.picogram_menu_choice_border_other);
+			// convertView.setBackgroundResource(R.drawable.picogram_menu_choice_border_other);
+			holder.rl.setBackgroundResource(R.drawable.picogram_menu_choice_border_other);
 			// Also change difficulty to w X h X c
-			diff.setText("w X h X c");
+			holder.diff.setText("w X h X c");
 			// Erase rate
-			rate.setText("You decide ;)");
+			// holder.rl.setBackgroundColor(Color.YELLOW);
+			rate = "You decide ;)";
 		} else if ((status == 1)
 				|| this.picograms.get(position).getSolution().replaceAll("x", "0")
 				.equals(picogram.getCurrent().replaceAll("x", "0"))) {
 			// Won.
-			item.setBackgroundResource(R.drawable.picogram_menu_choice_border_green);
-		} else if (status == 0) {
+			// convertView.setBackgroundResource(R.drawable.picogram_menu_choice_border_green);
+			holder.rl.setBackgroundResource(R.drawable.picogram_menu_choice_border_green);
+			// holder.rl.setBackgroundColor(Color.GREEN);
+		} else {
 			// In progress.
-			item.setBackgroundResource(R.drawable.picogram_menu_choice_border_red);
-
+			// convertView.setBackgroundResource(R.drawable.picogram_menu_choice_border_red);
+			holder.rl.setBackgroundResource(R.drawable.picogram_menu_choice_border_red);
+			// holder.rl.setBackgroundColor(Color.RED);
 		}
-		gd.invalidateSelf();
-		item.invalidate();
-		rl.invalidate();
-		((ViewGroup) item)
-		.setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
-
-		return item;
+		holder.diff.setText(width + " X " + height + " X " + picogram.getNumberOfColors());
+		holder.name.setText(picogram.getName());
+		holder.rate.setText(rate);
+		holder.rl.invalidate();
+		convertView.invalidate();
+		// gd.invalidateSelf();
+		// convertView.invalidate();
+		// holder.rl.invalidate();
+		// ((ViewGroup) convertView)
+		// .setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
+		// Log.d(TAG, "ADD " + first + " : " +
+		// holder.name.getText().toString());
+		return convertView;
 	}
 
 	public void removeById(final String id) {
