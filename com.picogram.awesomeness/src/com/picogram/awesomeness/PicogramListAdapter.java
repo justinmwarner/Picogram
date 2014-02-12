@@ -207,7 +207,8 @@ public class PicogramListAdapter extends ArrayAdapter<Picogram> {
 		if (picogram.getCurrent() == null) {
 			picogram.setCurrent("");
 		}
-		String rate = (picogram.getWidth() + " X " + picogram.getHeight() + " X " + picogram.getNumberOfColors());
+		final String diff = (picogram.getWidth() + " X " + picogram.getHeight() + " X " + picogram.getNumberOfColors());
+		String rate = picogram.getRating() + "";
 		if (status == 2) {
 			// Other (Custom, special levels, etc.).
 			holder.rl.setBackgroundResource(R.drawable.picogram_menu_choice_border_other);
@@ -222,7 +223,7 @@ public class PicogramListAdapter extends ArrayAdapter<Picogram> {
 			// In progress.
 			holder.rl.setBackgroundResource(R.drawable.picogram_menu_choice_border_red);
 		}
-		holder.diff.setText(rate);
+		holder.diff.setText(diff);
 		holder.name.setText(picogram.getName());
 		holder.rate.setText(rate);
 		holder.rl.invalidate();
