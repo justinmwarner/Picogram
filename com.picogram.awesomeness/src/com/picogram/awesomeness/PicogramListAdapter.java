@@ -5,8 +5,6 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.graphics.drawable.Drawable;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,7 +22,6 @@ public class PicogramListAdapter extends ArrayAdapter<Picogram> {
 		ImageView pic;
 		RelativeLayout rl;
 		FrameLayout fl;
-		Picogram p;
 	}
 	private static final String TAG = "PicogramListAdapter";
 	private Context context;
@@ -70,72 +67,27 @@ public class PicogramListAdapter extends ArrayAdapter<Picogram> {
 		return this.picograms.get(pos);
 	}
 
-	@Override
-	public int getCount() {
-		return this.picograms.size();
-	}
-	@Override
-	public View getView(final int position, View convertView,
-			final ViewGroup parent) {
-		if (this.context == null) {
-			this.context = this.getContext();
-		}
-		final LayoutInflater inflater = (LayoutInflater) this.context
-				.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-
-		// TODO Implement viewholder: http://gmariotti.blogspot.com/2013/06/tips-for-listview-view-recycling-use.html
-		ViewHolder holder;
-		final Picogram picogram = this.picograms.get(position);
-		Log.d(TAG, "ADD: " + picogram.getName());
-		String first = "";
-		if (convertView == null)
-		{
-			convertView = inflater.inflate(R.layout.picogram_menu_choice_item,
-					parent, false);
-			holder = new ViewHolder();
-			holder.diff = (TextView) convertView.findViewById(R.id.tvDiff);
-			holder.name = (TextView) convertView.findViewById(R.id.tvName);
-			holder.rate = (TextView) convertView.findViewById(R.id.tvRating);
-			holder.pic = (ImageView) convertView.findViewById(R.id.ivCurrent);
-			holder.rl = (RelativeLayout) convertView.findViewById(R.id.rlMenuHolder);
-			convertView.setTag(holder);
-		}
-		else
-		{
-			holder = (ViewHolder) convertView.getTag();
-
-			first = holder.name.getText().toString();
-			// picogram = holder.p;
-		}
-
-		picogram.nullsToValue(this.context);// Just reset all nulls to a value.
-		holder.pic.setVisibility(0);
+	private Bitmap getBitmapFromCurrent(final Picogram p, final int position) {
+		Bitmap bm;
 		int height;
 		try {
-			height = Integer.parseInt(picogram.getHeight());
+			height = Integer.parseInt(p.getHeight());
 		} catch (final Exception e) {
 			height = 0;
 		}
 		int width;
 		try {
-			width = Integer.parseInt(picogram.getWidth());
+			width = Integer.parseInt(p.getWidth());
 		} catch (final Exception e) {
 			width = 0;
 		}
-		String curr = picogram.getCurrent();
+		String curr = p.getCurrent();
 		int run = 0;
-		if (curr == null) {
-			curr = "";
-			for (int i = 0; i != picogram.getSolution().length(); ++i) {
-				curr += "0";
-			}
-		}
-		Bitmap bm;
 		if ((height > 0) && (width > 0)) {
 			bm = BitmapFactory.decodeResource(this.context.getResources(),
 					R.drawable.ic_launcher);
 			bm = Bitmap.createScaledBitmap(bm, width, height, true);
-			final String cols = picogram.getColors();
+			final String cols = p.getColors();
 			String[] colors = null;
 			if (cols.contains(",")) {
 				colors = cols.split(",");
@@ -167,7 +119,7 @@ public class PicogramListAdapter extends ArrayAdapter<Picogram> {
 				}
 			}
 		} else {
-			if (picogram.getName().contains("Pack")) {
+			if (p.getName().contains("Pack")) {
 				// If we're a pack.
 				bm = BitmapFactory.decodeResource(this.context.getResources(),
 						R.drawable.ic_launcher);
@@ -188,6 +140,44 @@ public class PicogramListAdapter extends ArrayAdapter<Picogram> {
 			bm = Bitmap.createScaledBitmap(bm, 100, 100, true);
 		}
 		bm = Bitmap.createScaledBitmap(bm, 100, 100, false);
+		return bm;
+	}
+	@Override
+	public int getCount() {
+		return this.picograms.size();
+	}
+
+	@Override
+	public View getView(final int position, View convertView,
+			final ViewGroup parent) {
+		if (this.context == null) {
+			this.context = this.getContext();
+		}
+		final LayoutInflater inflater = (LayoutInflater) this.context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+
+		// TODO Implement viewholder: http://gmariotti.blogspot.com/2013/06/tips-for-listview-view-recycling-use.html
+		ViewHolder holder;
+		final Picogram picogram = this.picograms.get(position);
+		if (convertView == null)
+		{
+			convertView = inflater.inflate(R.layout.picogram_menu_choice_item,
+					parent, false);
+			holder = new ViewHolder();
+			holder.diff = (TextView) convertView.findViewById(R.id.tvDiff);
+			holder.name = (TextView) convertView.findViewById(R.id.tvName);
+			holder.rate = (TextView) convertView.findViewById(R.id.tvRating);
+			holder.pic = (ImageView) convertView.findViewById(R.id.ivCurrent);
+			holder.rl = (RelativeLayout) convertView.findViewById(R.id.rlMenuHolder);
+			convertView.setTag(holder);
+		}
+		else
+		{
+			holder = (ViewHolder) convertView.getTag();
+		}
+
+		picogram.nullsToValue(this.context);// Just reset all nulls to a value.
+		final String curr = picogram.getCurrent();
+		final Bitmap bm = this.getBitmapFromCurrent(picogram, position);
 		holder.pic.setImageBitmap(bm);
 		holder.pic.setVisibility(View.VISIBLE);
 		if (picogram.getNumberOfRatings() != 0) {
@@ -212,47 +202,31 @@ public class PicogramListAdapter extends ArrayAdapter<Picogram> {
 			status = Integer.parseInt(picogram.getStatus());
 		} catch (final NumberFormatException e) {
 		}
-		final Drawable gd = holder.rl.getBackground().mutate();
 		convertView.setBackgroundResource(R.drawable.picogram_menu_choice_border_red);
 		holder.rl.setBackgroundResource(R.drawable.picogram_menu_choice_border_red);
 		if (picogram.getCurrent() == null) {
 			picogram.setCurrent("");
 		}
-		String rate = picogram.getRating() + "";
+		String rate = (picogram.getWidth() + " X " + picogram.getHeight() + " X " + picogram.getNumberOfColors());
 		if (status == 2) {
 			// Other (Custom, special levels, etc.).
-			// convertView.setBackgroundResource(R.drawable.picogram_menu_choice_border_other);
 			holder.rl.setBackgroundResource(R.drawable.picogram_menu_choice_border_other);
-			// Also change difficulty to w X h X c
 			holder.diff.setText("w X h X c");
-			// Erase rate
-			// holder.rl.setBackgroundColor(Color.YELLOW);
 			rate = "You decide ;)";
 		} else if ((status == 1)
 				|| this.picograms.get(position).getSolution().replaceAll("x", "0")
 				.equals(picogram.getCurrent().replaceAll("x", "0"))) {
 			// Won.
-			// convertView.setBackgroundResource(R.drawable.picogram_menu_choice_border_green);
 			holder.rl.setBackgroundResource(R.drawable.picogram_menu_choice_border_green);
-			// holder.rl.setBackgroundColor(Color.GREEN);
 		} else {
 			// In progress.
-			// convertView.setBackgroundResource(R.drawable.picogram_menu_choice_border_red);
 			holder.rl.setBackgroundResource(R.drawable.picogram_menu_choice_border_red);
-			// holder.rl.setBackgroundColor(Color.RED);
 		}
-		holder.diff.setText(width + " X " + height + " X " + picogram.getNumberOfColors());
+		holder.diff.setText(rate);
 		holder.name.setText(picogram.getName());
 		holder.rate.setText(rate);
 		holder.rl.invalidate();
 		convertView.invalidate();
-		// gd.invalidateSelf();
-		// convertView.invalidate();
-		// holder.rl.invalidate();
-		// ((ViewGroup) convertView)
-		// .setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
-		// Log.d(TAG, "ADD " + first + " : " +
-		// holder.name.getText().toString());
 		return convertView;
 	}
 
@@ -276,6 +250,19 @@ public class PicogramListAdapter extends ArrayAdapter<Picogram> {
 				go.setCurrent(newCurrent);
 				go.setStatus(status);
 				this.picograms.set(i, go);
+				return;
+			}
+		}
+	}
+
+	public void updateRateById(final String id, final String newRate)
+	{
+		for (int i = 0; i != this.picograms.size(); ++i) {
+			if (this.picograms.get(i).getID().equals(id))
+			{
+				final Picogram p = this.picograms.get(i);
+				p.setRating(newRate);
+				this.picograms.set(i, p);
 				return;
 			}
 		}

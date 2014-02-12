@@ -26,7 +26,6 @@ import android.widget.TextView;
 
 import com.flurry.android.FlurryAgent;
 import com.parse.FindCallback;
-import com.parse.GetCallback;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
@@ -34,6 +33,7 @@ import com.picogram.awesomeness.DialogMaker.OnDialogResultListener;
 import de.keyboardsurfer.android.widget.crouton.Crouton;
 import de.keyboardsurfer.android.widget.crouton.Style;
 
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -136,10 +136,12 @@ OnItemClickListener, OnItemLongClickListener {
 		this.sql = new SQLitePicogramAdapter(a, "Picograms", null, 1);
 
 		final String[][] picogramsArray = this.sql.getPicograms();
+		final String[] ids = new String[picogramsArray.length];
 		final SharedPreferences prefs = Util.getPreferences(a);
 		for (int i = 0; i < picogramsArray.length; i++) {
 			final String temp[] = picogramsArray[i];
 			final String id = temp[0];
+			ids[i] = id;
 			final String name = temp[2];
 			final String rate = temp[3];
 			final String width = temp[7];
@@ -169,45 +171,38 @@ OnItemClickListener, OnItemLongClickListener {
 				final Picogram tempPicogram = new Picogram(id, status,
 						name, diff, rate, 0, author, width, height, solution,
 						current, numColors, colors);
-				if (status.equals("2") || !Util.isOnline()) {
-					a.runOnUiThread(new Runnable() {
+				a.runOnUiThread(new Runnable() {
 
-						public void run() {
-							SuperAwesomeCardFragment.this.myAdapter
-							.add(tempPicogram);
-							SuperAwesomeCardFragment.this.myAdapter
-							.notifyDataSetChanged();
-						}
+					public void run() {
+						SuperAwesomeCardFragment.this.myAdapter
+						.add(tempPicogram);
+						SuperAwesomeCardFragment.this.myAdapter
+						.notifyDataSetChanged();
+					}
 
-					});
-
-				} else {
-					final ParseQuery<ParseObject> query = ParseQuery.getQuery("Picogram");
-					query.whereEqualTo("puzzleId", id);
-					query.getFirstInBackground(new GetCallback<ParseObject>() {
-						@Override
-						public void done(final ParseObject object, final ParseException e) {
-							if (object != null) {
-								tempPicogram.setRating("" + object.getInt("rating"));
-								tempPicogram.setNumberOfRatings(object.getInt("numberOfRatings"));
-							} else {
-								Log.d(TAG, "Failed Updating the puzzle. " + e.getMessage());
-							}
-							a.runOnUiThread(new Runnable() {
-
-								public void run() {
-									if (!SuperAwesomeCardFragment.this.myAdapter.existsById(tempPicogram.getID()))
-									{
-										SuperAwesomeCardFragment.this.myAdapter.add(tempPicogram);
-										SuperAwesomeCardFragment.this.myAdapter.notifyDataSetChanged();
-									}
-								}
-							});
-						}
-					});
-				}
+				});
 			}
 		}
+		// Update ratings.
+		final ParseQuery<ParseObject> query = ParseQuery.getQuery("Picogram");
+		query.whereContainedIn("puzzleId", Arrays.asList(ids));
+		query.findInBackground(new FindCallback<ParseObject>() {
+
+			@Override
+			public void done(final List<ParseObject> result, final ParseException e) {
+				if (e == null)
+				{
+					for (final ParseObject po : result)
+					{
+						SuperAwesomeCardFragment.this.myAdapter.updateRateById(po.getString("puzzleId"), po.getString("rate"));
+						SuperAwesomeCardFragment.this.myAdapter.notifyDataSetChanged();
+					}
+				} else {
+					Log.d(TAG, "Error updating ratings on my puzzles: " + e.getMessage());
+				}
+			}
+
+		});
 
 	}
 
@@ -278,31 +273,42 @@ OnItemClickListener, OnItemLongClickListener {
 		this.myAdapter.clear();
 		ParseQuery<ParseObject> query = ParseQuery.getQuery("PicogramTag");
 		query.whereEqualTo("tag", tag.trim().toLowerCase());
-		List<ParseObject> puzzleIds = null;
+		List<ParseObject> queryResult = null;
 		try {
-			puzzleIds = query.find();
+			queryResult = query.find();
 		} catch (final ParseException e) {
 			Log.d(TAG, "Error with tags 1: " + e.getMessage());
 		}
 		Log.d(TAG, "PuzzleIds here");
-		if (puzzleIds != null) {
-			Log.d(TAG, "PuzzleIds from tag (" + tag + "): " + puzzleIds.size());
-			for (ParseObject po : puzzleIds)
-			{
-				try {
-					final String puzzleId = po.getString("puzzleId");
-					query = ParseQuery.getQuery("Picogram");
-					query.whereEqualTo("puzzleId", puzzleId);
-					po = query.getFirst();
-					if (!SuperAwesomeCardFragment.this.myAdapter.existsById(po.getString("puzzleId")))
-					{
-						this.myAdapter.add(new Picogram(po));
-						this.myAdapter.notifyDataSetChanged();
-					}
-				} catch (final ParseException e) {
-					Log.d(TAG, "Error with tags 2: " + e.getMessage());
-				}
+		if (queryResult != null) {
+			final String ids[] = new String[queryResult.size()];
+			for (int i = 0; i != queryResult.size(); ++i) {
+				ids[i] = queryResult.get(i).getString("puzzleId");
 			}
+			query = ParseQuery.getQuery("Picogram");
+			query.whereContainedIn("puzzleId", Arrays.asList(ids));
+			// TODO Sorting.
+			query.findInBackground(new FindCallback<ParseObject>() {
+
+				@Override
+				public void done(final List<ParseObject> result, final ParseException e) {
+					// TODO Auto-generated method stub
+					if (e == null)
+					{
+						for (final ParseObject po : result)
+						{
+							SuperAwesomeCardFragment.this.myAdapter.add(new Picogram(po));
+							SuperAwesomeCardFragment.this.myAdapter.notifyDataSetChanged();
+						}
+					}
+					else
+					{
+						Log.d(TAG, "Error with tags 2: " + e.getMessage());
+					}
+				}
+
+			});
+
 		}
 	}
 
