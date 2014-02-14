@@ -28,8 +28,10 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.widget.SearchView;
 import com.astuetz.viewpager.extensions.PagerSlidingTabStrip;
 import com.crittercism.app.Crittercism;
@@ -48,6 +50,7 @@ import com.kopfgeldjaeger.ratememaybe.RateMeMaybe;
 import com.kopfgeldjaeger.ratememaybe.RateMeMaybe.OnRMMUserChoiceListener;
 import com.parse.Parse;
 import com.picogram.awesomeness.DialogMaker.OnDialogResultListener;
+
 import de.keyboardsurfer.android.widget.crouton.Crouton;
 import de.keyboardsurfer.android.widget.crouton.Style;
 
@@ -291,7 +294,7 @@ FlurryAdListener, OnPageChangeListener, OnClickListener, OnRMMUserChoiceListener
 					Log.d(TAG, "ACTIONBAR SEARCH " + query);
 					MenuActivity.this.adapter.frag[MenuActivity.this.currentTab].getTagPuzzles(
 							MenuActivity.this.adapter.frag[MenuActivity.this.currentTab].getActivity(),
-							query, true);
+							query);
 					return true;
 				}
 			};
@@ -314,26 +317,29 @@ FlurryAdListener, OnPageChangeListener, OnClickListener, OnRMMUserChoiceListener
 
 	public boolean onNavigationItemSelected(final int itemPosition, final long itemId) {
 		if (this.currentTab == TITLES.indexOf("My")) {
-			Util.getPreferences(this).edit().putInt("mySetting", itemPosition)
-			.commit();
+			Util.getPreferences(this).edit().putInt("mySetting", itemPosition).commit();
 		} else if (this.currentTab == TITLES.indexOf("Packs")) {
-			Util.getPreferences(this).edit()
-			.putInt("packsSetting", itemPosition).commit();
+			Util.getPreferences(this).edit().putInt("packsSetting", itemPosition).commit();
 		} else if (this.currentTab == TITLES.indexOf("Top")) {
-			Util.getPreferences(this).edit().putInt("topSetting", itemPosition)
-			.commit();
+			Util.getPreferences(this).edit().putInt("topSetting", itemPosition).commit();
 		} else if (this.currentTab == TITLES.indexOf("Recent")) {
-			// Recent isn't special.
-			// Util.getPreferences(this).edit()
-			// .putInt("recentSetting", itemPosition).commit();
+			Util.getPreferences(this).edit().putInt("recentSetting", itemPosition).commit();
 		} else if (this.currentTab == TITLES.indexOf("Search")) {
-			Util.getPreferences(this).edit()
-			.putInt("searchSetting", itemPosition).commit();
+			Util.getPreferences(this).edit().putInt("searchSetting", itemPosition).commit();
 		}
 		this.updateCurrentTab();
 		return true;
 	}
 
+	@Override
+	public boolean onOptionsItemSelected(final MenuItem item) {
+		if (item.getItemId() == android.R.id.home)
+		{
+			this.pager.setCurrentItem(TITLES.indexOf("My"));
+			return true;
+		}
+		return false;
+	}
 	public void onPageScrolled(final int arg0, final float arg1, final int arg2) {
 		// TODO Auto-generated method stub
 	}
@@ -398,7 +404,6 @@ FlurryAdListener, OnPageChangeListener, OnClickListener, OnRMMUserChoiceListener
 	}
 
 	public void onSignInSucceeded() {
-		Crouton.makeText(this, "We've signed in.  Thanks!", Style.CONFIRM).show();
 		final Player p = this.getGamesClient().getCurrentPlayer();
 		this.dialog.hide();
 		Log.d(TAG, p.getDisplayName() + " " + p.toString());
@@ -545,6 +550,11 @@ FlurryAdListener, OnPageChangeListener, OnClickListener, OnRMMUserChoiceListener
 	private void updateActionBar(final int tab) {
 		// Drop down spinner update.
 		this.invalidateOptionsMenu();
+		final ActionBar ab = this.getSupportActionBar();
+		if (ab == null) {
+			return;
+		}
+		ab.show();
 		ArrayAdapter<CharSequence> list = null;
 		if (tab == TITLES.indexOf("My")) {
 			list = ArrayAdapter.createFromResource(this, R.array.listMy,
@@ -556,24 +566,25 @@ FlurryAdListener, OnPageChangeListener, OnClickListener, OnRMMUserChoiceListener
 			list = ArrayAdapter.createFromResource(this, R.array.listTop,
 					R.layout.sherlock_spinner_item);
 		} else if (tab == TITLES.indexOf("Recent")) {
+			// Recent always returns the most recent. It's nothing special.
+			ab.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
 		} else if (tab == TITLES.indexOf("Search")) {
 			list = ArrayAdapter.createFromResource(this, R.array.listSearch,
 					R.layout.sherlock_spinner_item);
 		} else {
 			return;
 		}
-		final ActionBar ab = this.getSupportActionBar();
-		if (ab == null) {
-			return;
-		}
-		ab.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
 		if (list != null) {
+			ab.setDisplayShowTitleEnabled(false);
+			ab.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
 			list.setDropDownViewResource(R.layout.sherlock_spinner_dropdown_item);
 			ab.setListNavigationCallbacks(list, this);
 		}
-		ab.setDisplayHomeAsUpEnabled(false);
-		ab.setDisplayUseLogoEnabled(false);
+
+		ab.setDisplayHomeAsUpEnabled(tab != TITLES.indexOf("My"));
 		ab.setDisplayShowTitleEnabled(false);
+		ab.setDisplayUseLogoEnabled(false);
+		this.invalidateOptionsMenu();
 	}
 
 	public void updateCurrentTab() {

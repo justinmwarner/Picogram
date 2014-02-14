@@ -436,7 +436,7 @@ OnClickListener, OnPictureTakenListener {
 
 	@Override
 	public boolean onCreateOptionsMenu(final Menu menu) {
-		this.getMenuInflater().inflate(R.menu.activity_main, menu);
+		// this.getMenuInflater().inflate(R.menu.activity_main, menu);
 		return true;
 	}
 

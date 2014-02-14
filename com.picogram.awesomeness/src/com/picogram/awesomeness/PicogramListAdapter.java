@@ -202,7 +202,8 @@ public class PicogramListAdapter extends ArrayAdapter<Picogram> {
 			status = Integer.parseInt(picogram.getStatus());
 		} catch (final NumberFormatException e) {
 		}
-		convertView.setBackgroundResource(R.drawable.picogram_menu_choice_border_red);
+		// convertView.setBackgroundResource(R.drawable.picogram_menu_choice_border_red);
+		holder.rl.setBackgroundDrawable(this.context.getResources().getDrawable(R.drawable.picogram_menu_choice_border_red));
 		holder.rl.setBackgroundResource(R.drawable.picogram_menu_choice_border_red);
 		if (picogram.getCurrent() == null) {
 			picogram.setCurrent("");
@@ -211,17 +212,19 @@ public class PicogramListAdapter extends ArrayAdapter<Picogram> {
 		String rate = picogram.getRating() + "";
 		if (status == 2) {
 			// Other (Custom, special levels, etc.).
-			holder.rl.setBackgroundResource(R.drawable.picogram_menu_choice_border_other);
+			// holder.rl.setBackgroundResource(R.drawable.picogram_menu_choice_border_other);
+			holder.rl.setBackgroundDrawable(this.context.getResources().getDrawable(R.drawable.picogram_menu_choice_border_other));
 			holder.diff.setText("w X h X c");
 			rate = "You decide ;)";
 		} else if ((status == 1)
 				|| this.picograms.get(position).getSolution().replaceAll("x", "0")
 				.equals(picogram.getCurrent().replaceAll("x", "0"))) {
 			// Won.
-			holder.rl.setBackgroundResource(R.drawable.picogram_menu_choice_border_green);
+			holder.rl.setBackgroundDrawable(this.context.getResources().getDrawable(R.drawable.picogram_menu_choice_border_green));// .setBackgroundResource(R.drawable.picogram_menu_choice_border_green);
 		} else {
 			// In progress.
-			holder.rl.setBackgroundResource(R.drawable.picogram_menu_choice_border_red);
+			holder.rl.setBackgroundDrawable(this.context.getResources().getDrawable(R.drawable.picogram_menu_choice_border_red));
+			// holder.rl.setBackgroundResource(R.drawable.picogram_menu_choice_border_red);
 		}
 		holder.diff.setText(diff);
 		holder.name.setText(picogram.getName());

@@ -138,6 +138,7 @@ OnItemClickListener, OnItemLongClickListener {
 		final String[][] picogramsArray = this.sql.getPicograms();
 		final String[] ids = new String[picogramsArray.length];
 		final SharedPreferences prefs = Util.getPreferences(a);
+		Log.d(TAG, "PREF: " + (prefs.getInt("mySetting", 0)));
 		for (int i = 0; i < picogramsArray.length; i++) {
 			final String temp[] = picogramsArray[i];
 			final String id = temp[0];
@@ -162,12 +163,13 @@ OnItemClickListener, OnItemLongClickListener {
 			if (prefs != null) {
 				if (prefs.getBoolean("wonvisible", false)
 						|| (prefs.getInt("mySetting", 0) == 1)) {
-					if (status.equals("1")) {
+					Log.d(TAG, name + " - " + status);
+					if (status.equals("1") || solution.equals(current.replaceAll("x|X", "0"))) {
 						isAdd = false;
 					}
 				}
 			}
-			if (isAdd) {
+			if (isAdd || status.equals("2")) {
 				final Picogram tempPicogram = new Picogram(id, status,
 						name, diff, rate, 0, author, width, height, solution,
 						current, numColors, colors);
@@ -194,6 +196,10 @@ OnItemClickListener, OnItemLongClickListener {
 				{
 					for (final ParseObject po : result)
 					{
+						if ((po.getString("rate") == null) || (po.getString("puzzleId") == null))
+						{
+							continue;
+						}
 						SuperAwesomeCardFragment.this.myAdapter.updateRateById(po.getString("puzzleId"), po.getString("rate"));
 						SuperAwesomeCardFragment.this.myAdapter.notifyDataSetChanged();
 					}
@@ -268,8 +274,7 @@ OnItemClickListener, OnItemLongClickListener {
 		});
 	}
 
-	public void getTagPuzzles(final Activity a, final String tag,
-			final boolean isSortByRate) {
+	public void getTagPuzzles(final Activity a, final String tag) {
 		this.myAdapter.clear();
 		ParseQuery<ParseObject> query = ParseQuery.getQuery("PicogramTag");
 		query.whereEqualTo("tag", tag.trim().toLowerCase());
@@ -287,12 +292,30 @@ OnItemClickListener, OnItemLongClickListener {
 			}
 			query = ParseQuery.getQuery("Picogram");
 			query.whereContainedIn("puzzleId", Arrays.asList(ids));
-			// TODO Sorting.
+
+			// Filter according to the actionbar list.
+			final int searchSetting = Util.getPreferences(this.getActivity()).getInt("searchSetting", 0);
+			if ((searchSetting == 0) || (searchSetting == 3)) {
+				// Weekly.
+				final Date date = addDaysToDate(new Date(), -7);
+				query.whereGreaterThan("createdAt", date);
+			} else if ((searchSetting == 1) || (searchSetting == 4)) {
+				// Monthly.
+				final Date date = addDaysToDate(new Date(), -30);
+				query.whereGreaterThan("createdAt", date);
+			}
+			if (searchSetting < 3) {
+				// Rate sort.
+				query.orderByDescending("Rate");
+
+			} else {
+				// Date sort.
+				query.orderByDescending("createdAt");
+			}
 			query.findInBackground(new FindCallback<ParseObject>() {
 
 				@Override
 				public void done(final List<ParseObject> result, final ParseException e) {
-					// TODO Auto-generated method stub
 					if (e == null)
 					{
 						for (final ParseObject po : result)
