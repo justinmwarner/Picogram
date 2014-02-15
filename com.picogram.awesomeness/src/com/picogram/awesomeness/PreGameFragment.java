@@ -1,6 +1,8 @@
 
 package com.picogram.awesomeness;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -11,6 +13,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
@@ -21,6 +25,7 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.flurry.android.FlurryAgent;
+import com.parse.DeleteCallback;
 import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseObject;
@@ -31,7 +36,7 @@ import de.keyboardsurfer.android.widget.crouton.Style;
 
 import java.util.List;
 
-public class PreGameFragment extends Fragment implements OnClickListener {
+public class PreGameFragment extends Fragment implements OnClickListener, OnItemClickListener {
 
 	private static final String ARG_POSITION = "position";
 	protected static final String TAG = "PreGameFragment";
@@ -230,6 +235,10 @@ public class PreGameFragment extends Fragment implements OnClickListener {
 				// TODO Check if a comment has already been made by this user for this puzzle. This will prevent spam somewhat.
 				etComment.setText(""); // Reset it.
 			}
+			else if (b.getText().toString().startsWith("Report")) {
+				// No author, so null.
+				this.showReportDialog("puzzle", this.current.getID(), null);
+			}
 			else if (b.getText().toString().startsWith("Facebook")) {
 			}
 			else if (b.getText().toString().startsWith("Pinterest")) {
@@ -326,6 +335,12 @@ public class PreGameFragment extends Fragment implements OnClickListener {
 			b.setText("Delete " + this.current.getName());
 			b.setOnClickListener(this);
 			llSub.addView(b);
+			b = new Button(this.getActivity());
+			b.setLayoutParams(params);
+			b.setGravity(Gravity.CENTER);
+			b.setText("Report " + this.current.getName());
+			b.setOnClickListener(this);
+			llSub.addView(b);
 			// Sharing.
 			tv = new TextView(this.getActivity());
 			tv.setLayoutParams(params);
@@ -366,9 +381,10 @@ public class PreGameFragment extends Fragment implements OnClickListener {
 			ll.addView(childLayout);
 			this.lvComments = (ListView) childLayout.findViewById(R.id.lvComments);
 			this.lvComments.setAdapter(this.comments);
+			this.lvComments.setOnItemClickListener(this);
 			final Button b = (Button) childLayout.findViewById(R.id.bComment);
 			b.setOnClickListener(this);
-			this.loadComments();
+			// this.loadComments(); Don't need to call.
 		}
 		else if (this.position == 2)
 		{
@@ -376,7 +392,7 @@ public class PreGameFragment extends Fragment implements OnClickListener {
 			this.lvHighscores = new ListView(this.getActivity());
 			this.lvHighscores.setAdapter(this.highscores);
 			ll.addView(this.lvHighscores);
-			this.loadHighScores();
+			// this.loadHighScores(); Don't need to call.
 		}
 		else if (this.position == 3)
 		{
@@ -399,6 +415,96 @@ public class PreGameFragment extends Fragment implements OnClickListener {
 		return ll;
 	}
 
+
+	public void onItemClick(final AdapterView<?> parent, final View view, final int pos, final long id) {
+		// If it's not the authors comment, flag. If it is, delete.
+		final PicogramComment pc = this.comments.getItem(pos);
+		Log.d(TAG, "Comment : " + pc.getComment());
+		if (pc.getAuthor().equals(Util.id(this.getActivity())))
+		{
+			// Theirs, delete prompt.
+			this.showDeleteComment(this.current.getID(), pc.getAuthor(), pc);
+		}
+		else
+		{
+			this.showReportDialog("comment", this.current.getID(), pc.getAuthor());
+		}
+	}
+
+	private void showDeleteComment(final String pid, final String author, final PicogramComment pc) {
+		final AlertDialog.Builder alert = new AlertDialog.Builder(this.getActivity());
+
+		alert.setMessage("Delete your comment " + pc.getComment());
+
+		alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+			public void onClick(final DialogInterface dialog, final int whichButton) {
+				final ParseQuery<ParseObject> query = ParseQuery.getQuery("PicogramComment");
+				Log.d(TAG, "DELETING " + pc.getComment());
+				query.whereEqualTo("author", pc.getAuthor());
+				query.whereEqualTo("comment", pc.getComment());
+				query.whereEqualTo("puzzleId", pc.getPuzzleId());
+				ParseObject po;
+				try {
+					po = query.getFirst();
+					po.deleteEventually(new DeleteCallback() {
+
+						@Override
+						public void done(final ParseException e) {
+							if (e == null)
+							{
+								Log.d(TAG, "DELETE SUCCESS!");
+								PreGameFragment.this.loadComments();
+							} else {
+								Log.d(TAG, "COULDN'T DELETE: " + e.getMessage());
+							}
+						}
+
+					});
+				} catch (final ParseException e) {
+					Log.d(TAG, "COULDN'T DELETE: " + e.getMessage());
+				}
+			}
+		});
+
+		alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+			public void onClick(final DialogInterface dialog, final int whichButton) {
+			}
+		});
+
+		alert.show();
+	}
+
+	private void showReportDialog(final String type, final String pid, final String aid) {
+		// Puzzle ID will always be filled out. Author ID will if it's a comment.
+		final FlagObject fo = new FlagObject();
+		fo.setPuzzleId(pid);
+		fo.setAuthorId(aid);
+		fo.setType(type);
+		final AlertDialog.Builder alert = new AlertDialog.Builder(this.getActivity());
+
+		alert.setTitle("Report " + type);
+		alert.setMessage("We thank you for helping us keep our game clean =).");
+
+		final EditText input = new EditText(this.getActivity());
+		alert.setView(input);
+
+		alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+			public void onClick(final DialogInterface dialog, final int whichButton) {
+				final String value = input.getText().toString();
+				fo.setReason(value);
+				fo.save();
+			}
+		});
+
+		alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+			public void onClick(final DialogInterface dialog, final int whichButton) {
+				// Ignore.
+			}
+		});
+
+		alert.show();
+	}
+
 	protected void startGame() {
 		FlurryAgent.logEvent("UserPlayGame");
 		final Intent gameIntent = new Intent(this.getActivity(),
@@ -416,6 +522,7 @@ public class PreGameFragment extends Fragment implements OnClickListener {
 		this.getActivity().startActivityForResult(gameIntent,
 				MenuActivity.GAME_CODE);
 	}
+
 	protected void startGame(final Picogram go) {
 		FlurryAgent.logEvent("UserPlayGame");
 		final Intent gameIntent = new Intent(this.getActivity(),

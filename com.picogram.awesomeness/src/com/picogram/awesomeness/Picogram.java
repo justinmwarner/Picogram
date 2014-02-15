@@ -215,7 +215,7 @@ public class Picogram implements Comparable {
 		gameScore.put("solution", this.solution);
 		gameScore.put("numberOfColors", this.numberOfColors);
 		gameScore.put("colors", this.colors);
-		gameScore.saveInBackground();
+		gameScore.saveEventually();
 	}
 
 	public void setAuthor(final String author) {

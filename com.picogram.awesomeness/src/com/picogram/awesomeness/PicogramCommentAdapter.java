@@ -68,9 +68,11 @@ public class PicogramCommentAdapter extends ArrayAdapter<PicogramComment> {
 		final TextView tvPicogramComment = (TextView) item.findViewById(R.id.tvComment);
 		tvAuthor.setText(comment.getAuthor());
 		tvPicogramComment.setText(comment.getComment());
-		if (Util.id(this.context) == comment.getAuthor())
+		Log.d(TAG, "A: " + comment.getAuthor() + " " + Util.id(this.context));
+		if (Util.id(this.context).equals(comment.getAuthor()))
 		{
 			// This is the person, so change background.
+			Log.d(TAG, "Coloring");
 			item.setBackgroundColor(Color.YELLOW);
 		}
 		item.invalidate();
