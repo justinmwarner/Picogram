@@ -22,6 +22,7 @@ import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
 import android.widget.ListView;
 import android.widget.ScrollView;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.flurry.android.FlurryAgent;
@@ -34,6 +35,7 @@ import com.parse.ParseQuery;
 import de.keyboardsurfer.android.widget.crouton.Crouton;
 import de.keyboardsurfer.android.widget.crouton.Style;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class PreGameFragment extends Fragment implements OnClickListener, OnItemClickListener {
@@ -54,6 +56,72 @@ public class PreGameFragment extends Fragment implements OnClickListener, OnItem
 	ListView lvComments, lvHighscores;
 	PicogramCommentAdapter comments;
 	PicogramHighscoreAdapter highscores;
+
+	Spinner partSpinner;
+
+	protected String[] getCells() {
+		final ArrayList<String> result = new ArrayList<String>();
+		// Get the currents
+		final String current = this.current.getCurrent();
+		final char[][] current2D = new char[Integer.parseInt(this.current.getHeight())][Integer.parseInt(this.current.getWidth())];
+		int run = 0;
+		for (int i = 0; i != current2D.length; ++i)
+		{
+			for (int j = 0; j != current2D[i].length; ++j) {
+				current2D[i][j] = current.charAt(run);
+				run++;
+			}
+		}
+		final PreGameActivity pga = (PreGameActivity) this.getActivity();
+		final int cellX = (int) pga.xCellNum, cellY = (int) pga.yCellNum;
+		final int cellWidth = pga.cellWidth, cellHeight = pga.cellHeight;
+		int runX = 0, runY = 0;
+		for (int i = 0; i != (cellX * cellY); ++i) {
+			result.add("");
+		}
+		for (int i = 0; i != current2D.length; ++i) {
+			runY = (int) Math.ceil(i / cellHeight);
+			for (int j = 0; j != current2D[i].length; ++j) {
+				runX = (int) Math.ceil(j / cellWidth);
+				final int location = runX + (runY * cellX);
+				result.set(location, result.get(location) + current2D[i][j]);
+			}
+		}
+		result.add("");
+		runX = runY = run = 0;
+		// Get the solutions
+		final String solution = this.current.getSolution();
+		Log.d(TAG, "OUT: " + current + " " + solution);
+		final char[][] solution2D = new char[Integer.parseInt(this.current.getHeight())][Integer.parseInt(this.current.getWidth())];
+		for (int i = 0; i != solution2D.length; ++i)
+		{
+			for (int j = 0; j != solution2D[i].length; ++j) {
+				solution2D[i][j] = solution.charAt(run);
+				run++;
+			}
+		}
+		final ArrayList<String> one = new ArrayList<String>();
+		for (int i = 0; i != (cellX * cellY); ++i) {
+			one.add("");
+		}
+		for (int i = 0; i != solution2D.length; ++i) {
+			runY = (int) Math.ceil(i / cellHeight);
+			for (int j = 0; j != solution2D[i].length; ++j) {
+				runX = (int) Math.ceil(j / cellWidth);
+				final int location = runX + (runY * cellX);
+				one.set(location, one.get(location) + solution2D[i][j]);
+			}
+		}
+		for (final String o : one) {
+			result.add(o);
+		}
+		String[] list = new String[result.size()];
+		list = result.toArray(list);
+		for (final String l : list) {
+			Log.d(TAG, "OOOO: " + l);
+		}
+		return result.toArray(list);
+	}
 
 	public void loadComments() {
 		this.comments.clear();
@@ -197,9 +265,21 @@ public class PreGameFragment extends Fragment implements OnClickListener, OnItem
 					}
 					else
 					{
-						// Multipart, so show the part selector.
-						// ((PicogramPreGame) this.getActivity()).showPartSelector();
-						this.startGame(this.current);
+						final int part = this.partSpinner.getSelectedItemPosition();
+						Log.d(TAG, "PART: " + part);
+						final String[] cells = this.getCells();
+						final String cur = cells[part];
+						String sol = "";
+						for (int i = 0; i != cells.length; ++i)
+						{
+							if (cells[i].isEmpty())
+							{
+								sol = cells[i + part + 1];
+								break;
+							}
+						}
+
+						this.startGame(cur, sol, part);
 					}
 				}
 			}
@@ -207,8 +287,8 @@ public class PreGameFragment extends Fragment implements OnClickListener, OnItem
 				final String newCurrent = this.current.getCurrent().replaceAll("[^0]", "0");
 				sql.updateCurrentPicogram(this.current.getID(), "0", newCurrent);
 				this.current.setCurrent(newCurrent);
-				((PicogramPreGame) this.getActivity()).current = this.current.getCurrent();
-				((PicogramPreGame) this.getActivity()).updateAndGetImageView();
+				((PreGameActivity) this.getActivity()).current = this.current.getCurrent();
+				((PreGameActivity) this.getActivity()).updateAndGetImageView();
 			}
 			else if (b.getText().toString().startsWith("Delete")) {
 				Log.d(TAG, "bb DELETE");
@@ -260,10 +340,14 @@ public class PreGameFragment extends Fragment implements OnClickListener, OnItem
 				R.id.tvCommentAuthor);
 		this.highscores = new PicogramHighscoreAdapter(this.getActivity(), R.id.tvCommentAuthor);
 	}
-
 	@Override
 	public View onCreateView(final LayoutInflater inflater, final ViewGroup container,
 			final Bundle savedInstanceState) {
+		if (this.current == null)
+		{
+			this.current = new Picogram();
+			this.current.nullsToValue(this.getActivity());
+		}
 		if (!Util.isOnline() && (this.position != 0))
 		{
 			final LayoutParams params = new LayoutParams(
@@ -322,7 +406,24 @@ public class PreGameFragment extends Fragment implements OnClickListener, OnItem
 			b.setGravity(Gravity.CENTER);
 			b.setText("Play " + this.current.getName());
 			b.setOnClickListener(this);
-			llSub.addView(b);
+			if ((Integer.parseInt(this.current.getWidth()) > 25) || (Integer.parseInt(this.current.getHeight()) > 25))
+			{
+				// We have multiple parts, add a spinner to the side.
+				final LinearLayout tempLL = new LinearLayout(this.getActivity());
+				tempLL.setOrientation(LinearLayout.HORIZONTAL);
+				b.setLayoutParams(new LayoutParams(android.view.ViewGroup.LayoutParams.WRAP_CONTENT,
+						android.view.ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+				tempLL.addView(b);
+				this.partSpinner = new Spinner(this.getActivity());
+				this.partSpinner.setLayoutParams(new LayoutParams(android.view.ViewGroup.LayoutParams.WRAP_CONTENT,
+						android.view.ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+				this.partSpinner.setAdapter(new PartSpinnerAdapter(this.getActivity(), 0, this.getCells()));
+				tempLL.addView(this.partSpinner);
+				llSub.addView(tempLL);
+			}
+			else {
+				llSub.addView(b);
+			}
 			b = new Button(this.getActivity());
 			b.setLayoutParams(params);
 			b.setGravity(Gravity.CENTER);
@@ -415,7 +516,6 @@ public class PreGameFragment extends Fragment implements OnClickListener, OnItem
 		return ll;
 	}
 
-
 	public void onItemClick(final AdapterView<?> parent, final View view, final int pos, final long id) {
 		// If it's not the authors comment, flag. If it is, delete.
 		final PicogramComment pc = this.comments.getItem(pos);
@@ -453,7 +553,8 @@ public class PreGameFragment extends Fragment implements OnClickListener, OnItem
 							if (e == null)
 							{
 								Log.d(TAG, "DELETE SUCCESS!");
-								PreGameFragment.this.loadComments();
+								// PreGameFragment.this.loadComments();
+								PreGameFragment.this.comments.delete(pc.getAuthor(), pc.getComment());
 							} else {
 								Log.d(TAG, "COULDN'T DELETE: " + e.getMessage());
 							}
@@ -517,8 +618,7 @@ public class PreGameFragment extends Fragment implements OnClickListener, OnItem
 		gameIntent.putExtra("id", this.current.getID());
 		gameIntent.putExtra("status", this.current.getStatus());
 		gameIntent.putExtra("colors", this.current.getColors());
-		gameIntent.putExtra("row", 0);
-		gameIntent.putExtra("column", 0);
+		gameIntent.putExtra("part", -1);
 		this.getActivity().startActivityForResult(gameIntent,
 				MenuActivity.GAME_CODE);
 	}
@@ -535,8 +635,26 @@ public class PreGameFragment extends Fragment implements OnClickListener, OnItem
 		gameIntent.putExtra("id", go.getID());
 		gameIntent.putExtra("status", go.getStatus());
 		gameIntent.putExtra("colors", go.getColors());
-		gameIntent.putExtra("row", 0);
-		gameIntent.putExtra("column", 0);
+		gameIntent.putExtra("part", -1);
+		this.getActivity().startActivityForResult(gameIntent,
+				MenuActivity.GAME_CODE);
+	}
+
+	protected void startGame(final String current, final String solution, final int part) {
+		FlurryAgent.logEvent("UserPlayGame");
+		// This is used when we're playing a part, so some things will be different.
+		final PreGameActivity pga = (PreGameActivity) this.getActivity();
+		final Intent gameIntent = new Intent(this.getActivity(),
+				AdvancedGameActivity.class);
+		gameIntent.putExtra("name", this.current.getName());
+		gameIntent.putExtra("solution", solution);
+		gameIntent.putExtra("current", current);
+		gameIntent.putExtra("width", pga.cellHeight + "");
+		gameIntent.putExtra("height", pga.cellWidth + "");
+		gameIntent.putExtra("id", this.current.getID());
+		gameIntent.putExtra("status", this.current.getStatus());
+		gameIntent.putExtra("colors", this.current.getColors());
+		gameIntent.putExtra("part", part);
 		this.getActivity().startActivityForResult(gameIntent,
 				MenuActivity.GAME_CODE);
 	}

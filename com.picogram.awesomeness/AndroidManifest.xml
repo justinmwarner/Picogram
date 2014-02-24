@@ -64,7 +64,7 @@
             android:label="@string/title_activity_advanced_game" >
         </activity>
         <activity
-            android:name="com.picogram.awesomeness.PicogramPreGame"
+            android:name="com.picogram.awesomeness.PreGameActivity"
             android:label="@string/title_activity_picogram_pre_game" >
         </activity>
 

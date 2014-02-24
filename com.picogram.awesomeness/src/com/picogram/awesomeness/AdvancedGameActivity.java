@@ -2,11 +2,9 @@
 package com.picogram.awesomeness;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.BitmapFactory;
@@ -19,7 +17,6 @@ import android.os.Message;
 import android.os.Vibrator;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MotionEvent;
 import android.view.View;
@@ -34,9 +31,6 @@ import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
 
 import com.flurry.android.FlurryAgent;
-import com.parse.ParseException;
-import com.parse.ParseObject;
-import com.parse.ParseQuery;
 import com.picogram.awesomeness.DialogMaker.OnDialogResultListener;
 import com.picogram.awesomeness.TouchImageView.HistoryListener;
 import com.picogram.awesomeness.TouchImageView.WinnerListener;
@@ -78,12 +72,9 @@ OnSeekBarChangeListener {
 	Handler handle = new Handler();
 	int tutorialStep = 0;
 	private static SQLitePicogramAdapter sql;
-	int colors[], row, column;
+	int colors[], part;
 	String strColors[];
-
 	ArrayList<ImageView> ivs = new ArrayList<ImageView>();
-
-	boolean isDialogueShowing = false;
 
 	private final BroadcastReceiver mBatInfoReceiver = new BroadcastReceiver() {
 		@Override
@@ -347,8 +338,7 @@ OnSeekBarChangeListener {
 		bUndo.setOnClickListener(this);
 		bRedo.setOnClickListener(this);
 
-		this.row = this.getIntent().getExtras().getInt("row");
-		this.column = this.getIntent().getExtras().getInt("column");
+		this.part = this.getIntent().getExtras().getInt("part");
 
 		final Vibrator myVib = (Vibrator) this
 				.getSystemService(VIBRATOR_SERVICE);
@@ -394,7 +384,6 @@ OnSeekBarChangeListener {
 	@Override
 	public void onPause() {
 		super.onPause();
-		this.unregisterReceiver(this.mBatInfoReceiver);
 		sql.updateCurrentPicogram(this.tiv.gSolution.hashCode() + "", "0",
 				this.tiv.gCurrent);
 
@@ -499,57 +488,20 @@ OnSeekBarChangeListener {
 		} else {
 			returnIntent.putExtra("status", "0");
 		}
-		returnIntent.putExtra("ID", this.tiv.gSolution.hashCode() + "");
-		returnIntent.putExtra("row", this.row);
-		returnIntent.putExtra("column", this.column);
+		returnIntent.putExtra("ID", this.tiv.gId);
+		returnIntent.putExtra("part", this.part);
 
 		this.setResult(Activity.RESULT_OK, returnIntent);
+		try {
+			this.unregisterReceiver(this.mBatInfoReceiver);
+		} catch (final Exception e)
+		{
+		}
 		this.finish();
 	}
 
 	public void win() {
-		final ParseQuery<ParseObject> query = ParseQuery.getQuery("Picogram");
-		query.whereEqualTo("puzzleId", this.tiv.gId);
-		try {
-			final ParseObject po = query.getFirst();
-			final AlertDialog.Builder builder = new AlertDialog.Builder(this);
-			builder
-			.setTitle("Rate " + this.tiv.gName)
-			.setMessage("Give " + this.tiv.gName + " a snowflake =] or frown =[ ?")
-			.setIcon(android.R.drawable.ic_dialog_alert)
-			.setPositiveButton("Snowflake", new DialogInterface.OnClickListener() {
-				public void onClick(final DialogInterface dialog, final int which) {
-					try {
-						po.increment("rate", 1);
-						po.save();
-					} catch (final ParseException e) {
-						Log.d(TAG, "Error with submitting score:  " + e.getMessage());
-						e.printStackTrace();
-					}
-					AdvancedGameActivity.this.returnIntent(null);
-				}
-			})
-			.setNegativeButton("Frown", new DialogInterface.OnClickListener() {
-				public void onClick(final DialogInterface dialog, final int which) {
-					try {
-						po.increment("rate", -1);
-						po.save();
-					} catch (final ParseException e) {
-						Log.d(TAG, "Error with submitting score:  " + e.getMessage());
-						e.printStackTrace();
-					}
-					AdvancedGameActivity.this.returnIntent(null);
-				}
-			});
-
-			if (!this.isDialogueShowing) {
-				builder.show();
-				this.isDialogueShowing = !this.isDialogueShowing;
-			}
-		} catch (final ParseException e) {
-			Log.d(TAG, "Error with submitting score:  " + e.getMessage());
-			e.printStackTrace();
-			this.returnIntent(null);
-		}
+		// Do stuff if we win... Maybe make the gridlines go away and show the whole image?
+		this.returnIntent(null);
 	}
 }

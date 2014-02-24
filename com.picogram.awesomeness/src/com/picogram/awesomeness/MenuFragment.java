@@ -39,7 +39,7 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
 
-public class SuperAwesomeCardFragment extends Fragment implements
+public class MenuFragment extends Fragment implements
 OnItemClickListener, OnItemLongClickListener {
 
 	private static final String ARG_POSITION = "position";
@@ -58,8 +58,8 @@ OnItemClickListener, OnItemLongClickListener {
 		return newDate;
 	}
 
-	public static SuperAwesomeCardFragment newInstance(final int position) {
-		final SuperAwesomeCardFragment f = new SuperAwesomeCardFragment();
+	public static MenuFragment newInstance(final int position) {
+		final MenuFragment f = new MenuFragment();
 		final Bundle b = new Bundle();
 		b.putInt(ARG_POSITION, position);
 		f.setArguments(b);
@@ -114,15 +114,15 @@ OnItemClickListener, OnItemLongClickListener {
 						((w * h) / 1400) + "", "3", 1, "computer", w
 						+ "", h + "", result.getString("solution"),
 						current, nc, cols);
-				SuperAwesomeCardFragment.this.myAdapter.add(go);
-				SuperAwesomeCardFragment.this.myAdapter.notifyDataSetChanged();
+				MenuFragment.this.myAdapter.add(go);
+				MenuFragment.this.myAdapter.notifyDataSetChanged();
 				go.setCurrent(null);
 				go.save();
 				final PicogramTag gt = new PicogramTag("random");
 				gt.setID(go.getID());
 				gt.save();
 				final SQLiteRatingAdapter sra = new SQLiteRatingAdapter(
-						SuperAwesomeCardFragment.this.getActivity(), "Rating", null, 2);
+						MenuFragment.this.getActivity(), "Rating", null, 2);
 				sra.insertCreate(gt.getID());
 				sra.close();
 				// Start to play.
@@ -131,6 +131,7 @@ OnItemClickListener, OnItemLongClickListener {
 	}
 
 	public void getMyPuzzles(final FragmentActivity a) {
+		this.myAdapter.myPicograms.clear();
 		this.myAdapter.clear();
 		this.myAdapter.notifyDataSetChanged();
 		this.sql = new SQLitePicogramAdapter(a, "Picograms", null, 1);
@@ -176,15 +177,23 @@ OnItemClickListener, OnItemLongClickListener {
 				a.runOnUiThread(new Runnable() {
 
 					public void run() {
-						SuperAwesomeCardFragment.this.myAdapter
+						MenuFragment.this.myAdapter.myPicograms
 						.add(tempPicogram);
-						SuperAwesomeCardFragment.this.myAdapter
-						.notifyDataSetChanged();
 					}
 
 				});
 			}
 		}
+		this.myAdapter.picograms = this.myAdapter.myPicograms;
+		MenuFragment.this.myAdapter.notifyDataSetChanged();
+		// Update ratings only every hour.
+		final long last = Util.getPreferences(this.getActivity()).getLong("lastMyUpdate", 0);
+		final long currentTime = System.currentTimeMillis();
+
+		if ((currentTime - last) < 3600000) {
+			return;
+		}
+		Util.getPreferences(this.getActivity()).edit().putLong("lastMyUpdate", currentTime).commit();
 		// Update ratings.
 		final ParseQuery<ParseObject> query = ParseQuery.getQuery("Picogram");
 		query.whereContainedIn("puzzleId", Arrays.asList(ids));
@@ -194,14 +203,11 @@ OnItemClickListener, OnItemLongClickListener {
 			public void done(final List<ParseObject> result, final ParseException e) {
 				if (e == null)
 				{
+					Log.d(TAG, "UPDATING " + result.size());
 					for (final ParseObject po : result)
 					{
-						if ((po.getString("rate") == null) || (po.getString("puzzleId") == null))
-						{
-							continue;
-						}
-						SuperAwesomeCardFragment.this.myAdapter.updateRateById(po.getString("puzzleId"), po.getString("rate"));
-						SuperAwesomeCardFragment.this.myAdapter.notifyDataSetChanged();
+						MenuFragment.this.myAdapter.updateRateById(po.getString("puzzleId"), po.getInt("rate"));
+						MenuFragment.this.myAdapter.notifyDataSetChanged();
 					}
 				} else {
 					Log.d(TAG, "Error updating ratings on my puzzles: " + e.getMessage());
@@ -246,6 +252,17 @@ OnItemClickListener, OnItemLongClickListener {
 	}
 
 	public void getRecentPuzzles(final Activity a) {
+		// Update ratings only every hour.
+		final long last = Util.getPreferences(this.getActivity()).getLong("lastRecentUpdate", 0);
+		final long currentTime = System.currentTimeMillis();
+
+		if ((currentTime - last) < 3600000) {
+			this.myAdapter.picograms = this.myAdapter.recentPicograms;
+			this.myAdapter.notifyDataSetChanged();
+			return;
+		}
+		Util.getPreferences(this.getActivity()).edit().putLong("lastRecentUpdate", currentTime).commit();
+		this.myAdapter.recentPicograms.clear();
 		this.myAdapter.clear();
 		final ParseQuery<ParseObject> query = ParseQuery.getQuery("Picogram");
 		query.orderByDescending("createdAt");
@@ -257,13 +274,13 @@ OnItemClickListener, OnItemLongClickListener {
 					if (pos != null)
 					{
 						for (final ParseObject po : pos) {
-							if (!SuperAwesomeCardFragment.this.myAdapter.existsById(po.getString("puzzleId")))
+							if (!MenuFragment.this.myAdapter.existsById(po.getString("puzzleId")))
 							{
-								SuperAwesomeCardFragment.this.myAdapter.add(new Picogram(po));
-								SuperAwesomeCardFragment.this.myAdapter
-								.notifyDataSetChanged();
+								MenuFragment.this.myAdapter.recentPicograms.add(new Picogram(po));
 							}
 						}
+						MenuFragment.this.myAdapter.picograms = MenuFragment.this.myAdapter.recentPicograms;
+						MenuFragment.this.myAdapter.notifyDataSetChanged();
 					}
 				}
 				else
@@ -320,8 +337,8 @@ OnItemClickListener, OnItemLongClickListener {
 					{
 						for (final ParseObject po : result)
 						{
-							SuperAwesomeCardFragment.this.myAdapter.add(new Picogram(po));
-							SuperAwesomeCardFragment.this.myAdapter.notifyDataSetChanged();
+							MenuFragment.this.myAdapter.add(new Picogram(po));
+							MenuFragment.this.myAdapter.notifyDataSetChanged();
 						}
 					}
 					else
@@ -336,6 +353,19 @@ OnItemClickListener, OnItemLongClickListener {
 	}
 
 	public void getTopPuzzles(final Activity a) {
+		// Update ratings only every day.
+		final long last = Util.getPreferences(this.getActivity()).getLong("lastTopUpdate", 0);
+		final long currentTime = System.currentTimeMillis();
+		if ((currentTime - last) < (3600000 * 24)) {
+			this.myAdapter.picograms = this.myAdapter.topPicograms;
+			Log.d(TAG, "MYUP TOP : " + this.myAdapter.topPicograms.size());
+			this.myAdapter.notifyDataSetChanged();
+			if (this.myAdapter.picograms.size() != 0) {
+				return;
+			}
+		}
+		Util.getPreferences(this.getActivity()).edit().putLong("lastTopUpdate", currentTime).commit();
+		this.myAdapter.topPicograms.clear();
 		this.myAdapter.clear();
 		final ParseQuery<ParseObject> query = ParseQuery.getQuery("Picogram");
 		// Weekly, Monthly, All Time. Rate only matters, createddate is in
@@ -356,16 +386,16 @@ OnItemClickListener, OnItemLongClickListener {
 				if (e == null)
 				{
 					if (list != null) {
+						MenuFragment.this.myAdapter.topPicograms.clear();
 						for (final ParseObject po : list)
 						{
-							if (!SuperAwesomeCardFragment.this.myAdapter.existsById(po.getString("puzzleId")))
+							if (!MenuFragment.this.myAdapter.existsById(po.getString("puzzleId")))
 							{
-								SuperAwesomeCardFragment.this.myAdapter
-								.add(new Picogram(po));
-								SuperAwesomeCardFragment.this.myAdapter
-								.notifyDataSetChanged();
+								MenuFragment.this.myAdapter.topPicograms.add(new Picogram(po));
 							}
 						}
+						MenuFragment.this.myAdapter.picograms = MenuFragment.this.myAdapter.topPicograms;
+						MenuFragment.this.myAdapter.notifyDataSetChanged();
 					}
 				}
 				else
@@ -801,27 +831,27 @@ OnItemClickListener, OnItemLongClickListener {
 					} else if (result == 1) {
 						// Clear.
 						String newCurrent = "";
-						for (int i = 0; i != SuperAwesomeCardFragment.this.myAdapter.get(position)
+						for (int i = 0; i != MenuFragment.this.myAdapter.get(position)
 								.getCurrent().length(); ++i) {
 							newCurrent += "0";
 						}
-						SuperAwesomeCardFragment.this.myAdapter.updateCurrentById(
-								SuperAwesomeCardFragment.this.myAdapter.get(position)
+						MenuFragment.this.myAdapter.updateCurrentById(
+								MenuFragment.this.myAdapter.get(position)
 								.getID(), newCurrent, "0");
-						SuperAwesomeCardFragment.this.sql.updateCurrentPicogram(
-								SuperAwesomeCardFragment.this.myAdapter.get(position)
+						MenuFragment.this.sql.updateCurrentPicogram(
+								MenuFragment.this.myAdapter.get(position)
 								.getID(), "0", newCurrent);
 					} else if (result == 2) {
 						// Delete.
-						SuperAwesomeCardFragment.this.sql
-						.deletePicogram(SuperAwesomeCardFragment.this.myAdapter.get(
+						MenuFragment.this.sql
+						.deletePicogram(MenuFragment.this.myAdapter.get(
 								position).getID());
-						SuperAwesomeCardFragment.this.myAdapter
-						.removeById(SuperAwesomeCardFragment.this.myAdapter.get(position)
+						MenuFragment.this.myAdapter
+						.removeById(MenuFragment.this.myAdapter.get(position)
 								.getID());
 						// TODO Remove from personal ranking table.
 					}
-					SuperAwesomeCardFragment.this.myAdapter.notifyDataSetChanged();
+					MenuFragment.this.myAdapter.notifyDataSetChanged();
 				}
 			});
 
@@ -833,7 +863,7 @@ OnItemClickListener, OnItemLongClickListener {
 		FlurryAgent.logEvent("UserPlayGame");
 		// Intent gameIntent = new Intent(this, AdvancedGameActivity.class);
 		final Intent gameIntent = new Intent(this.getActivity(),
-				PicogramPreGame.class);
+				PreGameActivity.class);
 		gameIntent.putExtra("name", go.getName());
 		gameIntent.putExtra("solution", go.getSolution());
 		gameIntent.putExtra("current", go.getCurrent());

@@ -41,11 +41,23 @@ public class PicogramCommentAdapter extends ArrayAdapter<PicogramComment> {
 		super.clear();
 		this.comments.clear();
 	}
+	public void delete(final String author, final String comment)
+	{
+		for(int i = 0; i != this.comments.size(); ++i)
+		{
+			final PicogramComment pc = this.comments.get(i);
+			if(pc.getAuthor().equals(author) && pc.getComment().equals(comment))
+			{
+				this.comments.remove(i);
+				this.notifyDataSetChanged();
+				return;
+			}
+		}
+	}
 	@Override
 	public int getCount() {
 		return this.comments.size();
 	}
-
 	@Override
 	public PicogramComment getItem(final int position) {
 		return this.comments.get(position);

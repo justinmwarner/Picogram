@@ -222,7 +222,7 @@ OnDoubleTapListener {
 
 		// Get a 2D array of "current" Picogram.
 		final char current2D[][] = this.puzzleTo2DArray(this.gSolution);
-		// Create bitmap based on the current. Make a int array with pixel
+		// Create bitmap based on the current. Make an int array with pixel
 		// colors.
 		// Because of how we're making the top hints, it needs its own method.
 		if ((this.topHints == null) || this.isRefreshing) {
@@ -1089,14 +1089,11 @@ OnDoubleTapListener {
 
 		this.gName = savedInstanceState.getString("name", "");
 		this.gCurrent = savedInstanceState.getString("current");
-		this.gHeight = Integer.parseInt(savedInstanceState.getString("height",
-				"0"));
-		this.gWidth = Integer.parseInt(savedInstanceState.getString("width",
-				"0"));
+		this.gHeight = Integer.parseInt(savedInstanceState.getString("height", "0"));
+		this.gWidth = Integer.parseInt(savedInstanceState.getString("width", "0"));
 
 		this.gSolution = savedInstanceState.getString("solution");
-		this.gId = savedInstanceState.getString("id",
-				this.gSolution + "");
+		this.gId = savedInstanceState.getString("id", (this.gSolution + "").hashCode() + "");
 		final String[] cols = savedInstanceState.getString("colors").split(",");
 		this.gColors = new int[cols.length];
 

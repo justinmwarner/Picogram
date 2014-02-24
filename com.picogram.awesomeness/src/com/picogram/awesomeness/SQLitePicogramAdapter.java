@@ -27,6 +27,7 @@ public class SQLitePicogramAdapter extends SQLiteOpenHelper {
 	static final String colors = "Colors";
 	static final String numberOfColors = "NumColors";
 	static final String highscore = "PersonalHighscore";
+	static final String pRank = "PersonalRank";
 
 	// static final String tags = "Tags";
 
@@ -39,6 +40,15 @@ public class SQLitePicogramAdapter extends SQLiteOpenHelper {
 		final SQLiteDatabase db = this.getWritableDatabase();
 		final ContentValues cv = new ContentValues();
 		cv.put(SQLitePicogramAdapter.highscore, highscore);
+		cv.put(SQLitePicogramAdapter.id, id);
+		return db.update(PicogramTable, cv, SQLitePicogramAdapter.id + " = "
+				+ id, null);
+	}
+
+	public int addPersonalRank(final String id, final int rank) {
+		final SQLiteDatabase db = this.getWritableDatabase();
+		final ContentValues cv = new ContentValues();
+		cv.put(SQLitePicogramAdapter.pRank, rank);
 		cv.put(SQLitePicogramAdapter.id, id);
 		return db.update(PicogramTable, cv, SQLitePicogramAdapter.id + " = "
 				+ id, null);
@@ -65,6 +75,7 @@ public class SQLitePicogramAdapter extends SQLiteOpenHelper {
 		cv.put(SQLitePicogramAdapter.numberOfColors, g.getNumberOfColors());
 		cv.put(SQLitePicogramAdapter.colors, g.getColors());
 		cv.put(SQLitePicogramAdapter.highscore, 0);
+		cv.put(SQLitePicogramAdapter.pRank, 0);
 		return db.insert(PicogramTable, null, cv);
 	}
 
@@ -93,6 +104,7 @@ public class SQLitePicogramAdapter extends SQLiteOpenHelper {
 		cv.put(SQLitePicogramAdapter.numberOfColors, numberOfColors);
 		cv.put(SQLitePicogramAdapter.colors, colors);
 		cv.put(SQLitePicogramAdapter.highscore, 0);
+		cv.put(SQLitePicogramAdapter.pRank, 0);
 		// All 0's, if not assigned.
 		if (current == null) {
 			current = "";
@@ -135,8 +147,7 @@ public class SQLitePicogramAdapter extends SQLiteOpenHelper {
 				+ SQLitePicogramAdapter.id + "='" + id + "'";
 		final Cursor c = db.rawQuery(query, null);
 		if (c.moveToFirst()) {
-			final String[][] result = new String[c.getCount()][c
-			                                                   .getColumnCount()];
+			final String[][] result = new String[c.getCount()][c.getColumnCount()];
 			for (int i = 0; i < result.length; i++) {
 				for (int j = 0; j < c.getColumnCount(); j++) {
 					result[i][j] = c.getString(j);
@@ -145,6 +156,27 @@ public class SQLitePicogramAdapter extends SQLiteOpenHelper {
 			}
 			c.close();
 			return Long.parseLong(result[0][c.getColumnIndex(SQLitePicogramAdapter.highscore)]);
+		} else {
+			c.close();
+			return 0;
+		}
+	}
+
+	public long getPersonalRank(final String id) {
+		final SQLiteDatabase db = this.getWritableDatabase();
+		final String query = "SELECT * FROM " + PicogramTable + " WHERE "
+				+ SQLitePicogramAdapter.id + "='" + id + "'";
+		final Cursor c = db.rawQuery(query, null);
+		if (c.moveToFirst()) {
+			final String[][] result = new String[c.getCount()][c.getColumnCount()];
+			for (int i = 0; i < result.length; i++) {
+				for (int j = 0; j < c.getColumnCount(); j++) {
+					result[i][j] = c.getString(j);
+				}
+				c.moveToNext();
+			}
+			c.close();
+			return Long.parseLong(result[0][c.getColumnIndex(SQLitePicogramAdapter.pRank)]);
 		} else {
 			c.close();
 			return 0;
@@ -208,6 +240,27 @@ public class SQLitePicogramAdapter extends SQLiteOpenHelper {
 		}
 	}
 
+	public long getValueByColumn(final String id, final String column) {
+		final SQLiteDatabase db = this.getWritableDatabase();
+		final String query = "SELECT * FROM " + PicogramTable + " WHERE "
+				+ SQLitePicogramAdapter.id + "='" + id + "'";
+		final Cursor c = db.rawQuery(query, null);
+		if (c.moveToFirst()) {
+			final String[][] result = new String[c.getCount()][c.getColumnCount()];
+			for (int i = 0; i < result.length; i++) {
+				for (int j = 0; j < c.getColumnCount(); j++) {
+					result[i][j] = c.getString(j);
+				}
+				c.moveToNext();
+			}
+			c.close();
+			return Long.parseLong(result[0][c.getColumnIndex(column)]);
+		} else {
+			c.close();
+			return 0;
+		}
+	}
+
 	private void insertDefaults(final SQLiteDatabase db) {
 		// Create Custom and Tutorial blocks. Will ALWAYS be there.
 		final ContentValues cv = new ContentValues();
@@ -222,6 +275,7 @@ public class SQLitePicogramAdapter extends SQLiteOpenHelper {
 		cv.put(height, "0");
 		cv.put(status, "2");
 		cv.put(highscore, 0);
+		cv.put(SQLitePicogramAdapter.pRank, 0);
 		db.insert(PicogramTable, null, cv);
 		cv.put(id, "0".hashCode());
 		cv.put(author, "justinwarner");
@@ -234,6 +288,7 @@ public class SQLitePicogramAdapter extends SQLiteOpenHelper {
 		cv.put(height, "0");
 		cv.put(status, "2");
 		cv.put(highscore, 0);
+		cv.put(SQLitePicogramAdapter.pRank, 0);
 		db.insert(PicogramTable, null, cv);
 		cv.put(id, "1111100110011111".hashCode());
 		cv.put(author, "justinwarner");
@@ -248,6 +303,7 @@ public class SQLitePicogramAdapter extends SQLiteOpenHelper {
 		cv.put(colors, Color.TRANSPARENT + "," + Color.BLACK);
 		cv.put(numberOfColors, 2);
 		cv.put(highscore, 0);
+		cv.put(SQLitePicogramAdapter.pRank, 0);
 		db.insert(PicogramTable, null, cv);
 	}
 
@@ -259,17 +315,17 @@ public class SQLitePicogramAdapter extends SQLiteOpenHelper {
 				+ " INT(32)," + solution + " TEXT," + current + " TEXT,"
 				+ difficulty + " VARCHAR(16)," + width + " INT(12)," + height
 				+ " INT(12)," + status + " INT(12)," + numberOfColors
-				+ "  INT(12), " + colors + " TEXT,  " + highscore + " INT(12), primary KEY (id));";
+				+ "  INT(12), " + colors + " TEXT,  " + highscore + " INT(12)," + pRank + " INT(12), primary KEY (id));";
 		db.execSQL(query);
 		this.insertDefaults(db);
 	}
+
 
 	@Override
 	public void onUpgrade(final SQLiteDatabase db, final int oldV,
 			final int newV) {
 		// Don't do anything... Yet. Need to read up on what/how this works.
 	}
-
 
 	public void updateColorsById(final String gId, final String[] strColors) {
 		String colors = "";
@@ -291,6 +347,14 @@ public class SQLitePicogramAdapter extends SQLiteOpenHelper {
 		cv.put(SQLitePicogramAdapter.status, status);
 		return db.update(PicogramTable, cv, SQLitePicogramAdapter.id + " = "
 				+ id, null);
+	}
+
+	public void updateRate(final String puzzleId, final int newRate) {
+		final SQLiteDatabase db = this.getWritableDatabase();
+		final ContentValues cv = new ContentValues();
+		cv.put(SQLitePicogramAdapter.rank, newRate);
+		db.update(PicogramTable, cv, SQLitePicogramAdapter.id + " = " + puzzleId,
+				null);
 	}
 
 	public void updateScore(final String puzzleId, final long newScore) {

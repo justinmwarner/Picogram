@@ -27,6 +27,9 @@ public class PicogramListAdapter extends ArrayAdapter<Picogram> {
 	private Context context;
 
 	ArrayList<Picogram> picograms = new ArrayList<Picogram>();
+	ArrayList<Picogram> myPicograms = new ArrayList<Picogram>();
+	ArrayList<Picogram> topPicograms = new ArrayList<Picogram>();
+	ArrayList<Picogram> recentPicograms = new ArrayList<Picogram>();
 
 	public PicogramListAdapter(final Context context,
 			final int textViewResourceId) {
@@ -44,6 +47,21 @@ public class PicogramListAdapter extends ArrayAdapter<Picogram> {
 	public void add(final Picogram object) {
 		super.add(object);
 		this.picograms.add(object);
+	}
+
+	public void addMy(final Picogram p)
+	{
+		this.myPicograms.add(p);
+	}
+
+	public void addRecent(final Picogram p)
+	{
+		this.recentPicograms.add(p);
+	}
+
+	public void addTop(final Picogram p)
+	{
+		this.topPicograms.add(p);
 	}
 
 	@Override
@@ -259,16 +277,24 @@ public class PicogramListAdapter extends ArrayAdapter<Picogram> {
 		}
 	}
 
-	public void updateRateById(final String id, final String newRate)
+	public void updateRateById(final String id, final int newRate)
 	{
+		final SQLitePicogramAdapter sql = new SQLitePicogramAdapter(this.context, "Picograms",
+				null, 1);
 		for (int i = 0; i != this.picograms.size(); ++i) {
 			if (this.picograms.get(i).getID().equals(id))
 			{
 				final Picogram p = this.picograms.get(i);
-				p.setRating(newRate);
+				p.setRating(newRate + "");
 				this.picograms.set(i, p);
+				sql.updateRate(id, newRate);
+				// this.picograms.remove(i);
+				// this.picograms.add(p);
+				// Log.d(TAG, "UPDATING");
+				this.notifyDataSetChanged();
 				return;
 			}
 		}
+		sql.close();
 	}
 }

@@ -20,19 +20,22 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup.LayoutParams;
-import android.view.Window;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
-
 import com.astuetz.viewpager.extensions.PagerSlidingTabStrip;
 import com.flurry.android.FlurryAgent;
+import com.parse.ParseException;
+import com.parse.ParseObject;
+import com.parse.ParseQuery;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class PicogramPreGame extends FragmentActivity implements OnPageChangeListener, OnTouchListener {
+public class PreGameActivity extends FragmentActivity implements OnPageChangeListener, OnTouchListener {
 	public class PreGameAdapter extends FragmentPagerAdapter {
 
 		public PreGameFragment frag[] = new PreGameFragment[this.getCount()];
@@ -43,20 +46,20 @@ public class PicogramPreGame extends FragmentActivity implements OnPageChangeLis
 
 		@Override
 		public int getCount() {
-			return PicogramPreGame.this.TITLES.size();
+			return PreGameActivity.this.TITLES.size();
 		}
 
 		@Override
 		public Fragment getItem(final int position) {
 			final PreGameFragment result = PreGameFragment.newInstance(position);
-			result.current = PicogramPreGame.this.puzzle;
+			result.current = PreGameActivity.this.puzzle;
 			this.frag[position] = result;
 			return result;
 		}
 
 		@Override
 		public CharSequence getPageTitle(final int position) {
-			return PicogramPreGame.this.TITLES.get(position);
+			return PreGameActivity.this.TITLES.get(position);
 		}
 
 	}
@@ -79,6 +82,8 @@ public class PicogramPreGame extends FragmentActivity implements OnPageChangeLis
 	int cellWidth = 1, cellHeight = 1;
 	double xCellNum = 1, yCellNum = 1;
 
+	boolean hasLoadedComments = false, hasLoadedHighscores = false;
+
 	private char[][] getLineIn2D(final String line) {
 		final char[][] current2D = new char[this.height][this.width];
 		int run = 0;
@@ -98,46 +103,25 @@ public class PicogramPreGame extends FragmentActivity implements OnPageChangeLis
 		if ((resultCode == Activity.RESULT_OK)
 				&& (requestCode == MenuActivity.GAME_CODE)) {
 
-			Log.d(TAG, "Cur: " + this.current);
 			final String id = data.getStringExtra("ID");
-			final Picogram puzzle = sql.getPicogram(id);
-			Log.d(TAG, "ID: " + id);
-			Log.d(TAG, "Puzzle: " + puzzle);
-			this.current = puzzle.getCurrent();
-			if ((data.getIntExtra("row", 0) != 0) || (data.getIntExtra("column", 0) != 0))
+			final int part = data.getIntExtra("part", -1);
+			if (part != -1)
 			{
-				final int row = data.getIntExtra("row", 0);
-				final int column = data.getIntExtra("col", 0);
-				final String newCurrent = data.getStringExtra("current");
-				// If we have a row/column, then we want to alter that spot in the current.
-				// Make it 2D
-				final char[][] current2D = this.getLineIn2D(this.current); // Gets 2d current.
-				int run = 0;
-				for (int i = 0; i != current2D.length; ++i)
-				{
-					for (int j = 0; j != current2D[i].length; ++j)
-					{
-						if ((j < (this.cellWidth * (row))) && (j >= (this.cellWidth * (row - 1))))
-						{
-							if ((i < (this.cellHeight * column)) && (i >= (this.cellHeight * (column - 1))))
-							{
-								current2D[i][j] = newCurrent.charAt(run);
-								run++;
-							}
-						}
+				String newCurrent = data.getStringExtra("current");
+				Log.d(TAG, "NEWCUR " + newCurrent);
+				this.adapter.frag[0].current.setCurrent(this.current);
+				final String[] cells =this.adapter.frag[0].getCells();
+				cells[part] = newCurrent;
+				newCurrent = "";
+				for(int i = 0; i != cells.length; ++i) {
+					if(cells[i].isEmpty()) {
+						break;
+					} else {
+						newCurrent += cells[i];
 					}
 				}
-				this.current = "";
-				run = 0;
-				//Now rebuild current.
-				for(int i = 0; i !=  current2D.length; ++i)
-				{
-					for(int j = 0;j != current2D[i].length; ++j)
-					{
-						this.current += current2D[i][j];
-						run++;
-					}
-				}
+				Log.d(TAG, "NEWCUR " + newCurrent);
+				this.current = newCurrent;
 			}
 			else
 			{
@@ -147,18 +131,15 @@ public class PicogramPreGame extends FragmentActivity implements OnPageChangeLis
 			// Check if we won:
 			if (this.current.replaceAll("x|X", "0").equals(this.solution))
 			{
-				puzzle.setStatus("1");
+				this.puzzle.setStatus("1");
 				// If we won, do the winning stuff. TODO
 			}
-			puzzle.setCurrent(this.current);
-			Log.d(TAG, "New Current ( " + this.current.length() + ") : " + this.current);
-
-			// sql.updateCurrentPicogram(id, status, current);
-			// this.current = current;
-			// this.updateAndGetImageView();
-			// final Picogram updatedPicogram = this.adapter.frag[0].current;
-			// updatedPicogram.setCurrent(current);
-			// this.adapter.frag[0].current = updatedPicogram;
+			sql.updateCurrentPicogram(id, this.puzzle.getStatus(), this.current);
+			this.updateAndGetImageView();
+			final Picogram updatedPicogram = this.adapter.frag[0].current;
+			updatedPicogram.setCurrent(this.current);
+			this.adapter.frag[0].current = updatedPicogram;
+			this.showRatingDialog(sql);
 		}
 		sql.close();
 	}
@@ -202,6 +183,8 @@ public class PicogramPreGame extends FragmentActivity implements OnPageChangeLis
 		iv.setOnTouchListener(this);
 		// Draw the ImageView with current.
 		this.updateAndGetImageView();
+		this.showRatingDialog(sql);
+		sql.close();
 	}
 
 	@Override
@@ -210,104 +193,150 @@ public class PicogramPreGame extends FragmentActivity implements OnPageChangeLis
 		this.getMenuInflater().inflate(R.menu.picogram_pre_game, menu);
 		return true;
 	}
-
 	public void onPageScrolled(final int arg0, final float arg1, final int arg2) {
 	}
 
 	public void onPageScrollStateChanged(final int arg0) {
 	}
-
 	public void onPageSelected(final int currentTab) {
 		if (currentTab == this.TITLES.indexOf("Comments"))
 		{
-			this.adapter.frag[currentTab].loadComments();
+			if (!this.hasLoadedComments)
+			{
+				this.adapter.frag[currentTab].loadComments();
+				this.hasLoadedComments = true;
+			}
 		}
 		else if (currentTab == this.TITLES.indexOf("High Scores")) {
-			this.adapter.frag[currentTab].loadHighScores();
+			if (!this.hasLoadedHighscores)
+			{
+				this.adapter.frag[currentTab].loadHighScores();
+				this.hasLoadedHighscores = true;
+			}
 		}
 	}
-
 	public boolean onTouch(final View v, final MotionEvent event) {
 		v.setOnTouchListener(null);
-		Log.d(TAG, "OnTouch: " + event.getAction() + " " + v.getId() + " " + R.id.ivPartSelector);
-		if (event.equals(MotionEvent.ACTION_DOWN) && (v.getId() == R.id.ivPreGame)) {
-			if ((this.width <= 25) && (this.height <= 25))
-			{
-				// Just start it normally.
-				this.adapter.frag[0].startGame();
-				return true;
-			}
-			Log.d(TAG, "OnTouch Showing");
-			this.showPartSelector();
-			return true;
-		}
-		else if ((event.getAction() == (MotionEvent.ACTION_DOWN)) && (v.getId() == R.id.ivPartSelector))
-		{
-			// Get row and column tapped.
-
-			final double alteredCellWidth = (v.getWidth()) / this.xCellNum;
-			final double alteredCellHeight = (v.getHeight()) / this.yCellNum;
-
-			final int row = (int) Math.ceil(event.getY() / alteredCellHeight);
-			final int col = (int) Math.ceil(event.getX() / alteredCellWidth);
-
-			// Now a part was chosen, so play it.
-			final char[][] current2D = this.getLineIn2D(this.current);
-			final char[][] solution2D = this.getLineIn2D(this.solution);
-			String newGame = "", newSolution = "";
-			int highWidth = 0, highHeight = 0, lowHeight = Integer.MAX_VALUE, lowWidth = Integer.MAX_VALUE;
-			for(int i = 0; i != current2D.length; ++i)
-			{
-				for(int j = 0; j != current2D[i].length; ++j)
-				{
-					if ((j < (this.cellWidth * row)) && (j >= (this.cellWidth * (row - 1)))) // Height
-					{
-						if ((i < (this.cellHeight * col)) && (i >= (this.cellHeight * (col - 1)))) // Width
-						{
-							newGame += current2D[i][j];
-							newSolution += solution2D[i][j];
-							if (highHeight < i) {
-								highHeight = i;
-							}
-							if (lowHeight > i) {
-								lowHeight = i;
-							}
-							if (highWidth < j) {
-								highWidth = j;
-							}
-							if (lowWidth > j) {
-								lowWidth = j;
-							}
-						}
-					}
-				}
-			}
-			final int newWidth = (highWidth - lowWidth) + 1, newHeight = (highHeight - lowHeight) + 1;
-			Log.d(TAG, "NW: " + newWidth + " NH: " + newHeight + " HW: " + highWidth + " HH: " + highHeight + " LW: " + lowWidth + " LH: " + lowHeight + " LEN: " + newGame.length());
-			final Picogram puzzle = this.puzzle;
-			puzzle.setSolution(newSolution);
-			puzzle.setCurrent(newGame);
-			puzzle.setWidth(highWidth + "");
-			puzzle.setHeight(highHeight + "");
-			this.startGame(puzzle, row, col, newWidth, newHeight);
-			return true;
-		}
-		// If we fail, add the listener again.
-		v.setOnTouchListener(this);
+		/*
+		 * Log.d(TAG, "OnTouch: " + event.getAction() + " " + v.getId() + " " + R.id.ivPartSelector);
+		 * if (event.equals(MotionEvent.ACTION_DOWN) && (v.getId() == R.id.ivPreGame)) {
+		 * if ((this.width <= 25) && (this.height <= 25))
+		 * {
+		 * // Just start it normally.
+		 * this.adapter.frag[0].startGame();
+		 * return true;
+		 * }
+		 * Log.d(TAG, "OnTouch Showing");
+		 * this.showPartSelector();
+		 * return true;
+		 * }
+		 * else if ((event.getAction() == (MotionEvent.ACTION_DOWN)) && (v.getId() == R.id.ivPartSelector))
+		 * {
+		 * // Get row and column tapped.
+		 * 
+		 * final double alteredCellWidth = (v.getWidth()) / this.xCellNum;
+		 * final double alteredCellHeight = (v.getHeight()) / this.yCellNum;
+		 * 
+		 * final int row = (int) Math.ceil(event.getY() / alteredCellHeight);
+		 * final int col = (int) Math.ceil(event.getX() / alteredCellWidth);
+		 * 
+		 * // Now a part was chosen, so play it.
+		 * final char[][] current2D = this.getLineIn2D(this.current);
+		 * final char[][] solution2D = this.getLineIn2D(this.solution);
+		 * String newGame = "", newSolution = "";
+		 * int highWidth = 0, highHeight = 0, lowHeight = Integer.MAX_VALUE, lowWidth = Integer.MAX_VALUE;
+		 * for(int i = 0; i != current2D.length; ++i)
+		 * {
+		 * for(int j = 0; j != current2D[i].length; ++j)
+		 * {
+		 * if ((j < (this.cellWidth * row)) && (j >= (this.cellWidth * (row - 1)))) // Height
+		 * {
+		 * if ((i < (this.cellHeight * col)) && (i >= (this.cellHeight * (col - 1)))) // Width
+		 * {
+		 * newGame += current2D[i][j];
+		 * newSolution += solution2D[i][j];
+		 * if (highHeight < i) {
+		 * highHeight = i;
+		 * }
+		 * if (lowHeight > i) {
+		 * lowHeight = i;
+		 * }
+		 * if (highWidth < j) {
+		 * highWidth = j;
+		 * }
+		 * if (lowWidth > j) {
+		 * lowWidth = j;
+		 * }
+		 * }
+		 * }
+		 * }
+		 * }
+		 * final int newWidth = (highWidth - lowWidth) + 1, newHeight = (highHeight - lowHeight) + 1;
+		 * Log.d(TAG, "NW: " + newWidth + " NH: " + newHeight + " HW: " + highWidth + " HH: " + highHeight + " LW: " + lowWidth + " LH: " + lowHeight + " LEN: " + newGame.length());
+		 * final Picogram puzzle = this.puzzle;
+		 * puzzle.setSolution(newSolution);
+		 * puzzle.setCurrent(newGame);
+		 * puzzle.setWidth(highWidth + "");
+		 * puzzle.setHeight(highHeight + "");
+		 * this.startGame(puzzle, row, col, newWidth, newHeight);
+		 * return true;
+		 * }
+		 * // If we fail, add the listener again.
+		 * v.setOnTouchListener(this);
+		 */
 		return false;
 	}
 
-	protected void showPartSelector() {
-		final Dialog dialog = new Dialog(this);
-		dialog.getWindow().requestFeature(Window.FEATURE_NO_TITLE);
-		dialog.setContentView(this.getLayoutInflater().inflate(R.layout.dialog_part_selector, null));
-		dialog.show();
-		final ImageView iv = (ImageView) dialog.findViewById(R.id.ivPartSelector);
-		iv.setImageBitmap(this.updateAndGetImageView());
-		iv.setBackgroundResource(R.drawable.light_grid);
-		iv.setOnTouchListener(this);
-	}
+	public void showRatingDialog( final SQLitePicogramAdapter sql)
+	{
+		// Check if user needs to rate puzzle.
+		if (Util.isOnline() && this.puzzle.getCurrent().replaceAll("x|X", "0").equals(this.puzzle.getSolution()) && (sql.getValueByColumn(this.puzzle.getID(), SQLitePicogramAdapter.pRank) == 0))
+		{
+			// Prompt.
+			final Activity a = this;
+			final Dialog dialog = new Dialog(this);
+			dialog.setTitle("Rate " + this.puzzle.getName());
+			dialog.setContentView(R.layout.dialog_ranking);
+			final View.OnClickListener ocl = new OnClickListener() {
 
+				public void onClick(final View v) {
+					new Thread(new Runnable() {
+
+						public void run() {
+							final ParseQuery<ParseObject> query = ParseQuery.getQuery("Picogram");
+							query.whereEqualTo("puzzleId", PreGameActivity.this.puzzle.getID());
+							try {
+								final ParseObject po = query.getFirst();
+								if (v.getId() == R.id.bHappy) {
+									po.increment("rate", 1);
+									sql.addPersonalRank(PreGameActivity.this.puzzle.getID(), 1);
+								} else if (v.getId() == R.id.bSad) {
+									po.increment("rate", -1);
+									sql.addPersonalRank(PreGameActivity.this.puzzle.getID(), -1);
+								}
+								po.saveEventually();
+							} catch (final ParseException e) {
+								e.printStackTrace();
+							}
+							a.runOnUiThread(new Runnable() {
+
+								public void run() {
+									sql.close();
+									dialog.hide();
+								}
+
+							});
+						}
+					}).start();
+				}
+			};
+			final Button bHappy = (Button) dialog.findViewById(R.id.bHappy);
+			bHappy.setOnClickListener(ocl);
+			final Button bSad = (Button) dialog.findViewById(R.id.bSad);
+			bSad.setOnClickListener(ocl);
+			dialog.show();
+		}
+	}
 
 	protected void startGame(final Picogram go, final int row, final int col, final int cw, final int ch) {
 		FlurryAgent.logEvent("UserPlayGame");
@@ -430,5 +459,4 @@ public class PicogramPreGame extends FragmentActivity implements OnPageChangeLis
 		iv.setImageBitmap(bm);
 		return bm;
 	}
-
 }

@@ -61,7 +61,7 @@ public class MenuActivity extends BaseGameActivity implements
 FlurryAdListener, OnPageChangeListener, OnClickListener, OnRMMUserChoiceListener, ActionBar.OnNavigationListener, ConnectionCallbacks, OnConnectionFailedListener {
 	public class MyPagerAdapter extends FragmentPagerAdapter {
 
-		public SuperAwesomeCardFragment frag[] = new SuperAwesomeCardFragment[this.getCount()];
+		public MenuFragment frag[] = new MenuFragment[this.getCount()];
 
 		public MyPagerAdapter(final FragmentManager fm) {
 			super(fm);
@@ -74,7 +74,7 @@ FlurryAdListener, OnPageChangeListener, OnClickListener, OnRMMUserChoiceListener
 
 		@Override
 		public Fragment getItem(final int position) {
-			this.frag[position] = SuperAwesomeCardFragment
+			this.frag[position] = MenuFragment
 					.newInstance(position);
 			return this.frag[position];
 		}
@@ -321,8 +321,10 @@ FlurryAdListener, OnPageChangeListener, OnClickListener, OnRMMUserChoiceListener
 		} else if (this.currentTab == TITLES.indexOf("Packs")) {
 			Util.getPreferences(this).edit().putInt("packsSetting", itemPosition).commit();
 		} else if (this.currentTab == TITLES.indexOf("Top")) {
+			Util.getPreferences(this).edit().putLong("lastTopUpdate", 0).commit();
 			Util.getPreferences(this).edit().putInt("topSetting", itemPosition).commit();
 		} else if (this.currentTab == TITLES.indexOf("Recent")) {
+			Util.getPreferences(this).edit().putLong("lastRecentUpdate", 0).commit();
 			Util.getPreferences(this).edit().putInt("recentSetting", itemPosition).commit();
 		} else if (this.currentTab == TITLES.indexOf("Search")) {
 			Util.getPreferences(this).edit().putInt("searchSetting", itemPosition).commit();
