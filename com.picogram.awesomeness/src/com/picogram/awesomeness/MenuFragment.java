@@ -203,7 +203,6 @@ OnItemClickListener, OnItemLongClickListener {
 			public void done(final List<ParseObject> result, final ParseException e) {
 				if (e == null)
 				{
-					Log.d(TAG, "UPDATING " + result.size());
 					for (final ParseObject po : result)
 					{
 						MenuFragment.this.myAdapter.updateRateById(po.getString("puzzleId"), po.getInt("rate"));
@@ -256,14 +255,13 @@ OnItemClickListener, OnItemLongClickListener {
 		final long last = Util.getPreferences(this.getActivity()).getLong("lastRecentUpdate", 0);
 		final long currentTime = System.currentTimeMillis();
 
-		if ((currentTime - last) < 3600000) {
+		// 10 Minutes
+		if ((currentTime - last) < 600000) {
 			this.myAdapter.picograms = this.myAdapter.recentPicograms;
 			this.myAdapter.notifyDataSetChanged();
 			return;
 		}
 		Util.getPreferences(this.getActivity()).edit().putLong("lastRecentUpdate", currentTime).commit();
-		this.myAdapter.recentPicograms.clear();
-		this.myAdapter.clear();
 		final ParseQuery<ParseObject> query = ParseQuery.getQuery("Picogram");
 		query.orderByDescending("createdAt");
 		query.findInBackground(new FindCallback<ParseObject>() {
@@ -273,6 +271,7 @@ OnItemClickListener, OnItemLongClickListener {
 				if (e == null) {
 					if (pos != null)
 					{
+						MenuFragment.this.myAdapter.recentPicograms.clear();
 						for (final ParseObject po : pos) {
 							if (!MenuFragment.this.myAdapter.existsById(po.getString("puzzleId")))
 							{
@@ -353,18 +352,6 @@ OnItemClickListener, OnItemLongClickListener {
 	}
 
 	public void getTopPuzzles(final Activity a) {
-		// Update ratings only every day.
-		final long last = Util.getPreferences(this.getActivity()).getLong("lastTopUpdate", 0);
-		final long currentTime = System.currentTimeMillis();
-		if ((currentTime - last) < (3600000 * 24)) {
-			this.myAdapter.picograms = this.myAdapter.topPicograms;
-			Log.d(TAG, "MYUP TOP : " + this.myAdapter.topPicograms.size());
-			this.myAdapter.notifyDataSetChanged();
-			if (this.myAdapter.picograms.size() != 0) {
-				return;
-			}
-		}
-		Util.getPreferences(this.getActivity()).edit().putLong("lastTopUpdate", currentTime).commit();
 		this.myAdapter.topPicograms.clear();
 		this.myAdapter.clear();
 		final ParseQuery<ParseObject> query = ParseQuery.getQuery("Picogram");

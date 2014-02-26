@@ -28,6 +28,7 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import com.astuetz.viewpager.extensions.PagerSlidingTabStrip;
 import com.flurry.android.FlurryAgent;
+import com.google.android.gms.plus.PlusShare;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
@@ -148,6 +149,9 @@ public class PreGameActivity extends FragmentActivity implements OnPageChangeLis
 	protected void onCreate(final Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		this.setContentView(R.layout.activity_picogram_pre_game);
+		//Did we get this through a deep link?
+		final String deepLinkId = PlusShare.getDeepLinkId(this.getIntent());
+		this.parseDeepLinkId(deepLinkId);
 		// Get info from bundle.
 		this.id = this.getIntent().getExtras().getString("id");
 		this.name = this.getIntent().getExtras().getString("name");
@@ -193,11 +197,12 @@ public class PreGameActivity extends FragmentActivity implements OnPageChangeLis
 		this.getMenuInflater().inflate(R.menu.picogram_pre_game, menu);
 		return true;
 	}
+
 	public void onPageScrolled(final int arg0, final float arg1, final int arg2) {
 	}
-
 	public void onPageScrollStateChanged(final int arg0) {
 	}
+
 	public void onPageSelected(final int currentTab) {
 		if (currentTab == this.TITLES.indexOf("Comments"))
 		{
@@ -285,6 +290,20 @@ public class PreGameActivity extends FragmentActivity implements OnPageChangeLis
 		 * v.setOnTouchListener(this);
 		 */
 		return false;
+	}
+
+	private void parseDeepLinkId(final String deepLinkId) {
+		final Intent route = new Intent();
+		if(deepLinkId != null) {
+			Log.d(TAG, "TEST " + deepLinkId);
+		}
+		//if ("/pages/create".equals(deepLinkId)) {
+		//    route.setClass(getApplicationContext(), CreatePageActivity.class);
+		//} else {
+		// Fallback to the MainActivity in your app.
+		//    route.setClass(getApplicationContext(), MainActivity.class);
+		//}
+		//return route;
 	}
 
 	public void showRatingDialog( final SQLitePicogramAdapter sql)

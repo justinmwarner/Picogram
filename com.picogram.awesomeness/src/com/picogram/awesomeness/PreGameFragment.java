@@ -4,6 +4,7 @@ package com.picogram.awesomeness;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -21,11 +22,11 @@ import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
 import android.widget.ListView;
-import android.widget.ScrollView;
 import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.flurry.android.FlurryAgent;
+import com.google.android.gms.plus.PlusShare;
 import com.parse.DeleteCallback;
 import com.parse.FindCallback;
 import com.parse.ParseException;
@@ -321,7 +322,15 @@ public class PreGameFragment extends Fragment implements OnClickListener, OnItem
 			}
 			else if (b.getText().toString().startsWith("Facebook")) {
 			}
-			else if (b.getText().toString().startsWith("Pinterest")) {
+			else if (b.getText().toString().startsWith("Google")) {
+				// TODO Make it use an interactive post.
+				final Intent shareIntent = new PlusShare.Builder(this.getActivity())
+				.setText("Check out: " + this.current.getName())
+				.setType("text/plain")
+				.setContentUrl(Uri.parse("http://i.imgur.com/JDSNKkp.png"))
+				.setContentDeepLinkId(this.current.getID())
+				.getIntent();
+				this.startActivityForResult(shareIntent, 0);
 			}
 			else if (b.getText().toString().startsWith("Twitter")) {
 			}
@@ -372,7 +381,7 @@ public class PreGameFragment extends Fragment implements OnClickListener, OnItem
 			return fl;
 		}
 		LayoutParams params = new LayoutParams(android.view.ViewGroup.LayoutParams.MATCH_PARENT,
-				android.view.ViewGroup.LayoutParams.MATCH_PARENT);
+				android.view.ViewGroup.LayoutParams.MATCH_PARENT, 1f);
 
 		final LinearLayout ll = new LinearLayout(this.getActivity());
 		ll.setOrientation(LinearLayout.VERTICAL);
@@ -391,89 +400,105 @@ public class PreGameFragment extends Fragment implements OnClickListener, OnItem
 		}
 		if (this.position == 0)
 		{
-			final ScrollView sv = new ScrollView(this.getActivity());
-			final LinearLayout llSub = new LinearLayout(this.getActivity());
-			llSub.setLayoutParams(new LinearLayout.LayoutParams(android.view.ViewGroup.LayoutParams.FILL_PARENT, android.view.ViewGroup.LayoutParams.FILL_PARENT));
-			llSub.setOrientation(LinearLayout.VERTICAL);
-			// Options
-			TextView tv = new TextView(this.getActivity());
-			tv.setLayoutParams(params);
-			tv.setGravity(Gravity.CENTER);
-			tv.setText("Puzzle");
-			llSub.addView(tv);
-			Button b = new Button(this.getActivity());
-			b.setLayoutParams(params);
-			b.setGravity(Gravity.CENTER);
-			b.setText("Play " + this.current.getName());
-			b.setOnClickListener(this);
-			if ((Integer.parseInt(this.current.getWidth()) > 25) || (Integer.parseInt(this.current.getHeight()) > 25))
-			{
-				// We have multiple parts, add a spinner to the side.
-				final LinearLayout tempLL = new LinearLayout(this.getActivity());
-				tempLL.setOrientation(LinearLayout.HORIZONTAL);
-				b.setLayoutParams(new LayoutParams(android.view.ViewGroup.LayoutParams.WRAP_CONTENT,
-						android.view.ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
-				tempLL.addView(b);
-				this.partSpinner = new Spinner(this.getActivity());
-				this.partSpinner.setLayoutParams(new LayoutParams(android.view.ViewGroup.LayoutParams.WRAP_CONTENT,
-						android.view.ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
-				this.partSpinner.setAdapter(new PartSpinnerAdapter(this.getActivity(), 0, this.getCells()));
-				tempLL.addView(this.partSpinner);
-				llSub.addView(tempLL);
-			}
-			else {
-				llSub.addView(b);
-			}
-			b = new Button(this.getActivity());
-			b.setLayoutParams(params);
-			b.setGravity(Gravity.CENTER);
-			b.setText("Clear " + this.current.getName());
-			b.setOnClickListener(this);
-			llSub.addView(b);
-			b = new Button(this.getActivity());
-			b.setLayoutParams(params);
-			b.setGravity(Gravity.CENTER);
-			b.setText("Delete " + this.current.getName());
-			b.setOnClickListener(this);
-			llSub.addView(b);
-			b = new Button(this.getActivity());
-			b.setLayoutParams(params);
-			b.setGravity(Gravity.CENTER);
-			b.setText("Report " + this.current.getName());
-			b.setOnClickListener(this);
-			llSub.addView(b);
-			// Sharing.
-			tv = new TextView(this.getActivity());
-			tv.setLayoutParams(params);
-			tv.setGravity(Gravity.CENTER);
-			tv.setText("Sharing");
-			llSub.addView(tv);
-			b = new Button(this.getActivity());
-			b.setLayoutParams(params);
-			b.setGravity(Gravity.CENTER);
-			b.setText("Facebook");
-			b.setOnClickListener(this);
-			llSub.addView(b);
-			b = new Button(this.getActivity());
-			b.setLayoutParams(params);
-			b.setGravity(Gravity.CENTER);
-			b.setText("Twitter");
-			b.setOnClickListener(this);
-			llSub.addView(b);
-			b = new Button(this.getActivity());
-			b.setLayoutParams(params);
-			b.setGravity(Gravity.CENTER);
-			b.setText("Pinterest");
-			b.setOnClickListener(this);
-			llSub.addView(b);
-			b = new Button(this.getActivity());
-			b.setLayoutParams(params);
-			b.setGravity(Gravity.CENTER);
-			b.setText("Email");
-			b.setOnClickListener(this);
-			llSub.addView(b);
-			sv.addView(llSub);
-			ll.addView(sv);
+			final View childLayout = inflater.inflate(R.layout.include_pregame_action,
+					(ViewGroup) this.getActivity().findViewById(R.layout.include_pregame_action));
+			final Button bPlay = (Button) childLayout.findViewById(R.id.bPlay);
+			final Button bClear = (Button) childLayout.findViewById(R.id.bClear);
+			final Button bDelete = (Button) childLayout.findViewById(R.id.bDelete);
+			final Button bReport = (Button) childLayout.findViewById(R.id.bReport);
+			final Button bFacebook = (Button) childLayout.findViewById(R.id.bFacebook);
+			final Button bGoogle = (Button) childLayout.findViewById(R.id.bGoogle);
+			this.partSpinner = (Spinner) childLayout.findViewById(R.id.spinParts);
+
+			bPlay.setOnClickListener(this);
+			bClear.setOnClickListener(this);
+			bDelete.setOnClickListener(this);
+			bReport.setOnClickListener(this);
+			bFacebook.setOnClickListener(this);
+			bGoogle.setOnClickListener(this);
+			this.partSpinner.setAdapter(new PartSpinnerAdapter(this.getActivity(), 0, this.getCells()));
+
+			ll.addView(childLayout);
+			/*
+			 * 
+			 * final ScrollView sv = new ScrollView(this.getActivity());
+			 * final LinearLayout llSub = new LinearLayout(this.getActivity());
+			 * llSub.setLayoutParams(new LinearLayout.LayoutParams(android.view.ViewGroup.LayoutParams.FILL_PARENT, android.view.ViewGroup.LayoutParams.FILL_PARENT));
+			 * llSub.setOrientation(LinearLayout.VERTICAL);
+			 * // Options
+			 * TextView tv = new TextView(this.getActivity());
+			 * tv.setLayoutParams(params);
+			 * tv.setGravity(Gravity.CENTER);
+			 * tv.setText("Puzzle");
+			 * llSub.addView(tv);
+			 * Button b = new Button(this.getActivity());
+			 * b.setLayoutParams(params);
+			 * b.setGravity(Gravity.CENTER);
+			 * b.setText("Play " + this.current.getName());
+			 * b.setOnClickListener(this);
+			 * LinearLayout tempLL = new LinearLayout(this.getActivity());
+			 * tempLL.setOrientation(LinearLayout.HORIZONTAL);
+			 * if ((Integer.parseInt(this.current.getWidth()) > 25) || (Integer.parseInt(this.current.getHeight()) > 25))
+			 * {
+			 * // We have multiple parts, add a spinner to the side.
+			 * b.setLayoutParams(params);
+			 * tempLL.addView(b);
+			 * this.partSpinner = new Spinner(this.getActivity());
+			 * this.partSpinner.setLayoutParams(params);
+			 * this.partSpinner.setAdapter(new PartSpinnerAdapter(this.getActivity(), 0, this.getCells()));
+			 * tempLL.addView(this.partSpinner);
+			 * llSub.addView(tempLL);
+			 * tempLL = new LinearLayout(this.getActivity());
+			 * tempLL.setOrientation(LinearLayout.HORIZONTAL);
+			 * }
+			 * else {
+			 * llSub.addView(b);
+			 * }
+			 * b = new Button(this.getActivity());
+			 * b.setLayoutParams(params);
+			 * b.setGravity(Gravity.CENTER);
+			 * b.setText("Clear " + this.current.getName());
+			 * b.setOnClickListener(this);
+			 * tempLL.addView(b);
+			 * b = new Button(this.getActivity());
+			 * b.setLayoutParams(params);
+			 * b.setGravity(Gravity.CENTER);
+			 * b.setText("Delete " + this.current.getName());
+			 * b.setOnClickListener(this);
+			 * tempLL.addView(b);
+			 * b = new Button(this.getActivity());
+			 * b.setLayoutParams(params);
+			 * b.setGravity(Gravity.CENTER);
+			 * b.setText("Report " + this.current.getName());
+			 * b.setOnClickListener(this);
+			 * tempLL.addView(b);
+			 * llSub.addView(tempLL);
+			 * tempLL = new LinearLayout(this.getActivity());
+			 * tempLL.setOrientation(LinearLayout.HORIZONTAL);
+			 * // Sharing.
+			 * tv = new TextView(this.getActivity());
+			 * tv.setLayoutParams(params);
+			 * tv.setGravity(Gravity.CENTER);
+			 * tv.setText("Sharing");
+			 * llSub.addView(tv);
+			 * b = new Button(this.getActivity());
+			 * b.setLayoutParams(params);
+			 * b.setGravity(Gravity.CENTER);
+			 * b.setText("Facebook");
+			 * b.setBackgroundColor(Color.parseColor("#3B5998"));
+			 * b.setOnClickListener(this);
+			 * tempLL.addView(b);
+			 * b = new Button(this.getActivity());
+			 * b.setLayoutParams(params);
+			 * b.setGravity(Gravity.CENTER);
+			 * b.setText("Google");
+			 * b.setBackgroundColor(Color.parseColor("#d34836"));
+			 * b.setOnClickListener(this);
+			 * tempLL.addView(b);
+			 * llSub.addView(tempLL);
+			 * sv.addView(llSub);
+			 * ll.addView(sv);
+			 */
 		}
 		else if (this.position == 1)
 		{

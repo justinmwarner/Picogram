@@ -99,12 +99,6 @@ FlurryAdListener, OnPageChangeListener, OnClickListener, OnRMMUserChoiceListener
 	public static final int PREFERENCES_CODE = 69;
 	public static String PREFS_FILE = "com.picogram.awesomeness_preferences";
 
-	public static void getRecentPuzzles() {
-	}
-
-	public static void getSearchedPuzzles(final String tag) {
-	}
-
 	Handler h = new Handler();
 	LinearLayout toolbar;
 	SharedPreferences prefs = null;
@@ -594,7 +588,8 @@ FlurryAdListener, OnPageChangeListener, OnClickListener, OnRMMUserChoiceListener
 			return;
 		}
 		if (this.adapter.frag[this.currentTab] != null) {
-			this.adapter.frag[this.currentTab].clearAdapter();
+			// May need to be uncommented. Will see.
+			// this.adapter.frag[this.currentTab].clearAdapter();
 		}
 		if (this.currentTab == MenuActivity.TITLES.indexOf("My")) {
 			this.adapter.frag[this.currentTab]

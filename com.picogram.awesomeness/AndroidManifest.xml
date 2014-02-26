@@ -66,6 +66,14 @@
         <activity
             android:name="com.picogram.awesomeness.PreGameActivity"
             android:label="@string/title_activity_picogram_pre_game" >
+            <intent-filter>
+                <action android:name="com.google.android.apps.plus.VIEW_DEEP_LINK" />
+
+                <data android:scheme="vnd.google.deeplink" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+            </intent-filter>
         </activity>
 
         <!-- Facebook -->
