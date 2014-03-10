@@ -19,7 +19,6 @@ import android.os.Handler;
 import android.os.Vibrator;
 import android.support.v4.view.GestureDetectorCompat;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.GestureDetector.OnDoubleTapListener;
 import android.view.GestureDetector.OnGestureListener;
 import android.view.MotionEvent;
@@ -1040,7 +1039,6 @@ OnDoubleTapListener {
 	}
 
 	private char[][] puzzleTo2DArray(final String in) {
-		Log.d(TAG, "Puzzle 2d gHeight " + this.gHeight + " gW: " + this.gWidth);
 		final char[][] result = new char[this.gHeight][this.gWidth];
 		int runner = 0;
 		for (int i = 0; i != result.length; ++i) {

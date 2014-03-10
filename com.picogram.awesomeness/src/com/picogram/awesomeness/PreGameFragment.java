@@ -60,8 +60,8 @@ public class PreGameFragment extends Fragment implements OnClickListener, OnItem
 
 	Spinner partSpinner;
 
-	protected String[] getCells() {
-		final ArrayList<String> result = new ArrayList<String>();
+	protected PicogramPart[] getParts() {
+		final ArrayList<PicogramPart> result = new ArrayList<PicogramPart>();
 		// Get the currents
 		final String current = this.current.getCurrent();
 		final char[][] current2D = new char[Integer.parseInt(this.current.getHeight())][Integer.parseInt(this.current.getWidth())];
@@ -77,22 +77,22 @@ public class PreGameFragment extends Fragment implements OnClickListener, OnItem
 		final int cellX = (int) pga.xCellNum, cellY = (int) pga.yCellNum;
 		final int cellWidth = pga.cellWidth, cellHeight = pga.cellHeight;
 		int runX = 0, runY = 0;
-		for (int i = 0; i != (cellX * cellY); ++i) {
-			result.add("");
-		}
 		for (int i = 0; i != current2D.length; ++i) {
 			runY = (int) Math.ceil(i / cellHeight);
 			for (int j = 0; j != current2D[i].length; ++j) {
 				runX = (int) Math.ceil(j / cellWidth);
 				final int location = runX + (runY * cellX);
-				result.set(location, result.get(location) + current2D[i][j]);
+				if (result.size() == location) {
+					result.add(new PicogramPart());
+				}
+				final PicogramPart pr = result.get(location);
+				pr.appendCurrent("" + current2D[i][j]);
+				result.set(location, pr);
 			}
 		}
-		result.add("");
 		runX = runY = run = 0;
 		// Get the solutions
 		final String solution = this.current.getSolution();
-		Log.d(TAG, "OUT: " + current + " " + solution);
 		final char[][] solution2D = new char[Integer.parseInt(this.current.getHeight())][Integer.parseInt(this.current.getWidth())];
 		for (int i = 0; i != solution2D.length; ++i)
 		{
@@ -101,27 +101,46 @@ public class PreGameFragment extends Fragment implements OnClickListener, OnItem
 				run++;
 			}
 		}
-		final ArrayList<String> one = new ArrayList<String>();
-		for (int i = 0; i != (cellX * cellY); ++i) {
-			one.add("");
-		}
 		for (int i = 0; i != solution2D.length; ++i) {
 			runY = (int) Math.ceil(i / cellHeight);
 			for (int j = 0; j != solution2D[i].length; ++j) {
 				runX = (int) Math.ceil(j / cellWidth);
 				final int location = runX + (runY * cellX);
-				one.set(location, one.get(location) + solution2D[i][j]);
+				final PicogramPart pr = result.get(location);
+				pr.appendSolution("" + solution2D[i][j]);
+				result.set(location, pr);
 			}
 		}
-		for (final String o : one) {
-			result.add(o);
+		final PicogramPart[] list = new PicogramPart[result.size()];
+		for (int i = 0; i != list.length; ++i) {
+			final PicogramPart part = result.get(i);
+			part.setWidth(pga.cellWidth);
+			part.setHeight(pga.cellHeight);
+			if (((i + 1) % pga.xCellNum) == 0)
+			{
+
+				if (i >= (pga.yCellNum * (pga.xCellNum - 1)))
+				{
+					// Bottom-Right-Corner, has both remainders.
+					part.setWidth((int) (Integer.parseInt(this.current.getWidth()) - (pga.cellWidth * (pga.xCellNum - 1))));
+					part.setHeight((int) (Integer.parseInt(this.current.getHeight()) - (pga.cellHeight * (pga.yCellNum - 1))));
+					Log.d(TAG, "BOTTOM RIGHT  " + part.toString());
+				}
+				else
+				{
+					// On the right, has the width of the right remainder.
+					part.setWidth((int) (Integer.parseInt(this.current.getWidth()) - (pga.cellWidth * (pga.xCellNum - 1))));
+					Log.d(TAG, "RIGHT  " + part.toString());
+				}
+			} else if ((pga.xCellNum * (pga.yCellNum - 1)) <= i)
+			{
+				// On the bottom, has the height of the bottom remainder.
+				part.setHeight((int) (Integer.parseInt(this.current.getHeight()) - (pga.cellHeight * (pga.yCellNum - 1))));
+				Log.d(TAG, "BOTTOM " + part.toString());
+			}
+			list[i] = part;
 		}
-		String[] list = new String[result.size()];
-		list = result.toArray(list);
-		for (final String l : list) {
-			Log.d(TAG, "OOOO: " + l);
-		}
-		return result.toArray(list);
+		return list;
 	}
 
 	public void loadComments() {
@@ -251,90 +270,84 @@ public class PreGameFragment extends Fragment implements OnClickListener, OnItem
 	public void onClick(final View v) {
 		final SQLitePicogramAdapter sql = new SQLitePicogramAdapter(
 				PreGameFragment.this.getActivity(), "Picograms", null, 1);
-
-		if (v instanceof Button)
+		if (v.getId() == R.id.bPlay)
 		{
-			final Button b = (Button) v;
-			if (b.getText().toString().startsWith("Play")) {
-				if (this.current.getStatus().equals("1")) {
-					Crouton.makeText(this.getActivity(),
-							"You must clear the game first to play again.", Style.INFO);
-				} else {
-					if ((Integer.parseInt(this.current.getWidth()) < 26) && (Integer.parseInt(this.current.getHeight()) < 26))
-					{
-						this.startGame(this.current);
-					}
-					else
-					{
-						final int part = this.partSpinner.getSelectedItemPosition();
-						Log.d(TAG, "PART: " + part);
-						final String[] cells = this.getCells();
-						final String cur = cells[part];
-						String sol = "";
-						for (int i = 0; i != cells.length; ++i)
-						{
-							if (cells[i].isEmpty())
-							{
-								sol = cells[i + part + 1];
-								break;
-							}
-						}
-
-						this.startGame(cur, sol, part);
-					}
-				}
-			}
-			else if (b.getText().toString().startsWith("Clear")) {
-				final String newCurrent = this.current.getCurrent().replaceAll("[^0]", "0");
-				sql.updateCurrentPicogram(this.current.getID(), "0", newCurrent);
-				this.current.setCurrent(newCurrent);
-				((PreGameActivity) this.getActivity()).current = this.current.getCurrent();
-				((PreGameActivity) this.getActivity()).updateAndGetImageView();
-			}
-			else if (b.getText().toString().startsWith("Delete")) {
-				Log.d(TAG, "bb DELETE");
-				sql.deletePicogram(this.current.getID());
-				sql.close();
-				this.getActivity().finish();
-			}
-			else if (b.getText().toString().startsWith("Comment")) {
-				// Making a comment to server based on ID.
-				Log.d(TAG, "Commenting");
-				final PicogramComment pc = new PicogramComment();
-				final EditText etComment = ((EditText) this.getActivity().findViewById(
-						R.id.etComment));
-				pc.setPuzzleId("" + this.current.getID());
-				pc.setAuthor(Util.id(this.getActivity()));
-				pc.setComment(etComment
-						.getText().toString());
-				if (pc.getComment().isEmpty())
+			if (this.current.getStatus().equals("1")) {
+				Crouton.makeText(this.getActivity(),
+						"You must clear the game first to play again.", Style.INFO);
+			} else {
+				if ((Integer.parseInt(this.current.getWidth()) < 26) && (Integer.parseInt(this.current.getHeight()) < 26))
 				{
-					return;
+					this.startGame(this.current);
 				}
-				pc.save();
-				this.loadComments();
-				// TODO Check if a comment has already been made by this user for this puzzle. This will prevent spam somewhat.
-				etComment.setText(""); // Reset it.
+				else
+				{
+					final int part = this.partSpinner.getSelectedItemPosition();
+					Log.d(TAG, "PART: " + part);
+					final PicogramPart[] parts = this.getParts();
+					Log.d(TAG, "Part: " + parts[part]);
+					this.startGame(parts[part], part);
+				}
 			}
-			else if (b.getText().toString().startsWith("Report")) {
-				// No author, so null.
-				this.showReportDialog("puzzle", this.current.getID(), null);
-			}
-			else if (b.getText().toString().startsWith("Facebook")) {
-			}
-			else if (b.getText().toString().startsWith("Google")) {
-				// TODO Make it use an interactive post.
-				final Intent shareIntent = new PlusShare.Builder(this.getActivity())
-				.setText("Check out: " + this.current.getName())
-				.setType("text/plain")
-				.setContentUrl(Uri.parse("http://i.imgur.com/JDSNKkp.png"))
-				.setContentDeepLinkId(this.current.getID())
-				.getIntent();
-				this.startActivityForResult(shareIntent, 0);
-			}
-			else if (b.getText().toString().startsWith("Twitter")) {
-			}
-			else if (b.getText().toString().startsWith("Email")) {
+		}
+		else if (v.getId() == R.id.bClear)
+		{
+			final String newCurrent = this.current.getCurrent().replaceAll("[^0]", "0");
+			sql.updateCurrentPicogram(this.current.getID(), "0", newCurrent);
+			this.current.setCurrent(newCurrent);
+			((PreGameActivity) this.getActivity()).current = this.current.getCurrent();
+			((PreGameActivity) this.getActivity()).updateAndGetImageView();
+		}
+		else if (v.getId() == R.id.bDelete)
+		{
+			Log.d(TAG, "bb DELETE");
+			sql.deletePicogram(this.current.getID());
+			sql.close();
+			this.getActivity().finish();
+		}
+		else if (v.getId() == R.id.bReport)
+		{
+			// No author, so null.
+			this.showReportDialog("puzzle", this.current.getID(), null);
+		}
+		else if (v.getId() == R.id.bFacebook)
+		{
+		}
+		else if (v.getId() == R.id.bGoogle)
+		{
+			// TODO Make it use an interactive post.
+			final Intent shareIntent = new PlusShare.Builder(this.getActivity())
+			.setText("Check out: " + this.current.getName())
+			.setType("text/plain")
+			.setContentUrl(Uri.parse("http://i.imgur.com/JDSNKkp.png"))
+			.setContentDeepLinkId(this.current.getID())
+			.getIntent();
+			this.startActivityForResult(shareIntent, 0);
+		}
+		else
+		{
+			if (v instanceof Button)
+			{
+				final Button b = (Button) v;
+				if (b.getText().toString().startsWith("Comment")) {
+					// Making a comment to server based on ID.
+					Log.d(TAG, "Commenting");
+					final PicogramComment pc = new PicogramComment();
+					final EditText etComment = ((EditText) this.getActivity().findViewById(
+							R.id.etComment));
+					pc.setPuzzleId("" + this.current.getID());
+					pc.setAuthor(Util.id(this.getActivity()));
+					pc.setComment(etComment
+							.getText().toString());
+					if (pc.getComment().isEmpty())
+					{
+						return;
+					}
+					pc.save();
+					this.loadComments();
+					// TODO Check if a comment has already been made by this user for this puzzle. This will prevent spam somewhat.
+					etComment.setText(""); // Reset it.
+				}
 			}
 		}
 		sql.close();
@@ -416,89 +429,13 @@ public class PreGameFragment extends Fragment implements OnClickListener, OnItem
 			bReport.setOnClickListener(this);
 			bFacebook.setOnClickListener(this);
 			bGoogle.setOnClickListener(this);
-			this.partSpinner.setAdapter(new PartSpinnerAdapter(this.getActivity(), 0, this.getCells()));
-
+			if ((Integer.parseInt(this.current.getWidth()) > 25) || (Integer.parseInt(this.current.getHeight()) > 25))
+			{
+				this.partSpinner.setAdapter(new PartSpinnerAdapter(this.getActivity(), 0, this.getParts()));
+			} else {
+				this.partSpinner.setVisibility(View.GONE);
+			}
 			ll.addView(childLayout);
-			/*
-			 * 
-			 * final ScrollView sv = new ScrollView(this.getActivity());
-			 * final LinearLayout llSub = new LinearLayout(this.getActivity());
-			 * llSub.setLayoutParams(new LinearLayout.LayoutParams(android.view.ViewGroup.LayoutParams.FILL_PARENT, android.view.ViewGroup.LayoutParams.FILL_PARENT));
-			 * llSub.setOrientation(LinearLayout.VERTICAL);
-			 * // Options
-			 * TextView tv = new TextView(this.getActivity());
-			 * tv.setLayoutParams(params);
-			 * tv.setGravity(Gravity.CENTER);
-			 * tv.setText("Puzzle");
-			 * llSub.addView(tv);
-			 * Button b = new Button(this.getActivity());
-			 * b.setLayoutParams(params);
-			 * b.setGravity(Gravity.CENTER);
-			 * b.setText("Play " + this.current.getName());
-			 * b.setOnClickListener(this);
-			 * LinearLayout tempLL = new LinearLayout(this.getActivity());
-			 * tempLL.setOrientation(LinearLayout.HORIZONTAL);
-			 * if ((Integer.parseInt(this.current.getWidth()) > 25) || (Integer.parseInt(this.current.getHeight()) > 25))
-			 * {
-			 * // We have multiple parts, add a spinner to the side.
-			 * b.setLayoutParams(params);
-			 * tempLL.addView(b);
-			 * this.partSpinner = new Spinner(this.getActivity());
-			 * this.partSpinner.setLayoutParams(params);
-			 * this.partSpinner.setAdapter(new PartSpinnerAdapter(this.getActivity(), 0, this.getCells()));
-			 * tempLL.addView(this.partSpinner);
-			 * llSub.addView(tempLL);
-			 * tempLL = new LinearLayout(this.getActivity());
-			 * tempLL.setOrientation(LinearLayout.HORIZONTAL);
-			 * }
-			 * else {
-			 * llSub.addView(b);
-			 * }
-			 * b = new Button(this.getActivity());
-			 * b.setLayoutParams(params);
-			 * b.setGravity(Gravity.CENTER);
-			 * b.setText("Clear " + this.current.getName());
-			 * b.setOnClickListener(this);
-			 * tempLL.addView(b);
-			 * b = new Button(this.getActivity());
-			 * b.setLayoutParams(params);
-			 * b.setGravity(Gravity.CENTER);
-			 * b.setText("Delete " + this.current.getName());
-			 * b.setOnClickListener(this);
-			 * tempLL.addView(b);
-			 * b = new Button(this.getActivity());
-			 * b.setLayoutParams(params);
-			 * b.setGravity(Gravity.CENTER);
-			 * b.setText("Report " + this.current.getName());
-			 * b.setOnClickListener(this);
-			 * tempLL.addView(b);
-			 * llSub.addView(tempLL);
-			 * tempLL = new LinearLayout(this.getActivity());
-			 * tempLL.setOrientation(LinearLayout.HORIZONTAL);
-			 * // Sharing.
-			 * tv = new TextView(this.getActivity());
-			 * tv.setLayoutParams(params);
-			 * tv.setGravity(Gravity.CENTER);
-			 * tv.setText("Sharing");
-			 * llSub.addView(tv);
-			 * b = new Button(this.getActivity());
-			 * b.setLayoutParams(params);
-			 * b.setGravity(Gravity.CENTER);
-			 * b.setText("Facebook");
-			 * b.setBackgroundColor(Color.parseColor("#3B5998"));
-			 * b.setOnClickListener(this);
-			 * tempLL.addView(b);
-			 * b = new Button(this.getActivity());
-			 * b.setLayoutParams(params);
-			 * b.setGravity(Gravity.CENTER);
-			 * b.setText("Google");
-			 * b.setBackgroundColor(Color.parseColor("#d34836"));
-			 * b.setOnClickListener(this);
-			 * tempLL.addView(b);
-			 * llSub.addView(tempLL);
-			 * sv.addView(llSub);
-			 * ll.addView(sv);
-			 */
 		}
 		else if (this.position == 1)
 		{
@@ -665,21 +602,21 @@ public class PreGameFragment extends Fragment implements OnClickListener, OnItem
 				MenuActivity.GAME_CODE);
 	}
 
-	protected void startGame(final String current, final String solution, final int part) {
+	protected void startGame(final PicogramPart part, final int partNumber) {
 		FlurryAgent.logEvent("UserPlayGame");
 		// This is used when we're playing a part, so some things will be different.
 		final PreGameActivity pga = (PreGameActivity) this.getActivity();
 		final Intent gameIntent = new Intent(this.getActivity(),
 				AdvancedGameActivity.class);
 		gameIntent.putExtra("name", this.current.getName());
-		gameIntent.putExtra("solution", solution);
-		gameIntent.putExtra("current", current);
-		gameIntent.putExtra("width", pga.cellHeight + "");
-		gameIntent.putExtra("height", pga.cellWidth + "");
+		gameIntent.putExtra("solution", part.getSolution());
+		gameIntent.putExtra("current", part.getCurrent());
+		gameIntent.putExtra("width", "" + part.getWidth());
+		gameIntent.putExtra("height", "" + part.getHeight());
 		gameIntent.putExtra("id", this.current.getID());
 		gameIntent.putExtra("status", this.current.getStatus());
 		gameIntent.putExtra("colors", this.current.getColors());
-		gameIntent.putExtra("part", part);
+		gameIntent.putExtra("part", partNumber);
 		this.getActivity().startActivityForResult(gameIntent,
 				MenuActivity.GAME_CODE);
 	}

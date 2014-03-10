@@ -85,6 +85,54 @@ public class PreGameActivity extends FragmentActivity implements OnPageChangeLis
 
 	boolean hasLoadedComments = false, hasLoadedHighscores = false;
 
+	/**
+	 * For fixed "column" height. "Blank cells" will be left, if the two arrays have different "width"
+	 */
+	char[][] appendArrayHorizontal(final char[][] array1, final char[][] array2) {
+		final int a = array1[0].length, b = array2[0].length;
+
+		final char[][] result = new char[Math.max(array1.length,array2.length)][a+b];
+
+		//append the rows, where both arrays have information
+		int i;
+		for (i = 0; (i < array1.length) && (i < array2.length); i++) {
+			if((array1[i].length != a) || (array2[i].length != b)){
+				throw new IllegalArgumentException("Column height doesn't match at index: " + i);
+			}
+			System.arraycopy(array1[i], 0, result[i], 0, a);
+			System.arraycopy(array2[i], 0, result[i], a, b);
+		}
+
+		//Fill out the rest
+		//only one of the following loops will actually run.
+		for (; i < array1.length; i++) {
+			if(array1[i].length != a){
+				throw new IllegalArgumentException("Column height doesn't match at index: " + i);
+			}
+			System.arraycopy(array1[i], 0, result[i], 0, a);
+		}
+
+		for (; i < array2.length; i++) {
+			if(array2[i].length != b){
+				throw new IllegalArgumentException("Column height doesn't match at index: " + i);
+			}
+			System.arraycopy(array2[i], 0, result[i], a, b);
+		}
+
+		return result;
+	}
+
+	char[][] appendArrayVertical(final char[][] array1, final char[][] array2) {
+		final char[][] ret = new char[array1.length + array2.length][];
+		int i = 0;
+		for (; i < array1.length; i++) {
+			ret[i] = array1[i];
+		}
+		for (int j = 0; j < array2.length; j++) {
+			ret[i++] = array2[j];
+		}
+		return ret;
+	}
 	private char[][] getLineIn2D(final String line) {
 		final char[][] current2D = new char[this.height][this.width];
 		int run = 0;
@@ -108,18 +156,57 @@ public class PreGameActivity extends FragmentActivity implements OnPageChangeLis
 			final int part = data.getIntExtra("part", -1);
 			if (part != -1)
 			{
+				final int w = Integer.parseInt(this.puzzle.getWidth());
+				final int h = Integer.parseInt(this.puzzle.getHeight());
 				String newCurrent = data.getStringExtra("current");
-				Log.d(TAG, "NEWCUR " + newCurrent);
 				this.adapter.frag[0].current.setCurrent(this.current);
-				final String[] cells =this.adapter.frag[0].getCells();
-				cells[part] = newCurrent;
+				final PicogramPart[] singleParts = this.adapter.frag[0].getParts();
+				singleParts[part].setCurrent(newCurrent);
 				newCurrent = "";
-				for(int i = 0; i != cells.length; ++i) {
-					if(cells[i].isEmpty()) {
-						break;
-					} else {
-						newCurrent += cells[i];
+				final PicogramPart[][] parts = new PicogramPart[(int) this.yCellNum][(int) this.xCellNum];
+				int run = 0;
+				for (int i = 0; i != parts.length; ++i)
+				{
+					for (int j = 0; j != parts[i].length; ++j)
+					{
+						parts[i][j] = singleParts[run];
+						run++;
 					}
+				}
+				// Reconstruction
+				final ArrayList<char[][]> rows = new ArrayList<char[][]>();
+				for (int i = 0; i != parts.length; ++i)
+				{
+					final PicogramPart[] row = new PicogramPart[parts[i].length];
+					for (int j = 0; j != parts[i].length; ++j)
+					{
+						row[j] = parts[i][j];
+					}
+					char[][] row2D = null;
+					for (int j = 1; j != row.length; ++j)
+					{
+						if (row2D == null)
+						{
+							Log.d(TAG, row[j - 1].toString());
+							Log.d(TAG, row[j].toString());
+							row2D = this.appendArrayHorizontal(row[j - 1].get2D(), row[j].get2D());
+						} else {
+							row2D = this.appendArrayHorizontal(row2D, row[j].get2D());
+						}
+					}
+					rows.add(row2D);
+				}
+				char[][] full2D = null;
+				for (int i = 1; i != rows.size(); ++i)
+				{
+					if (full2D == null) {
+						full2D = this.appendArrayVertical(rows.get(i - 1), rows.get(i));
+					} else {
+						full2D = this.appendArrayVertical(full2D, rows.get(i));
+					}
+				}
+				for (int i = 0; i != full2D.length; ++i) {
+					newCurrent += new String(full2D[i]);
 				}
 				Log.d(TAG, "NEWCUR " + newCurrent);
 				this.current = newCurrent;
@@ -135,7 +222,7 @@ public class PreGameActivity extends FragmentActivity implements OnPageChangeLis
 				this.puzzle.setStatus("1");
 				// If we won, do the winning stuff. TODO
 			}
-			sql.updateCurrentPicogram(id, this.puzzle.getStatus(), this.current);
+			// sql.updateCurrentPicogram(id, this.puzzle.getStatus(), this.current);
 			this.updateAndGetImageView();
 			final Picogram updatedPicogram = this.adapter.frag[0].current;
 			updatedPicogram.setCurrent(this.current);
@@ -144,7 +231,6 @@ public class PreGameActivity extends FragmentActivity implements OnPageChangeLis
 		}
 		sql.close();
 	}
-
 	@Override
 	protected void onCreate(final Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
