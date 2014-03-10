@@ -256,6 +256,8 @@ FlurryAdListener, OnPageChangeListener, OnClickListener, OnRMMUserChoiceListener
 
 		// Show beta.
 		this.showBetaDialog();
+
+		this.updateCurrentTab(); // Update current tab ;).
 	}
 	@Override
 	public boolean onCreateOptionsMenu(final Menu menu)
@@ -301,12 +303,13 @@ FlurryAdListener, OnPageChangeListener, OnClickListener, OnRMMUserChoiceListener
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
-		this.sql.close();
+		if (this.sql != null) {
+			this.sql.close();
+		}
 	}
 
 	public void onDisconnected() {
 		// TODO Auto-generated method stub
-
 	}
 
 	public boolean onNavigationItemSelected(final int itemPosition, final long itemId) {

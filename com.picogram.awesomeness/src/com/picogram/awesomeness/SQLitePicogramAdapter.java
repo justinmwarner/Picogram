@@ -128,8 +128,12 @@ public class SQLitePicogramAdapter extends SQLiteOpenHelper {
 		final String[][] picograms = this.getPicograms();
 		final String id = go.getID();
 		for (int i = 0; i != picograms.length; ++i) {
-			if (picograms[i][0].equals(id)) {
-				return i;
+			try {
+				if (picograms[i][0].equals(id)) {
+					return i;
+				}
+			} catch (final Exception e) {
+				continue;
 			}
 		}
 		return -1;

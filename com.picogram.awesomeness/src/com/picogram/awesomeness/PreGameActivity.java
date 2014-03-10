@@ -91,29 +91,29 @@ public class PreGameActivity extends FragmentActivity implements OnPageChangeLis
 	char[][] appendArrayHorizontal(final char[][] array1, final char[][] array2) {
 		final int a = array1[0].length, b = array2[0].length;
 
-		final char[][] result = new char[Math.max(array1.length,array2.length)][a+b];
+		final char[][] result = new char[Math.max(array1.length, array2.length)][a + b];
 
-		//append the rows, where both arrays have information
+		// append the rows, where both arrays have information
 		int i;
 		for (i = 0; (i < array1.length) && (i < array2.length); i++) {
-			if((array1[i].length != a) || (array2[i].length != b)){
+			if ((array1[i].length != a) || (array2[i].length != b)) {
 				throw new IllegalArgumentException("Column height doesn't match at index: " + i);
 			}
 			System.arraycopy(array1[i], 0, result[i], 0, a);
 			System.arraycopy(array2[i], 0, result[i], a, b);
 		}
 
-		//Fill out the rest
-		//only one of the following loops will actually run.
+		// Fill out the rest
+		// only one of the following loops will actually run.
 		for (; i < array1.length; i++) {
-			if(array1[i].length != a){
+			if (array1[i].length != a) {
 				throw new IllegalArgumentException("Column height doesn't match at index: " + i);
 			}
 			System.arraycopy(array1[i], 0, result[i], 0, a);
 		}
 
 		for (; i < array2.length; i++) {
-			if(array2[i].length != b){
+			if (array2[i].length != b) {
 				throw new IllegalArgumentException("Column height doesn't match at index: " + i);
 			}
 			System.arraycopy(array2[i], 0, result[i], a, b);
@@ -133,6 +133,7 @@ public class PreGameActivity extends FragmentActivity implements OnPageChangeLis
 		}
 		return ret;
 	}
+
 	private char[][] getLineIn2D(final String line) {
 		final char[][] current2D = new char[this.height][this.width];
 		int run = 0;
@@ -222,7 +223,7 @@ public class PreGameActivity extends FragmentActivity implements OnPageChangeLis
 				this.puzzle.setStatus("1");
 				// If we won, do the winning stuff. TODO
 			}
-			// sql.updateCurrentPicogram(id, this.puzzle.getStatus(), this.current);
+			sql.updateCurrentPicogram(id, this.puzzle.getStatus(), this.current);
 			this.updateAndGetImageView();
 			final Picogram updatedPicogram = this.adapter.frag[0].current;
 			updatedPicogram.setCurrent(this.current);
@@ -231,29 +232,42 @@ public class PreGameActivity extends FragmentActivity implements OnPageChangeLis
 		}
 		sql.close();
 	}
+
 	@Override
 	protected void onCreate(final Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		this.setContentView(R.layout.activity_picogram_pre_game);
-		//Did we get this through a deep link?
+		// Did we get this through a deep link?
 		final String deepLinkId = PlusShare.getDeepLinkId(this.getIntent());
-		this.parseDeepLinkId(deepLinkId);
+		final Bundle b = this.parseDeepLinkId(deepLinkId);
 		// Get info from bundle.
-		this.id = this.getIntent().getExtras().getString("id");
-		this.name = this.getIntent().getExtras().getString("name");
-		this.current = this.getIntent().getExtras().getString("current");
-		this.solution = this.getIntent().getExtras().getString("solution");
-		this.width = Integer.parseInt(this.getIntent().getExtras().getString("width"));
-		this.height = Integer.parseInt(this.getIntent().getExtras().getString("height"));
-		this.colors = this.getIntent().getExtras().getString("colors").split(",");
-
-		this.puzzle.setID(this.id);
-		this.puzzle.setName(this.name);
-		this.puzzle.setCurrent(this.current);
-		this.puzzle.setSolution(this.solution);
-		this.puzzle.setWidth(this.getIntent().getExtras().getString("width"));
-		this.puzzle.setHeight(this.getIntent().getExtras().getString("height"));
-		this.puzzle.setColors(this.getIntent().getExtras().getString("colors"));
+		if (b == null) {
+			this.id = this.getIntent().getExtras().getString("id");
+			this.name = this.getIntent().getExtras().getString("name");
+			this.current = this.getIntent().getExtras().getString("current");
+			this.solution = this.getIntent().getExtras().getString("solution");
+			this.width = Integer.parseInt(this.getIntent().getExtras().getString("width"));
+			this.height = Integer.parseInt(this.getIntent().getExtras().getString("height"));
+			this.colors = this.getIntent().getExtras().getString("colors").split(",");
+			this.puzzle.setID(this.id);
+			this.puzzle.setName(this.name);
+			this.puzzle.setCurrent(this.current);
+			this.puzzle.setSolution(this.solution);
+			this.puzzle.setWidth(this.width+"");
+			this.puzzle.setHeight(this.height+"");
+			this.puzzle.setColors(this.getIntent().getExtras().getString("colors"));
+		}
+		else
+		{
+			this.id = b.getString("id");
+			this.name = b.getString("name");
+			this.current = b.getString("current");
+			this.solution = b.getString("solution");
+			this.width = Integer.parseInt(b.getString("width"));
+			this.height = Integer.parseInt(b.getString("height"));
+			this.colors = b.getString("colors").split(",");
+			Log.d(TAG, "Current: " + this.current);
+		}
 		this.puzzle.nullsToValue(this);
 
 		final SQLitePicogramAdapter sql = new SQLitePicogramAdapter(this, "Picograms", null, 1);
@@ -272,6 +286,7 @@ public class PreGameActivity extends FragmentActivity implements OnPageChangeLis
 		final ImageView iv = (ImageView) this.findViewById(R.id.ivPreGame);
 		iv.setOnTouchListener(this);
 		// Draw the ImageView with current.
+		Log.d(TAG, "Init curr: " + this.current);
 		this.updateAndGetImageView();
 		this.showRatingDialog(sql);
 		sql.close();
@@ -286,6 +301,7 @@ public class PreGameActivity extends FragmentActivity implements OnPageChangeLis
 
 	public void onPageScrolled(final int arg0, final float arg1, final int arg2) {
 	}
+
 	public void onPageScrollStateChanged(final int arg0) {
 	}
 
@@ -306,6 +322,7 @@ public class PreGameActivity extends FragmentActivity implements OnPageChangeLis
 			}
 		}
 	}
+
 	public boolean onTouch(final View v, final MotionEvent event) {
 		v.setOnTouchListener(null);
 		/*
@@ -378,21 +395,40 @@ public class PreGameActivity extends FragmentActivity implements OnPageChangeLis
 		return false;
 	}
 
-	private void parseDeepLinkId(final String deepLinkId) {
+	private Bundle parseDeepLinkId(final String deepLinkId) {
 		final Intent route = new Intent();
-		if(deepLinkId != null) {
-			Log.d(TAG, "TEST " + deepLinkId);
+		if (deepLinkId != null) {
+			// deepLinkId is the Picogram ID. So get it via Parse.
+			final ParseQuery<ParseObject> query = ParseQuery.getQuery("Picogram");
+			query.whereEqualTo("puzzleId", "" + deepLinkId);
+			try {
+				final SQLitePicogramAdapter sql = new SQLitePicogramAdapter(this, "Picograms", null, 1);
+				final ParseObject po = query.getFirst();
+				final Picogram p = new Picogram(po);
+				Log.d(TAG, "Picogram Curr: " + p.toString());
+				p.nullsToValue(this); // Reset if not set.
+				sql.addUserPicogram(p);
+				sql.close();
+				final Bundle result = new Bundle();
+				result.putString("id", deepLinkId);
+				result.putString("name", p.getName());
+				result.putString("current", p.getCurrent());
+				result.putString("solution", p.getSolution());
+				result.putString("width", p.getWidth());
+				result.putString("height", p.getHeight());
+				result.putString("colors", p.getColors());
+				this.puzzle = p;
+				return result;
+			} catch (final ParseException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
 		}
-		//if ("/pages/create".equals(deepLinkId)) {
-		//    route.setClass(getApplicationContext(), CreatePageActivity.class);
-		//} else {
-		// Fallback to the MainActivity in your app.
-		//    route.setClass(getApplicationContext(), MainActivity.class);
-		//}
-		//return route;
+		return null;
 	}
 
-	public void showRatingDialog( final SQLitePicogramAdapter sql)
+	public void showRatingDialog(final SQLitePicogramAdapter sql)
 	{
 		// Check if user needs to rate puzzle.
 		if (Util.isOnline() && this.puzzle.getCurrent().replaceAll("x|X", "0").equals(this.puzzle.getSolution()) && (sql.getValueByColumn(this.puzzle.getID(), SQLitePicogramAdapter.pRank) == 0))
@@ -470,6 +506,7 @@ public class PreGameActivity extends FragmentActivity implements OnPageChangeLis
 			for (int j = 0; j != this.height; ++j)
 			{
 				int col, colNumber;
+				Log.d(TAG, "Curr: " + this.current);
 				if (this.current.charAt(run) != 'x')
 				{
 					colNumber = Integer.parseInt("" + this.current.charAt(run));
@@ -523,8 +560,6 @@ public class PreGameActivity extends FragmentActivity implements OnPageChangeLis
 		}
 		this.xCellNum = Math.ceil((double) bm.getWidth() / (double) this.cellWidth);
 		this.yCellNum = Math.ceil((double) bm.getHeight() / (double) this.cellHeight);
-
-		Log.d(TAG, "XG: " + this.cellWidth + " YG: " + this.cellHeight);
 		// Now draw these on a Canvas and save it.
 		bm = Bitmap.createScaledBitmap(bm, this.width * this.proportion, this.height * this.proportion, false);
 		if ((this.cellWidth != 1) && (this.cellHeight != 1))

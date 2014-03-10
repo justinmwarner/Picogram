@@ -831,64 +831,69 @@ OnDoubleTapListener {
 	}
 
 	public boolean onDown(final MotionEvent event) {
-		if (this.isGameplay) {
-			this.matrix.getValues(this.m);
-			final float transX = this.m[Matrix.MTRANS_X] * -1;
-			final float transY = this.m[Matrix.MTRANS_Y] * -1;
-			final float scaleX = this.m[Matrix.MSCALE_X];
-			final float scaleY = this.m[Matrix.MSCALE_Y];
-			this.lastTouchX = (int) ((event.getX() + transX) / scaleX);
-			this.lastTouchY = (int) ((event.getY() + transY) / scaleY);
-			this.lastTouchX = Math.abs(this.lastTouchX);
-			this.lastTouchY = Math.abs(this.lastTouchY);
+		try {
+			if (this.isGameplay) {
+				this.matrix.getValues(this.m);
+				final float transX = this.m[Matrix.MTRANS_X] * -1;
+				final float transY = this.m[Matrix.MTRANS_Y] * -1;
+				final float scaleX = this.m[Matrix.MSCALE_X];
+				final float scaleY = this.m[Matrix.MSCALE_Y];
+				this.lastTouchX = (int) ((event.getX() + transX) / scaleX);
+				this.lastTouchY = (int) ((event.getY() + transY) / scaleY);
+				this.lastTouchX = Math.abs(this.lastTouchX);
+				this.lastTouchY = Math.abs(this.lastTouchY);
 
-			int indexX = (int) Math.floor((this.lastTouchX - (this.cellWidth * this.lSide))
-					/ this.cellWidth);
-			int indexY = (int) Math.floor((this.lastTouchY - (this.cellHeight * this.lTop))
-					/ this.cellHeight);
-			if (this.lastTouchX >= ((this.lSide + this.gWidth) * this.cellWidth)) {
-				indexX -= 1;
-			}
-			if (this.lastTouchY >= ((this.lTop + this.gHeight) * this.cellHeight)) {
-				indexY -= 1;
-			}
-			this.oldCurrent = this.gCurrent;
-			final char[] temp = this.gCurrent.toCharArray();
-			final String past = this.gCurrent;
-			if (temp[(indexY * this.gWidth) + indexX] == '0') {
-				temp[(indexY * this.gWidth) + indexX] = this.colorCharacter;
-			} else if (temp[(indexY * this.gWidth) + indexX] == 'x') {
-				temp[(indexY * this.gWidth) + indexX] = '0';
-			} else if (temp[(indexY * this.gWidth) + indexX] == this.colorCharacter) {
-				temp[(indexY * this.gWidth) + indexX] = 'x';
-			} else {
-				temp[(indexY * this.gWidth) + indexX] = this.colorCharacter;
-			}
-			this.gCurrent = String.valueOf(temp);
-			if (!past.equals(this.gCurrent)) {
+				int indexX = (int) Math.floor((this.lastTouchX - (this.cellWidth * this.lSide))
+						/ this.cellWidth);
+				int indexY = (int) Math.floor((this.lastTouchY - (this.cellHeight * this.lTop))
+						/ this.cellHeight);
+				if (this.lastTouchX >= ((this.lSide + this.gWidth) * this.cellWidth)) {
+					indexX -= 1;
+				}
+				if (this.lastTouchY >= ((this.lTop + this.gHeight) * this.cellHeight)) {
+					indexY -= 1;
+				}
+				this.oldCurrent = this.gCurrent;
+				final char[] temp = this.gCurrent.toCharArray();
+				final String past = this.gCurrent;
+				if (temp[(indexY * this.gWidth) + indexX] == '0') {
+					temp[(indexY * this.gWidth) + indexX] = this.colorCharacter;
+				} else if (temp[(indexY * this.gWidth) + indexX] == 'x') {
+					temp[(indexY * this.gWidth) + indexX] = '0';
+				} else if (temp[(indexY * this.gWidth) + indexX] == this.colorCharacter) {
+					temp[(indexY * this.gWidth) + indexX] = 'x';
+				} else {
+					temp[(indexY * this.gWidth) + indexX] = this.colorCharacter;
+				}
+				this.gCurrent = String.valueOf(temp);
+				if (!past.equals(this.gCurrent)) {
 
-				this.previousX = indexX;
-				this.previousY = indexY;
-				new Thread(new Runnable() {
+					this.previousX = indexX;
+					this.previousY = indexY;
+					new Thread(new Runnable() {
 
-					public void run() {
-						TouchImageView.this.h.post(new Runnable() {
+						public void run() {
+							TouchImageView.this.h.post(new Runnable() {
 
-							public void run() {
-								if (TouchImageView.this.historyListener != null) {
-									TouchImageView.this.historyListener
-									.action(TouchImageView.this.oldCurrent);
+								public void run() {
+									if (TouchImageView.this.historyListener != null) {
+										TouchImageView.this.historyListener
+										.action(TouchImageView.this.oldCurrent);
+									}
+									TouchImageView.this.bitmapFromCurrent();
 								}
-								TouchImageView.this.bitmapFromCurrent();
-							}
 
-						});
-					}
+							});
+						}
 
-				}).start();
+					}).start();
+				}
+				this.checkWin();
+				return true;
 			}
-			this.checkWin();
-			return true;
+		} catch (final Exception e)
+		{
+			// For those odd ball touches ;). Lol.
 		}
 		return false;
 	}
