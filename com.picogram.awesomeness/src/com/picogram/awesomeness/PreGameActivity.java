@@ -149,6 +149,8 @@ public class PreGameActivity extends FragmentActivity implements OnPageChangeLis
 	@Override
 	protected void onActivityResult(final int requestCode,
 			final int resultCode, final Intent data) {
+		super.onActivityResult(requestCode, resultCode, data);
+		// this.adapter.frag[0].uiHelper.onActivityResult(requestCode, resultCode, data);
 		final SQLitePicogramAdapter sql = new SQLitePicogramAdapter(this, "Picograms", null, 1);
 		if ((resultCode == Activity.RESULT_OK)
 				&& (requestCode == MenuActivity.GAME_CODE)) {

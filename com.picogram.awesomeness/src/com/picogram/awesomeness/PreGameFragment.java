@@ -4,9 +4,15 @@ package com.picogram.awesomeness;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.PackageManager.NameNotFoundException;
+import android.content.pm.Signature;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Base64;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
@@ -24,7 +30,15 @@ import android.widget.LinearLayout.LayoutParams;
 import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.facebook.FacebookException;
+import com.facebook.Session;
+import com.facebook.SessionState;
+import com.facebook.UiLifecycleHelper;
+import com.facebook.widget.LoginButton;
+import com.facebook.widget.WebDialog;
+import com.facebook.widget.WebDialog.OnCompleteListener;
 import com.flurry.android.FlurryAgent;
 import com.google.android.gms.plus.PlusShare;
 import com.parse.DeleteCallback;
@@ -36,12 +50,14 @@ import com.parse.ParseQuery;
 import de.keyboardsurfer.android.widget.crouton.Crouton;
 import de.keyboardsurfer.android.widget.crouton.Style;
 
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 
 public class PreGameFragment extends Fragment implements OnClickListener, OnItemClickListener {
+	static final String ARG_POSITION = "position";
 
-	private static final String ARG_POSITION = "position";
 	protected static final String TAG = "PreGameFragment";
 
 	public static PreGameFragment newInstance(final int position) {
@@ -56,9 +72,80 @@ public class PreGameFragment extends Fragment implements OnClickListener, OnItem
 	private int position;
 	ListView lvComments, lvHighscores;
 	PicogramCommentAdapter comments;
+
 	PicogramHighscoreAdapter highscores;
 
 	Spinner partSpinner;
+
+	private Button buttonLoginLogout;
+
+	UiLifecycleHelper uiHelper;
+
+	private final Session.StatusCallback callback = new Session.StatusCallback() {
+		public void call(final Session session, final SessionState state, final Exception exception) {
+			if (exception != null) {
+				Log.d(TAG, "Facebook Error: " + exception);
+			}
+			PreGameFragment.this.onSessionStateChange(session, state, exception);
+		}
+	};
+	LoginButton facebookLogin;
+	Button facebookPost;
+
+	String dlFacebook = null;
+
+	private void facebookCreateView(final Bundle savedInstanceState, final View view) {
+
+		this.facebookLogin = (LoginButton) view.findViewById(R.id.authButton);
+		this.facebookPost = (Button) view.findViewById(R.id.publishButton);
+		this.facebookLogin.setFragment(this);
+		this.facebookPost.setOnClickListener(new View.OnClickListener() {
+
+			public void onClick(final View v) {
+				// Trigger the Facebook feed dialog
+				PreGameFragment.this.facebookFeedDialog();
+			}
+		});
+
+	}
+
+	/*
+	 * Show the feed dialog using the deprecated APIs
+	 */
+	private void facebookFeedDialog() {
+		// Set the dialog parameters
+		final Bundle params = new Bundle();
+		params.putString("name", "Name");
+		params.putString("caption", "Caption");
+		params.putString("description", "Description");
+		params.putString("link", "www.picogram.com/" + this.current.getID());
+		params.putString("picture", ("i.imgur.com/JDSNKkp.png").toString());
+
+		// Invoke the dialog
+		final WebDialog feedDialog = (
+				new WebDialog.FeedDialogBuilder(this.getActivity(),
+						Session.getActiveSession(),
+						params))
+						.setOnCompleteListener(new OnCompleteListener() {
+
+							public void onComplete(final Bundle values, final FacebookException error) {
+								if (error == null) {
+									// When the story is posted, echo the success
+									// and the post Id.
+									final String postId = values.getString("post_id");
+									if (postId != null) {
+										Toast.makeText(PreGameFragment.this.getActivity(),
+												"Story published: " + postId,
+												Toast.LENGTH_SHORT).show();
+									}
+								}
+							}
+
+						})
+						.build();
+		feedDialog.show();
+
+	}
 
 	protected PicogramPart[] getParts() {
 		final ArrayList<PicogramPart> result = new ArrayList<PicogramPart>();
@@ -124,19 +211,16 @@ public class PreGameFragment extends Fragment implements OnClickListener, OnItem
 					// Bottom-Right-Corner, has both remainders.
 					part.setWidth((int) (Integer.parseInt(this.current.getWidth()) - (pga.cellWidth * (pga.xCellNum - 1))));
 					part.setHeight((int) (Integer.parseInt(this.current.getHeight()) - (pga.cellHeight * (pga.yCellNum - 1))));
-					Log.d(TAG, "BOTTOM RIGHT  " + part.toString());
 				}
 				else
 				{
 					// On the right, has the width of the right remainder.
 					part.setWidth((int) (Integer.parseInt(this.current.getWidth()) - (pga.cellWidth * (pga.xCellNum - 1))));
-					Log.d(TAG, "RIGHT  " + part.toString());
 				}
 			} else if ((pga.xCellNum * (pga.yCellNum - 1)) <= i)
 			{
 				// On the bottom, has the height of the bottom remainder.
 				part.setHeight((int) (Integer.parseInt(this.current.getHeight()) - (pga.cellHeight * (pga.yCellNum - 1))));
-				Log.d(TAG, "BOTTOM " + part.toString());
 			}
 			list[i] = part;
 		}
@@ -267,6 +351,24 @@ public class PreGameFragment extends Fragment implements OnClickListener, OnItem
 		});
 	}
 
+	@Override
+	public void onActivityCreated(final Bundle savedInstanceState) {
+		super.onActivityCreated(savedInstanceState);
+
+		// Check for an incoming deep link
+		final Uri targetUri = this.getActivity().getIntent().getData();
+		if (targetUri != null) {
+			this.dlFacebook = targetUri.toString();
+			Log.i(TAG, "Incoming deep link: " + targetUri);
+		}
+	}
+
+	@Override
+	public void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
+		super.onActivityResult(requestCode, resultCode, data);
+		this.uiHelper.onActivityResult(requestCode, resultCode, data);
+	}
+
 	public void onClick(final View v) {
 		final SQLitePicogramAdapter sql = new SQLitePicogramAdapter(
 				PreGameFragment.this.getActivity(), "Picograms", null, 1);
@@ -310,9 +412,6 @@ public class PreGameFragment extends Fragment implements OnClickListener, OnItem
 			// No author, so null.
 			this.showReportDialog("puzzle", this.current.getID(), null);
 		}
-		else if (v.getId() == R.id.bFacebook)
-		{
-		}
 		else if (v.getId() == R.id.bGoogle)
 		{
 			// TODO Make it use an interactive post.
@@ -353,6 +452,7 @@ public class PreGameFragment extends Fragment implements OnClickListener, OnItem
 		sql.close();
 	}
 
+
 	@Override
 	public void onCreate(final Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -361,7 +461,15 @@ public class PreGameFragment extends Fragment implements OnClickListener, OnItem
 		this.comments = new PicogramCommentAdapter(this.getActivity(),
 				R.id.tvCommentAuthor);
 		this.highscores = new PicogramHighscoreAdapter(this.getActivity(), R.id.tvCommentAuthor);
+
+		// Facebook
+		this.uiHelper = new UiLifecycleHelper(this.getActivity(), this.callback);
+		this.uiHelper.onCreate(savedInstanceState);
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+			this.getActivity().getActionBar().setDisplayHomeAsUpEnabled(true);
+		}
 	}
+
 	@Override
 	public View onCreateView(final LayoutInflater inflater, final ViewGroup container,
 			final Bundle savedInstanceState) {
@@ -419,7 +527,6 @@ public class PreGameFragment extends Fragment implements OnClickListener, OnItem
 			final Button bClear = (Button) childLayout.findViewById(R.id.bClear);
 			final Button bDelete = (Button) childLayout.findViewById(R.id.bDelete);
 			final Button bReport = (Button) childLayout.findViewById(R.id.bReport);
-			final Button bFacebook = (Button) childLayout.findViewById(R.id.bFacebook);
 			final Button bGoogle = (Button) childLayout.findViewById(R.id.bGoogle);
 			this.partSpinner = (Spinner) childLayout.findViewById(R.id.spinParts);
 
@@ -427,7 +534,6 @@ public class PreGameFragment extends Fragment implements OnClickListener, OnItem
 			bClear.setOnClickListener(this);
 			bDelete.setOnClickListener(this);
 			bReport.setOnClickListener(this);
-			bFacebook.setOnClickListener(this);
 			bGoogle.setOnClickListener(this);
 			if ((Integer.parseInt(this.current.getWidth()) > 25) || (Integer.parseInt(this.current.getHeight()) > 25))
 			{
@@ -435,6 +541,7 @@ public class PreGameFragment extends Fragment implements OnClickListener, OnItem
 			} else {
 				this.partSpinner.setVisibility(View.GONE);
 			}
+			this.facebookCreateView(savedInstanceState, childLayout);
 			ll.addView(childLayout);
 		}
 		else if (this.position == 1)
@@ -478,6 +585,12 @@ public class PreGameFragment extends Fragment implements OnClickListener, OnItem
 		return ll;
 	}
 
+	@Override
+	public void onDestroy() {
+		super.onDestroy();
+		this.uiHelper.onDestroy();
+	}
+
 	public void onItemClick(final AdapterView<?> parent, final View view, final int pos, final long id) {
 		// If it's not the authors comment, flag. If it is, delete.
 		final PicogramComment pc = this.comments.getItem(pos);
@@ -490,6 +603,87 @@ public class PreGameFragment extends Fragment implements OnClickListener, OnItem
 		else
 		{
 			this.showReportDialog("comment", this.current.getID(), pc.getAuthor());
+		}
+	}
+
+	@Override
+	public void onPause() {
+		super.onPause();
+		this.uiHelper.onPause();
+	}
+
+	@Override
+	public void onResume() {
+		super.onResume();
+
+		// For scenarios where the main activity is launched and user
+		// session is not null, the session state change notification
+		// may not be triggered. Trigger it if it's open/closed.
+		final Session session = Session.getActiveSession();
+		if(this.buttonLoginLogout == null)
+		{
+			final View view = this.getActivity().findViewById(android.R.id.content);
+
+			this.facebookLogin = (LoginButton) view.findViewById(R.id.authButton);
+			this.facebookPost = (Button) view.findViewById(R.id.publishButton);
+		}
+		if ((session != null) &&
+				(session.isOpened() || session.isClosed())) {
+			session.addCallback(this.callback);
+			this.onSessionStateChange(session, session.getState(), null);
+		}
+
+		this.uiHelper.onResume();
+	}
+
+	@Override
+	public void onSaveInstanceState(final Bundle outState) {
+		super.onSaveInstanceState(outState);
+		this.uiHelper.onSaveInstanceState(outState);
+	}
+
+	private void onSessionStateChange(final Session session, final SessionState state, final Exception exception) {
+		// Check if the user is authenticated and
+		// a deep link needs to be handled.
+		if (exception != null) {
+			Log.d(TAG, "Facebook - Error: " + exception);
+		}
+		Log.d(TAG, "Facebook - Session state change. " + state.toString() + " " + session.toString() + " ");
+		try {
+			throw new Exception();
+		} catch (final Exception e) {
+			for (final StackTraceElement ste : e.getStackTrace()) {
+				// Log.d(TAG, "Facebook: " + ste.getLineNumber() + " " + ste.getMethodName());
+			}
+		}
+		try {
+			final PackageInfo info = this.getActivity().getPackageManager().getPackageInfo("com.picogram.awesomeness", PackageManager.GET_SIGNATURES);
+			for (final Signature signature : info.signatures) {
+				final MessageDigest md = MessageDigest.getInstance("SHA");
+				md.update(signature.toByteArray());
+				final String sign = Base64.encodeToString(md.digest(), Base64.DEFAULT);
+				Log.e("MY KEY HASH:", sign);
+				Toast.makeText(this.getActivity().getApplicationContext(), sign, Toast.LENGTH_LONG).show();
+			}
+		} catch (final NameNotFoundException e) {
+		} catch (final NoSuchAlgorithmException e) {
+		}
+		if (state.isOpened() && (this.dlFacebook != null)) {
+			// Launch the menu details activity, passing on
+			// the info on the item that was selected.
+			Log.d(TAG, "Facebook - Got a Facebook DL");
+			this.facebookLogin.setVisibility(View.GONE);
+			this.facebookPost.setVisibility(View.VISIBLE);
+		} else if (state.isOpened()) {
+			// User is logged in.
+			Log.d(TAG, "Facebook - Logged in");
+			this.facebookLogin.setVisibility(View.GONE);
+			this.facebookPost.setVisibility(View.VISIBLE);
+		} else if (state.isClosed()) {
+			// User is not logged in.
+			Log.d(TAG, "Facebook - Not logged in");
+			this.facebookLogin.setVisibility(View.VISIBLE);
+			this.facebookPost.setVisibility(View.GONE);
 		}
 	}
 
@@ -536,7 +730,6 @@ public class PreGameFragment extends Fragment implements OnClickListener, OnItem
 
 		alert.show();
 	}
-
 	private void showReportDialog(final String type, final String pid, final String aid) {
 		// Puzzle ID will always be filled out. Author ID will if it's a comment.
 		final FlagObject fo = new FlagObject();
@@ -567,6 +760,7 @@ public class PreGameFragment extends Fragment implements OnClickListener, OnItem
 
 		alert.show();
 	}
+
 
 	protected void startGame() {
 		FlurryAgent.logEvent("UserPlayGame");
@@ -620,4 +814,5 @@ public class PreGameFragment extends Fragment implements OnClickListener, OnItem
 		this.getActivity().startActivityForResult(gameIntent,
 				MenuActivity.GAME_CODE);
 	}
+
 }

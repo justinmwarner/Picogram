@@ -57,14 +57,23 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content" >
 
-        <Button
-            android:id="@+id/bFacebook"
+        <com.facebook.widget.LoginButton
+            android:id="@+id/authButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="5dp"
+            android:layout_gravity="center_horizontal"
             android:layout_weight="1"
-            android:background="#3B5998"
-            android:text="Facebook" />
+            android:layout_marginTop="30dp" />
+
+        <Button
+            android:id="@+id/publishButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
+            android:layout_weight="1"
+            android:background="@drawable/facebook_share"
+            android:text="\nShare"
+            android:visibility="gone" />
 
         <Button
             android:id="@+id/bGoogle"
@@ -72,8 +81,9 @@
             android:layout_height="wrap_content"
             android:layout_margin="5dp"
             android:layout_weight="1"
-            android:background="#d34836"
-            android:text="Google" />
+            android:background="@drawable/google_plus_share"
+            android:text="\nShare" />
+
     </LinearLayout>
 
 </LinearLayout>

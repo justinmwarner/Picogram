@@ -37,6 +37,7 @@
     <string name="exception">Exception: %1$s</string>
     <string name="title_activity_picogram_pre_game">PicogramPreGame</string>
     <string name="app_id">1043629120155</string>
+    <string name="fb_app_id">168035366694115</string>
     <string name="title_activity_login">LoginActivity</string>
 
 </resources>
