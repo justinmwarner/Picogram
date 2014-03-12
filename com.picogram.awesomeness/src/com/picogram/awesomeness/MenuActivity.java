@@ -221,6 +221,8 @@ FlurryAdListener, OnPageChangeListener, OnClickListener, OnRMMUserChoiceListener
 					"52b6411c4002051525000002");
 		}
 		lv = new ListView(this);
+		lv.setDivider(this.getResources().getDrawable(R.drawable.one));
+		// lv.setDividerHeight(100);
 		lvAdapter = new PicogramListAdapter(this, R.id.tvName);
 		lv.setAdapter(lvAdapter);
 		Util.setTheme(this);

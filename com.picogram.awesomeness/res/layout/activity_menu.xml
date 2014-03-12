@@ -20,6 +20,8 @@
         android:layout_height="wrap_content"
         android:layout_above="@+id/bottomToolbar"
         android:layout_below="@+id/tabs"
+        android:background="@android:color/transparent"
+        android:cacheColorHint="@android:color/transparent"
         android:isScrollContainer="false"
         android:windowSoftInputMode="adjustPan"
         tools:context=".MainActivity" />

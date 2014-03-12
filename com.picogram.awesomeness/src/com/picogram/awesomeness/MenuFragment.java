@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
@@ -673,6 +674,9 @@ OnItemClickListener, OnItemLongClickListener {
 		}
 
 		final ListView v = new ListView(this.getActivity());
+
+		v.setDivider(new ColorDrawable(Color.parseColor("#00000000")));
+		v.setDividerHeight(10);
 		params.setMargins(margin, margin, margin, margin);
 		v.setLayoutParams(params);
 		v.setLayoutParams(params);
