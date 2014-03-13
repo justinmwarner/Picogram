@@ -115,9 +115,9 @@ public class PreGameFragment extends Fragment implements OnClickListener, OnItem
 	private void facebookFeedDialog() {
 		// Set the dialog parameters
 		final Bundle params = new Bundle();
-		params.putString("name", "Name");
-		params.putString("caption", "Caption");
-		params.putString("description", "Description");
+		params.putString("name", this.current.getName());
+		params.putString("caption", "Play Picogram with me!");
+		params.putString("description", "Picogram is a fun puzzle game for Android that allows you to create your own puzzles that your friends and yourself can play.");
 		params.putString("link", "www.picogram.com/" + this.current.getID());
 		params.putString("picture", ("i.imgur.com/JDSNKkp.png").toString());
 
@@ -615,6 +615,14 @@ public class PreGameFragment extends Fragment implements OnClickListener, OnItem
 	@Override
 	public void onResume() {
 		super.onResume();
+		if ((Integer.parseInt(this.current.getWidth()) > 25) || (Integer.parseInt(this.current.getHeight()) > 25))
+		{
+			if (this.partSpinner == null) {
+				this.partSpinner = (Spinner) this.getActivity().findViewById(R.id.spinParts);
+				Log.d(TAG, "Spinner? " + this.partSpinner.toString());
+			}
+			this.partSpinner.setAdapter(new PartSpinnerAdapter(this.getActivity(), 0, this.getParts()));
+		}
 
 		// For scenarios where the main activity is launched and user
 		// session is not null, the session state change notification

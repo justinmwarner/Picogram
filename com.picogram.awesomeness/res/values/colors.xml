@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <integer-array name="colors">
+        <item>@color/light_green</item>
+        <item>@color/light_red</item>
+        <item>@color/light_yellow</item>
+    </integer-array>
+
+    <color name="good">#7AB384</color>
+    <color name="bad">#A8003A</color>
+    <color name="special">#C98B00</color>
+    <color name="light_green">#88ADE5CF</color>
+    <color name="light_yellow">#88FFFCBA</color>
+    <color name="light_red">#88FFB7AD</color>
+    <color name="holo_blue_dark">#0099cc</color>
+    <color name="holo_yellow_dark">#ff8800</color>
+    <color name="holo_green_dark">#669900</color>
+    <color name="holo_purple_dark">#9933cc</color>
+    <color name="holo_red_dark">#cc0000</color>
+
+</resources>

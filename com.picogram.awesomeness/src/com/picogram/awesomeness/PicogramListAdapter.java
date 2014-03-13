@@ -125,7 +125,7 @@ public class PicogramListAdapter extends ArrayAdapter<Picogram> {
 						curr += "0";
 					}
 					if (curr.charAt(run) == 'x') {
-						bm.setPixel(j, i, Color.WHITE);
+						bm.setPixel(j, i, Color.TRANSPARENT);
 					} else {
 						bm.setPixel(
 								j,
@@ -157,7 +157,13 @@ public class PicogramListAdapter extends ArrayAdapter<Picogram> {
 			}
 			bm = Bitmap.createScaledBitmap(bm, 100, 100, true);
 		}
-		bm = Bitmap.createScaledBitmap(bm, 100, 100, false);
+		if (height == 0) {
+			height = 10;
+		}
+		if (width == 0) {
+			width = 10;
+		}
+		bm = Bitmap.createScaledBitmap(bm, width * 10, height * 10, false);
 		return bm;
 	}
 	@Override

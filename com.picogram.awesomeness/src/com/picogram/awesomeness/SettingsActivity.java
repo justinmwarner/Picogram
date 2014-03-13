@@ -53,8 +53,8 @@ OnPreferenceChangeListener, OnPreferenceClickListener, GooglePlayServicesClient.
 		this.findPreference("decorations").setOnPreferenceClickListener(this);
 		this.findPreference("music").setOnPreferenceChangeListener(this);
 		this.findPreference("email").setOnPreferenceClickListener(this);
-		this.findPreference("advertisements")
-		.setOnPreferenceClickListener(this);
+		this.findPreference("advertisements").setOnPreferenceClickListener(this);
+		this.findPreference("changelog").setOnPreferenceClickListener(this);
 		this.findPreference("analytics").setOnPreferenceClickListener(this);
 		this.findPreference("logging").setOnPreferenceClickListener(this);
 		this.findPreference("crashes").setOnPreferenceClickListener(this);
@@ -97,6 +97,7 @@ OnPreferenceChangeListener, OnPreferenceClickListener, GooglePlayServicesClient.
 	public boolean onPreferenceClick(final Preference preference) {
 		if (preference.getKey().equals("changelog")) {
 			// Launch change log dialog
+			Log.d(TAG, "Changelog");
 			final ChangeLogDialog _ChangelogDialog = new ChangeLogDialog(this);
 			_ChangelogDialog.show();
 		} else if (preference.getKey().equals("licenses")) {

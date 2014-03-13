@@ -26,6 +26,15 @@
         android:windowSoftInputMode="adjustPan"
         tools:context=".MainActivity" />
 
+    <fr.castorflex.android.smoothprogressbar.SmoothProgressBar
+        android:id="@+id/spbLoad"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/tabs"
+        android:indeterminate="true"
+        app:spb_colors="@array/colors"
+        app:spb_sections_count="12" />
+
     <LinearLayout
         android:id="@+id/bottomToolbar"
         android:layout_width="match_parent"
@@ -36,6 +45,8 @@
         android:layout_marginRight="4dip"
         android:isScrollContainer="false"
         android:orientation="horizontal"
-        android:windowSoftInputMode="adjustPan" />
+        android:windowSoftInputMode="adjustPan" >
+
+    </LinearLayout>
 
 </RelativeLayout> <!-- </com.jakewharton.scalpel.ScalpelFrameLayout> -->

@@ -40,6 +40,14 @@
             android:label="@string/app_name"
             android:screenOrientation="portrait" >
             <intent-filter>
+
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="com.picogram.awesomeness.MultiStepCreateActivity"
+            android:label="@string/app_name"
+            android:screenOrientation="portrait" >
+            <intent-filter>
                 <action android:name="android.intent.action.SEND" />
 
                 <data android:mimeType="image/*" />

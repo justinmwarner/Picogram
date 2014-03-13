@@ -476,7 +476,7 @@ public class DialogMaker extends DialogFragment implements View.OnClickListener 
 				Crouton.makeText(this.getActivity(), "Give us a new height.",
 						Style.INFO).show();
 			}
-			npb.setMaxNumber(25);
+			npb.setMaxNumber(100);
 			npb.setMinNumber(1);
 		}
 		npb.addNumberPickerDialogHandler(new NumberPickerDialogHandler() {

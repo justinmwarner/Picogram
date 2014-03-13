@@ -293,6 +293,8 @@ FlurryAdListener, OnPageChangeListener, OnClickListener, OnRMMUserChoiceListener
 					MenuActivity.this.adapter.frag[MenuActivity.this.currentTab].getTagPuzzles(
 							MenuActivity.this.adapter.frag[MenuActivity.this.currentTab].getActivity(),
 							query);
+					abSearch.clearFocus();
+					(menu.findItem(R.id.menu_search)).collapseActionView();
 					return true;
 				}
 			};
@@ -397,6 +399,7 @@ FlurryAdListener, OnPageChangeListener, OnClickListener, OnRMMUserChoiceListener
 			});
 			newFragment.show(ft, "dialog");
 		}
+		this.updateCurrentTab();
 	}
 
 	public void onSignInFailed() {

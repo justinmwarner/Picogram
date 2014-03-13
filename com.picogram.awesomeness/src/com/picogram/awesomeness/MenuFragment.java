@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
@@ -31,6 +32,8 @@ import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.picogram.awesomeness.DialogMaker.OnDialogResultListener;
+
+import fr.castorflex.android.smoothprogressbar.SmoothProgressBar;
 import de.keyboardsurfer.android.widget.crouton.Crouton;
 import de.keyboardsurfer.android.widget.crouton.Style;
 
@@ -72,6 +75,8 @@ OnItemClickListener, OnItemLongClickListener {
 	Handler h = new Handler();
 
 	SQLitePicogramAdapter sql = null;
+
+	SmoothProgressBar pbLoad;
 
 	public void clearAdapter() {
 		if (this.myAdapter != null) {
@@ -132,6 +137,7 @@ OnItemClickListener, OnItemLongClickListener {
 	}
 
 	public void getMyPuzzles(final FragmentActivity a) {
+		this.pbLoad.setVisibility(View.VISIBLE);
 		this.myAdapter.myPicograms.clear();
 		this.myAdapter.clear();
 		this.myAdapter.notifyDataSetChanged();
@@ -192,6 +198,7 @@ OnItemClickListener, OnItemLongClickListener {
 		final long currentTime = System.currentTimeMillis();
 
 		if ((currentTime - last) < 3600000) {
+			MenuFragment.this.pbLoad.setVisibility(View.INVISIBLE);
 			return;
 		}
 		Util.getPreferences(this.getActivity()).edit().putLong("lastMyUpdate", currentTime).commit();
@@ -212,6 +219,7 @@ OnItemClickListener, OnItemLongClickListener {
 				} else {
 					Log.d(TAG, "Error updating ratings on my puzzles: " + e.getMessage());
 				}
+				MenuFragment.this.pbLoad.setVisibility(View.INVISIBLE);
 			}
 
 		});
@@ -252,6 +260,7 @@ OnItemClickListener, OnItemLongClickListener {
 	}
 
 	public void getRecentPuzzles(final Activity a) {
+		this.pbLoad.setVisibility(View.VISIBLE);
 		// Update ratings only every hour.
 		final long last = Util.getPreferences(this.getActivity()).getLong("lastRecentUpdate", 0);
 		final long currentTime = System.currentTimeMillis();
@@ -260,6 +269,7 @@ OnItemClickListener, OnItemLongClickListener {
 		if ((currentTime - last) < 600000) {
 			this.myAdapter.picograms = this.myAdapter.recentPicograms;
 			this.myAdapter.notifyDataSetChanged();
+			MenuFragment.this.pbLoad.setVisibility(View.INVISIBLE);
 			return;
 		}
 		Util.getPreferences(this.getActivity()).edit().putLong("lastRecentUpdate", currentTime).commit();
@@ -281,17 +291,20 @@ OnItemClickListener, OnItemLongClickListener {
 						}
 						MenuFragment.this.myAdapter.picograms = MenuFragment.this.myAdapter.recentPicograms;
 						MenuFragment.this.myAdapter.notifyDataSetChanged();
+						MenuFragment.this.pbLoad.setVisibility(View.INVISIBLE);
 					}
 				}
 				else
 				{
 					Log.d(TAG, "ERROR in Recent Puzzles: " + e.getMessage());
+					MenuFragment.this.pbLoad.setVisibility(View.INVISIBLE);
 				}
 			}
 		});
 	}
 
 	public void getTagPuzzles(final Activity a, final String tag) {
+		this.pbLoad.setVisibility(View.VISIBLE);
 		this.myAdapter.clear();
 		ParseQuery<ParseObject> query = ParseQuery.getQuery("PicogramTag");
 		query.whereEqualTo("tag", tag.trim().toLowerCase());
@@ -340,10 +353,12 @@ OnItemClickListener, OnItemLongClickListener {
 							MenuFragment.this.myAdapter.add(new Picogram(po));
 							MenuFragment.this.myAdapter.notifyDataSetChanged();
 						}
+						MenuFragment.this.pbLoad.setVisibility(View.INVISIBLE);
 					}
 					else
 					{
 						Log.d(TAG, "Error with tags 2: " + e.getMessage());
+						MenuFragment.this.pbLoad.setVisibility(View.INVISIBLE);
 					}
 				}
 
@@ -353,6 +368,7 @@ OnItemClickListener, OnItemLongClickListener {
 	}
 
 	public void getTopPuzzles(final Activity a) {
+		this.pbLoad.setVisibility(View.VISIBLE);
 		this.myAdapter.topPicograms.clear();
 		this.myAdapter.clear();
 		final ParseQuery<ParseObject> query = ParseQuery.getQuery("Picogram");
@@ -384,11 +400,13 @@ OnItemClickListener, OnItemLongClickListener {
 						}
 						MenuFragment.this.myAdapter.picograms = MenuFragment.this.myAdapter.topPicograms;
 						MenuFragment.this.myAdapter.notifyDataSetChanged();
+						MenuFragment.this.pbLoad.setVisibility(View.INVISIBLE);
 					}
 				}
 				else
 				{
 					Log.d(TAG, "Error getting Top: " + e.getMessage());
+					MenuFragment.this.pbLoad.setVisibility(View.INVISIBLE);
 				}
 			}
 		});
@@ -638,6 +656,23 @@ OnItemClickListener, OnItemLongClickListener {
 	}
 
 	@Override
+	public void onActivityCreated(final Bundle savedInstanceState) {
+		super.onActivityCreated(savedInstanceState);
+
+		// Check for an incoming deep link from Facebook
+		final Uri targetUri = this.getActivity().getIntent().getData();
+		if (targetUri != null) {
+			if (this.sql == null)
+			{
+				this.sql = new SQLitePicogramAdapter(
+						this.getActivity(), "Picograms", null, 1);
+			}
+			final Picogram p = this.sql.getPicogram(targetUri.getLastPathSegment());
+			this.startGame(p);
+		}
+	}
+
+	@Override
 	public void onCreate(final Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		this.position = this.getArguments().getInt(ARG_POSITION);
@@ -646,6 +681,7 @@ OnItemClickListener, OnItemLongClickListener {
 	@Override
 	public View onCreateView(final LayoutInflater inflater,
 			final ViewGroup container, final Bundle savedInstanceState) {
+		this.pbLoad = (SmoothProgressBar) this.getActivity().findViewById(R.id.spbLoad);
 		this.myAdapter = new PicogramListAdapter(this.getActivity(),
 				R.id.tvName);
 
@@ -659,7 +695,7 @@ OnItemClickListener, OnItemLongClickListener {
 		final int margin = (int) TypedValue.applyDimension(
 				TypedValue.COMPLEX_UNIT_DIP, 8, this.getResources()
 				.getDisplayMetrics());
-		if (!Util.isOnline() && (this.position != 0))
+		if (!Util.isOnline() && ((this.position != 0) || (this.position != 1)))
 		{
 			final TextView v = new TextView(this.getActivity());
 			params.setMargins(margin, margin, margin, margin);
@@ -672,7 +708,7 @@ OnItemClickListener, OnItemLongClickListener {
 			fl.addView(v);
 			return fl;
 		}
-
+		this.pbLoad.setVisibility(View.INVISIBLE);
 		final ListView v = new ListView(this.getActivity());
 
 		v.setDivider(new ColorDrawable(Color.parseColor("#00000000")));
@@ -764,7 +800,7 @@ OnItemClickListener, OnItemLongClickListener {
 					if (pos == 0) {
 						final Intent createIntent = new Intent(
 								this.getActivity(),
-								CreatePicogramActivity.class);
+								MultiStepCreateActivity.class);
 						this.getActivity().startActivityForResult(createIntent,
 								MenuActivity.CREATE_CODE);
 					} else if (pos == 1) {

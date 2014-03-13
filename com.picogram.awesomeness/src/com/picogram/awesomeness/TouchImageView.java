@@ -307,7 +307,7 @@ OnDoubleTapListener {
 	 *            (float): Maximum allowed width.
 	 * @return (int): The desired text size.
 	 */
-	private int determineMaxTextSize(final String str, final float maxWidth) {
+	private int determineMaxTextSize(final String str, final float maxWidth  ) {
 		int size = 0;
 		final Paint paint = new Paint();
 		if (str.isEmpty()) {
@@ -317,7 +317,7 @@ OnDoubleTapListener {
 		do {
 
 			paint.setTextSize(++size);
-		} while (paint.measureText(str) < maxWidth);
+		} while ((paint.measureText(str) < maxWidth));
 
 		return size;
 	}
@@ -329,13 +329,15 @@ OnDoubleTapListener {
 
 		this.paintBitmap.setColor(this.gridlinesColor);
 		this.paintBitmap
-		.setTextSize(this.determineMaxTextSize(this.gName, this.lSide * this.cellWidth) - 5);
+		.setTextSize(this.determineMaxTextSize(this.gName, this.lSide * this.cellWidth));
 
 		this.canvasBitmap.drawText(this.gName, 0, this.paintBitmap.getTextSize(),
 				this.paintBitmap);
+
 		final float oldSize = this.paintBitmap.getTextSize();
 		this.paintBitmap
-		.setTextSize(this.determineMaxTextSize(size, this.lSide * this.cellWidth) - 5);
+		.setTextSize(this.determineMaxTextSize(size, this.lSide * this.cellWidth));
+
 		this.canvasBitmap.drawText(size, 0,
 				this.paintBitmap.getTextSize() + oldSize, this.paintBitmap);
 
