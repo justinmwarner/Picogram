@@ -3,10 +3,24 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent" >
 
-    <Button
+    <TextView
+        android:id="@+id/tvInstructions"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        android:gravity="center"
+        android:text="Select Image Option Above"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <ImageView
+        android:id="@+id/ivPrimaryPreview"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:text="Hello" >
-    </Button>
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/tvInstructions" />
 
 </RelativeLayout>

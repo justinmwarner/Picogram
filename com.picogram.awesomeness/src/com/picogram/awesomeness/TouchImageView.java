@@ -1091,7 +1091,10 @@ OnDoubleTapListener {
 
 	// Get bundled info and set it for use.
 	public void setPicogramInfo(final Bundle savedInstanceState) {
-
+		if (savedInstanceState == null) {
+			return;
+		}
+		this.isRefreshing = savedInstanceState.getBoolean("refresh", false);
 		this.gName = savedInstanceState.getString("name", "");
 		this.gCurrent = savedInstanceState.getString("current");
 		this.gHeight = Integer.parseInt(savedInstanceState.getString("height", "0"));

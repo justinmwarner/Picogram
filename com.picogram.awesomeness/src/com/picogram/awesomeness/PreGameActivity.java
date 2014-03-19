@@ -2,7 +2,9 @@
 package com.picogram.awesomeness;
 
 import android.os.Bundle;
+import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.ActivityOptions;
 import android.app.Dialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -255,8 +257,8 @@ public class PreGameActivity extends FragmentActivity implements OnPageChangeLis
 			this.puzzle.setName(this.name);
 			this.puzzle.setCurrent(this.current);
 			this.puzzle.setSolution(this.solution);
-			this.puzzle.setWidth(this.width+"");
-			this.puzzle.setHeight(this.height+"");
+			this.puzzle.setWidth(this.width + "");
+			this.puzzle.setHeight(this.height + "");
 			this.puzzle.setColors(this.getIntent().getExtras().getString("colors"));
 		}
 		else
@@ -278,6 +280,7 @@ public class PreGameActivity extends FragmentActivity implements OnPageChangeLis
 		this.tabs = (PagerSlidingTabStrip) this.findViewById(R.id.tabsPreGame);
 		this.pager = (ViewPager) this.findViewById(R.id.pagerPreGame);
 		this.adapter = new PreGameAdapter(this.getSupportFragmentManager());
+		this.pager.setPageTransformer(true, new DepthPageTransformer());
 		this.pager.setAdapter(this.adapter);
 
 		this.tabs.setViewPager(this.pager);
@@ -481,6 +484,7 @@ public class PreGameActivity extends FragmentActivity implements OnPageChangeLis
 		}
 	}
 
+	@SuppressLint("NewApi")
 	protected void startGame(final Picogram go, final int row, final int col, final int cw, final int ch) {
 		FlurryAgent.logEvent("UserPlayGame");
 		final Intent gameIntent = new Intent(this, AdvancedGameActivity.class);
@@ -494,7 +498,15 @@ public class PreGameActivity extends FragmentActivity implements OnPageChangeLis
 		gameIntent.putExtra("colors", go.getColors());
 		gameIntent.putExtra("row", row);
 		gameIntent.putExtra("column", col);
-		this.startActivityForResult(gameIntent, MenuActivity.GAME_CODE);
+		if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+			final ActivityOptions opts = ActivityOptions.makeCustomAnimation(
+					this, R.anim.fadein, R.anim.fadeout);
+			this.startActivityForResult(gameIntent, MenuActivity.GAME_CODE, opts.toBundle());
+		}
+		else
+		{
+			this.startActivityForResult(gameIntent, MenuActivity.GAME_CODE);
+		}
 	}
 
 	protected Bitmap updateAndGetImageView() {

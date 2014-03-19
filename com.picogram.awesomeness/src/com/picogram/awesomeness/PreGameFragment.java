@@ -1,6 +1,8 @@
 
 package com.picogram.awesomeness;
 
+import android.annotation.SuppressLint;
+import android.app.ActivityOptions;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -369,6 +371,7 @@ public class PreGameFragment extends Fragment implements OnClickListener, OnItem
 		this.uiHelper.onActivityResult(requestCode, resultCode, data);
 	}
 
+	@SuppressLint("NewApi")
 	public void onClick(final View v) {
 		final SQLitePicogramAdapter sql = new SQLitePicogramAdapter(
 				PreGameFragment.this.getActivity(), "Picograms", null, 1);
@@ -451,7 +454,6 @@ public class PreGameFragment extends Fragment implements OnClickListener, OnItem
 		}
 		sql.close();
 	}
-
 
 	@Override
 	public void onCreate(final Bundle savedInstanceState) {
@@ -628,7 +630,7 @@ public class PreGameFragment extends Fragment implements OnClickListener, OnItem
 		// session is not null, the session state change notification
 		// may not be triggered. Trigger it if it's open/closed.
 		final Session session = Session.getActiveSession();
-		if(this.buttonLoginLogout == null)
+		if (this.buttonLoginLogout == null)
 		{
 			final View view = this.getActivity().findViewById(android.R.id.content);
 
@@ -738,6 +740,7 @@ public class PreGameFragment extends Fragment implements OnClickListener, OnItem
 
 		alert.show();
 	}
+
 	private void showReportDialog(final String type, final String pid, final String aid) {
 		// Puzzle ID will always be filled out. Author ID will if it's a comment.
 		final FlagObject fo = new FlagObject();
@@ -769,7 +772,7 @@ public class PreGameFragment extends Fragment implements OnClickListener, OnItem
 		alert.show();
 	}
 
-
+	@SuppressLint("NewApi")
 	protected void startGame() {
 		FlurryAgent.logEvent("UserPlayGame");
 		final Intent gameIntent = new Intent(this.getActivity(),
@@ -783,10 +786,18 @@ public class PreGameFragment extends Fragment implements OnClickListener, OnItem
 		gameIntent.putExtra("status", this.current.getStatus());
 		gameIntent.putExtra("colors", this.current.getColors());
 		gameIntent.putExtra("part", -1);
-		this.getActivity().startActivityForResult(gameIntent,
-				MenuActivity.GAME_CODE);
+		if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+			final ActivityOptions opts = ActivityOptions.makeCustomAnimation(
+					this.getActivity(), R.anim.fadein, R.anim.fadeout);
+			this.getActivity().startActivityForResult(gameIntent,
+					MenuActivity.GAME_CODE, opts.toBundle());
+		} else {
+			this.getActivity().startActivityForResult(gameIntent,
+					MenuActivity.GAME_CODE);
+		}
 	}
 
+	@SuppressLint("NewApi")
 	protected void startGame(final Picogram go) {
 		FlurryAgent.logEvent("UserPlayGame");
 		final Intent gameIntent = new Intent(this.getActivity(),
@@ -800,10 +811,18 @@ public class PreGameFragment extends Fragment implements OnClickListener, OnItem
 		gameIntent.putExtra("status", go.getStatus());
 		gameIntent.putExtra("colors", go.getColors());
 		gameIntent.putExtra("part", -1);
-		this.getActivity().startActivityForResult(gameIntent,
-				MenuActivity.GAME_CODE);
+		if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+			final ActivityOptions opts = ActivityOptions.makeCustomAnimation(
+					this.getActivity(), R.anim.fadein, R.anim.fadeout);
+			this.getActivity().startActivityForResult(gameIntent,
+					MenuActivity.GAME_CODE, opts.toBundle());
+		} else {
+			this.getActivity().startActivityForResult(gameIntent,
+					MenuActivity.GAME_CODE);
+		}
 	}
 
+	@SuppressLint("NewApi")
 	protected void startGame(final PicogramPart part, final int partNumber) {
 		FlurryAgent.logEvent("UserPlayGame");
 		// This is used when we're playing a part, so some things will be different.
@@ -819,8 +838,15 @@ public class PreGameFragment extends Fragment implements OnClickListener, OnItem
 		gameIntent.putExtra("status", this.current.getStatus());
 		gameIntent.putExtra("colors", this.current.getColors());
 		gameIntent.putExtra("part", partNumber);
-		this.getActivity().startActivityForResult(gameIntent,
-				MenuActivity.GAME_CODE);
+		if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+			final ActivityOptions opts = ActivityOptions.makeCustomAnimation(
+					this.getActivity(), R.anim.fadein, R.anim.fadeout);
+			this.getActivity().startActivityForResult(gameIntent,
+					MenuActivity.GAME_CODE, opts.toBundle());
+		} else {
+			this.getActivity().startActivityForResult(gameIntent,
+					MenuActivity.GAME_CODE);
+		}
 	}
 
 }

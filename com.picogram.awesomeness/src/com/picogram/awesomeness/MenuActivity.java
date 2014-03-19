@@ -2,6 +2,7 @@
 package com.picogram.awesomeness;
 
 import android.app.Activity;
+import android.app.ActivityOptions;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.SearchManager;
@@ -128,8 +129,10 @@ FlurryAdListener, OnPageChangeListener, OnClickListener, OnRMMUserChoiceListener
 	public void handlePositive() {
 		// Goto app store.
 		// TODO fix this when we publish.
+		final ActivityOptions opts = ActivityOptions.makeCustomAnimation(
+				this, R.anim.fadein, R.anim.fadeout);
 		this.startActivity(new Intent(Intent.ACTION_VIEW,
-				Uri.parse("market://details?id=Picogram")));
+				Uri.parse("market://details?id=Picogram")), opts.toBundle());
 		this.prefs.edit().putBoolean("apprate", true).commit();
 	}
 
@@ -229,6 +232,7 @@ FlurryAdListener, OnPageChangeListener, OnClickListener, OnRMMUserChoiceListener
 		this.setContentView(R.layout.activity_menu);
 		this.tabs = (PagerSlidingTabStrip) this.findViewById(R.id.tabs);
 		this.pager = (ViewPager) this.findViewById(R.id.pager);
+		this.pager.setPageTransformer(true, new DepthPageTransformer());
 		this.adapter = new MyPagerAdapter(this.getSupportFragmentManager());
 		this.pager.setAdapter(this.adapter);
 		final int pageMargin = (int) TypedValue.applyDimension(
@@ -354,7 +358,9 @@ FlurryAdListener, OnPageChangeListener, OnClickListener, OnRMMUserChoiceListener
 	public void onPageSelected(final int tab) {// Handle bottom toolbar changes.
 		if (tab == TITLES.indexOf("Prefs")) {
 			final Intent i = new Intent(this, SettingsActivity.class);
-			this.startActivityForResult(i, PREFERENCES_CODE);
+			final ActivityOptions opts = ActivityOptions.makeCustomAnimation(
+					this, R.anim.fadein, R.anim.fadeout);
+			this.startActivityForResult(i, PREFERENCES_CODE, opts.toBundle());
 		}
 		this.currentTab = tab;
 		this.updateCurrentTab();

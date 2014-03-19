@@ -1,6 +1,8 @@
 
 package com.picogram.awesomeness;
 
+import android.annotation.SuppressLint;
+import android.app.ActivityOptions;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
@@ -24,7 +26,7 @@ import de.keyboardsurfer.android.widget.crouton.Style;
 import de.psdev.licensesdialog.LicensesDialog;
 
 public class SettingsActivity extends SherlockPreferenceActivity implements
-OnPreferenceChangeListener, OnPreferenceClickListener, GooglePlayServicesClient.ConnectionCallbacks, GooglePlayServicesClient.OnConnectionFailedListener {
+		OnPreferenceChangeListener, OnPreferenceClickListener, GooglePlayServicesClient.ConnectionCallbacks, GooglePlayServicesClient.OnConnectionFailedListener {
 	private static final String TAG = "SettingsActivity";
 	SharedPreferences prefs;
 	boolean continueMusic = true;
@@ -37,7 +39,7 @@ OnPreferenceChangeListener, OnPreferenceClickListener, GooglePlayServicesClient.
 	}
 
 	public void onConnectionFailed(final ConnectionResult cr) {
-		Crouton.makeText(this, "Logout failed "+cr.getErrorCode()+".", Style.INFO).show();
+		Crouton.makeText(this, "Logout failed " + cr.getErrorCode() + ".", Style.INFO).show();
 	}
 
 	@Override
@@ -94,6 +96,7 @@ OnPreferenceChangeListener, OnPreferenceClickListener, GooglePlayServicesClient.
 		return true;
 	}
 
+	@SuppressLint("NewApi")
 	public boolean onPreferenceClick(final Preference preference) {
 		if (preference.getKey().equals("changelog")) {
 			// Launch change log dialog
@@ -115,12 +118,27 @@ OnPreferenceChangeListener, OnPreferenceClickListener, GooglePlayServicesClient.
 			emailIntent.putExtra(Intent.EXTRA_SUBJECT, subject);
 			emailIntent.putExtra(Intent.EXTRA_TEXT, message);
 			emailIntent.setType("message/rfc822");
-			this.startActivity(Intent.createChooser(emailIntent,
-					"Send Mail Using :"));
+			if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+				final ActivityOptions opts = ActivityOptions.makeCustomAnimation(
+						this, R.anim.fadein, R.anim.fadeout);
+				this.startActivity(Intent.createChooser(emailIntent,
+						"Send Mail Using :"), opts.toBundle());
+			} else {
+				this.startActivity(Intent.createChooser(emailIntent,
+						"Send Mail Using :"));
+			}
 		} else if (preference.getKey().equals("rateapp")) {
 			// TODO fix this when we publish.
-			this.startActivity(new Intent(Intent.ACTION_VIEW,
-					Uri.parse("market://details?id=Picogram")));
+			if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+				final ActivityOptions opts = ActivityOptions.makeCustomAnimation(
+						this, R.anim.fadein, R.anim.fadeout);
+				this.startActivity(new Intent(Intent.ACTION_VIEW,
+						Uri.parse("market://details?id=Picogram")), opts.toBundle());
+			}
+			else {
+				this.startActivity(new Intent(Intent.ACTION_VIEW,
+						Uri.parse("market://details?id=Picogram")));
+			}
 
 			final Editor editor = this.prefs.edit();
 			editor.putBoolean(RateMeMaybe.PREF.DONT_SHOW_AGAIN, true);
@@ -134,6 +152,7 @@ OnPreferenceChangeListener, OnPreferenceClickListener, GooglePlayServicesClient.
 		}
 		return false;
 	}
+
 	@Override
 	public void onResume() {
 		super.onResume();

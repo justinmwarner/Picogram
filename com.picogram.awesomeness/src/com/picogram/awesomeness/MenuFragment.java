@@ -1,7 +1,9 @@
 
 package com.picogram.awesomeness;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.ActivityOptions;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
@@ -44,7 +46,7 @@ import java.util.GregorianCalendar;
 import java.util.List;
 
 public class MenuFragment extends Fragment implements
-OnItemClickListener, OnItemLongClickListener {
+		OnItemClickListener, OnItemLongClickListener {
 
 	private static final String ARG_POSITION = "position";
 	private static final String TAG = "SuperAwesomeCardFragment";
@@ -118,7 +120,7 @@ OnItemClickListener, OnItemLongClickListener {
 						"solution").hashCode()
 						+ "", "0", result.getString("name"),
 						((w * h) / 1400) + "", "3", 1, "computer", w
-						+ "", h + "", result.getString("solution"),
+								+ "", h + "", result.getString("solution"),
 						current, nc, cols);
 				MenuFragment.this.myAdapter.add(go);
 				MenuFragment.this.myAdapter.notifyDataSetChanged();
@@ -185,7 +187,7 @@ OnItemClickListener, OnItemLongClickListener {
 
 					public void run() {
 						MenuFragment.this.myAdapter.myPicograms
-						.add(tempPicogram);
+								.add(tempPicogram);
 					}
 
 				});
@@ -694,7 +696,7 @@ OnItemClickListener, OnItemLongClickListener {
 
 		final int margin = (int) TypedValue.applyDimension(
 				TypedValue.COMPLEX_UNIT_DIP, 8, this.getResources()
-				.getDisplayMetrics());
+						.getDisplayMetrics());
 		if (!Util.isOnline() && ((this.position != 0) || (this.position != 1)))
 		{
 			final TextView v = new TextView(this.getActivity());
@@ -759,6 +761,7 @@ OnItemClickListener, OnItemLongClickListener {
 		super.onDestroy();
 	}
 
+	@SuppressLint("NewApi")
 	public void onItemClick(final AdapterView<?> parent, final View v,
 			final int pos, final long id) {
 		if (pos >= 0) // If valid position to select.
@@ -769,21 +772,21 @@ OnItemClickListener, OnItemLongClickListener {
 				if (picogram.getName().contains("Easy Pack 1")) {
 					this.loadEasyPackOne();
 					Util.getPreferences(this.getActivity()).edit()
-					.putBoolean("hasDownloadedEasyOne", true).commit();
+							.putBoolean("hasDownloadedEasyOne", true).commit();
 				} else if (picogram.getName().contains("Easy Pack 2")) {
 					this.loadEasyPackTwo();
 					Util.getPreferences(this.getActivity()).edit()
-					.putBoolean("hasDownloadedEasyTwo", true).commit();
+							.putBoolean("hasDownloadedEasyTwo", true).commit();
 				} else if (picogram.getName().contains("Medium Pack 1")) {
 					this.loadMediumPackOne();
 					Util.getPreferences(this.getActivity()).edit()
-					.putBoolean("hasDownloadedMediumOne", true)
-					.commit();
+							.putBoolean("hasDownloadedMediumOne", true)
+							.commit();
 				} else {
 					Crouton.makeText(
 							this.getActivity(),
 							picogram.getName()
-							+ " is not currently supported.  Report a bug.",
+									+ " is not currently supported.  Report a bug.",
 							Style.INFO).show();
 					return;
 				}
@@ -800,9 +803,17 @@ OnItemClickListener, OnItemLongClickListener {
 					if (pos == 0) {
 						final Intent createIntent = new Intent(
 								this.getActivity(),
-								MultiStepCreateActivity.class);
-						this.getActivity().startActivityForResult(createIntent,
-								MenuActivity.CREATE_CODE);
+								CreateActivity.class);
+						if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+							final ActivityOptions opts = ActivityOptions.makeCustomAnimation(
+									this.getActivity(), R.anim.fadein, R.anim.fadeout);
+							this.getActivity().startActivityForResult(createIntent,
+									MenuActivity.CREATE_CODE, opts.toBundle());
+						} else
+						{
+							this.getActivity().startActivityForResult(createIntent,
+									MenuActivity.CREATE_CODE);
+						}
 					} else if (pos == 1) {
 						this.generateRandomGame();
 					}
@@ -864,18 +875,18 @@ OnItemClickListener, OnItemLongClickListener {
 						}
 						MenuFragment.this.myAdapter.updateCurrentById(
 								MenuFragment.this.myAdapter.get(position)
-								.getID(), newCurrent, "0");
+										.getID(), newCurrent, "0");
 						MenuFragment.this.sql.updateCurrentPicogram(
 								MenuFragment.this.myAdapter.get(position)
-								.getID(), "0", newCurrent);
+										.getID(), "0", newCurrent);
 					} else if (result == 2) {
 						// Delete.
 						MenuFragment.this.sql
-						.deletePicogram(MenuFragment.this.myAdapter.get(
-								position).getID());
+								.deletePicogram(MenuFragment.this.myAdapter.get(
+										position).getID());
 						MenuFragment.this.myAdapter
-						.removeById(MenuFragment.this.myAdapter.get(position)
-								.getID());
+								.removeById(MenuFragment.this.myAdapter.get(position)
+										.getID());
 						// TODO Remove from personal ranking table.
 					}
 					MenuFragment.this.myAdapter.notifyDataSetChanged();
@@ -886,6 +897,7 @@ OnItemClickListener, OnItemLongClickListener {
 		return true;
 	}
 
+	@SuppressLint("NewApi")
 	private void startGame(final Picogram go) {
 		FlurryAgent.logEvent("UserPlayGame");
 		// Intent gameIntent = new Intent(this, AdvancedGameActivity.class);
@@ -899,7 +911,14 @@ OnItemClickListener, OnItemLongClickListener {
 		gameIntent.putExtra("id", go.getID());
 		gameIntent.putExtra("name", go.getName());
 		gameIntent.putExtra("colors", go.getColors());
-		this.getActivity().startActivityForResult(gameIntent,
-				MenuActivity.GAME_CODE);
+		if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+			final ActivityOptions opts = ActivityOptions.makeCustomAnimation(
+					this.getActivity(), R.anim.fadein, R.anim.fadeout);
+			this.getActivity().startActivityForResult(gameIntent,
+					MenuActivity.GAME_CODE, opts.toBundle());
+		} else {
+			this.getActivity().startActivityForResult(gameIntent,
+					MenuActivity.GAME_CODE);
+		}
 	}
 }
