@@ -3,7 +3,7 @@
     android:id="@+id/rlMenuHolder"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/picogram_menu_choice_border_red" >
+    android:background="@drawable/listview_selector" >
 
     <FrameLayout
         android:layout_width="100dp"

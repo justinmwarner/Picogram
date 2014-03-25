@@ -4,7 +4,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/scalpel"
     android:layout_width="match_parent"
-    android:layout_height="match_parent" >
+    android:layout_height="match_parent"
+    android:background="@android:color/transparent"
+    android:cacheColorHint="@android:color/transparent" >
 
     <com.astuetz.viewpager.extensions.PagerSlidingTabStrip
         android:id="@+id/tabs"
@@ -46,7 +48,6 @@
         android:isScrollContainer="false"
         android:orientation="horizontal"
         android:windowSoftInputMode="adjustPan" >
-
     </LinearLayout>
 
 </RelativeLayout> <!-- </com.jakewharton.scalpel.ScalpelFrameLayout> -->

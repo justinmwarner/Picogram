@@ -1,15 +1,18 @@
 
 package com.picogram.awesomeness;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ActivityOptions;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.SearchManager;
+import android.app.SearchableInfo;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Debug;
@@ -31,9 +34,11 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 
 import com.actionbarsherlock.app.ActionBar;
+import com.actionbarsherlock.view.ActionMode;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.widget.SearchView;
+import com.actionbarsherlock.widget.SearchView.OnQueryTextListener;
 import com.astuetz.viewpager.extensions.PagerSlidingTabStrip;
 import com.crittercism.app.Crittercism;
 import com.flurry.android.FlurryAdListener;
@@ -57,9 +62,11 @@ import de.keyboardsurfer.android.widget.crouton.Style;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public class MenuActivity extends BaseGameActivity implements
 FlurryAdListener, OnPageChangeListener, OnClickListener, OnRMMUserChoiceListener, ActionBar.OnNavigationListener, ConnectionCallbacks, OnConnectionFailedListener {
+
 	public class MyPagerAdapter extends FragmentPagerAdapter {
 
 		public MenuFragment frag[] = new MenuFragment[this.getCount()];
@@ -86,6 +93,7 @@ FlurryAdListener, OnPageChangeListener, OnClickListener, OnRMMUserChoiceListener
 		}
 
 	}
+	ActionMode actionMode;
 
 	private static final String TAG = "MainActivity";
 
@@ -94,12 +102,11 @@ FlurryAdListener, OnPageChangeListener, OnClickListener, OnRMMUserChoiceListener
 					"My", "Packs", "Top", "Recent",
 					"Search", "Prefs"
 			}));
-
 	public static final int CREATE_CODE = 8008;
 	public static final int GAME_CODE = 1337;
 	public static final int PREFERENCES_CODE = 69;
-	public static String PREFS_FILE = "com.picogram.awesomeness_preferences";
 
+	public static String PREFS_FILE = "com.picogram.awesomeness_preferences";
 	Handler h = new Handler();
 	LinearLayout toolbar;
 	SharedPreferences prefs = null;
@@ -112,7 +119,10 @@ FlurryAdListener, OnPageChangeListener, OnClickListener, OnRMMUserChoiceListener
 	SQLitePicogramAdapter sql = null;
 	boolean continueMusic = true;
 	GamesClient client;
+
 	Dialog dialog;
+
+	SearchView mSearchView;
 
 	public void handleNegative() {
 		// Don't do it again.
@@ -126,13 +136,19 @@ FlurryAdListener, OnPageChangeListener, OnClickListener, OnRMMUserChoiceListener
 		Crouton.makeText(this, "We'll remind you later on.", Style.INFO).show();
 	}
 
+	@SuppressLint("NewApi")
 	public void handlePositive() {
 		// Goto app store.
 		// TODO fix this when we publish.
-		final ActivityOptions opts = ActivityOptions.makeCustomAnimation(
-				this, R.anim.fadein, R.anim.fadeout);
-		this.startActivity(new Intent(Intent.ACTION_VIEW,
-				Uri.parse("market://details?id=Picogram")), opts.toBundle());
+		if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+			final ActivityOptions opts = ActivityOptions.makeCustomAnimation(
+					this, R.anim.fadein, R.anim.fadeout);
+			this.startActivity(new Intent(Intent.ACTION_VIEW,
+					Uri.parse("market://details?id=Picogram")), opts.toBundle());
+		} else {
+			this.startActivity(new Intent(Intent.ACTION_VIEW,
+					Uri.parse("market://details?id=Picogram")));
+		}
 		this.prefs.edit().putBoolean("apprate", true).commit();
 	}
 
@@ -224,6 +240,7 @@ FlurryAdListener, OnPageChangeListener, OnClickListener, OnRMMUserChoiceListener
 					"52b6411c4002051525000002");
 		}
 		lv = new ListView(this);
+		lv.setBackgroundColor(Color.TRANSPARENT);
 		lv.setDivider(this.getResources().getDrawable(R.drawable.one));
 		// lv.setDividerHeight(100);
 		lvAdapter = new PicogramListAdapter(this, R.id.tvName);
@@ -265,44 +282,51 @@ FlurryAdListener, OnPageChangeListener, OnClickListener, OnRMMUserChoiceListener
 
 		this.updateCurrentTab(); // Update current tab ;).
 	}
+
 	@Override
 	public boolean onCreateOptionsMenu(final Menu menu)
 	{
 		if (this.currentTab == TITLES.indexOf("Search"))
 		{
-
 			this.getSupportMenuInflater().inflate(R.menu.activity_menu, menu);
+			final MenuItem searchItem = menu.findItem(R.id.menu_search);
+			this.mSearchView = (SearchView) searchItem.getActionView();
+			this.setupSearchView(searchItem);
 
-			final SearchManager searchManager = (SearchManager) this.getSystemService(Context.SEARCH_SERVICE);
-
-			final SearchView abSearch = (SearchView) menu.findItem(R.id.menu_search).getActionView();
-			if (null != abSearch)
-			{
-				abSearch.setSearchableInfo(searchManager.getSearchableInfo(this.getComponentName()));
-				abSearch.setIconifiedByDefault(true);
-			}
-
-			final SearchView.OnQueryTextListener queryTextListener = new SearchView.OnQueryTextListener()
-			{
-				public boolean onQueryTextChange(final String newText)
-				{
-					// this is your adapter that will be filtered
-					return true;
-				}
-
-				public boolean onQueryTextSubmit(final String query)
-				{
-					// this is your adapter that will be filtered
-					Log.d(TAG, "ACTIONBAR SEARCH " + query);
-					MenuActivity.this.adapter.frag[MenuActivity.this.currentTab].getTagPuzzles(
-							MenuActivity.this.adapter.frag[MenuActivity.this.currentTab].getActivity(),
-							query);
-					abSearch.clearFocus();
-					(menu.findItem(R.id.menu_search)).collapseActionView();
-					return true;
-				}
-			};
-			abSearch.setOnQueryTextListener(queryTextListener);
+			// getSupportMenuInflater().inflate(R.menu.activity_menu, menu);
+			//
+			// final SearchManager searchManager = (SearchManager) this.getSystemService(Context.SEARCH_SERVICE);
+			//
+			// final AutoCompleteTextView abSearch = (AutoCompleteTextView) menu.findItem(R.id.menu_search).getActionView();
+			// final String[] COUNTRIES = new String[] {
+			// "Test", "Animal", "Pet", "Shape", "Share", "Person"
+			// };
+			// if (null != abSearch)
+			// {
+			// final ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
+			// android.R.layout.simple_dropdown_item_1line, COUNTRIES);
+			// abSearch.setAdapter(adapter);
+			// // abSearch.setSearchableInfo(searchManager.getSearchableInfo(this.getComponentName()));
+			// // abSearch.setIconifiedByDefault(true);
+			// }
+			//
+			// final AdapterView.OnItemSelectedListener queryTextListener = new AdapterView.OnItemSelectedListener()
+			// {
+			//
+			// public void onItemSelected(final AdapterView<?> parent, final View view, final int pos, final long id) {
+			// // this is your adapter that will be filtered
+			// MenuActivity.this.adapter.frag[MenuActivity.this.currentTab].getTagPuzzles(
+			// MenuActivity.this.adapter.frag[MenuActivity.this.currentTab].getActivity(), COUNTRIES[pos]);
+			// abSearch.clearFocus();
+			// (menu.findItem(R.id.menu_search)).collapseActionView();
+			// }
+			//
+			// public void onNothingSelected(final AdapterView<?> parent) {
+			// // TODO Auto-generated method stub
+			//
+			// }
+			// };
+			// abSearch.setOnItemSelectedListener(queryTextListener);
 
 		}
 		return super.onCreateOptionsMenu(menu);
@@ -347,6 +371,7 @@ FlurryAdListener, OnPageChangeListener, OnClickListener, OnRMMUserChoiceListener
 		}
 		return false;
 	}
+
 	public void onPageScrolled(final int arg0, final float arg1, final int arg2) {
 		// TODO Auto-generated method stub
 	}
@@ -355,12 +380,19 @@ FlurryAdListener, OnPageChangeListener, OnClickListener, OnRMMUserChoiceListener
 		// TODO Auto-generated method stub
 	}
 
+	@SuppressLint("NewApi")
 	public void onPageSelected(final int tab) {// Handle bottom toolbar changes.
 		if (tab == TITLES.indexOf("Prefs")) {
 			final Intent i = new Intent(this, SettingsActivity.class);
-			final ActivityOptions opts = ActivityOptions.makeCustomAnimation(
-					this, R.anim.fadein, R.anim.fadeout);
-			this.startActivityForResult(i, PREFERENCES_CODE, opts.toBundle());
+			if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+				final ActivityOptions opts = ActivityOptions.makeCustomAnimation(
+						this, R.anim.fadein, R.anim.fadeout);
+				this.startActivityForResult(i, PREFERENCES_CODE, opts.toBundle());
+			}
+			else
+			{
+				this.startActivityForResult(i, PREFERENCES_CODE);
+			}
 		}
 		this.currentTab = tab;
 		this.updateCurrentTab();
@@ -482,9 +514,47 @@ FlurryAdListener, OnPageChangeListener, OnClickListener, OnRMMUserChoiceListener
 		rmm.setDialogTitle("Rate Picogram!");
 		rmm.run();
 	}
+
+	private void setupSearchView(final MenuItem searchItem) {
+
+		searchItem.setShowAsActionFlags(MenuItem.SHOW_AS_ACTION_IF_ROOM
+				| MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
+
+		final SearchManager searchManager = (SearchManager) this.getSystemService(Context.SEARCH_SERVICE);
+		if (searchManager != null) {
+			final List<SearchableInfo> searchables = searchManager.getSearchablesInGlobalSearch();
+
+			SearchableInfo info = searchManager.getSearchableInfo(this.getComponentName());
+			for (final SearchableInfo inf : searchables) {
+				if ((inf.getSuggestAuthority() != null)
+						&& inf.getSuggestAuthority().startsWith("applications")) {
+					info = inf;
+				}
+			}
+			this.mSearchView.setSearchableInfo(info);
+		}
+
+		this.mSearchView.setOnQueryTextListener(new OnQueryTextListener() {
+
+			public boolean onQueryTextChange(final String newText) {
+				// TODO Auto-generated method stub
+				return false;
+			}
+
+			public boolean onQueryTextSubmit(final String query) {
+				MenuActivity.this.adapter.frag[MenuActivity.this.currentTab].getTagPuzzles(
+						MenuActivity.this.adapter.frag[MenuActivity.this.currentTab].getActivity(), query);
+				MenuActivity.this.mSearchView.clearFocus();
+				((MenuItem) MenuActivity.this.mSearchView).collapseActionView();
+				return false;
+			}
+		});
+	}
+
 	public boolean shouldDisplayAd(final String arg0, final FlurryAdType arg1) {
 		return true;
 	}
+
 	private void showBetaDialog() {
 		final Activity a = this;
 		AlertDialog dialog;
@@ -493,7 +563,7 @@ FlurryAdListener, OnPageChangeListener, OnClickListener, OnRMMUserChoiceListener
 				"  Currently, we're collecting as much information on crashes and bugs, so please feel free to email us.  " +
 				"If you have any features you'd like to see, we're activly developing it.  So please let us know as well.  " +
 				"We hope you enjoy.\n\nThanks!\nJustin Warner\nwarner.73@wright.edu")
-				.setPositiveButton("Okay",new DialogInterface.OnClickListener() {
+				.setPositiveButton("Okay", new DialogInterface.OnClickListener() {
 					public void onClick(final DialogInterface dialog, final int id) {
 						Util.getPreferences(a).edit().putBoolean("hasSeenBetaDialog", true).commit();
 						dialog.cancel();
@@ -585,10 +655,19 @@ FlurryAdListener, OnPageChangeListener, OnClickListener, OnRMMUserChoiceListener
 			return;
 		}
 		if (list != null) {
+
+			final String[] subtitle = new String[list.getCount()];
+			final String[] title = new String[list.getCount()];
+			for (int i = 0; i != subtitle.length; ++i) {
+				title[i] = "Picogram";
+				subtitle[i] = (String) list.getItem(i);
+			}
+			final ActionBarAdapter adapter = new ActionBarAdapter(this, title, subtitle, null);
 			ab.setDisplayShowTitleEnabled(false);
 			ab.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
 			list.setDropDownViewResource(R.layout.sherlock_spinner_dropdown_item);
-			ab.setListNavigationCallbacks(list, this);
+			// ab.setListNavigationCallbacks(list, this);
+			ab.setListNavigationCallbacks(adapter, this);
 		}
 
 		ab.setDisplayHomeAsUpEnabled(tab != TITLES.indexOf("My"));

@@ -7,6 +7,8 @@
         <item>@color/light_yellow</item>
     </integer-array>
 
+    <drawable name="transperent_color">#FF0000</drawable>
+
     <color name="good">#7AB384</color>
     <color name="bad">#A8003A</color>
     <color name="special">#C98B00</color>

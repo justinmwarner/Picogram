@@ -34,8 +34,10 @@ import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.picogram.awesomeness.DialogMaker.OnDialogResultListener;
+import com.picogram.awesomeness.PicogramListAdapter.IntHolder;
 
 import fr.castorflex.android.smoothprogressbar.SmoothProgressBar;
+
 import de.keyboardsurfer.android.widget.crouton.Crouton;
 import de.keyboardsurfer.android.widget.crouton.Style;
 
@@ -46,7 +48,7 @@ import java.util.GregorianCalendar;
 import java.util.List;
 
 public class MenuFragment extends Fragment implements
-		OnItemClickListener, OnItemLongClickListener {
+OnItemClickListener, OnItemLongClickListener {
 
 	private static final String ARG_POSITION = "position";
 	private static final String TAG = "SuperAwesomeCardFragment";
@@ -80,11 +82,27 @@ public class MenuFragment extends Fragment implements
 
 	SmoothProgressBar pbLoad;
 
+	IntHolder ih = new IntHolder();
+
 	public void clearAdapter() {
 		if (this.myAdapter != null) {
 			this.myAdapter.clear();
 			this.myAdapter.notifyDataSetChanged();
 		}
+	}
+
+	public void done(final List<ParseObject> result, final ParseException e) {
+		if (e == null)
+		{
+			for (final ParseObject po : result)
+			{
+				MenuFragment.this.myAdapter.updateRateById(po.getString("puzzleId"), po.getInt("rate"));
+				MenuFragment.this.myAdapter.notifyDataSetChanged();
+			}
+		} else {
+			Log.d(TAG, "Error updating ratings on my puzzles: " + e.getMessage());
+		}
+		MenuFragment.this.pbLoad.setVisibility(View.INVISIBLE);
 	}
 
 	public void generateRandomGame() {
@@ -120,7 +138,7 @@ public class MenuFragment extends Fragment implements
 						"solution").hashCode()
 						+ "", "0", result.getString("name"),
 						((w * h) / 1400) + "", "3", 1, "computer", w
-								+ "", h + "", result.getString("solution"),
+						+ "", h + "", result.getString("solution"),
 						current, nc, cols);
 				MenuFragment.this.myAdapter.add(go);
 				MenuFragment.this.myAdapter.notifyDataSetChanged();
@@ -187,7 +205,7 @@ public class MenuFragment extends Fragment implements
 
 					public void run() {
 						MenuFragment.this.myAdapter.myPicograms
-								.add(tempPicogram);
+						.add(tempPicogram);
 					}
 
 				});
@@ -208,7 +226,6 @@ public class MenuFragment extends Fragment implements
 		final ParseQuery<ParseObject> query = ParseQuery.getQuery("Picogram");
 		query.whereContainedIn("puzzleId", Arrays.asList(ids));
 		query.findInBackground(new FindCallback<ParseObject>() {
-
 			@Override
 			public void done(final List<ParseObject> result, final ParseException e) {
 				if (e == null)
@@ -267,12 +284,15 @@ public class MenuFragment extends Fragment implements
 		final long last = Util.getPreferences(this.getActivity()).getLong("lastRecentUpdate", 0);
 		final long currentTime = System.currentTimeMillis();
 
-		// 10 Minutes
+		// 10 Minutes / if it's saved.
 		if ((currentTime - last) < 600000) {
 			this.myAdapter.picograms = this.myAdapter.recentPicograms;
-			this.myAdapter.notifyDataSetChanged();
-			MenuFragment.this.pbLoad.setVisibility(View.INVISIBLE);
-			return;
+			if (this.myAdapter.picograms.size() != 0)
+			{
+				this.myAdapter.notifyDataSetChanged();
+				MenuFragment.this.pbLoad.setVisibility(View.INVISIBLE);
+				return;
+			}
 		}
 		Util.getPreferences(this.getActivity()).edit().putLong("lastRecentUpdate", currentTime).commit();
 		final ParseQuery<ParseObject> query = ParseQuery.getQuery("Picogram");
@@ -673,19 +693,17 @@ public class MenuFragment extends Fragment implements
 			this.startGame(p);
 		}
 	}
-
 	@Override
 	public void onCreate(final Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		this.position = this.getArguments().getInt(ARG_POSITION);
 	}
-
 	@Override
 	public View onCreateView(final LayoutInflater inflater,
 			final ViewGroup container, final Bundle savedInstanceState) {
 		this.pbLoad = (SmoothProgressBar) this.getActivity().findViewById(R.id.spbLoad);
 		this.myAdapter = new PicogramListAdapter(this.getActivity(),
-				R.id.tvName);
+				R.layout.picogram_menu_choice_item, this.ih);
 
 		final LayoutParams params = new LayoutParams(
 				android.view.ViewGroup.LayoutParams.MATCH_PARENT,
@@ -696,7 +714,7 @@ public class MenuFragment extends Fragment implements
 
 		final int margin = (int) TypedValue.applyDimension(
 				TypedValue.COMPLEX_UNIT_DIP, 8, this.getResources()
-						.getDisplayMetrics());
+				.getDisplayMetrics());
 		if (!Util.isOnline() && ((this.position != 0) || (this.position != 1)))
 		{
 			final TextView v = new TextView(this.getActivity());
@@ -712,9 +730,13 @@ public class MenuFragment extends Fragment implements
 		}
 		this.pbLoad.setVisibility(View.INVISIBLE);
 		final ListView v = new ListView(this.getActivity());
-
+		fl.setBackgroundColor(Color.TRANSPARENT);
+		v.setBackgroundDrawable(this.getActivity().getResources().getDrawable(R.drawable.listview_selector));
 		v.setDivider(new ColorDrawable(Color.parseColor("#00000000")));
-		v.setDividerHeight(10);
+		v.setSelector(this.getActivity().getResources().getDrawable(R.drawable.listview_selector));
+		v.setDividerHeight(20);
+		v.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
+		v.setItemsCanFocus(true);
 		params.setMargins(margin, margin, margin, margin);
 		v.setLayoutParams(params);
 		v.setLayoutParams(params);
@@ -772,21 +794,21 @@ public class MenuFragment extends Fragment implements
 				if (picogram.getName().contains("Easy Pack 1")) {
 					this.loadEasyPackOne();
 					Util.getPreferences(this.getActivity()).edit()
-							.putBoolean("hasDownloadedEasyOne", true).commit();
+					.putBoolean("hasDownloadedEasyOne", true).commit();
 				} else if (picogram.getName().contains("Easy Pack 2")) {
 					this.loadEasyPackTwo();
 					Util.getPreferences(this.getActivity()).edit()
-							.putBoolean("hasDownloadedEasyTwo", true).commit();
+					.putBoolean("hasDownloadedEasyTwo", true).commit();
 				} else if (picogram.getName().contains("Medium Pack 1")) {
 					this.loadMediumPackOne();
 					Util.getPreferences(this.getActivity()).edit()
-							.putBoolean("hasDownloadedMediumOne", true)
-							.commit();
+					.putBoolean("hasDownloadedMediumOne", true)
+					.commit();
 				} else {
 					Crouton.makeText(
 							this.getActivity(),
 							picogram.getName()
-									+ " is not currently supported.  Report a bug.",
+							+ " is not currently supported.  Report a bug.",
 							Style.INFO).show();
 					return;
 				}
@@ -837,9 +859,8 @@ public class MenuFragment extends Fragment implements
 		}
 	}
 
-	public boolean onItemLongClick(final AdapterView<?> arg0, final View arg1,
-			final int position, final long arg3) {
-
+	public boolean onItemLongClick(final AdapterView<?> parent, final View view,
+			final int position, final long id) {
 		if (!this.myAdapter.get(0).getName().contains("Create")) {
 			// We only want long click support on My tab.
 			return false;
@@ -848,53 +869,13 @@ public class MenuFragment extends Fragment implements
 			// Create or Random, should just ignore this?
 			return false;
 		} else {
-			final FragmentTransaction ft = this.getChildFragmentManager()
-					.beginTransaction();
-			// Create and show the dialog.
-			final Bundle bundle = new Bundle();
-			bundle.putInt("layoutId", R.layout.dialog_listview_contextmenu);
-			final DialogMaker newFragment = new DialogMaker();
-			newFragment.setArguments(bundle);
-			newFragment.show(ft, "dialog");
-			newFragment.setOnDialogResultListner(new OnDialogResultListener() {
+			view.getFocusables(position);
+			view.setSelected(true);
+			((MenuActivity) this.getActivity()).actionMode = ((MenuActivity) this.getActivity()).startActionMode(new CustomActionMode(this.myAdapter.get(position), this.sql, this.myAdapter, this));
 
-				public void onDialogResult(final Bundle res) {
-					if (res == null) {
-						return;
-					}
-					final int result = res.getInt("resultInt");
-					if (result == 0) {
-						// Nothing
-						// TODO
-					} else if (result == 1) {
-						// Clear.
-						String newCurrent = "";
-						for (int i = 0; i != MenuFragment.this.myAdapter.get(position)
-								.getCurrent().length(); ++i) {
-							newCurrent += "0";
-						}
-						MenuFragment.this.myAdapter.updateCurrentById(
-								MenuFragment.this.myAdapter.get(position)
-										.getID(), newCurrent, "0");
-						MenuFragment.this.sql.updateCurrentPicogram(
-								MenuFragment.this.myAdapter.get(position)
-										.getID(), "0", newCurrent);
-					} else if (result == 2) {
-						// Delete.
-						MenuFragment.this.sql
-								.deletePicogram(MenuFragment.this.myAdapter.get(
-										position).getID());
-						MenuFragment.this.myAdapter
-								.removeById(MenuFragment.this.myAdapter.get(position)
-										.getID());
-						// TODO Remove from personal ranking table.
-					}
-					MenuFragment.this.myAdapter.notifyDataSetChanged();
-				}
-			});
-
+			return true;
 		}
-		return true;
+
 	}
 
 	@SuppressLint("NewApi")

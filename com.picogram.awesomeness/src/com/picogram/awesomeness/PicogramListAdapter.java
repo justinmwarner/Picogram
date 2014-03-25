@@ -17,12 +17,13 @@ import android.widget.TextView;
 import java.util.ArrayList;
 
 public class PicogramListAdapter extends ArrayAdapter<Picogram> {
-	static class ViewHolder{
+	static class ViewHolder {
 		TextView name, diff, rate;
 		ImageView pic;
 		RelativeLayout rl;
 		FrameLayout fl;
 	}
+
 	private static final String TAG = "PicogramListAdapter";
 	private Context context;
 
@@ -31,11 +32,11 @@ public class PicogramListAdapter extends ArrayAdapter<Picogram> {
 	ArrayList<Picogram> topPicograms = new ArrayList<Picogram>();
 	ArrayList<Picogram> recentPicograms = new ArrayList<Picogram>();
 
+	IntHolder ih;
 	public PicogramListAdapter(final Context context,
 			final int textViewResourceId) {
 		super(context, textViewResourceId);
 	}
-
 	public PicogramListAdapter(final Context context, final int resource,
 			final ArrayList<Picogram> items) {
 		super(context, resource, items);
@@ -166,6 +167,7 @@ public class PicogramListAdapter extends ArrayAdapter<Picogram> {
 		bm = Bitmap.createScaledBitmap(bm, width * 10, height * 10, false);
 		return bm;
 	}
+
 	@Override
 	public int getCount() {
 		return this.picograms.size();
@@ -198,7 +200,6 @@ public class PicogramListAdapter extends ArrayAdapter<Picogram> {
 		{
 			holder = (ViewHolder) convertView.getTag();
 		}
-
 		picogram.nullsToValue(this.context);// Just reset all nulls to a value.
 		final String curr = picogram.getCurrent();
 		final Bitmap bm = this.getBitmapFromCurrent(picogram, position);

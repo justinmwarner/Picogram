@@ -5,6 +5,7 @@
     <style name="app_theme" parent="Theme.Sherlock.Light">
         <item name="android:windowBackground">@drawable/app_background</item>
         <item name="android:textColor">#000000</item>
+     <item name="android:actionModeBackground">@drawable/app_background</item>
     </style>
 
     <style name="MyCustomBetterPickerTheme">
@@ -24,6 +25,7 @@
     </style>
 
     <style name="DialogTheme" parent="android:style/Theme.Translucent">
+        <item name="android:layout_gravity">center</item>
         <item name="android:buttonStyle">@style/customButtonStyle</item>
     </style>
 
