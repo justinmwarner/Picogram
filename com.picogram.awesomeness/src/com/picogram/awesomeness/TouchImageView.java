@@ -19,6 +19,7 @@ import android.os.Handler;
 import android.os.Vibrator;
 import android.support.v4.view.GestureDetectorCompat;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.GestureDetector.OnDoubleTapListener;
 import android.view.GestureDetector.OnGestureListener;
 import android.view.MotionEvent;
@@ -963,6 +964,12 @@ OnDoubleTapListener {
 
 	public boolean onScroll(final MotionEvent e1, final MotionEvent event, final float distanceX,
 			final float distanceY) {
+		Log.d(TAG, "COUNT: " + event.getPointerCount());
+		if (event.getPointerCount() > 2)
+		{
+			// Go to movement.
+			this.isGameplay = false;
+		}
 		if (this.isGameplay) {
 			this.matrix.getValues(this.m);
 			final float transX = this.m[Matrix.MTRANS_X] * -1;

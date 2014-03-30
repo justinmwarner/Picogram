@@ -32,7 +32,6 @@ public class PicogramListAdapter extends ArrayAdapter<Picogram> {
 	ArrayList<Picogram> topPicograms = new ArrayList<Picogram>();
 	ArrayList<Picogram> recentPicograms = new ArrayList<Picogram>();
 
-	IntHolder ih;
 	public PicogramListAdapter(final Context context,
 			final int textViewResourceId) {
 		super(context, textViewResourceId);

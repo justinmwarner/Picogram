@@ -34,8 +34,6 @@ import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.picogram.awesomeness.DialogMaker.OnDialogResultListener;
-import com.picogram.awesomeness.PicogramListAdapter.IntHolder;
-
 import fr.castorflex.android.smoothprogressbar.SmoothProgressBar;
 
 import de.keyboardsurfer.android.widget.crouton.Crouton;
@@ -81,8 +79,6 @@ OnItemClickListener, OnItemLongClickListener {
 	SQLitePicogramAdapter sql = null;
 
 	SmoothProgressBar pbLoad;
-
-	IntHolder ih = new IntHolder();
 
 	public void clearAdapter() {
 		if (this.myAdapter != null) {
@@ -703,7 +699,7 @@ OnItemClickListener, OnItemLongClickListener {
 			final ViewGroup container, final Bundle savedInstanceState) {
 		this.pbLoad = (SmoothProgressBar) this.getActivity().findViewById(R.id.spbLoad);
 		this.myAdapter = new PicogramListAdapter(this.getActivity(),
-				R.layout.picogram_menu_choice_item, this.ih);
+				R.layout.picogram_menu_choice_item);
 
 		final LayoutParams params = new LayoutParams(
 				android.view.ViewGroup.LayoutParams.MATCH_PARENT,

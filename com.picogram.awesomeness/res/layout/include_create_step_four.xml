@@ -2,6 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent" >
+    
 
     <com.picogram.awesomeness.TouchImageView
         android:id="@+id/tivGameTwo"
@@ -12,21 +13,11 @@
         android:layout_alignParentRight="true"
         android:layout_alignParentTop="true" />
 
-    <com.edmodo.rangebar.RangeBar
-        xmlns:custom="http://schemas.android.com/apk/res-auto"
-        android:id="@+id/rb"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentRight="true"
-        android:layout_toRightOf="@+id/bColorSelector"
-        custom:tickCount="255" />
-
     <Button
         android:id="@+id/bColorSelector"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignBaseline="@+id/rb"
+        android:gravity="center"
         android:layout_alignParentBottom="true"/>
 
 </RelativeLayout>

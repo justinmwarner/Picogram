@@ -7,12 +7,13 @@
         android:id="@+id/tivGameThree"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/tvInstructions"
+        android:layout_above="@+id/temp"
         android:layout_alignParentLeft="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentTop="true" />
 
     <TextView
+        android:id="@+id/temp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"

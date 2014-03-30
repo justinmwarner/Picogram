@@ -1,8 +1,26 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
 
-   <item android:id="@+id/menu_search"
-          android:title="Search"
-          android:icon="@android:drawable/ic_menu_search"
-          android:showAsAction="always"
-          android:actionViewClass="com.actionbarsherlock.widget.SearchView" />
+    <item
+        android:id="@+id/menu_search"
+        android:actionViewClass="com.actionbarsherlock.widget.SearchView"
+        android:icon="@android:drawable/ic_menu_search"
+        android:showAsAction="always"
+        android:title="Search"/>
+    <item
+        android:id="@+id/menuTutorial"
+        android:showAsAction="withText"
+        android:title="Tutorial"/>
+    <item
+        android:id="@+id/menuLogin"
+        android:showAsAction="withText|collapseActionView"
+        android:title="Login"/>
+    <item
+        android:id="@+id/menuPrefs"
+        android:showAsAction="withText"
+        android:title="Preferences"/>
+    <item
+        android:id="@+id/menuFeedback"
+        android:showAsAction="withText"
+        android:title="Feedback"/>
+
 </menu>

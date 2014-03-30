@@ -75,7 +75,7 @@ public class CreateActivity extends SherlockFragmentActivity implements ActionBa
 	private static final int CAMERA_REQUEST = 1337, FILE_SELECT_CODE = 8008;
 
 	final ArrayList<String> TITLES = new ArrayList<String>(Arrays.asList(new String[] {
-			"Picture", "Crop", "Game", "Colors", "Fine Tune", "Name", "Submit"
+			"Picture", "Crop", "Game", "Colors", "Fine Tune", "Name"
 	}));
 
 	private PagerSlidingTabStrip tabs;
@@ -169,7 +169,6 @@ public class CreateActivity extends SherlockFragmentActivity implements ActionBa
 			for (final int i : this.newColors) {
 				cols += i + ",";
 			}
-
 			cols = cols.substring(0, cols.length() - 1);
 			bundle.putString("colors", cols);
 			return bundle;
@@ -287,30 +286,30 @@ public class CreateActivity extends SherlockFragmentActivity implements ActionBa
 			final EditText input = new EditText(this);
 			input.setText("http://upload.wikimedia.org/wikipedia/commons/a/ab/Monarch_Butterfly_Showy_Male_3000px.jpg");
 			new AlertDialog.Builder(this)
-					.setTitle("URL Sumittion")
-					.setMessage("Url Link to Image File...")
-					.setView(input)
-					.setPositiveButton("Ok",
-							new DialogInterface.OnClickListener() {
-								public void onClick(final DialogInterface dialog,
-										final int whichButton) {
-									final Editable value = input.getText();
-									CreateActivity.this.handler.post(new Runnable() {
+			.setTitle("URL Sumittion")
+			.setMessage("Url Link to Image File...")
+			.setView(input)
+			.setPositiveButton("Ok",
+					new DialogInterface.OnClickListener() {
+				public void onClick(final DialogInterface dialog,
+						final int whichButton) {
+					final Editable value = input.getText();
+					CreateActivity.this.handler.post(new Runnable() {
 
-										public void run() {
-											CreateActivity.this.processURL(value.toString());
-										}
-									});
+						public void run() {
+							CreateActivity.this.processURL(value.toString());
+						}
+					});
 
-								}
-							})
-					.setNegativeButton("Cancel",
-							new DialogInterface.OnClickListener() {
-								public void onClick(final DialogInterface dialog,
-										final int whichButton) {
-									// Do nothing.
-								}
-							}).show();
+				}
+			})
+			.setNegativeButton("Cancel",
+					new DialogInterface.OnClickListener() {
+				public void onClick(final DialogInterface dialog,
+						final int whichButton) {
+					// Do nothing.
+				}
+			}).show();
 		} else if (itemPosition == 3)
 		{
 			final Intent cameraIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
@@ -361,8 +360,10 @@ public class CreateActivity extends SherlockFragmentActivity implements ActionBa
 		{
 			// Store the initial image.
 			final ImageView iv = ((ImageView) this.findViewById(R.id.ivPrimaryPreview));
-			iv.buildDrawingCache();
-			this.bmInitial = Bitmap.createBitmap(iv.getDrawingCache());
+			if (iv != null) {
+				iv.buildDrawingCache();
+				this.bmInitial = Bitmap.createBitmap(iv.getDrawingCache());
+			}
 			if ((this.bmInitial == null) || ((this.bmInitial.getWidth() + this.bmInitial.getHeight()) <= 0))
 			{
 				// Make sure we've received an image.
@@ -393,6 +394,7 @@ public class CreateActivity extends SherlockFragmentActivity implements ActionBa
 				((CropImageView) this.findViewById(R.id.cropImageView)).setImageBitmap(this.bmInitial);
 			}
 		}
+		((CreateFragment) CreateActivity.this.adapter.getItem(this.pager.getCurrentItem())).updateAllTouchImageViews(this);
 	}
 
 	@Override
@@ -426,7 +428,7 @@ public class CreateActivity extends SherlockFragmentActivity implements ActionBa
 					// TODO Stop the progress bar.
 				} catch (final IOException e) {
 					Crouton.makeText(a, "Failed to get image.", Style.ALERT)
-							.show();
+					.show();
 					e.printStackTrace();
 				}
 			}

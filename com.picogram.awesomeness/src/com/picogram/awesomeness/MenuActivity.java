@@ -32,10 +32,12 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.view.ActionMode;
 import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.widget.SearchView;
 import com.actionbarsherlock.widget.SearchView.OnQueryTextListener;
@@ -93,6 +95,7 @@ FlurryAdListener, OnPageChangeListener, OnClickListener, OnRMMUserChoiceListener
 		}
 
 	}
+
 	ActionMode actionMode;
 
 	private static final String TAG = "MainActivity";
@@ -286,6 +289,8 @@ FlurryAdListener, OnPageChangeListener, OnClickListener, OnRMMUserChoiceListener
 	@Override
 	public boolean onCreateOptionsMenu(final Menu menu)
 	{
+		final MenuInflater inflater = this.getSupportMenuInflater();
+		inflater.inflate(R.menu.activity_menu, menu);
 		if (this.currentTab == TITLES.indexOf("Search"))
 		{
 			this.getSupportMenuInflater().inflate(R.menu.activity_menu, menu);
@@ -362,14 +367,43 @@ FlurryAdListener, OnPageChangeListener, OnClickListener, OnRMMUserChoiceListener
 		return true;
 	}
 
+	@SuppressLint("NewApi")
 	@Override
 	public boolean onOptionsItemSelected(final MenuItem item) {
-		if (item.getItemId() == android.R.id.home)
-		{
-			this.pager.setCurrentItem(TITLES.indexOf("My"));
-			return true;
+
+		super.onOptionsItemSelected(item);
+
+		switch (item.getItemId()) {
+			case R.id.menuTutorial:
+				Toast.makeText(this.getBaseContext(), "You selected tutorial", Toast.LENGTH_SHORT).show();
+				break;
+
+			case R.id.menuLogin:
+				Toast.makeText(this.getBaseContext(), "You selected Login", Toast.LENGTH_SHORT).show();
+				this.showSignInDialog();
+				break;
+
+			case R.id.menuPrefs:
+				final Intent i = new Intent(this, SettingsActivity.class);
+				if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+					final ActivityOptions opts = ActivityOptions.makeCustomAnimation(
+							this, R.anim.fadein, R.anim.fadeout);
+					this.startActivityForResult(i, PREFERENCES_CODE, opts.toBundle());
+				}
+				else
+				{
+					this.startActivityForResult(i, PREFERENCES_CODE);
+				}
+				break;
+			case R.id.menuFeedback:
+				Toast.makeText(this.getBaseContext(), "You selected feedback", Toast.LENGTH_SHORT).show();
+				break;
+			case android.R.id.home:
+				this.pager.setCurrentItem(TITLES.indexOf("My"));
+				break;
 		}
-		return false;
+		return true;
+
 	}
 
 	public void onPageScrolled(final int arg0, final float arg1, final int arg2) {

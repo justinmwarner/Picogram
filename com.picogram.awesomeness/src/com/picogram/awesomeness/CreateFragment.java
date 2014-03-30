@@ -4,6 +4,7 @@ package com.picogram.awesomeness;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
@@ -30,6 +31,9 @@ import com.edmodo.cropper.CropImageView;
 import com.edmodo.rangebar.RangeBar;
 import com.edmodo.rangebar.RangeBar.OnRangeBarChangeListener;
 
+import yuku.ambilwarna.AmbilWarnaDialog;
+import yuku.ambilwarna.AmbilWarnaDialog.OnAmbilWarnaListener;
+
 import java.util.ArrayList;
 import java.util.Vector;
 
@@ -47,7 +51,7 @@ public class CreateFragment extends Fragment implements OnClickListener, OnRange
 	}
 
 	ImageView ivInitial;
-	Button bWidthChange, bHeightChange, bColorChange, bColorSelector;
+	Button bWidthChange, bHeightChange, bColorChange, bColorSelector, bSubmit;
 	TextView tvWidth, tvHeight, tvColor, tvTags, tvInstructions;
 	CropImageView cropper;
 	TouchImageView tivGameOne, tivGameTwo, tivGameThree, tivGameFour;
@@ -66,6 +70,9 @@ public class CreateFragment extends Fragment implements OnClickListener, OnRange
 	public void onClick(final View v) {
 		switch (v.getId())
 		{
+			case R.id.bSubmit:
+				Log.d(TAG, "DONE");
+				break;
 			case R.id.bWidthChange:
 			case R.id.bHeightChange:
 			case R.id.bColorChange:
@@ -76,50 +83,104 @@ public class CreateFragment extends Fragment implements OnClickListener, OnRange
 				this.bColorSelector.setText("");
 				final LayoutInflater inflater = this.getActivity().getLayoutInflater();
 				final CreateActivity msca = (CreateActivity) this.getActivity();
-				final View dialoglayout = inflater.inflate(R.layout.dialog_color_choice, (ViewGroup) this.getActivity().getCurrentFocus());
+				final LinearLayout ll = new LinearLayout(this.getActivity());
+				ll.setOrientation(LinearLayout.VERTICAL);
 				final ArrayList<Button> buttons = new ArrayList();
+				final ArrayList<RangeBar> bars = new ArrayList();
 				for (int i = 0; i != msca.numColors; ++i)
 				{
 					final Button b = new Button(this.getActivity());
-					final int color = msca.newColors[i];
-					final int j = i;
+					final RangeBar rb = new RangeBar(this.getActivity());
+					rb.setTickCount(256);
+
 					buttons.add(b);
+					bars.add(rb);
+					int color = msca.newColors[i];
+					final int tempColor = color;
+					final int j = i;
 					b.setOnClickListener(new View.OnClickListener() {
 
 						public void onClick(final View v) {
-							CreateFragment.this.handler.post(new Runnable() {
+							// TODO: This should let you change the color.
+							final AmbilWarnaDialog dialog = new AmbilWarnaDialog(CreateFragment.this.getActivity(),
+									tempColor,
+									new OnAmbilWarnaListener() {
 
-								public void run() {
-									Log.d(TAG, "Click click");
-									CreateFragment.this.bColorSelector.setBackgroundColor(color);
-									CreateFragment.this.currentChangedColorIndex = j;
-									CreateFragment.this.rangeColor.setVisibility(View.VISIBLE);
+								public void onCancel(
+										final AmbilWarnaDialog dialog) {
+									// Do nothing.
+								}
 
-									for (final AlertDialog dialog : CreateFragment.this.dialogs) {
-										if (dialog.isShowing()) {
-											dialog.dismiss();
-										}
+								public void onOk(
+										final AmbilWarnaDialog dialog,
+										final int color) {
+									String o = "";
+									for (final int jj : msca.newColors) {
+										o += jj + " ";
 									}
+									Log.d(TAG, "Colors : " + o);
+									msca.originalColors[j] = color;
+									CreateFragment.this.updateAllTouchImageViews((CreateActivity) CreateFragment.this.getActivity());
+									buttons.get(j).setBackgroundColor(color);
+									o = "";
+									for (final int jj : msca.newColors) {
+										o += jj + " ";
+									}
+									Log.d(TAG, "Colors : " + o);
 								}
 							});
+							dialog.show();
 						}
 					});
-					b.setBackgroundColor(color);
-					if (i < 3) {
-						((LinearLayout) dialoglayout.findViewById(R.id.llColorFirst)).addView(b);
-					} else if (i < 6)
-					{
-						((LinearLayout) dialoglayout.findViewById(R.id.llColorSecond)).addView(b);
-					} else if (i < 9) {
-						((LinearLayout) dialoglayout.findViewById(R.id.llColorThird)).addView(b);
+					b.setBackgroundDrawable(this.getActivity().getResources().getDrawable(R.drawable.drop_shadow));
+					if (color == Color.TRANSPARENT) {
+						color = Color.WHITE;
 					}
-					else {
-						((LinearLayout) dialoglayout.findViewById(R.id.llColorFourth)).addView(b);
+					if (color == Color.TRANSPARENT) {
+						b.setBackgroundDrawable(this.getActivity().getResources().getDrawable(R.drawable.light_grid));
+					} else {
+						b.setBackgroundColor(color);
 					}
+					// rb.setThumbColorNormal(color);
+					// rb.setConnectingLineColor(color);
+					// rb.setThumbIndices(i * (256 / msca.newColors.length), (i + 1) * (int) Math.floor((256 / msca.newColors.length)));
+					if (j == msca.numColors) {
+						// Make sure we're going to the full 256.
+						rb.setThumbIndices(i * (256 / msca.newColors.length), 256);
+					}
+					final OnRangeBarChangeListener listen = new OnRangeBarChangeListener() {
+
+						public void onIndexChangeListener(final RangeBar rangeBar, final int leftThumbIndex, final int rightThumbIndex) {
+							if (j == 0)
+							{
+								// Only change the one below it
+								rangeBar.setOnRangeBarChangeListener(null);
+								rangeBar.setThumbIndices(0, rightThumbIndex);
+								rangeBar.setOnRangeBarChangeListener(this);
+							}
+							else if (j == msca.numColors) {
+								// Only change the one above it.
+								rangeBar.setThumbIndices(leftThumbIndex, 256);
+							}
+							else
+							{
+								// Change both.
+							}
+						}
+					};
+
+					rb.setOnRangeBarChangeListener(listen);
+					rb.setVisibility(View.GONE); // Make invisible. Not needed for MVP.
+					final LinearLayout row = new LinearLayout(this.getActivity());
+					row.setOrientation(LinearLayout.HORIZONTAL);
+					row.addView(b);
+					row.addView(rb);
+					ll.addView(row);
+					// TODO Make the range bar have the colors.
 				}
 				final AlertDialog.Builder builder = new AlertDialog.Builder(this.getActivity());
 				builder.setTitle("Select color to change strength");
-				builder.setView(dialoglayout);
+				builder.setView(ll);
 				this.dialogs.add(builder.show());
 				break;
 		}
@@ -141,14 +202,7 @@ public class CreateFragment extends Fragment implements OnClickListener, OnRange
 		final FrameLayout fl = new FrameLayout(this.getActivity());
 		fl.setLayoutParams(params);
 		View view;
-		if (this.position == 6)
-		{
-			// TODO We're finished creating puzzle, make sure everything is in order and if so, finish. Else, change to bad page.
-			view = null;
-			this.getActivity().finish();
-
-		}
-		else if (this.position == 5)
+		if (this.position == 5)
 		{
 			view = inflater.inflate(R.layout.include_create_step_six, null);
 			this.etName = (EditText) view.findViewById(R.id.etName);
@@ -156,24 +210,22 @@ public class CreateFragment extends Fragment implements OnClickListener, OnRange
 			this.autoTags = (MultiAutoCompleteTextView) view.findViewById(R.id.mactvTags);
 			this.tvTags = (TextView) view.findViewById(R.id.tvTags);
 			this.tivGameFour = (TouchImageView) view.findViewById(R.id.tivGameFour);
-			fl.addView(view);
+			this.bSubmit = (Button) view.findViewById(R.id.bSubmit);
+			this.bSubmit.setOnClickListener(this);
 		} else if (this.position == 4)
 		{
 			view = inflater.inflate(R.layout.include_create_step_five, null);
 			this.tivGameThree = (TouchImageView) view.findViewById(R.id.tivGameThree);
-			fl.addView(view);
+
 		} else if (this.position == 3)
 		{
 			view = inflater.inflate(R.layout.include_create_step_four, null);
 			this.bColorSelector = (Button) view.findViewById(R.id.bColorSelector);
 			this.bColorSelector.setOnClickListener(this);
 			this.bColorSelector.setText("Click me");
-			this.rangeColor = (RangeBar) view.findViewById(R.id.rb);
-			this.rangeColor.setOnRangeBarChangeListener(this);
-			this.rangeColor.setTickCount(256 / ((CreateActivity) this.getActivity()).numColors);
-			this.rangeColor.setVisibility(View.INVISIBLE);
+
 			this.tivGameTwo = (TouchImageView) view.findViewById(R.id.tivGameTwo);
-			fl.addView(view);
+
 		} else if (this.position == 2)
 		{
 			view = inflater.inflate(R.layout.include_create_step_three, null);
@@ -185,20 +237,20 @@ public class CreateFragment extends Fragment implements OnClickListener, OnRange
 			this.bHeightChange.setOnClickListener(this);
 			this.bColorChange.setOnClickListener(this);
 			this.tivGameOne = (TouchImageView) view.findViewById(R.id.tivGameOne);
-			this.updateAllToucImageViews();
-			fl.addView(view);
+			this.updateAllTouchImageViews((CreateActivity) this.getActivity());
+
 		} else if (this.position == 1)
 		{
 			view = inflater.inflate(R.layout.include_create_step_two, null);
 			this.cropper = (CropImageView) view.findViewById(R.id.cropImageView);
 			this.cropper.setGuidelines(2);
-			fl.addView(view);
+
 		} else if (this.position == 0)
 		{
 			view = inflater.inflate(R.layout.include_create_step_one, null);
 			this.ivInitial = (ImageView) view.findViewById(R.id.ivPrimaryPreview);
 			this.tvInstructions = (TextView) view.findViewById(R.id.tvInstructions);
-			fl.addView(view);
+
 		}
 		else
 		{
@@ -215,12 +267,11 @@ public class CreateFragment extends Fragment implements OnClickListener, OnRange
 		}
 		fl.removeAllViews();
 		fl.addView(view);
+		this.updateAllTouchImageViews((CreateActivity) this.getActivity());
 		return fl;
 	}
 
 	public void onIndexChangeListener(final RangeBar rangeBar, final int leftThumbIndex, final int rightThumbIndex) {
-		// TODO Auto-generated method stub
-
 	}
 
 	public void setOriginalImage(final Bitmap original, final Activity a) {
@@ -280,7 +331,7 @@ public class CreateFragment extends Fragment implements OnClickListener, OnRange
 							CreateFragment.this.height = number;
 							a.height = number;
 						}
-						CreateFragment.this.updateAllToucImageViews();
+						CreateFragment.this.updateAllTouchImageViews((CreateActivity) CreateFragment.this.getActivity());
 					}
 				});
 			}
@@ -288,24 +339,41 @@ public class CreateFragment extends Fragment implements OnClickListener, OnRange
 		npb.show();
 	}
 
-	private void updateAllToucImageViews() {
-		final Bundle b = ((CreateActivity) this.getActivity()).alterPhoto();
+	public void updateAllTouchImageViews(final CreateActivity a) {
+		Bundle b = null;
+		try {
+			b = a.alterPhoto();
+		} catch (final Exception e) {
+			Log.d(TAG, "Error: " + e);
+		}
 		if (b != null) {
 			b.putString("current", b.getString("solution"));
 			b.putBoolean("refresh", true);
-		}
-		if (this.tivGameOne != null) {
-			this.tivGameOne.setPicogramInfo(b);
-		}
-		if (this.tivGameTwo != null) {
-			this.tivGameTwo.setPicogramInfo(b);
-		}
-		if (this.tivGameThree != null) {
-			this.tivGameThree.setPicogramInfo(b);
-		}
-		if (this.tivGameFour != null) {
-			this.tivGameFour.setPicogramInfo(b);
+			if (this.tivGameOne == null) {
+				this.tivGameOne = (TouchImageView) a.findViewById(R.id.tivGameOne);
+			}
+			if (this.tivGameOne != null) {
+				this.tivGameOne.setPicogramInfo(b);
+			}
+			if (this.tivGameTwo == null) {
+				this.tivGameTwo = (TouchImageView) a.findViewById(R.id.tivGameTwo);
+			}
+			if (this.tivGameTwo != null) {
+				this.tivGameTwo.setPicogramInfo(b);
+			}
+			if (this.tivGameThree == null) {
+				this.tivGameThree = (TouchImageView) a.findViewById(R.id.tivGameThree);
+			}
+			if (this.tivGameThree != null) {
+				b.putBoolean("refresh", false);
+				this.tivGameThree.setPicogramInfo(b);
+			}
+			if (this.tivGameFour == null) {
+				this.tivGameFour = (TouchImageView) a.findViewById(R.id.tivGameFour);
+			}
+			if (this.tivGameFour != null) {
+				this.tivGameFour.setPicogramInfo(b);
+			}
 		}
 	}
-
 }
