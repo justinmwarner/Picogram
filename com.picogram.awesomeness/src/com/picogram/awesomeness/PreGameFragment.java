@@ -405,7 +405,6 @@ public class PreGameFragment extends Fragment implements OnClickListener, OnItem
 		}
 		else if (v.getId() == R.id.bDelete)
 		{
-			Log.d(TAG, "bb DELETE");
 			sql.deletePicogram(this.current.getID());
 			sql.close();
 			this.getActivity().finish();

@@ -23,6 +23,7 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -121,6 +122,7 @@ FlurryAdListener, OnPageChangeListener, OnClickListener, OnRMMUserChoiceListener
 	Dialog dialog;
 
 	SearchView mSearchView;
+	MenuItem searchItem;
 
 	public void handleNegative() {
 		// Don't do it again.
@@ -287,13 +289,13 @@ FlurryAdListener, OnPageChangeListener, OnClickListener, OnRMMUserChoiceListener
 	{
 		final MenuInflater inflater = this.getSupportMenuInflater();
 		inflater.inflate(R.menu.activity_menu, menu);
+		this.searchItem = menu.findItem(R.id.menu_search);
+		this.mSearchView = (SearchView) this.searchItem.getActionView();
+		this.setupSearchView(this.searchItem);
+		this.searchItem.setVisible(false);
 		if (this.currentTab == TITLES.indexOf("Search"))
 		{
-			this.getSupportMenuInflater().inflate(R.menu.activity_menu, menu);
-			final MenuItem searchItem = menu.findItem(R.id.menu_search);
-			this.mSearchView = (SearchView) searchItem.getActionView();
-			this.setupSearchView(searchItem);
-
+			this.searchItem.setVisible(true);
 			// getSupportMenuInflater().inflate(R.menu.activity_menu, menu);
 			//
 			// final SearchManager searchManager = (SearchManager) this.getSystemService(Context.SEARCH_SERVICE);
@@ -553,10 +555,12 @@ FlurryAdListener, OnPageChangeListener, OnClickListener, OnRMMUserChoiceListener
 
 		final SearchManager searchManager = (SearchManager) this.getSystemService(Context.SEARCH_SERVICE);
 		if (searchManager != null) {
+			Log.d(TAG, "Search manager");
 			final List<SearchableInfo> searchables = searchManager.getSearchablesInGlobalSearch();
 
 			SearchableInfo info = searchManager.getSearchableInfo(this.getComponentName());
 			for (final SearchableInfo inf : searchables) {
+				Log.d(TAG, "Search inf: " + inf.getSuggestPackage().toString());
 				if ((inf.getSuggestAuthority() != null)
 						&& inf.getSuggestAuthority().startsWith("applications")) {
 					info = inf;
@@ -576,7 +580,7 @@ FlurryAdListener, OnPageChangeListener, OnClickListener, OnRMMUserChoiceListener
 				MenuActivity.this.adapter.frag[MenuActivity.this.currentTab].getTagPuzzles(
 						MenuActivity.this.adapter.frag[MenuActivity.this.currentTab].getActivity(), query);
 				MenuActivity.this.mSearchView.clearFocus();
-				((MenuItem) MenuActivity.this.mSearchView).collapseActionView();
+				searchItem.collapseActionView();
 				return false;
 			}
 		});

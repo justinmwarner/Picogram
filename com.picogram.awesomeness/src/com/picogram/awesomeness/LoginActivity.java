@@ -42,7 +42,6 @@ public class LoginActivity extends BaseGameActivity implements OnClickListener {
 	private static final String TAG = "LoginActivity";
 	AutoCompleteTextView editTextLogin;
 	boolean hasTriedGoogle = false;
-	DFragment dFragment;
 	private final Session.StatusCallback statusCallback = new SessionStatusCallback();
 
 	Button facebook;
