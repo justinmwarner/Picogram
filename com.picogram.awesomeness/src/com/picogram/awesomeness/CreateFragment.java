@@ -51,14 +51,14 @@ public class CreateFragment extends Fragment implements OnClickListener, OnRange
 	}
 
 	ImageView ivInitial;
-	Button bWidthChange, bHeightChange, bColorChange, bColorSelector, bSubmit;
+	Button bWidthChange, bHeightChange, bColorChange, bColorSelector, bSubmit, bToolbox;
 	TextView tvWidth, tvHeight, tvColor, tvTags, tvInstructions;
 	CropImageView cropper;
 	TouchImageView tivGameOne, tivGameTwo, tivGameThree, tivGameFour;
 	EditText etName;
 	Spinner spinDifficulty;
 	MultiAutoCompleteTextView autoTags;
-	int selectedColor, width = 20, height = 20, numColor = 2;
+	int selectedColor, width = 3, height = 3, numColor = 2;
 	RangeBar rangeColor;
 	Bitmap original;
 
@@ -68,10 +68,67 @@ public class CreateFragment extends Fragment implements OnClickListener, OnRange
 	private final Vector<AlertDialog> dialogs = new Vector<AlertDialog>();
 
 	public void onClick(final View v) {
+		final CreateActivity msca = (CreateActivity) this.getActivity();
+		final AlertDialog.Builder builder = new AlertDialog.Builder(this.getActivity());
+		for (final AlertDialog ad : this.dialogs) {
+			ad.dismiss();
+		}
 		switch (v.getId())
 		{
 			case R.id.bSubmit:
 				Log.d(TAG, "DONE");
+				final Picogram p = new Picogram();
+				p.setAuthor(Util.id(this.getActivity()));
+				String cols = "";
+				for (final int i : msca.newColors) {
+					cols += i + ",";
+				}
+				p.setColors(cols);
+				p.setDiff(this.spinDifficulty.getSelectedItemPosition() + "");
+				p.setHeight(this.height + "");
+				p.setName(this.etName.getText().toString());
+				p.setNumberOfColors(msca.numColors + "");
+				p.setNumberOfRatings(1);
+				p.setRating(1 + "");
+				p.setSolution(msca.solution);
+				p.setStatus(0 + "");
+				p.setWidth(this.width + "");
+				p.nullsToValue(this.getActivity());
+				p.save();
+				final SQLitePicogramAdapter sql = new SQLitePicogramAdapter(this.getActivity(), "Picograms", null, 1);
+				sql.addUserPicogram(p);
+				sql.close();
+				this.getActivity().finish();
+				break;
+			case R.id.bToolbox:
+				LinearLayout ll = new LinearLayout(this.getActivity());
+				ll.setOrientation(LinearLayout.HORIZONTAL);
+				for (int i = 0; i != msca.numColors; ++i)
+				{
+					final Button b = new Button(this.getActivity());
+					final int color = msca.newColors[i];
+					final int j = i;
+					b.setOnClickListener(new View.OnClickListener() {
+
+						public void onClick(final View v) {
+							((TouchImageView) CreateFragment.this.getActivity().findViewById(R.id.tivGameThree)).isGameplay = true;
+							((TouchImageView) CreateFragment.this.getActivity().findViewById(R.id.tivGameThree)).colorCharacter = ("" + j).charAt(0);
+							for (final AlertDialog ad : CreateFragment.this.dialogs) {
+								ad.dismiss();
+							}
+						}
+					});
+					b.setBackgroundDrawable(this.getActivity().getResources().getDrawable(R.drawable.drop_shadow));
+					if (color == Color.TRANSPARENT) {
+						// b.setBackgroundResource(R.drawable.transparent);
+					} else {
+						b.setBackgroundColor(color);
+					}
+					ll.addView(b);
+				}
+				builder.setTitle("Select color to draw");
+				builder.setView(ll);
+				this.dialogs.add(builder.show());
 				break;
 			case R.id.bWidthChange:
 			case R.id.bHeightChange:
@@ -81,9 +138,7 @@ public class CreateFragment extends Fragment implements OnClickListener, OnRange
 			case R.id.bColorSelector:
 				// Prompt user to change color.
 				this.bColorSelector.setText("");
-				final LayoutInflater inflater = this.getActivity().getLayoutInflater();
-				final CreateActivity msca = (CreateActivity) this.getActivity();
-				final LinearLayout ll = new LinearLayout(this.getActivity());
+				ll = new LinearLayout(this.getActivity());
 				ll.setOrientation(LinearLayout.VERTICAL);
 				final ArrayList<Button> buttons = new ArrayList();
 				final ArrayList<RangeBar> bars = new ArrayList();
@@ -114,19 +169,9 @@ public class CreateFragment extends Fragment implements OnClickListener, OnRange
 								public void onOk(
 										final AmbilWarnaDialog dialog,
 										final int color) {
-									String o = "";
-									for (final int jj : msca.newColors) {
-										o += jj + " ";
-									}
-									Log.d(TAG, "Colors : " + o);
 									msca.originalColors[j] = color;
 									CreateFragment.this.updateAllTouchImageViews((CreateActivity) CreateFragment.this.getActivity());
 									buttons.get(j).setBackgroundColor(color);
-									o = "";
-									for (final int jj : msca.newColors) {
-										o += jj + " ";
-									}
-									Log.d(TAG, "Colors : " + o);
 								}
 							});
 							dialog.show();
@@ -136,11 +181,7 @@ public class CreateFragment extends Fragment implements OnClickListener, OnRange
 					if (color == Color.TRANSPARENT) {
 						color = Color.WHITE;
 					}
-					if (color == Color.TRANSPARENT) {
-						b.setBackgroundDrawable(this.getActivity().getResources().getDrawable(R.drawable.light_grid));
-					} else {
-						b.setBackgroundColor(color);
-					}
+					b.setBackgroundColor(color);
 					// rb.setThumbColorNormal(color);
 					// rb.setConnectingLineColor(color);
 					// rb.setThumbIndices(i * (256 / msca.newColors.length), (i + 1) * (int) Math.floor((256 / msca.newColors.length)));
@@ -178,7 +219,6 @@ public class CreateFragment extends Fragment implements OnClickListener, OnRange
 					ll.addView(row);
 					// TODO Make the range bar have the colors.
 				}
-				final AlertDialog.Builder builder = new AlertDialog.Builder(this.getActivity());
 				builder.setTitle("Select color to change strength");
 				builder.setView(ll);
 				this.dialogs.add(builder.show());
@@ -216,7 +256,8 @@ public class CreateFragment extends Fragment implements OnClickListener, OnRange
 		{
 			view = inflater.inflate(R.layout.include_create_step_five, null);
 			this.tivGameThree = (TouchImageView) view.findViewById(R.id.tivGameThree);
-
+			this.bToolbox = (Button) view.findViewById(R.id.bToolbox);
+			this.bToolbox.setOnClickListener(this);
 		} else if (this.position == 3)
 		{
 			view = inflater.inflate(R.layout.include_create_step_four, null);
@@ -237,7 +278,7 @@ public class CreateFragment extends Fragment implements OnClickListener, OnRange
 			this.bHeightChange.setOnClickListener(this);
 			this.bColorChange.setOnClickListener(this);
 			this.tivGameOne = (TouchImageView) view.findViewById(R.id.tivGameOne);
-			this.updateAllTouchImageViews((CreateActivity) this.getActivity());
+			// this.updateAllTouchImageViews((CreateActivity) this.getActivity());
 
 		} else if (this.position == 1)
 		{
@@ -267,7 +308,7 @@ public class CreateFragment extends Fragment implements OnClickListener, OnRange
 		}
 		fl.removeAllViews();
 		fl.addView(view);
-		this.updateAllTouchImageViews((CreateActivity) this.getActivity());
+		// this.updateAllTouchImageViews((CreateActivity) this.getActivity());
 		return fl;
 	}
 
@@ -363,6 +404,14 @@ public class CreateFragment extends Fragment implements OnClickListener, OnRange
 			}
 			if (this.tivGameThree == null) {
 				this.tivGameThree = (TouchImageView) a.findViewById(R.id.tivGameThree);
+				// Save new "solution".
+				if (this.tivGameThree != null) {
+					if (!a.solution.equals(this.tivGameThree.gCurrent))
+					{
+						Log.d(TAG, "New new new!");
+						a.solution = this.tivGameThree.gCurrent;
+					}
+				}
 			}
 			if (this.tivGameThree != null) {
 				b.putBoolean("refresh", false);

@@ -18,7 +18,7 @@
         android:layout_height="wrap_content"
         android:layout_above="@+id/tvTags"
         android:layout_alignParentLeft="true"
-        android:layout_toLeftOf="@+id/button1"
+        android:layout_toLeftOf="@+id/bToolbox"
         android:ems="10"
         android:hint="Type Tags Here" />
 

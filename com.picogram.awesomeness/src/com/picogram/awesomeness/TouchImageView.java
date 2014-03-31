@@ -825,7 +825,12 @@ OnDoubleTapListener {
 		final Vibrator v = (Vibrator) this.context
 				.getSystemService(Context.VIBRATOR_SERVICE);
 		v.vibrate(100);
-		((View) this.getParent()).findViewById(R.id.ibTools).performClick();
+		if (((View) this.getParent()).findViewById(R.id.ibTools) == null)
+		{
+			((View) this.getParent()).findViewById(R.id.bToolbox).performClick();
+		} else {
+			((View) this.getParent()).findViewById(R.id.ibTools).performClick();
+		}
 		return true;
 	}
 

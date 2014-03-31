@@ -97,63 +97,85 @@ public class CreateActivity extends SherlockFragmentActivity implements ActionBa
 	protected Bundle alterPhoto() {
 		this.updateValuesFromFragments();
 		if (this.width == 0) {
-			this.width = 20;
+			this.width = 3;
 		}
 		if (this.height == 0) {
-			this.height = 20;
+			this.height = 3;
 		}
 		if (this.numColors == 0) {
 			this.numColors = 2;
 		}
-		if (!((this.bmCropped == null) || (this.width == 0) || (this.height == 0) || (this.numColors == 0))) {
-			// Subarray with the number.
-			this.newColors = Arrays.copyOfRange(this.originalColors, 0, this.numColors);
-			// Touch this up. It's a bit messy.
-			this.solution = ""; // Change back to nothing.
-			Bitmap alter = this.bmCropped.copy(Bitmap.Config.ARGB_8888, true);
-			alter = Bitmap.createScaledBitmap(this.bmCropped, this.width, this.height, false);
-			// Set pixels = to each pixel in the scaled image (Easier to find
-			// values, and smaller!)
-			final int pixels[] = new int[this.width * this.height];
-			alter.getPixels(pixels, 0, alter.getWidth(), 0, 0,
-					alter.getWidth(), alter.getHeight());
-			for (int i = 0; i < pixels.length; i++) {
-				final int rgb[] = this.getRGB(pixels[i]);
-				// Greyscale and inverse.
-				pixels[i] = 255 - ((rgb[0] + rgb[1] + rgb[2]) / 3);
-			}
-			alter = alter.copy(Bitmap.Config.ARGB_8888, true);
-			alter.setPixels(pixels, 0, alter.getWidth(), 0, 0,
-					alter.getWidth(), alter.getHeight());
-
-			final int pix[][] = new int[this.height][this.width];
-			int run = 0;
-			for (int i = 0; i < pix.length; i++) {
-				for (int j = 0; j < pix[i].length; j++) {
-					pix[i][j] = pixels[run++];
+		if ((this.solution == null) || this.solution.equals("")) {
+			if (!((this.bmCropped == null) || (this.width == 0) || (this.height == 0) || (this.numColors == 0))) {
+				// Subarray with the number.
+				this.newColors = Arrays.copyOfRange(this.originalColors, 0, this.numColors);
+				// Touch this up. It's a bit messy.
+				this.solution = ""; // Change back to nothing.
+				Bitmap alter = this.bmCropped.copy(Bitmap.Config.ARGB_8888, true);
+				alter = Bitmap.createScaledBitmap(this.bmCropped, this.width, this.height, false);
+				// Set pixels = to each pixel in the scaled image (Easier to find
+				// values, and smaller!)
+				final int pixels[] = new int[this.width * this.height];
+				alter.getPixels(pixels, 0, alter.getWidth(), 0, 0,
+						alter.getWidth(), alter.getHeight());
+				for (int i = 0; i < pixels.length; i++) {
+					final int rgb[] = this.getRGB(pixels[i]);
+					// Greyscale and inverse.
+					pixels[i] = 255 - ((rgb[0] + rgb[1] + rgb[2]) / 3);
 				}
-			}
+				alter = alter.copy(Bitmap.Config.ARGB_8888, true);
+				alter.setPixels(pixels, 0, alter.getWidth(), 0, 0,
+						alter.getWidth(), alter.getHeight());
 
-			run = 0;
-			alter = alter.copy(Bitmap.Config.ARGB_8888, true);
-			final char[] sol = new char[alter.getWidth() * alter.getHeight()];
-			for (int i = 0; i != alter.getHeight(); ++i) {
-				for (int j = 0; j != alter.getWidth(); ++j) {
-					for (int k = 0; k <= this.numColors; ++k) {
-						if (pix[i][j] <= ((256 * (k + 1)) / (this.numColors))) {
-							// pix[i][j] = this.colors[k];
-							sol[(i * alter.getWidth()) + j] = (k + " ")
-									.charAt(0);
-							break;
+				final int pix[][] = new int[this.height][this.width];
+				int run = 0;
+				for (int i = 0; i < pix.length; i++) {
+					for (int j = 0; j < pix[i].length; j++) {
+						pix[i][j] = pixels[run++];
+					}
+				}
+
+				run = 0;
+				alter = alter.copy(Bitmap.Config.ARGB_8888, true);
+				final char[] sol = new char[alter.getWidth() * alter.getHeight()];
+				for (int i = 0; i != alter.getHeight(); ++i) {
+					for (int j = 0; j != alter.getWidth(); ++j) {
+						for (int k = 0; k <= this.numColors; ++k) {
+							if (pix[i][j] <= ((256 * (k + 1)) / (this.numColors))) {
+								// pix[i][j] = this.colors[k];
+								sol[(i * alter.getWidth()) + j] = (k + " ")
+										.charAt(0);
+								break;
+							}
 						}
 					}
 				}
+				this.solution = new String(sol);
+				// TODO do we need this?
+				// this.bmCropped.setHasAlpha(true);
+
+				final Bundle bundle = new Bundle();
+				// current height width id solution colors(,)
+				bundle.putString("current", this.solution);
+				bundle.putString("height", this.height + "");
+				bundle.putString("width", this.width + "");
+				bundle.putString("id", this.solution.hashCode() + "");
+				bundle.putString("solution", this.solution);
+				String cols = "";
+				// TODO: Switch transparency to the end.
+				// this.newColors[0] = this.newColors[this.numColors - 1];
+				// this.newColors[this.numColors - 1] = Color.TRANSPARENT;
+				// Now build the string of colors.
+				for (final int i : this.newColors) {
+					cols += i + ",";
+				}
+				cols = cols.substring(0, cols.length() - 1);
+				bundle.putString("colors", cols);
+				return bundle;
 			}
-
-			this.solution = new String(sol);
-			// TODO do we need this?
-			// this.bmCropped.setHasAlpha(true);
-
+		}
+		else
+		{
 			final Bundle bundle = new Bundle();
 			// current height width id solution colors(,)
 			bundle.putString("current", this.solution);
@@ -162,10 +184,6 @@ public class CreateActivity extends SherlockFragmentActivity implements ActionBa
 			bundle.putString("id", this.solution.hashCode() + "");
 			bundle.putString("solution", this.solution);
 			String cols = "";
-			// TODO: Switch transparency to the end.
-			// this.newColors[0] = this.newColors[this.numColors - 1];
-			// this.newColors[this.numColors - 1] = Color.TRANSPARENT;
-			// Now build the string of colors.
 			for (final int i : this.newColors) {
 				cols += i + ",";
 			}
@@ -247,27 +265,35 @@ public class CreateActivity extends SherlockFragmentActivity implements ActionBa
 	@Override
 	public boolean onCreateOptionsMenu(final Menu menu) {
 		final ActionBar ab = this.getSupportActionBar();
-		final ArrayAdapter<CharSequence> list = ArrayAdapter.createFromResource(this, R.array.listCreatePicture,
-				R.layout.sherlock_spinner_item);
+		ArrayAdapter<CharSequence> list = null;
+		if (this.currentTab == this.TITLES.indexOf("Picture")) {
+			list = ArrayAdapter.createFromResource(this, R.array.listCreatePicture,
+					R.layout.sherlock_spinner_item);
+		}
 
 		if (list != null) {
 			ab.setDisplayShowTitleEnabled(false);
 			ab.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
 			list.setDropDownViewResource(R.layout.sherlock_spinner_dropdown_item);
 			ab.setListNavigationCallbacks(list, this);
+		} else
+		{
+			ab.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
+			ab.setTitle("Create a Picogram");
 		}
 
-		ab.setDisplayHomeAsUpEnabled(true);
+		ab.setDisplayHomeAsUpEnabled(this.currentTab != this.TITLES.indexOf("Picture"));
 		ab.setDisplayShowTitleEnabled(false);
 		ab.setDisplayUseLogoEnabled(false);
+
 		this.invalidateOptionsMenu();
-		return true;
+		return super.onCreateOptionsMenu(menu);
 	}
 
 	@SuppressLint("NewApi")
 	public boolean onNavigationItemSelected(final int itemPosition, final long itemId) {
 		if (itemPosition == 0) {
-			// Custom
+			// Custom, just go with it brah.
 		}
 		else if (itemPosition == 1) {
 			// File
@@ -375,11 +401,29 @@ public class CreateActivity extends SherlockFragmentActivity implements ActionBa
 		{
 			// Store the cropped image.
 			this.bmCropped = ((CropImageView) this.findViewById(R.id.cropImageView)).getCroppedImage();
+			this.solution = "";
+			this.alterPhoto();
+			if (((TouchImageView) this.findViewById(R.id.tivGameOne)) != null) {
+				((TouchImageView) this.findViewById(R.id.tivGameOne)).gCurrent = this.solution;
+			}
+			if (((TouchImageView) this.findViewById(R.id.tivGameTwo)) != null) {
+				((TouchImageView) this.findViewById(R.id.tivGameTwo)).gCurrent = this.solution;
+			}
+			if (((TouchImageView) this.findViewById(R.id.tivGameThree)) != null) {
+				((TouchImageView) this.findViewById(R.id.tivGameThree)).gCurrent = this.solution;
+			}
+			if (((TouchImageView) this.findViewById(R.id.tivGameFour)) != null) {
+				((TouchImageView) this.findViewById(R.id.tivGameFour)).gCurrent = this.solution;
+			}
 		}
 		if (tab > 1)
 		{
 			if (this.bmCropped == null) {
 				this.pager.setCurrentItem(0);
+			}
+			if (this.currentTab == this.TITLES.indexOf("Fine Tune"))
+			{
+				this.solution = ((TouchImageView) this.findViewById(R.id.tivGameThree)).gCurrent;
 			}
 		}
 		this.currentTab = tab;
@@ -395,6 +439,7 @@ public class CreateActivity extends SherlockFragmentActivity implements ActionBa
 			}
 		}
 		((CreateFragment) CreateActivity.this.adapter.getItem(this.pager.getCurrentItem())).updateAllTouchImageViews(this);
+		this.invalidateOptionsMenu();
 	}
 
 	@Override

@@ -17,6 +17,7 @@
 
 package de.keyboardsurfer.android.widget.crouton;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Build;
@@ -37,379 +38,380 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 /** Manages the lifecycle of {@link Crouton}s. */
 final class Manager extends Handler {
-  private static final class Messages {
-    private Messages() { /* no-op */ }
+	private static final class Messages {
+		public static final int DISPLAY_CROUTON = 0xc2007;
 
-    public static final int DISPLAY_CROUTON = 0xc2007;
-    public static final int ADD_CROUTON_TO_VIEW = 0xc20074dd;
-    public static final int REMOVE_CROUTON = 0xc2007de1;
-  }
+		public static final int ADD_CROUTON_TO_VIEW = 0xc20074dd;
+		public static final int REMOVE_CROUTON = 0xc2007de1;
+		private Messages() { /* no-op */ }
+	}
 
-  private static Manager INSTANCE;
+	private static Manager INSTANCE;
 
-  private Queue<Crouton> croutonQueue;
+	/**
+	 * Generates and dispatches an SDK-specific spoken announcement.
+	 * <p>
+	 * For backwards compatibility, we're constructing an event from scratch
+	 * using the appropriate event type. If your application only targets SDK
+	 * 16+, you can just call View.announceForAccessibility(CharSequence).
+	 * </p>
+	 * <p/>
+	 * note: AccessibilityManager is only available from API lvl 4.
+	 * <p/>
+	 * Adapted from https://http://eyes-free.googlecode.com/files/accessibility_codelab_demos_v2_src.zip
+	 * via https://github.com/coreform/android-formidable-validation
+	 *
+	 * @param context
+	 *   Used to get {@link AccessibilityManager}
+	 * @param text
+	 *   The text to announce.
+	 */
+	public static void announceForAccessibilityCompat(final Context context, final CharSequence text) {
+		if (Build.VERSION.SDK_INT >= 4) {
+			final AccessibilityManager accessibilityManager = (AccessibilityManager) context.getSystemService(
+					Context.ACCESSIBILITY_SERVICE);
+			if (!accessibilityManager.isEnabled()) {
+				return;
+			}
 
-  private Manager() {
-    croutonQueue = new LinkedBlockingQueue<Crouton>();
-  }
+			// Prior to SDK 16, announcements could only be made through FOCUSED
+			// events. Jelly Bean (SDK 16) added support for speaking text verbatim
+			// using the ANNOUNCEMENT event type.
+			final int eventType;
+			if (Build.VERSION.SDK_INT < 16) {
+				eventType = AccessibilityEvent.TYPE_VIEW_FOCUSED;
+			} else {
+				eventType = AccessibilityEventCompat.TYPE_ANNOUNCEMENT;
+			}
 
-  /** @return The currently used instance of the {@link Manager}. */
-  static synchronized Manager getInstance() {
-    if (null == INSTANCE) {
-      INSTANCE = new Manager();
-    }
+			// Construct an accessibility event with the minimum recommended
+			// attributes. An event without a class name or package may be dropped.
+			final AccessibilityEvent event = AccessibilityEvent.obtain(eventType);
+			event.getText().add(text);
+			event.setClassName(Manager.class.getName());
+			event.setPackageName(context.getPackageName());
 
-    return INSTANCE;
-  }
+			// Sends the event directly through the accessibility manager. If your
+			// application only targets SDK 14+, you should just call
+			// getParent().requestSendAccessibilityEvent(this, event);
+			accessibilityManager.sendAccessibilityEvent(event);
+		}
+	}
 
-  /**
-   * Inserts a {@link Crouton} to be displayed.
-   *
-   * @param crouton
-   *   The {@link Crouton} to be displayed.
-   */
-  void add(Crouton crouton) {
-    croutonQueue.add(crouton);
-    displayCrouton();
-  }
+	/** @return The currently used instance of the {@link Manager}. */
+	static synchronized Manager getInstance() {
+		if (null == INSTANCE) {
+			INSTANCE = new Manager();
+		}
 
-  /** Displays the next {@link Crouton} within the queue. */
-  private void displayCrouton() {
-    if (croutonQueue.isEmpty()) {
-      return;
-    }
+		return INSTANCE;
+	}
 
-    // First peek whether the Crouton has an activity.
-    final Crouton currentCrouton = croutonQueue.peek();
+	private final Queue<Crouton> croutonQueue;
 
-    // If the activity is null we poll the Crouton off the queue.
-    if (null == currentCrouton.getActivity()) {
-      croutonQueue.poll();
-    }
+	private Manager() {
+		this.croutonQueue = new LinkedBlockingQueue<Crouton>();
+	}
 
-    if (!currentCrouton.isShowing()) {
-      // Display the Crouton
-      sendMessage(currentCrouton, Messages.ADD_CROUTON_TO_VIEW);
-      if (null != currentCrouton.getLifecycleCallback()) {
-        currentCrouton.getLifecycleCallback().onDisplayed();
-      }
-    } else {
-      sendMessageDelayed(currentCrouton, Messages.DISPLAY_CROUTON, calculateCroutonDuration(currentCrouton));
-    }
-  }
+	/**
+	 * Inserts a {@link Crouton} to be displayed.
+	 *
+	 * @param crouton
+	 *   The {@link Crouton} to be displayed.
+	 */
+	void add(final Crouton crouton) {
+		this.croutonQueue.add(crouton);
+		this.displayCrouton();
+	}
 
-  private long calculateCroutonDuration(Crouton crouton) {
-    long croutonDuration = crouton.getConfiguration().durationInMilliseconds;
-    croutonDuration += crouton.getInAnimation().getDuration();
-    croutonDuration += crouton.getOutAnimation().getDuration();
-    return croutonDuration;
-  }
+	/**
+	 * Adds a {@link Crouton} to the {@link ViewParent} of it's {@link Activity}.
+	 *
+	 * @param crouton
+	 *   The {@link Crouton} that should be added.
+	 */
+	private void addCroutonToView(final Crouton crouton) {
+		// don't add if it is already showing
+		if (crouton.isShowing()) {
+			return;
+		}
 
-  /**
-   * Sends a {@link Crouton} within a {@link Message}.
-   *
-   * @param crouton
-   *   The {@link Crouton} that should be sent.
-   * @param messageId
-   *   The {@link Message} id.
-   */
-  private void sendMessage(Crouton crouton, final int messageId) {
-    final Message message = obtainMessage(messageId);
-    message.obj = crouton;
-    sendMessage(message);
-  }
+		final View croutonView = crouton.getView();
+		if (null == croutonView.getParent()) {
+			ViewGroup.LayoutParams params = croutonView.getLayoutParams();
+			if (null == params) {
+				params = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+			}
+			// display Crouton in ViewGroup is it has been supplied
+			if (null != crouton.getViewGroup()) {
+				// TODO implement add to last position feature (need to align with how this will be requested for activity)
+				if (crouton.getViewGroup() instanceof FrameLayout) {
+					crouton.getViewGroup().addView(croutonView, params);
+				} else {
+					crouton.getViewGroup().addView(croutonView, 0, params);
+				}
+			} else {
+				final Activity activity = crouton.getActivity();
+				if ((null == activity) || activity.isFinishing()) {
+					return;
+				}
+				activity.addContentView(croutonView, params);
+			}
+		}
 
-  /**
-   * Sends a {@link Crouton} within a delayed {@link Message}.
-   *
-   * @param crouton
-   *   The {@link Crouton} that should be sent.
-   * @param messageId
-   *   The {@link Message} id.
-   * @param delay
-   *   The delay in milliseconds.
-   */
-  private void sendMessageDelayed(Crouton crouton, final int messageId, final long delay) {
-    Message message = obtainMessage(messageId);
-    message.obj = crouton;
-    sendMessageDelayed(message, delay);
-  }
+		croutonView.requestLayout(); // This is needed so the animation can use the measured with/height
+		croutonView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+			@SuppressLint("NewApi")
+			@Override
+			public void onGlobalLayout() {
+				if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
+					croutonView.getViewTreeObserver().removeGlobalOnLayoutListener(this);
+				} else {
+					croutonView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+				}
 
-  /*
-   * (non-Javadoc)
-   *
-   * @see android.os.Handler#handleMessage(android.os.Message)
-   */
-  @Override
-  public void handleMessage(Message message) {
-    final Crouton crouton = (Crouton) message.obj;
+				croutonView.startAnimation(crouton.getInAnimation());
+				announceForAccessibilityCompat(crouton.getActivity(), crouton.getText());
+				if (Configuration.DURATION_INFINITE != crouton.getConfiguration().durationInMilliseconds) {
+					Manager.this.sendMessageDelayed(crouton, Messages.REMOVE_CROUTON,
+							crouton.getConfiguration().durationInMilliseconds + crouton.getInAnimation().getDuration());
+				}
+			}
+		});
+	}
 
-    switch (message.what) {
-      case Messages.DISPLAY_CROUTON: {
-        displayCrouton();
-        break;
-      }
+	private long calculateCroutonDuration(final Crouton crouton) {
+		long croutonDuration = crouton.getConfiguration().durationInMilliseconds;
+		croutonDuration += crouton.getInAnimation().getDuration();
+		croutonDuration += crouton.getOutAnimation().getDuration();
+		return croutonDuration;
+	}
 
-      case Messages.ADD_CROUTON_TO_VIEW: {
-        addCroutonToView(crouton);
-        break;
-      }
+	/** Removes all {@link Crouton}s from the queue. */
+	void clearCroutonQueue() {
+		this.removeAllMessages();
 
-      case Messages.REMOVE_CROUTON: {
-        removeCrouton(crouton);
-        if (null != crouton.getLifecycleCallback()) {
-          crouton.getLifecycleCallback().onRemoved();
-        }
-        break;
-      }
+		if (null != this.croutonQueue) {
+			// remove any views that may already have been added to the activity's
+			// content view
+			for (final Crouton crouton : this.croutonQueue) {
+				if (crouton.isShowing()) {
+					((ViewGroup) crouton.getView().getParent()).removeView(crouton.getView());
+				}
+			}
+			this.croutonQueue.clear();
+		}
+	}
 
-      default: {
-        super.handleMessage(message);
-        break;
-      }
-    }
-  }
+	/**
+	 * Removes all {@link Crouton}s for the provided activity. This will remove
+	 * crouton from {@link Activity}s content view immediately.
+	 */
+	void clearCroutonsForActivity(final Activity activity) {
+		if (null != this.croutonQueue) {
+			final Iterator<Crouton> croutonIterator = this.croutonQueue.iterator();
+			while (croutonIterator.hasNext()) {
+				final Crouton crouton = croutonIterator.next();
+				if ((null != crouton.getActivity()) && crouton.getActivity().equals(activity)) {
+					// remove the crouton from the content view
+					if (crouton.isShowing()) {
+						((ViewGroup) crouton.getView().getParent()).removeView(crouton.getView());
+					}
 
-  /**
-   * Adds a {@link Crouton} to the {@link ViewParent} of it's {@link Activity}.
-   *
-   * @param crouton
-   *   The {@link Crouton} that should be added.
-   */
-  private void addCroutonToView(final Crouton crouton) {
-    // don't add if it is already showing
-    if (crouton.isShowing()) {
-      return;
-    }
+					this.removeAllMessagesForCrouton(crouton);
 
-    final View croutonView = crouton.getView();
-    if (null == croutonView.getParent()) {
-      ViewGroup.LayoutParams params = croutonView.getLayoutParams();
-      if (null == params) {
-        params = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-      }
-      // display Crouton in ViewGroup is it has been supplied
-      if (null != crouton.getViewGroup()) {
-        // TODO implement add to last position feature (need to align with how this will be requested for activity)
-        if (crouton.getViewGroup() instanceof FrameLayout) {
-          crouton.getViewGroup().addView(croutonView, params);
-        } else {
-          crouton.getViewGroup().addView(croutonView, 0, params);
-        }
-      } else {
-        Activity activity = crouton.getActivity();
-        if (null == activity || activity.isFinishing()) {
-          return;
-        }
-        activity.addContentView(croutonView, params);
-      }
-    }
+					// remove the crouton from the queue
+					croutonIterator.remove();
+				}
+			}
+		}
+	}
 
-    croutonView.requestLayout(); // This is needed so the animation can use the measured with/height
-    croutonView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-      @Override
-      public void onGlobalLayout() {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
-          croutonView.getViewTreeObserver().removeGlobalOnLayoutListener(this);
-        } else {
-          croutonView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-        }
+	/** Displays the next {@link Crouton} within the queue. */
+	private void displayCrouton() {
+		if (this.croutonQueue.isEmpty()) {
+			return;
+		}
 
-        croutonView.startAnimation(crouton.getInAnimation());
-        announceForAccessibilityCompat(crouton.getActivity(), crouton.getText());
-        if (Configuration.DURATION_INFINITE != crouton.getConfiguration().durationInMilliseconds) {
-          sendMessageDelayed(crouton, Messages.REMOVE_CROUTON,
-            crouton.getConfiguration().durationInMilliseconds + crouton.getInAnimation().getDuration());
-        }
-      }
-    });
-  }
+		// First peek whether the Crouton has an activity.
+		final Crouton currentCrouton = this.croutonQueue.peek();
 
-  /**
-   * Removes the {@link Crouton}'s view after it's display
-   * durationInMilliseconds.
-   *
-   * @param crouton
-   *   The {@link Crouton} added to a {@link ViewGroup} and should be
-   *   removed.
-   */
-  protected void removeCrouton(Crouton crouton) {
-    View croutonView = crouton.getView();
-    ViewGroup croutonParentView = (ViewGroup) croutonView.getParent();
+		// If the activity is null we poll the Crouton off the queue.
+		if (null == currentCrouton.getActivity()) {
+			this.croutonQueue.poll();
+		}
 
-    if (null != croutonParentView) {
-      croutonView.startAnimation(crouton.getOutAnimation());
+		if (!currentCrouton.isShowing()) {
+			// Display the Crouton
+			this.sendMessage(currentCrouton, Messages.ADD_CROUTON_TO_VIEW);
+			if (null != currentCrouton.getLifecycleCallback()) {
+				currentCrouton.getLifecycleCallback().onDisplayed();
+			}
+		} else {
+			this.sendMessageDelayed(currentCrouton, Messages.DISPLAY_CROUTON, this.calculateCroutonDuration(currentCrouton));
+		}
+	}
 
-      // Remove the Crouton from the queue.
-      Crouton removed = croutonQueue.poll();
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see android.os.Handler#handleMessage(android.os.Message)
+	 */
+	@Override
+	public void handleMessage(final Message message) {
+		final Crouton crouton = (Crouton) message.obj;
 
-      // Remove the crouton from the view's parent.
-      croutonParentView.removeView(croutonView);
-      if (null != removed) {
-        removed.detachActivity();
-        removed.detachViewGroup();
-        if (null != removed.getLifecycleCallback()) {
-          removed.getLifecycleCallback().onRemoved();
-        }
-        removed.detachLifecycleCallback();
-      }
+		switch (message.what) {
+			case Messages.DISPLAY_CROUTON: {
+				this.displayCrouton();
+				break;
+			}
 
-      // Send a message to display the next crouton but delay it by the out
-      // animation duration to make sure it finishes
-      sendMessageDelayed(crouton, Messages.DISPLAY_CROUTON, crouton.getOutAnimation().getDuration());
-    }
-  }
+			case Messages.ADD_CROUTON_TO_VIEW: {
+				this.addCroutonToView(crouton);
+				break;
+			}
 
-  /**
-   * Removes a {@link Crouton} immediately, even when it's currently being
-   * displayed.
-   *
-   * @param crouton
-   *   The {@link Crouton} that should be removed.
-   */
-  void removeCroutonImmediately(Crouton crouton) {
-    // if Crouton has already been displayed then it may not be in the queue (because it was popped).
-    // This ensures the displayed Crouton is removed from its parent immediately, whether another instance
-    // of it exists in the queue or not.
-    // Note: crouton.isShowing() is false here even if it really is showing, as croutonView object in
-    // Crouton seems to be out of sync with reality!
-    if (null != crouton.getActivity() && null != crouton.getView() && null != crouton.getView().getParent()) {
-      ((ViewGroup) crouton.getView().getParent()).removeView(crouton.getView());
+			case Messages.REMOVE_CROUTON: {
+				this.removeCrouton(crouton);
+				if (null != crouton.getLifecycleCallback()) {
+					crouton.getLifecycleCallback().onRemoved();
+				}
+				break;
+			}
 
-      // remove any messages pending for the crouton
-      removeAllMessagesForCrouton(crouton);
-    }
-    // remove any matching croutons from queue
-    if (null != croutonQueue) {
-      final Iterator<Crouton> croutonIterator = croutonQueue.iterator();
-      while (croutonIterator.hasNext()) {
-        final Crouton c = croutonIterator.next();
-        if (c.equals(crouton) && (null != c.getActivity())) {
-          // remove the crouton from the content view
-          if (crouton.isShowing()) {
-            ((ViewGroup) c.getView().getParent()).removeView(c.getView());
-          }
+			default: {
+				super.handleMessage(message);
+				break;
+			}
+		}
+	}
 
-          // remove any messages pending for the crouton
-          removeAllMessagesForCrouton(c);
+	private void removeAllMessages() {
+		this.removeMessages(Messages.ADD_CROUTON_TO_VIEW);
+		this.removeMessages(Messages.DISPLAY_CROUTON);
+		this.removeMessages(Messages.REMOVE_CROUTON);
+	}
 
-          // remove the crouton from the queue
-          croutonIterator.remove();
+	private void removeAllMessagesForCrouton(final Crouton crouton) {
+		this.removeMessages(Messages.ADD_CROUTON_TO_VIEW, crouton);
+		this.removeMessages(Messages.DISPLAY_CROUTON, crouton);
+		this.removeMessages(Messages.REMOVE_CROUTON, crouton);
 
-          // we have found our crouton so just break
-          break;
-        }
-      }
-    }
-  }
+	}
 
-  /** Removes all {@link Crouton}s from the queue. */
-  void clearCroutonQueue() {
-    removeAllMessages();
+	/**
+	 * Removes the {@link Crouton}'s view after it's display
+	 * durationInMilliseconds.
+	 *
+	 * @param crouton
+	 *   The {@link Crouton} added to a {@link ViewGroup} and should be
+	 *   removed.
+	 */
+	protected void removeCrouton(final Crouton crouton) {
+		final View croutonView = crouton.getView();
+		final ViewGroup croutonParentView = (ViewGroup) croutonView.getParent();
 
-    if (null != croutonQueue) {
-      // remove any views that may already have been added to the activity's
-      // content view
-      for (Crouton crouton : croutonQueue) {
-        if (crouton.isShowing()) {
-          ((ViewGroup) crouton.getView().getParent()).removeView(crouton.getView());
-        }
-      }
-      croutonQueue.clear();
-    }
-  }
+		if (null != croutonParentView) {
+			croutonView.startAnimation(crouton.getOutAnimation());
 
-  /**
-   * Removes all {@link Crouton}s for the provided activity. This will remove
-   * crouton from {@link Activity}s content view immediately.
-   */
-  void clearCroutonsForActivity(Activity activity) {
-    if (null != croutonQueue) {
-      Iterator<Crouton> croutonIterator = croutonQueue.iterator();
-      while (croutonIterator.hasNext()) {
-        Crouton crouton = croutonIterator.next();
-        if ((null != crouton.getActivity()) && crouton.getActivity().equals(activity)) {
-          // remove the crouton from the content view
-          if (crouton.isShowing()) {
-            ((ViewGroup) crouton.getView().getParent()).removeView(crouton.getView());
-          }
+			// Remove the Crouton from the queue.
+			final Crouton removed = this.croutonQueue.poll();
 
-          removeAllMessagesForCrouton(crouton);
+			// Remove the crouton from the view's parent.
+			croutonParentView.removeView(croutonView);
+			if (null != removed) {
+				removed.detachActivity();
+				removed.detachViewGroup();
+				if (null != removed.getLifecycleCallback()) {
+					removed.getLifecycleCallback().onRemoved();
+				}
+				removed.detachLifecycleCallback();
+			}
 
-          // remove the crouton from the queue
-          croutonIterator.remove();
-        }
-      }
-    }
-  }
+			// Send a message to display the next crouton but delay it by the out
+			// animation duration to make sure it finishes
+			this.sendMessageDelayed(crouton, Messages.DISPLAY_CROUTON, crouton.getOutAnimation().getDuration());
+		}
+	}
 
-  private void removeAllMessages() {
-    removeMessages(Messages.ADD_CROUTON_TO_VIEW);
-    removeMessages(Messages.DISPLAY_CROUTON);
-    removeMessages(Messages.REMOVE_CROUTON);
-  }
+	/**
+	 * Removes a {@link Crouton} immediately, even when it's currently being
+	 * displayed.
+	 *
+	 * @param crouton
+	 *   The {@link Crouton} that should be removed.
+	 */
+	void removeCroutonImmediately(final Crouton crouton) {
+		// if Crouton has already been displayed then it may not be in the queue (because it was popped).
+		// This ensures the displayed Crouton is removed from its parent immediately, whether another instance
+		// of it exists in the queue or not.
+		// Note: crouton.isShowing() is false here even if it really is showing, as croutonView object in
+		// Crouton seems to be out of sync with reality!
+		if ((null != crouton.getActivity()) && (null != crouton.getView()) && (null != crouton.getView().getParent())) {
+			((ViewGroup) crouton.getView().getParent()).removeView(crouton.getView());
 
-  private void removeAllMessagesForCrouton(Crouton crouton) {
-    removeMessages(Messages.ADD_CROUTON_TO_VIEW, crouton);
-    removeMessages(Messages.DISPLAY_CROUTON, crouton);
-    removeMessages(Messages.REMOVE_CROUTON, crouton);
+			// remove any messages pending for the crouton
+			this.removeAllMessagesForCrouton(crouton);
+		}
+		// remove any matching croutons from queue
+		if (null != this.croutonQueue) {
+			final Iterator<Crouton> croutonIterator = this.croutonQueue.iterator();
+			while (croutonIterator.hasNext()) {
+				final Crouton c = croutonIterator.next();
+				if (c.equals(crouton) && (null != c.getActivity())) {
+					// remove the crouton from the content view
+					if (crouton.isShowing()) {
+						((ViewGroup) c.getView().getParent()).removeView(c.getView());
+					}
 
-  }
+					// remove any messages pending for the crouton
+					this.removeAllMessagesForCrouton(c);
 
-  /**
-   * Generates and dispatches an SDK-specific spoken announcement.
-   * <p>
-   * For backwards compatibility, we're constructing an event from scratch
-   * using the appropriate event type. If your application only targets SDK
-   * 16+, you can just call View.announceForAccessibility(CharSequence).
-   * </p>
-   * <p/>
-   * note: AccessibilityManager is only available from API lvl 4.
-   * <p/>
-   * Adapted from https://http://eyes-free.googlecode.com/files/accessibility_codelab_demos_v2_src.zip
-   * via https://github.com/coreform/android-formidable-validation
-   *
-   * @param context
-   *   Used to get {@link AccessibilityManager}
-   * @param text
-   *   The text to announce.
-   */
-  public static void announceForAccessibilityCompat(Context context, CharSequence text) {
-    if (Build.VERSION.SDK_INT >= 4) {
-      AccessibilityManager accessibilityManager = (AccessibilityManager) context.getSystemService(
-        Context.ACCESSIBILITY_SERVICE);
-      if (!accessibilityManager.isEnabled()) {
-        return;
-      }
+					// remove the crouton from the queue
+					croutonIterator.remove();
 
-      // Prior to SDK 16, announcements could only be made through FOCUSED
-      // events. Jelly Bean (SDK 16) added support for speaking text verbatim
-      // using the ANNOUNCEMENT event type.
-      final int eventType;
-      if (Build.VERSION.SDK_INT < 16) {
-        eventType = AccessibilityEvent.TYPE_VIEW_FOCUSED;
-      } else {
-        eventType = AccessibilityEventCompat.TYPE_ANNOUNCEMENT;
-      }
+					// we have found our crouton so just break
+					break;
+				}
+			}
+		}
+	}
 
-      // Construct an accessibility event with the minimum recommended
-      // attributes. An event without a class name or package may be dropped.
-      final AccessibilityEvent event = AccessibilityEvent.obtain(eventType);
-      event.getText().add(text);
-      event.setClassName(Manager.class.getName());
-      event.setPackageName(context.getPackageName());
+	/**
+	 * Sends a {@link Crouton} within a {@link Message}.
+	 *
+	 * @param crouton
+	 *   The {@link Crouton} that should be sent.
+	 * @param messageId
+	 *   The {@link Message} id.
+	 */
+	private void sendMessage(final Crouton crouton, final int messageId) {
+		final Message message = this.obtainMessage(messageId);
+		message.obj = crouton;
+		this.sendMessage(message);
+	}
 
-      // Sends the event directly through the accessibility manager. If your
-      // application only targets SDK 14+, you should just call
-      // getParent().requestSendAccessibilityEvent(this, event);
-      accessibilityManager.sendAccessibilityEvent(event);
-    }
-  }
+	/**
+	 * Sends a {@link Crouton} within a delayed {@link Message}.
+	 *
+	 * @param crouton
+	 *   The {@link Crouton} that should be sent.
+	 * @param messageId
+	 *   The {@link Message} id.
+	 * @param delay
+	 *   The delay in milliseconds.
+	 */
+	private void sendMessageDelayed(final Crouton crouton, final int messageId, final long delay) {
+		final Message message = this.obtainMessage(messageId);
+		message.obj = crouton;
+		this.sendMessageDelayed(message, delay);
+	}
 
-  @Override
-  public String toString() {
-    return "Manager{" +
-      "croutonQueue=" + croutonQueue +
-      '}';
-  }
+	@Override
+	public String toString() {
+		return "Manager{" +
+				"croutonQueue=" + this.croutonQueue +
+				'}';
+	}
 }
