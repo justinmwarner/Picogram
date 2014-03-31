@@ -425,31 +425,40 @@ public class PreGameFragment extends Fragment implements OnClickListener, OnItem
 			.setContentDeepLinkId(this.current.getID())
 			.getIntent();
 			this.startActivityForResult(shareIntent, 0);
-		}
-		else
-		{
-			if (v instanceof Button)
+		}else if (v.getId() == R.id.bComment){
+
+			if (!Util.getPreferences(this.getActivity()).getBoolean("hasLoggedInSuccessfully", false))
 			{
-				final Button b = (Button) v;
-				if (b.getText().toString().startsWith("Comment")) {
-					// Making a comment to server based on ID.
-					Log.d(TAG, "Commenting");
-					final PicogramComment pc = new PicogramComment();
-					final EditText etComment = ((EditText) this.getActivity().findViewById(
-							R.id.etComment));
-					pc.setPuzzleId("" + this.current.getID());
-					pc.setAuthor(Util.id(this.getActivity()));
-					pc.setComment(etComment
-							.getText().toString());
-					if (pc.getComment().isEmpty())
-					{
-						return;
-					}
-					pc.save();
-					this.loadComments();
-					// TODO Check if a comment has already been made by this user for this puzzle. This will prevent spam somewhat.
-					etComment.setText(""); // Reset it.
+				// Have not logged in. Start Log in Activity.
+				final Intent loginIntent = new Intent(this.getActivity(), LoginActivity.class);
+
+				if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+					final ActivityOptions opts = ActivityOptions.makeCustomAnimation(
+							this.getActivity(), R.anim.fadein, R.anim.fadeout);
+					this.getActivity().startActivity(loginIntent, opts.toBundle());
 				}
+				else
+				{
+					this.getActivity().startActivity(loginIntent);
+				}
+			} else {
+				// Making a comment to server based on ID.
+				Log.d(TAG, "Commenting");
+				final PicogramComment pc = new PicogramComment();
+				final EditText etComment = ((EditText) this.getActivity().findViewById(
+						R.id.etComment));
+				pc.setPuzzleId("" + this.current.getID());
+				pc.setAuthor(Util.id(this.getActivity()));
+				pc.setComment(etComment
+						.getText().toString());
+				if (pc.getComment().isEmpty())
+				{
+					return;
+				}
+				pc.save();
+				this.loadComments();
+				// TODO Check if a comment has already been made by this user for this puzzle. This will prevent spam somewhat.
+				etComment.setText(""); // Reset it.
 			}
 		}
 		sql.close();
@@ -596,7 +605,6 @@ public class PreGameFragment extends Fragment implements OnClickListener, OnItem
 	public void onItemClick(final AdapterView<?> parent, final View view, final int pos, final long id) {
 		// If it's not the authors comment, flag. If it is, delete.
 		final PicogramComment pc = this.comments.getItem(pos);
-		Log.d(TAG, "Comment : " + pc.getComment());
 		if (pc.getAuthor().equals(Util.id(this.getActivity())))
 		{
 			// Theirs, delete prompt.

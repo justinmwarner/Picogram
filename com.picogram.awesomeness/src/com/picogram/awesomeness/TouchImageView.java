@@ -308,7 +308,7 @@ OnDoubleTapListener {
 	 *            (float): Maximum allowed width.
 	 * @return (int): The desired text size.
 	 */
-	private int determineMaxTextSize(final String str, final float maxWidth  ) {
+	private int determineMaxTextSize(final String str, final float maxWidth) {
 		int size = 0;
 		final Paint paint = new Paint();
 		if (str.isEmpty()) {
@@ -824,12 +824,12 @@ OnDoubleTapListener {
 	public boolean onDoubleTap(final MotionEvent e) {
 		final Vibrator v = (Vibrator) this.context
 				.getSystemService(Context.VIBRATOR_SERVICE);
-		v.vibrate(100);
-		if (((View) this.getParent()).findViewById(R.id.ibTools) == null)
-		{
-			((View) this.getParent()).findViewById(R.id.bToolbox).performClick();
-		} else {
+		if (((View) this.getParent()).findViewById(R.id.ibTools) != null) {
+			v.vibrate(100);
 			((View) this.getParent()).findViewById(R.id.ibTools).performClick();
+		} else if (((View) this.getParent()).findViewById(R.id.bToolbox) != null) {
+			v.vibrate(100);
+			((View) this.getParent()).findViewById(R.id.bToolbox).performClick();
 		}
 		return true;
 	}
@@ -914,8 +914,13 @@ OnDoubleTapListener {
 	public void onLongPress(final MotionEvent e) {
 		final Vibrator v = (Vibrator) this.context
 				.getSystemService(Context.VIBRATOR_SERVICE);
-		v.vibrate(100);
-		((View) this.getParent()).findViewById(R.id.ibTools).performClick();
+		if (((View) this.getParent()).findViewById(R.id.ibTools) != null) {
+			v.vibrate(100);
+			((View) this.getParent()).findViewById(R.id.ibTools).performClick();
+		} else if (((View) this.getParent()).findViewById(R.id.bToolbox) != null) {
+			v.vibrate(100);
+			((View) this.getParent()).findViewById(R.id.bToolbox).performClick();
+		}
 	}
 
 	@Override

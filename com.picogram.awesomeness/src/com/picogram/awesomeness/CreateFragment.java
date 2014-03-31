@@ -236,8 +236,8 @@ public class CreateFragment extends Fragment implements OnClickListener, OnRange
 	@Override
 	public View onCreateView(final LayoutInflater inflater, final ViewGroup container,
 			final Bundle savedInstanceState) {
-		final LayoutParams params = new LayoutParams(LayoutParams.MATCH_PARENT,
-				LayoutParams.MATCH_PARENT);
+		final LayoutParams params = new LayoutParams(android.view.ViewGroup.LayoutParams.MATCH_PARENT,
+				android.view.ViewGroup.LayoutParams.MATCH_PARENT);
 
 		final FrameLayout fl = new FrameLayout(this.getActivity());
 		fl.setLayoutParams(params);

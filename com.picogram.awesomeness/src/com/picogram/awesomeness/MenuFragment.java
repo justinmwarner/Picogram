@@ -20,6 +20,7 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
@@ -731,7 +732,7 @@ OnItemClickListener, OnItemLongClickListener {
 		v.setDivider(new ColorDrawable(Color.parseColor("#00000000")));
 		v.setSelector(this.getActivity().getResources().getDrawable(R.drawable.listview_selector));
 		v.setDividerHeight(20);
-		v.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
+		v.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
 		v.setItemsCanFocus(true);
 		params.setMargins(margin, margin, margin, margin);
 		v.setLayoutParams(params);

@@ -26,7 +26,7 @@ import de.keyboardsurfer.android.widget.crouton.Style;
 import de.psdev.licensesdialog.LicensesDialog;
 
 public class SettingsActivity extends SherlockPreferenceActivity implements
-		OnPreferenceChangeListener, OnPreferenceClickListener, GooglePlayServicesClient.ConnectionCallbacks, GooglePlayServicesClient.OnConnectionFailedListener {
+OnPreferenceChangeListener, OnPreferenceClickListener, GooglePlayServicesClient.ConnectionCallbacks, GooglePlayServicesClient.OnConnectionFailedListener {
 	private static final String TAG = "SettingsActivity";
 	SharedPreferences prefs;
 	boolean continueMusic = true;

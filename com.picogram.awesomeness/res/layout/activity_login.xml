@@ -1,8 +1,60 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     tools:context="com.picogram.awesomeness.LoginActivity"
-    tools:ignore="MergeRootFrame" />
+    tools:ignore="MergeRootFrame" >
 
+    <AutoCompleteTextView
+        android:id="@+id/actvUsername"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:hint="Username" >
+
+        <requestFocus />
+    </AutoCompleteTextView>
+
+    <Button
+        android:id="@+id/bLogin"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/light_yellow"
+        android:text="Log in with Username"
+        android:textColor="@color/special" />
+
+    <TextView
+        android:id="@+id/textView1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_margin="20dp"
+        android:text="-    -    or    -    -" />
+
+    <Button
+        android:id="@+id/bFacebookLogin"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#3B5998"
+        android:text="Log in with Facebook"
+        android:textColor="#FFF" />
+
+    <Button
+        android:id="@+id/bGoogleLogin"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#d34836"
+        android:text="Log in with Google Plus"
+        android:textColor="#d2d2d2" />
+
+    <TextView
+        android:id="@+id/textView2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="20dp"
+        android:text="We only require a username.\nMultiple users can use the same username.\nIf your name is Jon Doe on Facebook or Google Plus, your username becomes JoDo.\n\nWe use it for comments, highscores, and future features.\n\nPasswords may be required in a later time though."
+        android:textColor="@color/good" />
+
+</LinearLayout>

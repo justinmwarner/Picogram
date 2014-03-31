@@ -23,7 +23,6 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -51,8 +50,6 @@ import com.flurry.android.FlurryAgent;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient.ConnectionCallbacks;
 import com.google.android.gms.common.GooglePlayServicesClient.OnConnectionFailedListener;
-import com.google.android.gms.games.GamesClient;
-import com.google.android.gms.games.Player;
 import com.google.example.games.basegameutils.BaseGameActivity;
 import com.kopfgeldjaeger.ratememaybe.RateMeMaybe;
 import com.kopfgeldjaeger.ratememaybe.RateMeMaybe.OnRMMUserChoiceListener;
@@ -121,8 +118,6 @@ FlurryAdListener, OnPageChangeListener, OnClickListener, OnRMMUserChoiceListener
 	static PicogramListAdapter lvAdapter;
 	SQLitePicogramAdapter sql = null;
 	boolean continueMusic = true;
-	GamesClient client;
-
 	Dialog dialog;
 
 	SearchView mSearchView;
@@ -276,8 +271,9 @@ FlurryAdListener, OnPageChangeListener, OnClickListener, OnRMMUserChoiceListener
 		// Google Sign-in stuff.
 		if (!this.isSignedIn())
 		{
+			Crouton.makeText(this, "You're not logged in.  Click here to login.", Style.INFO).show();
 			// Ask user to login if they haven't before.
-			this.showSignInDialog();
+			// this.showSignInDialog();
 		}
 
 		// Show beta.
@@ -379,8 +375,16 @@ FlurryAdListener, OnPageChangeListener, OnClickListener, OnRMMUserChoiceListener
 				break;
 
 			case R.id.menuLogin:
-				Toast.makeText(this.getBaseContext(), "You selected Login", Toast.LENGTH_SHORT).show();
-				this.showSignInDialog();
+				final Intent loginIntent = new Intent(this, LoginActivity.class);
+				if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+					final ActivityOptions opts = ActivityOptions.makeCustomAnimation(
+							this, R.anim.fadein, R.anim.fadeout);
+					this.startActivityForResult(loginIntent, PREFERENCES_CODE, opts.toBundle());
+				}
+				else
+				{
+					this.startActivityForResult(loginIntent, PREFERENCES_CODE);
+				}
 				break;
 
 			case R.id.menuPrefs:
@@ -475,16 +479,9 @@ FlurryAdListener, OnPageChangeListener, OnClickListener, OnRMMUserChoiceListener
 	}
 
 	public void onSignInFailed() {
-		Crouton.makeText(this, "Sign in failed. Try again next time.", Style.ALERT).show();
-		this.dialog.show();
 	}
 
 	public void onSignInSucceeded() {
-		final Player p = this.getGamesClient().getCurrentPlayer();
-		this.dialog.hide();
-		Log.d(TAG, p.getDisplayName() + " " + p.toString());
-		// Add to preferences that user has logged in successfully.
-		Util.getPreferences(this).edit().putBoolean("hasLoggedInSuccessfully", true).commit();
 	}
 
 	protected void onSkipSignIn() {
@@ -738,4 +735,5 @@ FlurryAdListener, OnPageChangeListener, OnClickListener, OnRMMUserChoiceListener
 		}
 		this.adapter.frag[this.currentTab].myAdapter.notifyDataSetChanged();
 	}
+
 }
