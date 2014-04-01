@@ -16,19 +16,12 @@
         android:id="@+id/cmactv"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/tvTags"
+        android:layout_alignParentBottom="true"
         android:layout_alignParentLeft="true"
         android:layout_toLeftOf="@+id/bSubmit"
         android:ems="10"
-        android:hint="Type Tags Here" />
-
-    <TextView
-        android:id="@+id/tvTags"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentRight="true" />
+        android:hint="Type Tags Here"
+        android:singleLine="true" />
 
     <Spinner
         android:id="@+id/spinDifficulty"
@@ -45,7 +38,9 @@
         android:layout_above="@+id/spinDifficulty"
         android:layout_alignParentLeft="true"
         android:ems="10"
-        android:hint="Picogram Name" >
+        android:hint="Picogram Name"
+        android:imeOptions="actionNext"
+        android:singleLine="true" >
 
         <requestFocus />
     </EditText>

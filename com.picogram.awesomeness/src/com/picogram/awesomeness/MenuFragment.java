@@ -327,6 +327,7 @@ OnItemClickListener, OnItemLongClickListener {
 		this.myAdapter.clear();
 		ParseQuery<ParseObject> query = ParseQuery.getQuery("PicogramTag");
 		query.whereEqualTo("tag", tag.trim().toLowerCase());
+		Log.d(TAG, "puzzles   : " + tag);
 		List<ParseObject> queryResult = null;
 		try {
 			queryResult = query.find();
@@ -335,6 +336,7 @@ OnItemClickListener, OnItemLongClickListener {
 		}
 		Log.d(TAG, "PuzzleIds here");
 		if (queryResult != null) {
+			Log.d(TAG, "puzzles : " + queryResult.size());
 			final String ids[] = new String[queryResult.size()];
 			for (int i = 0; i != queryResult.size(); ++i) {
 				ids[i] = queryResult.get(i).getString("puzzleId");
@@ -367,6 +369,7 @@ OnItemClickListener, OnItemLongClickListener {
 				public void done(final List<ParseObject> result, final ParseException e) {
 					if (e == null)
 					{
+						Log.d(TAG, "Got puzzles : " + result.size());
 						for (final ParseObject po : result)
 						{
 							MenuFragment.this.myAdapter.add(new Picogram(po));

@@ -1,4 +1,3 @@
-
 package com.picogram.awesomeness;
 
 import android.annotation.SuppressLint;
@@ -599,7 +598,8 @@ FlurryAdListener, OnPageChangeListener, OnClickListener, OnRMMUserChoiceListener
 				MenuActivity.this.mSearchView.setOnSuggestionListener(new OnSuggestionListener() {
 
 					public boolean onSuggestionClick(final int position) {
-						MenuActivity.this.mSearchView.setQuery(array[position], true);
+						cursor.moveToPosition(position);
+						MenuActivity.this.mSearchView.setQuery(cursor.getString(cursor.getColumnIndex("text")), true);
 						return true;
 					}
 
@@ -615,6 +615,7 @@ FlurryAdListener, OnPageChangeListener, OnClickListener, OnRMMUserChoiceListener
 				final SQLiteTagAdapter tagSql = new SQLiteTagAdapter(MenuActivity.this, "Tags", null, 1);
 				tagSql.insertCreate(query);
 				tagSql.close();
+				Log.d(TAG, "puzzles query : " + query);
 				MenuActivity.this.adapter.frag[MenuActivity.this.currentTab].getTagPuzzles(
 						MenuActivity.this.adapter.frag[MenuActivity.this.currentTab].getActivity(), query);
 				MenuActivity.this.mSearchView.clearFocus();
