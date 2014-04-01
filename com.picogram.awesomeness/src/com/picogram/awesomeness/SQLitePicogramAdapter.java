@@ -311,6 +311,7 @@ public class SQLitePicogramAdapter extends SQLiteOpenHelper {
 		db.insert(PicogramTable, null, cv);
 	}
 
+
 	@Override
 	public void onCreate(final SQLiteDatabase db) {
 		// Create the database son.
@@ -323,7 +324,6 @@ public class SQLitePicogramAdapter extends SQLiteOpenHelper {
 		db.execSQL(query);
 		this.insertDefaults(db);
 	}
-
 
 	@Override
 	public void onUpgrade(final SQLiteDatabase db, final int oldV,

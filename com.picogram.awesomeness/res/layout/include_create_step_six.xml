@@ -12,13 +12,13 @@
         android:layout_alignParentRight="true"
         android:layout_alignParentTop="true" />
 
-    <MultiAutoCompleteTextView
-        android:id="@+id/mactvTags"
+    <com.picogram.awesomeness.ChipsMultiAutoCompleteTextview
+        android:id="@+id/cmactv"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_above="@+id/tvTags"
         android:layout_alignParentLeft="true"
-        android:layout_toLeftOf="@+id/bToolbox"
+        android:layout_toLeftOf="@+id/bSubmit"
         android:ems="10"
         android:hint="Type Tags Here" />
 
@@ -34,7 +34,7 @@
         android:id="@+id/spinDifficulty"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/mactvTags"
+        android:layout_above="@+id/cmactv"
         android:layout_alignParentLeft="true"
         android:entries="@array/listDifficulties" />
 

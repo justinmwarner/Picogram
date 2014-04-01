@@ -1,12 +1,18 @@
 
 package com.picogram.awesomeness;
 
+import android.util.Log;
+
 import com.parse.ParseObject;
 
-
-public class PicogramTag  {
+public class PicogramTag {
+	private static final String TAG = "PicogramTag";
 	private String id;
 	private String tag;
+
+	PicogramTag() {
+		this.id = this.tag = null;
+	}
 
 	public PicogramTag(final String tag) {
 		this.setTag(tag.toLowerCase());
@@ -20,7 +26,17 @@ public class PicogramTag  {
 		return this.tag;
 	}
 
-	public void save(){
+	public void save() {
+		if ((this.id == null) || (this.tag == null))
+		{
+			try {
+				throw new Exception("ID or TAG is null " + (this.id == null) + " " + (this.tag == null));
+			} catch (final Exception e)
+			{
+				Log.d(TAG, "Error saving tag: " + e);
+			}
+			return;
+		}
 		final ParseObject po = new ParseObject("PicogramTag");
 		po.put("puzzleId", this.id);
 		po.put("tag", this.tag);

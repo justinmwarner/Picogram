@@ -71,7 +71,6 @@ public class CreateActivity extends SherlockFragmentActivity implements ActionBa
 	}
 
 	private static final String TAG = "MultiStepCreateActivity";
-
 	private static final int CAMERA_REQUEST = 1337, FILE_SELECT_CODE = 8008;
 
 	final ArrayList<String> TITLES = new ArrayList<String>(Arrays.asList(new String[] {
@@ -81,6 +80,7 @@ public class CreateActivity extends SherlockFragmentActivity implements ActionBa
 	private PagerSlidingTabStrip tabs;
 
 	private ViewPager pager;
+
 	private MyPagerAdapter adapter;
 	Handler handler;
 	Bitmap bmCropped, bmInitial;
@@ -93,7 +93,6 @@ public class CreateActivity extends SherlockFragmentActivity implements ActionBa
 			Color.DKGRAY, Color.LTGRAY, Color.WHITE
 	};
 	int newColors[] = this.originalColors;
-
 	protected Bundle alterPhoto() {
 		this.updateValuesFromFragments();
 		if (this.width == 0) {
@@ -356,19 +355,14 @@ public class CreateActivity extends SherlockFragmentActivity implements ActionBa
 	@Override
 	public boolean onOptionsItemSelected(final MenuItem item) {
 
-		if (item.getItemId() == android.R.id.home)
-		{
-			if (this.pager.getCurrentItem() == this.TITLES.indexOf("Picture"))
-			{
-				this.finish();
-			}
-			else {
-				this.pager.setCurrentItem(this.TITLES.indexOf("Picture"));
-			}
-			return true;
-		}
+		super.onOptionsItemSelected(item);
 
-		return super.onOptionsItemSelected(item);
+		switch (item.getItemId()) {
+			case android.R.id.home:
+				this.pager.setCurrentItem(this.TITLES.indexOf("Picture"));
+				break;
+		}
+		return true;
 	}
 
 	public void onPageScrolled(final int arg0, final float arg1, final int arg2) {

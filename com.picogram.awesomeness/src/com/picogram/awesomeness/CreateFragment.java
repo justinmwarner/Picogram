@@ -15,12 +15,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.LinearLayout;
 import android.widget.FrameLayout;
 import android.widget.FrameLayout.LayoutParams;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.MultiAutoCompleteTextView;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -57,7 +58,7 @@ public class CreateFragment extends Fragment implements OnClickListener, OnRange
 	TouchImageView tivGameOne, tivGameTwo, tivGameThree, tivGameFour;
 	EditText etName;
 	Spinner spinDifficulty;
-	MultiAutoCompleteTextView autoTags;
+	ChipsMultiAutoCompleteTextview autoTags;
 	int selectedColor, width = 3, height = 3, numColor = 2;
 	RangeBar rangeColor;
 	Bitmap original;
@@ -76,7 +77,6 @@ public class CreateFragment extends Fragment implements OnClickListener, OnRange
 		switch (v.getId())
 		{
 			case R.id.bSubmit:
-				Log.d(TAG, "DONE");
 				final Picogram p = new Picogram();
 				p.setAuthor(Util.id(this.getActivity()));
 				String cols = "";
@@ -98,6 +98,18 @@ public class CreateFragment extends Fragment implements OnClickListener, OnRange
 				final SQLitePicogramAdapter sql = new SQLitePicogramAdapter(this.getActivity(), "Picograms", null, 1);
 				sql.addUserPicogram(p);
 				sql.close();
+				final SQLiteTagAdapter tagSql = new SQLiteTagAdapter(this.getActivity(), "Tags", null, 1);
+				for (final String tag : this.autoTags.getText().toString().split(",")) {
+					if (tag.trim().length() != 0)
+					{
+						tagSql.insertCreate(tag.trim());
+						final PicogramTag pt = new PicogramTag();
+						pt.setID(p.getID());
+						pt.setTag(tag.trim());
+						pt.save();
+					}
+				}
+				tagSql.close();
 				this.getActivity().finish();
 				break;
 			case R.id.bToolbox:
@@ -247,11 +259,13 @@ public class CreateFragment extends Fragment implements OnClickListener, OnRange
 			view = inflater.inflate(R.layout.include_create_step_six, null);
 			this.etName = (EditText) view.findViewById(R.id.etName);
 			this.spinDifficulty = (Spinner) view.findViewById(R.id.spinDifficulty);
-			this.autoTags = (MultiAutoCompleteTextView) view.findViewById(R.id.mactvTags);
+			this.autoTags = (ChipsMultiAutoCompleteTextview) view.findViewById(R.id.cmactv);
 			this.tvTags = (TextView) view.findViewById(R.id.tvTags);
 			this.tivGameFour = (TouchImageView) view.findViewById(R.id.tivGameFour);
 			this.bSubmit = (Button) view.findViewById(R.id.bSubmit);
 			this.bSubmit.setOnClickListener(this);
+			this.setupAutoTags();
+
 		} else if (this.position == 4)
 		{
 			view = inflater.inflate(R.layout.include_create_step_five, null);
@@ -337,6 +351,17 @@ public class CreateFragment extends Fragment implements OnClickListener, OnRange
 				});
 			}
 		}).start();
+	}
+
+	private void setupAutoTags() {
+
+		final SQLiteTagAdapter tagSql = new SQLiteTagAdapter(this.getActivity(), "Tags", null, 1);
+		final String[] array = tagSql.getTags();
+		tagSql.close();
+
+		this.autoTags.setAdapter(new ArrayAdapter<String>(this.getActivity(),
+				android.R.layout.simple_dropdown_item_1line, array));
+		this.autoTags.setTokenizer(new MultiAutoCompleteTextView.CommaTokenizer());
 	}
 
 	private void showNumberDialog(final int id) {
@@ -425,4 +450,5 @@ public class CreateFragment extends Fragment implements OnClickListener, OnRange
 			}
 		}
 	}
+
 }

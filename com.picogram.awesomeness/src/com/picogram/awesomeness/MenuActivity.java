@@ -6,12 +6,11 @@ import android.app.Activity;
 import android.app.ActivityOptions;
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.app.SearchManager;
-import android.app.SearchableInfo;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.MatrixCursor;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
@@ -23,6 +22,7 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
+import android.support.v4.widget.SimpleCursorAdapter;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
@@ -32,8 +32,6 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.Toast;
-
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.view.ActionMode;
 import com.actionbarsherlock.view.Menu;
@@ -41,6 +39,7 @@ import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.widget.SearchView;
 import com.actionbarsherlock.widget.SearchView.OnQueryTextListener;
+import com.actionbarsherlock.widget.SearchView.OnSuggestionListener;
 import com.astuetz.viewpager.extensions.PagerSlidingTabStrip;
 import com.crittercism.app.Crittercism;
 import com.flurry.android.FlurryAdListener;
@@ -62,7 +61,6 @@ import de.keyboardsurfer.android.widget.crouton.Style;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 public class MenuActivity extends BaseGameActivity implements
 FlurryAdListener, OnPageChangeListener, OnClickListener, OnRMMUserChoiceListener, ActionBar.OnNavigationListener, ConnectionCallbacks, OnConnectionFailedListener {
@@ -372,8 +370,23 @@ FlurryAdListener, OnPageChangeListener, OnClickListener, OnRMMUserChoiceListener
 		super.onOptionsItemSelected(item);
 
 		switch (item.getItemId()) {
+			case android.R.id.home:
+				this.pager.setCurrentItem(TITLES.indexOf("My"));
+				break;
 			case R.id.menuTutorial:
-				Toast.makeText(this.getBaseContext(), "You selected tutorial", Toast.LENGTH_SHORT).show();
+				final Bundle bundle = new Bundle();
+				final FragmentTransaction ft = this.getSupportFragmentManager()
+						.beginTransaction();
+				bundle.putInt("layoutId", R.layout.dialog_tutorial);
+				final DialogMaker newFragment = new DialogMaker();
+				newFragment.setArguments(bundle);
+				newFragment.setOnDialogResultListner(new OnDialogResultListener() {
+
+					public void onDialogResult(final Bundle result) {
+						// No results needed.
+					}
+				});
+				newFragment.show(ft, "dialog");
 				break;
 
 			case R.id.menuLogin:
@@ -402,10 +415,26 @@ FlurryAdListener, OnPageChangeListener, OnClickListener, OnRMMUserChoiceListener
 				}
 				break;
 			case R.id.menuFeedback:
-				Toast.makeText(this.getBaseContext(), "You selected feedback", Toast.LENGTH_SHORT).show();
-				break;
-			case android.R.id.home:
-				this.pager.setCurrentItem(TITLES.indexOf("My"));
+				final String email = "warner.73+Picogram@wright.edu";
+				final String subject = "Picogram - <SUBJECT>";
+				final String message = "Picogram,\n\n<MESSAGE>";
+				// Contact me.
+				final Intent emailIntent = new Intent(Intent.ACTION_SEND);
+				emailIntent.putExtra(Intent.EXTRA_EMAIL, new String[] {
+						email
+				});
+				emailIntent.putExtra(Intent.EXTRA_SUBJECT, subject);
+				emailIntent.putExtra(Intent.EXTRA_TEXT, message);
+				emailIntent.setType("message/rfc822");
+				if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+					final ActivityOptions opts = ActivityOptions.makeCustomAnimation(
+							this, R.anim.fadein, R.anim.fadeout);
+					this.startActivity(Intent.createChooser(emailIntent,
+							"Send Mail Using :"), opts.toBundle());
+				} else {
+					this.startActivity(Intent.createChooser(emailIntent,
+							"Send Mail Using :"));
+				}
 				break;
 		}
 		return true;
@@ -462,21 +491,6 @@ FlurryAdListener, OnPageChangeListener, OnClickListener, OnRMMUserChoiceListener
 		this.continueMusic = false;
 		MusicManager.start(this);
 
-		if (Util.getPreferences(this).getBoolean("isFirst", true)) {
-			final Bundle bundle = new Bundle();
-			final FragmentTransaction ft = this.getSupportFragmentManager()
-					.beginTransaction();
-			bundle.putInt("layoutId", R.layout.dialog_tutorial);
-			final DialogMaker newFragment = new DialogMaker();
-			newFragment.setArguments(bundle);
-			newFragment.setOnDialogResultListner(new OnDialogResultListener() {
-
-				public void onDialogResult(final Bundle result) {
-					// No results needed.
-				}
-			});
-			newFragment.show(ft, "dialog");
-		}
 		this.updateCurrentTab();
 	}
 
@@ -553,30 +567,54 @@ FlurryAdListener, OnPageChangeListener, OnClickListener, OnRMMUserChoiceListener
 		searchItem.setShowAsActionFlags(MenuItem.SHOW_AS_ACTION_IF_ROOM
 				| MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
 
-		final SearchManager searchManager = (SearchManager) this.getSystemService(Context.SEARCH_SERVICE);
-		if (searchManager != null) {
-			Log.d(TAG, "Search manager");
-			final List<SearchableInfo> searchables = searchManager.getSearchablesInGlobalSearch();
-
-			SearchableInfo info = searchManager.getSearchableInfo(this.getComponentName());
-			for (final SearchableInfo inf : searchables) {
-				Log.d(TAG, "Search inf: " + inf.getSuggestPackage().toString());
-				if ((inf.getSuggestAuthority() != null)
-						&& inf.getSuggestAuthority().startsWith("applications")) {
-					info = inf;
-				}
-			}
-			this.mSearchView.setSearchableInfo(info);
-		}
-
 		this.mSearchView.setOnQueryTextListener(new OnQueryTextListener() {
 
 			public boolean onQueryTextChange(final String newText) {
-				// TODO Auto-generated method stub
+				final String[] columnNames = {
+						"_id", "text"
+				};
+				final MatrixCursor cursor = new MatrixCursor(columnNames);
+				final SQLiteTagAdapter tagSql = new SQLiteTagAdapter(MenuActivity.this, "Tags", null, 1);
+				final String[] array = tagSql.getTags();
+				tagSql.close();
+				final String[] temp = new String[2];
+				int id = 0;
+				for (final String item : array) {
+					Log.d(TAG, "Adding " + item);
+					temp[0] = Integer.toString(id++);
+					temp[1] = item.toLowerCase();
+					if (item.toLowerCase().startsWith(newText.toLowerCase())) {
+						cursor.addRow(temp);
+					}
+				}
+				final String[] from = {
+						"text"
+				};
+
+				final int[] to = new int[] {
+						android.R.id.text1
+				};
+
+				MenuActivity.this.mSearchView.setSuggestionsAdapter(new SimpleCursorAdapter(MenuActivity.this, R.layout.sherlock_spinner_dropdown_item, cursor, from, to));
+				MenuActivity.this.mSearchView.setOnSuggestionListener(new OnSuggestionListener() {
+
+					public boolean onSuggestionClick(final int position) {
+						MenuActivity.this.mSearchView.setQuery(array[position], true);
+						return true;
+					}
+
+					public boolean onSuggestionSelect(final int position) {
+
+						return false;
+					}
+				});
 				return false;
 			}
 
 			public boolean onQueryTextSubmit(final String query) {
+				final SQLiteTagAdapter tagSql = new SQLiteTagAdapter(MenuActivity.this, "Tags", null, 1);
+				tagSql.insertCreate(query);
+				tagSql.close();
 				MenuActivity.this.adapter.frag[MenuActivity.this.currentTab].getTagPuzzles(
 						MenuActivity.this.adapter.frag[MenuActivity.this.currentTab].getActivity(), query);
 				MenuActivity.this.mSearchView.clearFocus();

@@ -20,6 +20,7 @@ import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.util.Log;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -135,7 +136,6 @@ public class PreGameActivity extends FragmentActivity implements OnPageChangeLis
 		}
 		return ret;
 	}
-
 	private char[][] getLineIn2D(final String line) {
 		final char[][] current2D = new char[this.height][this.width];
 		int run = 0;
@@ -301,6 +301,18 @@ public class PreGameActivity extends FragmentActivity implements OnPageChangeLis
 	public boolean onCreateOptionsMenu(final Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
 		this.getMenuInflater().inflate(R.menu.picogram_pre_game, menu);
+		return true;
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(final MenuItem item) {
+		super.onOptionsItemSelected(item);
+
+		switch (item.getItemId()) {
+			case android.R.id.home:
+				this.pager.setCurrentItem(this.TITLES.indexOf("Picture"));
+				break;
+		}
 		return true;
 	}
 
