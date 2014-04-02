@@ -31,6 +31,8 @@ import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
 
 import com.flurry.android.FlurryAgent;
+import com.github.tbouron.shakedetector.library.ShakeDetector;
+import com.github.tbouron.shakedetector.library.ShakeDetector.OnShakeListener;
 import com.picogram.awesomeness.DialogMaker.OnDialogResultListener;
 import com.picogram.awesomeness.TouchImageView.HistoryListener;
 import com.picogram.awesomeness.TouchImageView.WinnerListener;
@@ -369,6 +371,14 @@ OnSeekBarChangeListener {
 		final ImageButton tools = (ImageButton) this.findViewById(R.id.ibTools);
 		tools.setBackgroundColor(Color.WHITE);
 		tools.setOnClickListener(this);
+
+		ShakeDetector.create(this, new OnShakeListener() {
+
+			public void OnShake() {
+				// Prompt dialog.
+				tools.performClick();
+			}
+		});
 
 		// TODO Check for multiple solutions. If they exist tell the user as a
 		// heads up.

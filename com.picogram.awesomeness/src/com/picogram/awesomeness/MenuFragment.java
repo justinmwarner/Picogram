@@ -26,7 +26,6 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.FrameLayout;
 import android.widget.FrameLayout.LayoutParams;
-import android.widget.ListView;
 import android.widget.TextView;
 
 import com.flurry.android.FlurryAgent;
@@ -715,28 +714,33 @@ OnItemClickListener, OnItemLongClickListener {
 		final int margin = (int) TypedValue.applyDimension(
 				TypedValue.COMPLEX_UNIT_DIP, 8, this.getResources()
 				.getDisplayMetrics());
-		if (!Util.isOnline() && ((this.position != 0) || (this.position != 1)))
+		if (!Util.isOnline())
 		{
-			final TextView v = new TextView(this.getActivity());
-			params.setMargins(margin, margin, margin, margin);
-			v.setLayoutParams(params);
-			v.setLayoutParams(params);
-			v.setGravity(Gravity.CENTER);
-			v.setBackgroundResource(R.drawable.background_card);
-			v.setText("You're currently offline, and this functionality is online only.  We apologize.\nIf you think this is a mistake, please email us.");
+			if (this.position != 0) {
+				if (this.position != 1) {
+					final TextView v = new TextView(this.getActivity());
+					params.setMargins(margin, margin, margin, margin);
+					v.setLayoutParams(params);
+					v.setLayoutParams(params);
+					v.setGravity(Gravity.CENTER);
+					v.setBackgroundResource(R.drawable.background_card);
+					v.setText("You're currently offline, and this functionality is online only.  We apologize.\nIf you think this is a mistake, please email us.");
 
-			fl.addView(v);
-			return fl;
+					fl.addView(v);
+					return fl;
+				}
+			}
 		}
 		this.pbLoad.setVisibility(View.INVISIBLE);
-		final ListView v = new ListView(this.getActivity());
+		final BounceListView v = new BounceListView(this.getActivity());
 		fl.setBackgroundColor(Color.TRANSPARENT);
-		v.setBackgroundDrawable(this.getActivity().getResources().getDrawable(R.drawable.listview_selector));
+		v.setBackgroundDrawable(this.getActivity().getResources().getDrawable(R.drawable.item_selector_bad));
 		v.setDivider(new ColorDrawable(Color.parseColor("#00000000")));
-		v.setSelector(this.getActivity().getResources().getDrawable(R.drawable.listview_selector));
+		v.setSelector(this.getActivity().getResources().getDrawable(R.drawable.item_selector_bad));
 		v.setDividerHeight(20);
 		v.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
 		v.setItemsCanFocus(true);
+		v.setVerticalScrollBarEnabled(false);
 		params.setMargins(margin, margin, margin, margin);
 		v.setLayoutParams(params);
 		v.setLayoutParams(params);
@@ -750,8 +754,6 @@ OnItemClickListener, OnItemLongClickListener {
 		} else if (this.position == MenuActivity.TITLES.indexOf("Search")) {
 			// Don't load anything on start.
 			// this.getTagPuzzles(this.getActivity(), "", true);
-		} else if (this.position == MenuActivity.TITLES.indexOf("Prefs")) {
-			return new View(this.getActivity());
 		} else if (this.position == MenuActivity.TITLES.indexOf("Packs")) {
 			this.getPackPuzzles();
 		} else {
@@ -871,7 +873,7 @@ OnItemClickListener, OnItemLongClickListener {
 		} else {
 			view.getFocusables(position);
 			view.setSelected(true);
-			((MenuActivity) this.getActivity()).actionMode = ((MenuActivity) this.getActivity()).startActionMode(new CustomActionMode(this.myAdapter.get(position), this.sql, this.myAdapter, this));
+			((MenuActivity) this.getActivity()).actionMode = ((MenuActivity) this.getActivity()).startActionMode(new CustomActionMode(this.myAdapter.get(position), this.sql, this.myAdapter, this, view));
 
 			return true;
 		}

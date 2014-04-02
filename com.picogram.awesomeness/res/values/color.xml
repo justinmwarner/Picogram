@@ -11,6 +11,14 @@
     <color name="light_red">#88FFB7AD</color>
     <color name="none">#00000000</color>
     
+    <color name="uno">#FF0000</color>
+    <color name="dos">#00FF00</color>
+    <color name="tres">#0000FF</color>
+    <color name="quat">#FFFF00</color>
+    <color name="Cinco">#00FFFF</color>
+    <color name="seis">#FF00FF</color>
+    
+    
     <color name="custom_text_color_normal">#000000</color>
     <color name="custom_text_color_disabled">#999999</color>
     <color name="custom_divider_color">#ffffff</color>

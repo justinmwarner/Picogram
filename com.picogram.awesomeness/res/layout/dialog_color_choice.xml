@@ -2,6 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:background="@color/light_yellow"
     android:orientation="vertical" >
 
     <LinearLayout
@@ -24,6 +25,7 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal" >
     </LinearLayout>
+
     <LinearLayout
         android:id="@+id/llColorFourth"
         android:layout_width="match_parent"

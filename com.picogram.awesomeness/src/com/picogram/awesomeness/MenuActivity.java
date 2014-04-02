@@ -46,6 +46,8 @@ import com.flurry.android.FlurryAdSize;
 import com.flurry.android.FlurryAdType;
 import com.flurry.android.FlurryAds;
 import com.flurry.android.FlurryAgent;
+import com.github.tbouron.shakedetector.library.ShakeDetector;
+import com.github.tbouron.shakedetector.library.ShakeDetector.OnShakeListener;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient.ConnectionCallbacks;
 import com.google.android.gms.common.GooglePlayServicesClient.OnConnectionFailedListener;
@@ -55,6 +57,7 @@ import com.kopfgeldjaeger.ratememaybe.RateMeMaybe.OnRMMUserChoiceListener;
 import com.parse.Parse;
 import com.picogram.awesomeness.DialogMaker.OnDialogResultListener;
 
+import de.keyboardsurfer.android.widget.crouton.Configuration;
 import de.keyboardsurfer.android.widget.crouton.Crouton;
 import de.keyboardsurfer.android.widget.crouton.Style;
 
@@ -98,7 +101,7 @@ FlurryAdListener, OnPageChangeListener, OnClickListener, OnRMMUserChoiceListener
 	static final ArrayList<String> TITLES = new ArrayList<String>(
 			Arrays.asList(new String[] {
 					"My", "Packs", "Top", "Recent",
-					"Search", "Prefs"
+					"Search"
 			}));
 	public static final int CREATE_CODE = 8008;
 	public static final int GAME_CODE = 1337;
@@ -268,9 +271,18 @@ FlurryAdListener, OnPageChangeListener, OnClickListener, OnRMMUserChoiceListener
 		this.updateActionBar(0);
 
 		// Google Sign-in stuff.
-		if (!this.isSignedIn())
+		if (!Util.getPreferences(this).getBoolean("hasLoggedInSuccessfully", false))
 		{
-			Crouton.makeText(this, "You're not logged in.  Click here to login.", Style.INFO).show();
+			final Configuration croutonConfiguration = new Configuration.Builder().setDuration(5000).build();
+			final Crouton c = Crouton.makeText(this, "You're not logged in.  Click here to login.", Style.INFO);
+			c.setConfiguration(croutonConfiguration);
+			c.setOnClickListener(new OnClickListener() {
+
+				public void onClick(final View v) {
+					MenuActivity.this.startLoginActivity();
+				}
+			});
+			c.show();
 			// Ask user to login if they haven't before.
 			// this.showSignInDialog();
 		}
@@ -279,6 +291,32 @@ FlurryAdListener, OnPageChangeListener, OnClickListener, OnRMMUserChoiceListener
 		this.showBetaDialog();
 
 		this.updateCurrentTab(); // Update current tab ;).
+
+		ShakeDetector.create(this, new OnShakeListener() {
+
+			public void OnShake() {
+				final DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+
+					public void onClick(final DialogInterface dialog, final int which) {
+						switch (which) {
+							case DialogInterface.BUTTON_POSITIVE:
+								// Yes button clicked
+								MenuActivity.this.startFeedbackActivity();
+								break;
+
+							case DialogInterface.BUTTON_NEGATIVE:
+								// No button clicked
+								dialog.dismiss();
+								break;
+						}
+					}
+				};
+
+				final AlertDialog.Builder builder = new AlertDialog.Builder(MenuActivity.this);
+				builder.setMessage("Send us feedback?").setPositiveButton("Yes", dialogClickListener)
+				.setNegativeButton("No", dialogClickListener).show();
+			}
+		});
 	}
 
 	@Override
@@ -389,16 +427,7 @@ FlurryAdListener, OnPageChangeListener, OnClickListener, OnRMMUserChoiceListener
 				break;
 
 			case R.id.menuLogin:
-				final Intent loginIntent = new Intent(this, LoginActivity.class);
-				if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-					final ActivityOptions opts = ActivityOptions.makeCustomAnimation(
-							this, R.anim.fadein, R.anim.fadeout);
-					this.startActivityForResult(loginIntent, PREFERENCES_CODE, opts.toBundle());
-				}
-				else
-				{
-					this.startActivityForResult(loginIntent, PREFERENCES_CODE);
-				}
+				this.startLoginActivity();
 				break;
 
 			case R.id.menuPrefs:
@@ -414,26 +443,7 @@ FlurryAdListener, OnPageChangeListener, OnClickListener, OnRMMUserChoiceListener
 				}
 				break;
 			case R.id.menuFeedback:
-				final String email = "warner.73+Picogram@wright.edu";
-				final String subject = "Picogram - <SUBJECT>";
-				final String message = "Picogram,\n\n<MESSAGE>";
-				// Contact me.
-				final Intent emailIntent = new Intent(Intent.ACTION_SEND);
-				emailIntent.putExtra(Intent.EXTRA_EMAIL, new String[] {
-						email
-				});
-				emailIntent.putExtra(Intent.EXTRA_SUBJECT, subject);
-				emailIntent.putExtra(Intent.EXTRA_TEXT, message);
-				emailIntent.setType("message/rfc822");
-				if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-					final ActivityOptions opts = ActivityOptions.makeCustomAnimation(
-							this, R.anim.fadein, R.anim.fadeout);
-					this.startActivity(Intent.createChooser(emailIntent,
-							"Send Mail Using :"), opts.toBundle());
-				} else {
-					this.startActivity(Intent.createChooser(emailIntent,
-							"Send Mail Using :"));
-				}
+				this.startFeedbackActivity();
 				break;
 		}
 		return true;
@@ -448,20 +458,7 @@ FlurryAdListener, OnPageChangeListener, OnClickListener, OnRMMUserChoiceListener
 		// TODO Auto-generated method stub
 	}
 
-	@SuppressLint("NewApi")
 	public void onPageSelected(final int tab) {// Handle bottom toolbar changes.
-		if (tab == TITLES.indexOf("Prefs")) {
-			final Intent i = new Intent(this, SettingsActivity.class);
-			if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-				final ActivityOptions opts = ActivityOptions.makeCustomAnimation(
-						this, R.anim.fadein, R.anim.fadeout);
-				this.startActivityForResult(i, PREFERENCES_CODE, opts.toBundle());
-			}
-			else
-			{
-				this.startActivityForResult(i, PREFERENCES_CODE);
-			}
-		}
 		this.currentTab = tab;
 		this.updateCurrentTab();
 		if (tab != TITLES.indexOf("Search")) {// Hide keyboard
@@ -701,6 +698,44 @@ FlurryAdListener, OnPageChangeListener, OnClickListener, OnRMMUserChoiceListener
 		FlurryAds.displayAd(this, adSpace, this.toolbar);
 	}
 
+	@SuppressLint("NewApi")
+	private void startFeedbackActivity() {
+		final String email = "warner.73+Picogram@wright.edu";
+		final String subject = "Picogram - <SUBJECT>";
+		final String message = "Picogram,\n\n<MESSAGE>";
+		// Contact me.
+		final Intent emailIntent = new Intent(Intent.ACTION_SEND);
+		emailIntent.putExtra(Intent.EXTRA_EMAIL, new String[] {
+				email
+		});
+		emailIntent.putExtra(Intent.EXTRA_SUBJECT, subject);
+		emailIntent.putExtra(Intent.EXTRA_TEXT, message);
+		emailIntent.setType("message/rfc822");
+		if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+			final ActivityOptions opts = ActivityOptions.makeCustomAnimation(
+					this, R.anim.fadein, R.anim.fadeout);
+			this.startActivity(Intent.createChooser(emailIntent,
+					"Send Mail Using :"), opts.toBundle());
+		} else {
+			this.startActivity(Intent.createChooser(emailIntent,
+					"Send Mail Using :"));
+		}
+	}
+
+	@SuppressLint("NewApi")
+	private void startLoginActivity() {
+		final Intent loginIntent = new Intent(this, LoginActivity.class);
+		if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+			final ActivityOptions opts = ActivityOptions.makeCustomAnimation(
+					this, R.anim.fadein, R.anim.fadeout);
+			this.startActivityForResult(loginIntent, PREFERENCES_CODE, opts.toBundle());
+		}
+		else
+		{
+			this.startActivityForResult(loginIntent, PREFERENCES_CODE);
+		}
+	}
+
 	private void updateActionBar(final int tab) {
 		// Drop down spinner update.
 		this.invalidateOptionsMenu();
@@ -769,10 +804,6 @@ FlurryAdListener, OnPageChangeListener, OnClickListener, OnRMMUserChoiceListener
 			this.adapter.frag[this.currentTab].getRecentPuzzles(this);
 		} else if (this.currentTab == MenuActivity.TITLES.indexOf("Search")) {
 			// Done in CreateOptionsMenu
-		} else if (this.currentTab == MenuActivity.TITLES.indexOf("Prefs")) {
-			this.adapter.frag[this.currentTab]
-					.getMyPuzzles(this.adapter.frag[this.currentTab]
-							.getActivity());
 		} else if (this.currentTab == MenuActivity.TITLES.indexOf("Packs")) {
 			this.adapter.frag[this.currentTab].getPackPuzzles();
 		}

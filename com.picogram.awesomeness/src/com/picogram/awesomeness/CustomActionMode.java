@@ -1,6 +1,8 @@
 
 package com.picogram.awesomeness;
 
+import android.view.View;
+
 import com.actionbarsherlock.view.ActionMode;
 import com.actionbarsherlock.view.ActionMode.Callback;
 import com.actionbarsherlock.view.Menu;
@@ -11,12 +13,14 @@ final class CustomActionMode implements Callback {
 	private final SQLitePicogramAdapter sql;
 	PicogramListAdapter adapter;
 	MenuFragment frag;
+	View me;
 
-	public CustomActionMode(final Picogram p, final SQLitePicogramAdapter sql, final PicogramListAdapter myAdapter, final MenuFragment menuFragment) {
+	public CustomActionMode(final Picogram p, final SQLitePicogramAdapter sql, final PicogramListAdapter myAdapter, final MenuFragment menuFragment, final View view) {
 		this.selectedPuzzle = p;
 		this.sql = sql;
 		this.adapter = myAdapter;
 		this.frag = menuFragment;
+		this.me = view;
 	}
 
 
@@ -24,6 +28,7 @@ final class CustomActionMode implements Callback {
 		if (item.getTitle().equals("Delete"))
 		{
 			this.sql.deletePicogram(this.selectedPuzzle.getID());
+			mode.finish();
 		}
 		else if (item.getTitle().equals("Clear"))
 		{
@@ -54,6 +59,8 @@ final class CustomActionMode implements Callback {
 	}
 
 	public void onDestroyActionMode(final ActionMode mode) {
+		this.me.setSelected(false);
+		this.me.setEnabled(false);
 		this.sql.close();
 	}
 

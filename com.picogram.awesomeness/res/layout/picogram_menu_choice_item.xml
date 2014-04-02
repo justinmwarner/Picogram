@@ -3,7 +3,8 @@
     android:id="@+id/rlMenuHolder"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/listview_selector" >
+    android:background="@drawable/item_selector_bad"
+    android:padding="10dp" >
 
     <FrameLayout
         android:layout_width="100dp"
@@ -31,7 +32,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
         android:layout_below="@+id/tvName"
-        android:layout_marginRight="5dp"
+        android:layout_marginRight="15dp"
         android:text="Diffuculty: Medium" />
 
     <TextView
@@ -40,10 +41,11 @@
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
         android:layout_alignParentTop="true"
-        android:layout_marginRight="5dp"
+        android:layout_marginRight="15dp"
         android:gravity="center"
         android:text="NAME_OF_Picogram"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textStyle="bold" />
 
     <TextView
         android:id="@+id/tvRating"
@@ -51,7 +53,8 @@
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
         android:layout_below="@+id/tvDiff"
-        android:layout_marginRight="5dp"
-        android:text="Rating: 0" />
+        android:layout_marginRight="15dp"
+        android:text="Rating: 0"
+        android:textColor="#999" />
 
 </RelativeLayout>

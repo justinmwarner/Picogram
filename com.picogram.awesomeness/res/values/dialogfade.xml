@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="PauseDialog" parent="@android:style/Theme.Dialog">
-        <item name="android:windowAnimationStyle">@style/PauseDialogAnimation</item>
+    <style name="FadeDialog" parent="@android:style/Theme.Dialog">
+        <item name="android:windowAnimationStyle">@style/FadeDialogAnimation</item>
     </style>
 
-    <style name="PauseDialogAnimation">
+    <style name="FadeDialogAnimation">
         <item name="android:windowEnterAnimation">@anim/fadein</item>
         <item name="android:windowExitAnimation">@anim/fadeout</item>
     </style>
