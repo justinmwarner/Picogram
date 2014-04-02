@@ -1,7 +1,6 @@
 
 package com.picogram.awesomeness;
 
-import android.os.Bundle;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ActivityOptions;
@@ -13,6 +12,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.drawable.ColorDrawable;
+import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
@@ -30,7 +30,6 @@ import android.view.ViewGroup.LayoutParams;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
-
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 import com.astuetz.viewpager.extensions.PagerSlidingTabStrip;
@@ -73,22 +72,23 @@ public class PreGameActivity extends BaseGameActivity implements OnPageChangeLis
 
 	}
 
+
 	final ArrayList<String> TITLES = new ArrayList<String>(Arrays.asList(new String[] {
 			"Actions", "Comments", "High Scores"
 	}));
 
 	private static final String TAG = "PicogramPreGame";
-
 	private PagerSlidingTabStrip tabs;
 	private ViewPager pager;
-	private PreGameAdapter adapter;
 
+	private PreGameAdapter adapter;
 	String name, solution, current, id;
 	int width, height;
 	String[] colors;
 	Picogram puzzle = new Picogram();
 	final int proportion = 10; // For how much we scale the ImageView. =).
 	int cellWidth = 1, cellHeight = 1;
+
 	double xCellNum = 1, yCellNum = 1;
 
 	boolean hasLoadedComments = false, hasLoadedHighscores = false;
@@ -326,13 +326,12 @@ public class PreGameActivity extends BaseGameActivity implements OnPageChangeLis
 			final MenuItem item = menu.getItem(i);
 			final SpannableString s = new SpannableString(item.getTitle());
 			s.setSpan(new ForegroundColorSpan(foreground), 0, s.length(), 0);
+			// s.setSpan(new BackgroundColorSpan(background), 0, s.length(), 0);
 			item.setTitle(s);
 		}
 		this.getSupportActionBar().setBackgroundDrawable(cd);
 		return true;
-	}
-
-	@Override
+	}@Override
 	public boolean onOptionsItemSelected(final MenuItem item) {
 		super.onOptionsItemSelected(item);
 
@@ -366,7 +365,6 @@ public class PreGameActivity extends BaseGameActivity implements OnPageChangeLis
 		sql.close();
 		return true;
 	}
-
 	public void onPageScrolled(final int arg0, final float arg1, final int arg2) {
 	}
 
@@ -438,6 +436,7 @@ public class PreGameActivity extends BaseGameActivity implements OnPageChangeLis
 		}
 		return null;
 	}
+
 
 	public void showRatingDialog(final SQLitePicogramAdapter sql)
 	{

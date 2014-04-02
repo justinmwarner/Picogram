@@ -395,25 +395,6 @@ public class PreGameFragment extends Fragment implements OnClickListener, OnItem
 				}
 			}
 		}
-		else if (v.getId() == R.id.bClear)
-		{
-			final String newCurrent = this.current.getCurrent().replaceAll("[^0]", "0");
-			sql.updateCurrentPicogram(this.current.getID(), "0", newCurrent);
-			this.current.setCurrent(newCurrent);
-			((PreGameActivity) this.getActivity()).current = this.current.getCurrent();
-			((PreGameActivity) this.getActivity()).updateAndGetImageView();
-		}
-		else if (v.getId() == R.id.bDelete)
-		{
-			sql.deletePicogram(this.current.getID());
-			sql.close();
-			this.getActivity().finish();
-		}
-		else if (v.getId() == R.id.bReport)
-		{
-			// No author, so null.
-			this.showReportDialog("puzzle", this.current.getID(), null);
-		}
 		else if (v.getId() == R.id.bGoogle)
 		{
 			// TODO Make it use an interactive post.
@@ -534,16 +515,10 @@ public class PreGameFragment extends Fragment implements OnClickListener, OnItem
 			final View childLayout = inflater.inflate(R.layout.include_pregame_action,
 					(ViewGroup) this.getActivity().findViewById(R.layout.include_pregame_action));
 			final Button bPlay = (Button) childLayout.findViewById(R.id.bPlay);
-			final Button bClear = (Button) childLayout.findViewById(R.id.bClear);
-			final Button bDelete = (Button) childLayout.findViewById(R.id.bDelete);
-			final Button bReport = (Button) childLayout.findViewById(R.id.bReport);
 			final Button bGoogle = (Button) childLayout.findViewById(R.id.bGoogle);
 			this.partSpinner = (Spinner) childLayout.findViewById(R.id.spinParts);
 
 			bPlay.setOnClickListener(this);
-			bClear.setOnClickListener(this);
-			bDelete.setOnClickListener(this);
-			bReport.setOnClickListener(this);
 			bGoogle.setOnClickListener(this);
 			if ((Integer.parseInt(this.current.getWidth()) > 25) || (Integer.parseInt(this.current.getHeight()) > 25))
 			{
