@@ -748,7 +748,7 @@ public class PreGameFragment extends Fragment implements OnClickListener, OnItem
 		alert.show();
 	}
 
-	private void showReportDialog(final String type, final String pid, final String aid) {
+	void showReportDialog(final String type, final String pid, final String aid) {
 		// Puzzle ID will always be filled out. Author ID will if it's a comment.
 		final FlagObject fo = new FlagObject();
 		fo.setPuzzleId(pid);

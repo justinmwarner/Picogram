@@ -12,15 +12,16 @@ import android.graphics.Bitmap.Config;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.drawable.ColorDrawable;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
+import android.text.Html;
+import android.text.SpannableString;
+import android.text.style.ForegroundColorSpan;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -29,9 +30,13 @@ import android.view.ViewGroup.LayoutParams;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
+
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuItem;
 import com.astuetz.viewpager.extensions.PagerSlidingTabStrip;
 import com.flurry.android.FlurryAgent;
 import com.google.android.gms.plus.PlusShare;
+import com.google.example.games.basegameutils.BaseGameActivity;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
@@ -39,7 +44,7 @@ import com.parse.ParseQuery;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class PreGameActivity extends FragmentActivity implements OnPageChangeListener, OnTouchListener {
+public class PreGameActivity extends BaseGameActivity implements OnPageChangeListener, OnTouchListener {
 	public class PreGameAdapter extends FragmentPagerAdapter {
 
 		public PreGameFragment frag[] = new PreGameFragment[this.getCount()];
@@ -136,6 +141,7 @@ public class PreGameActivity extends FragmentActivity implements OnPageChangeLis
 		}
 		return ret;
 	}
+
 	private char[][] getLineIn2D(final String line) {
 		final char[][] current2D = new char[this.height][this.width];
 		int run = 0;
@@ -235,6 +241,7 @@ public class PreGameActivity extends FragmentActivity implements OnPageChangeLis
 			this.showRatingDialog(sql);
 		}
 		sql.close();
+		this.invalidateOptionsMenu();
 	}
 
 	@Override
@@ -295,12 +302,33 @@ public class PreGameActivity extends FragmentActivity implements OnPageChangeLis
 		this.updateAndGetImageView();
 		this.showRatingDialog(sql);
 		sql.close();
+
 	}
 
 	@Override
-	public boolean onCreateOptionsMenu(final Menu menu) {
+	public boolean onCreateOptionsMenu(final Menu menu)
+	{
 		// Inflate the menu; this adds items to the action bar if it is present.
-		this.getMenuInflater().inflate(R.menu.picogram_pre_game, menu);
+		this.getSupportMenuInflater().inflate(R.menu.picogram_pre_game, menu);
+		ColorDrawable cd;
+		int foreground, background;
+		if (this.current.replaceAll("x|X", "0").equals(this.solution)) {
+			foreground = this.getResources().getColor(R.color.bad);
+			background = this.getResources().getColor(R.color.good);
+		} else {
+			foreground = this.getResources().getColor(R.color.good);
+			background = this.getResources().getColor(R.color.bad);
+		}
+		cd = new ColorDrawable(background);
+		this.getSupportActionBar().setTitle(Html.fromHtml("<font color='" + foreground + "'>App Name</font>"));
+		// INFO: We may need to change this if we add more items to the overflow menu in pregame.
+		for (int i = 0; i != 3; ++i) {
+			final MenuItem item = menu.getItem(i);
+			final SpannableString s = new SpannableString(item.getTitle());
+			s.setSpan(new ForegroundColorSpan(foreground), 0, s.length(), 0);
+			item.setTitle(s);
+		}
+		this.getSupportActionBar().setBackgroundDrawable(cd);
 		return true;
 	}
 
@@ -308,11 +336,34 @@ public class PreGameActivity extends FragmentActivity implements OnPageChangeLis
 	public boolean onOptionsItemSelected(final MenuItem item) {
 		super.onOptionsItemSelected(item);
 
+		final SQLitePicogramAdapter sql = new SQLitePicogramAdapter(this, "Picograms", null, 1);
 		switch (item.getItemId()) {
+			case R.id.menuReport:
+				// No author, so null.
+				this.adapter.frag[0].showReportDialog("puzzle", this.id, null);
+				break;
+			case R.id.menuClear:
+				final String newCurrent = this.current.replaceAll("[^0]", "0");
+				sql.updateCurrentPicogram(this.id, "0", newCurrent);
+				this.current = (newCurrent);
+				this.updateAndGetImageView();
+				this.invalidateOptionsMenu();
+				break;
+			case R.id.menuDelete:
+				sql.deletePicogram(this.id);
+				sql.close();
+				this.finish();
+				break;
 			case android.R.id.home:
-				this.pager.setCurrentItem(this.TITLES.indexOf("Picture"));
+				if (this.pager.getCurrentItem() == this.TITLES.indexOf("Actions"))
+				{
+					this.finish();
+				} else {
+					this.pager.setCurrentItem(this.TITLES.indexOf("Actions"));
+				}
 				break;
 		}
+		sql.close();
 		return true;
 	}
 
@@ -340,75 +391,18 @@ public class PreGameActivity extends FragmentActivity implements OnPageChangeLis
 		}
 	}
 
+	public void onSignInFailed() {
+		// TODO Auto-generated method stub
+
+	}
+
+	public void onSignInSucceeded() {
+		// TODO Auto-generated method stub
+
+	}
+
 	public boolean onTouch(final View v, final MotionEvent event) {
-		v.setOnTouchListener(null);
-		/*
-		 * Log.d(TAG, "OnTouch: " + event.getAction() + " " + v.getId() + " " + R.id.ivPartSelector);
-		 * if (event.equals(MotionEvent.ACTION_DOWN) && (v.getId() == R.id.ivPreGame)) {
-		 * if ((this.width <= 25) && (this.height <= 25))
-		 * {
-		 * // Just start it normally.
-		 * this.adapter.frag[0].startGame();
-		 * return true;
-		 * }
-		 * Log.d(TAG, "OnTouch Showing");
-		 * this.showPartSelector();
-		 * return true;
-		 * }
-		 * else if ((event.getAction() == (MotionEvent.ACTION_DOWN)) && (v.getId() == R.id.ivPartSelector))
-		 * {
-		 * // Get row and column tapped.
-		 * 
-		 * final double alteredCellWidth = (v.getWidth()) / this.xCellNum;
-		 * final double alteredCellHeight = (v.getHeight()) / this.yCellNum;
-		 * 
-		 * final int row = (int) Math.ceil(event.getY() / alteredCellHeight);
-		 * final int col = (int) Math.ceil(event.getX() / alteredCellWidth);
-		 * 
-		 * // Now a part was chosen, so play it.
-		 * final char[][] current2D = this.getLineIn2D(this.current);
-		 * final char[][] solution2D = this.getLineIn2D(this.solution);
-		 * String newGame = "", newSolution = "";
-		 * int highWidth = 0, highHeight = 0, lowHeight = Integer.MAX_VALUE, lowWidth = Integer.MAX_VALUE;
-		 * for(int i = 0; i != current2D.length; ++i)
-		 * {
-		 * for(int j = 0; j != current2D[i].length; ++j)
-		 * {
-		 * if ((j < (this.cellWidth * row)) && (j >= (this.cellWidth * (row - 1)))) // Height
-		 * {
-		 * if ((i < (this.cellHeight * col)) && (i >= (this.cellHeight * (col - 1)))) // Width
-		 * {
-		 * newGame += current2D[i][j];
-		 * newSolution += solution2D[i][j];
-		 * if (highHeight < i) {
-		 * highHeight = i;
-		 * }
-		 * if (lowHeight > i) {
-		 * lowHeight = i;
-		 * }
-		 * if (highWidth < j) {
-		 * highWidth = j;
-		 * }
-		 * if (lowWidth > j) {
-		 * lowWidth = j;
-		 * }
-		 * }
-		 * }
-		 * }
-		 * }
-		 * final int newWidth = (highWidth - lowWidth) + 1, newHeight = (highHeight - lowHeight) + 1;
-		 * Log.d(TAG, "NW: " + newWidth + " NH: " + newHeight + " HW: " + highWidth + " HH: " + highHeight + " LW: " + lowWidth + " LH: " + lowHeight + " LEN: " + newGame.length());
-		 * final Picogram puzzle = this.puzzle;
-		 * puzzle.setSolution(newSolution);
-		 * puzzle.setCurrent(newGame);
-		 * puzzle.setWidth(highWidth + "");
-		 * puzzle.setHeight(highHeight + "");
-		 * this.startGame(puzzle, row, col, newWidth, newHeight);
-		 * return true;
-		 * }
-		 * // If we fail, add the listener again.
-		 * v.setOnTouchListener(this);
-		 */
+		// TODO Auto-generated method stub
 		return false;
 	}
 
