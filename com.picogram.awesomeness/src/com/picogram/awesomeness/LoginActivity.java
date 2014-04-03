@@ -13,10 +13,15 @@ import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 
+import com.actionbarsherlock.app.ActionBar;
+import com.actionbarsherlock.view.MenuItem;
 import com.facebook.LoggingBehavior;
+import com.facebook.Request;
+import com.facebook.Response;
 import com.facebook.Session;
 import com.facebook.SessionState;
 import com.facebook.Settings;
+import com.facebook.model.GraphUser;
 import com.google.android.gms.games.Player;
 import com.google.example.games.basegameutils.BaseGameActivity;
 
@@ -44,7 +49,7 @@ public class LoginActivity extends BaseGameActivity implements OnClickListener {
 	boolean hasTriedGoogle = false;
 	private final Session.StatusCallback statusCallback = new SessionStatusCallback();
 
-	Button facebook;
+	Button google, facebook;
 
 	@Override
 	public void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
@@ -70,13 +75,22 @@ public class LoginActivity extends BaseGameActivity implements OnClickListener {
 			}
 		}
 		else if (v.getId() == R.id.bGoogleLogin) {
-			this.hasTriedGoogle = true;
-			this.beginUserInitiatedSignIn();
+			if (this.google.getText().toString().startsWith("Log out"))
+			{
+				// Logging out.
+				this.signOut();
+				Util.getPreferences(this).edit().putBoolean("hasLoggedInGoogle", false).commit();
+				this.google.setText("Log in with Google Plus");
+			} else {
+				this.hasTriedGoogle = true;
+				this.beginUserInitiatedSignIn();
+			}
 		}
 		else if (v.getId() == R.id.bLogin) {
 			final String un = this.editTextLogin.getText().toString();
 			Util.getPreferences(this).edit().putString("username", un).commit();
 			Crouton.makeText(this, "You're assigned the username " + un, Style.CONFIRM).show();
+			Util.getPreferences(this).edit().putBoolean("hasLoggedInUsername", true).commit();
 			// this.finish();
 		}
 	}
@@ -105,7 +119,7 @@ public class LoginActivity extends BaseGameActivity implements OnClickListener {
 		this.setContentView(R.layout.activity_login);
 
 		this.facebook = (Button) this.findViewById(R.id.bFacebookLogin);
-		final Button google = (Button) this.findViewById(R.id.bGoogleLogin);
+		this.google = (Button) this.findViewById(R.id.bGoogleLogin);
 		final Button login = (Button) this.findViewById(R.id.bLogin);
 		Settings.addLoggingBehavior(LoggingBehavior.INCLUDE_ACCESS_TOKENS);
 
@@ -127,7 +141,7 @@ public class LoginActivity extends BaseGameActivity implements OnClickListener {
 
 		this.facebook.setOnClickListener(this);
 		this.facebook.setOnClickListener(this);
-		google.setOnClickListener(this);
+		this.google.setOnClickListener(this);
 		login.setOnClickListener(this);
 
 		// Get account names on device.
@@ -143,7 +157,26 @@ public class LoginActivity extends BaseGameActivity implements OnClickListener {
 		}
 		this.editTextLogin.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_dropdown_item_1line, new ArrayList<String>(emailSet)));
 
-		Crouton.makeText(this, "Your username is: " + Util.id(this), Style.INFO);
+		Crouton.makeText(this, "Your username is: " + Util.id(this), Style.INFO).show();
+
+		final ActionBar ab = this.getSupportActionBar();
+		if (ab != null) {
+			ab.show();
+			ab.setDisplayHomeAsUpEnabled(true);
+		}
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(final MenuItem item) {
+
+		super.onOptionsItemSelected(item);
+
+		switch (item.getItemId()) {
+			case android.R.id.home:
+				this.finish();
+				break;
+		}
+		return true;
 	}
 
 	@Override
@@ -157,13 +190,25 @@ public class LoginActivity extends BaseGameActivity implements OnClickListener {
 		if (this.hasTriedGoogle) {
 			Crouton.makeText(this, "Failed to login with Google.", Style.ALERT).show();
 		}
+		this.google.setText("Log in with Google Plus");
+		Util.getPreferences(this).edit().putBoolean("hasLoggedInGoogle", false).commit();
 	}
 
 	public void onSignInSucceeded() {
 		final Player p = this.getGamesClient().getCurrentPlayer();
 		Crouton.makeText(this, "Logged in with Google " + p.getDisplayName() + ".", Style.ALERT).show();
-		Util.getPreferences(this).edit().putBoolean("hasLoggedInSuccessfully", true).commit();
+		Util.getPreferences(this).edit().putBoolean("hasLoggedInGoogle", true).commit();
 		Log.d(TAG, p.getDisplayName());
+		String un = "";
+		final String[] names = p.getDisplayName().split(" ");
+		for (int i = 0; i != names.length; ++i)
+		{
+			un += names[i].substring(0, names[i].length() / 2);
+		}
+		this.google.setText("Log out of Google Plus");
+		Util.getPreferences(this).edit().putString("username", un).commit();
+		Log.d(TAG, "LOGIN : G+ : " + un);
+
 	}
 	@Override
 	public void onStart() {
@@ -180,11 +225,26 @@ public class LoginActivity extends BaseGameActivity implements OnClickListener {
 	private void updateView() {
 		final Session session = Session.getActiveSession();
 		if (session.isOpened()) {
+			Request.executeMeRequestAsync(session, new Request.GraphUserCallback() {
+
+				public void onCompleted(final GraphUser user, final Response response) {
+					String un = "";
+					final String[] names = user.getName().split(" ");
+					for (int i = 0; i != names.length; ++i)
+					{
+						un += names[i].substring(0, names[i].length() / 2);
+					}
+					Util.getPreferences(LoginActivity.this).edit().putString("username", un).commit();
+					Log.d(TAG, "LOGIN : FB : " + un);
+				}
+			});
+			Util.getPreferences(this).edit().putBoolean("hasLoggedInFacebook", true).commit();
 			this.facebook.setText("Log out of Facebook");
 			this.facebook.setOnClickListener(new OnClickListener() {
 				public void onClick(final View view) { LoginActivity.this.onClickLogout(); }
 			});
 		} else {
+			Util.getPreferences(this).edit().putBoolean("hasLoggedInFacebook", false).commit();
 			this.facebook.setText("Log in with Facebook");
 			this.facebook.setOnClickListener(new OnClickListener() {
 				public void onClick(final View view) { LoginActivity.this.onClickLogin(); }

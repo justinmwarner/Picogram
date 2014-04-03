@@ -248,6 +248,7 @@ public class PreGameActivity extends BaseGameActivity implements OnPageChangeLis
 	protected void onCreate(final Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		this.setContentView(R.layout.activity_picogram_pre_game);
+		Util.updateFullScreen(this);
 		// Did we get this through a deep link?
 		final String deepLinkId = PlusShare.getDeepLinkId(this.getIntent());
 		final Bundle b = this.parseDeepLinkId(deepLinkId);

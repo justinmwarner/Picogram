@@ -516,6 +516,9 @@ public class PreGameFragment extends Fragment implements OnClickListener, OnItem
 					(ViewGroup) this.getActivity().findViewById(R.layout.include_pregame_action));
 			final Button bPlay = (Button) childLayout.findViewById(R.id.bPlay);
 			final Button bGoogle = (Button) childLayout.findViewById(R.id.bGoogle);
+			if (!Util.getPreferences(this.getActivity()).getBoolean("hasLoggedInGoogle", false)) {
+				bGoogle.setText("Log in with Google Plus");
+			}
 			this.partSpinner = (Spinner) childLayout.findViewById(R.id.spinParts);
 
 			bPlay.setOnClickListener(this);
@@ -640,22 +643,12 @@ public class PreGameFragment extends Fragment implements OnClickListener, OnItem
 		if (exception != null) {
 			Log.d(TAG, "Facebook - Error: " + exception);
 		}
-		Log.d(TAG, "Facebook - Session state change. " + state.toString() + " " + session.toString() + " ");
-		try {
-			throw new Exception();
-		} catch (final Exception e) {
-			for (final StackTraceElement ste : e.getStackTrace()) {
-				// Log.d(TAG, "Facebook: " + ste.getLineNumber() + " " + ste.getMethodName());
-			}
-		}
 		try {
 			final PackageInfo info = this.getActivity().getPackageManager().getPackageInfo("com.picogram.awesomeness", PackageManager.GET_SIGNATURES);
 			for (final Signature signature : info.signatures) {
 				final MessageDigest md = MessageDigest.getInstance("SHA");
 				md.update(signature.toByteArray());
 				final String sign = Base64.encodeToString(md.digest(), Base64.DEFAULT);
-				Log.e("MY KEY HASH:", sign);
-				Toast.makeText(this.getActivity().getApplicationContext(), sign, Toast.LENGTH_LONG).show();
 			}
 		} catch (final NameNotFoundException e) {
 		} catch (final NoSuchAlgorithmException e) {
@@ -663,17 +656,14 @@ public class PreGameFragment extends Fragment implements OnClickListener, OnItem
 		if (state.isOpened() && (this.dlFacebook != null)) {
 			// Launch the menu details activity, passing on
 			// the info on the item that was selected.
-			Log.d(TAG, "Facebook - Got a Facebook DL");
 			this.facebookLogin.setVisibility(View.GONE);
 			this.facebookPost.setVisibility(View.VISIBLE);
 		} else if (state.isOpened()) {
 			// User is logged in.
-			Log.d(TAG, "Facebook - Logged in");
 			this.facebookLogin.setVisibility(View.GONE);
 			this.facebookPost.setVisibility(View.VISIBLE);
 		} else if (state.isClosed()) {
 			// User is not logged in.
-			Log.d(TAG, "Facebook - Not logged in");
 			this.facebookLogin.setVisibility(View.VISIBLE);
 			this.facebookPost.setVisibility(View.GONE);
 		}

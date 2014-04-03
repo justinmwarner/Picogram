@@ -47,6 +47,14 @@ public class Util {
 	}
 
 	public synchronized static String id(final Context context) {
+		if (Util.getPreferences(context).getBoolean("hasLoggedInUsername", false))
+		{
+			return Util.getPreferences(context).getString("username", "AppleBanana");
+		} else if (Util.getPreferences(context).getBoolean("hasLoggedInFacebook", false)) {
+
+		} else if (Util.getPreferences(context).getBoolean("hasLoggedInGoogle", false)) {
+
+		}
 		String uniqueID;
 		final SharedPreferences prefs = context.getSharedPreferences(
 				MenuActivity.PREFS_FILE, Context.MODE_PRIVATE);
@@ -116,7 +124,7 @@ public class Util {
 	}
 
 	public static void updateFullScreen(final Activity a) {
-		if (!Util.getPreferences(a).getBoolean("decorations", false)) {
+		if (Util.getPreferences(a).getString("decorations", "None").equals("None")) {
 			a.getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
 			a.getWindow().clearFlags(
 					WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);

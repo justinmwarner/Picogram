@@ -21,7 +21,6 @@ import android.view.Menu;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
-import android.view.Window;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -237,8 +236,25 @@ OnSeekBarChangeListener {
 							.setBackgroundColor(AdvancedGameActivity.this.tiv.gColors[Integer
 							                                                          .parseInt(""
 							                                                        		  + AdvancedGameActivity.this.tiv.colorCharacter)]);
+
 						} else {
 							((ImageButton) v).setBackgroundColor(Color.WHITE);
+						}
+						if (AdvancedGameActivity.this.tiv.colorCharacter == 'x')
+						{
+							if (AdvancedGameActivity.this.tiv.isGameplay)
+							{
+								// Drawing x's
+								((ImageButton) v).setBackgroundDrawable(AdvancedGameActivity.this.getResources().getDrawable(R.drawable.xs));
+							} else
+							{
+								// Movement
+								((ImageButton) v).setBackgroundDrawable(AdvancedGameActivity.this.getResources().getDrawable(R.drawable.move));
+							}
+						} else if (AdvancedGameActivity.this.tiv.colorCharacter == '0')
+						{
+							// Transparent.
+							((ImageButton) v).setBackgroundDrawable(AdvancedGameActivity.this.getResources().getDrawable(R.drawable.transparent));
 						}
 
 						newFragment.dismiss();
@@ -254,8 +270,9 @@ OnSeekBarChangeListener {
 	@Override
 	protected void onCreate(final Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		this.requestWindowFeature(Window.FEATURE_NO_TITLE);
+		Util.updateFullScreen(this);
 		this.setContentView(R.layout.activity_advanced_game);
+		this.getActionBar().hide();
 		this.tiv = (TouchImageView) this.findViewById(R.id.tivGame);
 		// Do background stuff.
 		final RelativeLayout rlMain = (RelativeLayout) this
@@ -315,7 +332,14 @@ OnSeekBarChangeListener {
 		Util.setTheme(this);
 
 		// Time
-		this.mRedrawHandler.sleep(100, this);
+		if (Util.getPreferences(this).getString("decorations", "None").equals("Custom")) {
+			this.mRedrawHandler.sleep(100, this);
+		}
+		else
+		{
+			this.findViewById(R.id.tvTime).setVisibility(View.GONE);
+			this.findViewById(R.id.ivBattery).setVisibility(View.GONE);
+		}
 		if (this.isLight) {
 			((TextView) this.findViewById(R.id.tvTime)).setTextColor(Color.BLACK);
 		} else {

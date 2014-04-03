@@ -13,8 +13,10 @@ import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.Preference.OnPreferenceClickListener;
 import android.util.Log;
 
+import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockPreferenceActivity;
 import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuItem;
 import com.flurry.android.FlurryAgent;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient;
@@ -51,8 +53,6 @@ OnPreferenceChangeListener, OnPreferenceClickListener, GooglePlayServicesClient.
 		this.addPreferencesFromResource(R.xml.preferences);
 
 		this.prefs = this.getSharedPreferences("Picogram", 0);
-		this.findPreference("wonvisible").setOnPreferenceChangeListener(this);
-		this.findPreference("decorations").setOnPreferenceClickListener(this);
 		this.findPreference("music").setOnPreferenceChangeListener(this);
 		this.findPreference("email").setOnPreferenceClickListener(this);
 		this.findPreference("advertisements").setOnPreferenceClickListener(this);
@@ -65,6 +65,11 @@ OnPreferenceChangeListener, OnPreferenceClickListener, GooglePlayServicesClient.
 		this.findPreference("logout").setOnPreferenceClickListener(this);
 
 		FlurryAgent.logEvent("PreferencesOpened");
+		final ActionBar ab = this.getSupportActionBar();
+		if (ab != null) {
+			ab.show();
+			ab.setDisplayHomeAsUpEnabled(true);
+		}
 	}
 
 	@Override
@@ -73,8 +78,19 @@ OnPreferenceChangeListener, OnPreferenceClickListener, GooglePlayServicesClient.
 	}
 
 	public void onDisconnected() {
-		// TODO Auto-generated method stub
+	}
 
+	@Override
+	public boolean onOptionsItemSelected(final MenuItem item) {
+
+		super.onOptionsItemSelected(item);
+
+		switch (item.getItemId()) {
+			case android.R.id.home:
+				this.finish();
+				break;
+		}
+		return true;
 	}
 
 	@Override
@@ -87,9 +103,7 @@ OnPreferenceChangeListener, OnPreferenceClickListener, GooglePlayServicesClient.
 
 	public boolean onPreferenceChange(final Preference preference,
 			final Object newValue) {
-		Log.d(TAG, "Changing 1 " + preference.getKey());
 		if (preference.getKey().equals("music")) {
-			Log.d(TAG, "Changing 2 music " + newValue.toString());
 			this.prefs.edit().putString("music", newValue.toString()).commit();
 			MusicManager.start(this, newValue.toString(), true);
 		}
@@ -146,9 +160,14 @@ OnPreferenceChangeListener, OnPreferenceClickListener, GooglePlayServicesClient.
 		}
 		else if (preference.getKey().equals("logout"))
 		{
-			final GamesClient.Builder builder = new GamesClient.Builder(this.getBaseContext(), this, this);
-			this.gc = builder.create();
-			this.gc.connect();
+			final Intent loginIntent = new Intent(this, LoginActivity.class);
+			if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+				final ActivityOptions opts = ActivityOptions.makeCustomAnimation(
+						this, R.anim.fadein, R.anim.fadeout);
+				this.startActivity(loginIntent, opts.toBundle());
+			} else {
+				this.startActivity(loginIntent);
+			}
 		}
 		return false;
 	}

@@ -1,3 +1,4 @@
+
 package com.picogram.awesomeness;
 
 import android.annotation.SuppressLint;
@@ -271,8 +272,12 @@ FlurryAdListener, OnPageChangeListener, OnClickListener, OnRMMUserChoiceListener
 		this.updateActionBar(0);
 
 		// Google Sign-in stuff.
-		if (!Util.getPreferences(this).getBoolean("hasLoggedInSuccessfully", false))
+		if (Util.getPreferences(this).getBoolean("hasLoggedInGoogle", false) ||
+				Util.getPreferences(this).getBoolean("hasLoggedInUsername", false) ||
+				Util.getPreferences(this).getBoolean("hasLoggedInFacebook", false))
 		{
+			// TODO fix, not big deal.
+		} else {
 			final Configuration croutonConfiguration = new Configuration.Builder().setDuration(5000).build();
 			final Crouton c = Crouton.makeText(this, "You're not logged in.  Click here to login.", Style.INFO);
 			c.setConfiguration(croutonConfiguration);

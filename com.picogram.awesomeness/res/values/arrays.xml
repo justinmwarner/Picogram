@@ -60,4 +60,14 @@
         <item>Hard</item>
         <item>eXtreme</item>
     </string-array>
+    <string-array name="listDecorations">
+        <item>None</item>
+        <item>System Decorations</item>
+        <item>Custom Decorations</item>
+    </string-array>
+    <string-array name="listDecorationsValue">
+        <item>None</item>
+        <item>System</item>
+        <item>Custom</item>
+    </string-array>
 </resources>

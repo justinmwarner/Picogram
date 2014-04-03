@@ -3,15 +3,12 @@
     <PreferenceCategory android:title="Game Preferences" >
 
         <!-- Preferences about the game itself. -->
-
-        <CheckBoxPreference
-            android:key="wonvisible"
-            android:summary="Hardcore Picogram master?  Remove all those pesky games to find new challenges faster!"
-            android:title="Remove Won Games" />
-        <CheckBoxPreference
+        <ListPreference
+            android:entries="@array/listDecorations"
+            android:entryValues="@array/listDecorationsValue"
             android:key="decorations"
-            android:summary="Show the bar with the time, battery, and notifications while you play."
-            android:title="Show Top Bar?" />
+            android:summary="Remove the bar at the top or the icon and timer in the app, or both!."
+            android:title="Battery/Time Decorations" />
         <Preference 
             android:key="logout"
             android:summary="Logout of your user profile. You will be prompted again when you start the app."
