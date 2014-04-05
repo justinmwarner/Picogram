@@ -89,7 +89,6 @@ public class LoginActivity extends BaseGameActivity implements OnClickListener {
 		else if (v.getId() == R.id.bLogin) {
 			final String un = this.editTextLogin.getText().toString();
 			Util.getPreferences(this).edit().putString("username", un).commit();
-			Crouton.makeText(this, "You're assigned the username " + un, Style.CONFIRM).show();
 			Util.getPreferences(this).edit().putBoolean("hasLoggedInUsername", true).commit();
 			// this.finish();
 		}
@@ -207,8 +206,6 @@ public class LoginActivity extends BaseGameActivity implements OnClickListener {
 		}
 		this.google.setText("Log out of Google Plus");
 		Util.getPreferences(this).edit().putString("username", un).commit();
-		Log.d(TAG, "LOGIN : G+ : " + un);
-
 	}
 	@Override
 	public void onStart() {
