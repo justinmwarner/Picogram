@@ -445,6 +445,7 @@ OnItemClickListener, OnItemLongClickListener {
 		go.setWidth("5");
 		go.setHeight("4");
 		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
+		go.setDiff("0");
 		go.nullsToValue(this.getActivity());
 		this.sql.addUserPicogram(go);
 		go = new Picogram();
@@ -453,6 +454,7 @@ OnItemClickListener, OnItemLongClickListener {
 		go.setWidth("5");
 		go.setHeight("4");
 		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
+		go.setDiff("0");
 		go.nullsToValue(this.getActivity());
 		this.sql.addUserPicogram(go);
 		go = new Picogram();
@@ -461,6 +463,7 @@ OnItemClickListener, OnItemLongClickListener {
 		go.setWidth("3");
 		go.setHeight("4");
 		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
+		go.setDiff("0");
 		go.nullsToValue(this.getActivity());
 		this.sql.addUserPicogram(go);
 		go = new Picogram();
@@ -469,6 +472,7 @@ OnItemClickListener, OnItemLongClickListener {
 		go.setWidth("5");
 		go.setHeight("5");
 		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
+		go.setDiff("0");
 		go.nullsToValue(this.getActivity());
 		this.sql.addUserPicogram(go);
 		go = new Picogram();
@@ -477,6 +481,7 @@ OnItemClickListener, OnItemLongClickListener {
 		go.setWidth("5");
 		go.setHeight("5");
 		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
+		go.setDiff("0");
 		go.nullsToValue(this.getActivity());
 		this.sql.addUserPicogram(go);
 		go = new Picogram();
@@ -485,6 +490,7 @@ OnItemClickListener, OnItemLongClickListener {
 		go.setWidth("5");
 		go.setHeight("5");
 		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
+		go.setDiff("0");
 		go.nullsToValue(this.getActivity());
 		this.sql.addUserPicogram(go);
 		go = new Picogram();
@@ -493,6 +499,7 @@ OnItemClickListener, OnItemLongClickListener {
 		go.setWidth("5");
 		go.setHeight("5");
 		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
+		go.setDiff("0");
 		go.nullsToValue(this.getActivity());
 		this.sql.addUserPicogram(go);
 		go = new Picogram();
@@ -501,6 +508,7 @@ OnItemClickListener, OnItemLongClickListener {
 		go.setWidth("7");
 		go.setHeight("6");
 		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
+		go.setDiff("0");
 		go.nullsToValue(this.getActivity());
 		this.sql.addUserPicogram(go);
 		go = new Picogram();
@@ -509,6 +517,7 @@ OnItemClickListener, OnItemLongClickListener {
 		go.setWidth("5");
 		go.setHeight("5");
 		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
+		go.setDiff("0");
 		go.nullsToValue(this.getActivity());
 		this.sql.addUserPicogram(go);
 		go = new Picogram();
@@ -517,6 +526,7 @@ OnItemClickListener, OnItemLongClickListener {
 		go.setWidth("5");
 		go.setHeight("5");
 		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
+		go.setDiff("0");
 		go.nullsToValue(this.getActivity());
 		this.sql.addUserPicogram(go);
 		go = new Picogram();
@@ -529,12 +539,14 @@ OnItemClickListener, OnItemLongClickListener {
 		// These shouldn't change for these packs.
 		Picogram go = new Picogram();
 		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
+		go.setDiff("0");
 		// Change.
 		go.setName("Key");
 		go.setSolution("000001111111110100100111");
 		go.setWidth("8");
 		go.setHeight("3");
 		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
+		go.setDiff("0");
 		go.nullsToValue(this.getActivity());
 		this.sql.addUserPicogram(go);
 		go = new Picogram();
@@ -543,6 +555,7 @@ OnItemClickListener, OnItemLongClickListener {
 		go.setWidth("8");
 		go.setHeight("4");
 		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
+		go.setDiff("0");
 		go.nullsToValue(this.getActivity());
 		this.sql.addUserPicogram(go);
 		go = new Picogram();
@@ -551,6 +564,7 @@ OnItemClickListener, OnItemLongClickListener {
 		go.setWidth("5");
 		go.setHeight("4");
 		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
+		go.setDiff("0");
 		go.nullsToValue(this.getActivity());
 		this.sql.addUserPicogram(go);
 		go = new Picogram();
@@ -559,6 +573,7 @@ OnItemClickListener, OnItemLongClickListener {
 		go.setWidth("13");
 		go.setHeight("22");
 		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
+		go.setDiff("0");
 		go.nullsToValue(this.getActivity());
 		this.sql.addUserPicogram(go);
 		go = new Picogram();
@@ -567,6 +582,7 @@ OnItemClickListener, OnItemLongClickListener {
 		go.setWidth("10");
 		go.setHeight("8");
 		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
+		go.setDiff("0");
 		go.nullsToValue(this.getActivity());
 		this.sql.addUserPicogram(go);
 		go = new Picogram();
@@ -575,6 +591,7 @@ OnItemClickListener, OnItemLongClickListener {
 		go.setWidth("10");
 		go.setHeight("7");
 		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
+		go.setDiff("0");
 		go.nullsToValue(this.getActivity());
 		this.sql.addUserPicogram(go);
 		go = new Picogram();
@@ -583,6 +600,7 @@ OnItemClickListener, OnItemLongClickListener {
 		go.setWidth("6");
 		go.setHeight("5");
 		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
+		go.setDiff("0");
 		go.nullsToValue(this.getActivity());
 		this.sql.addUserPicogram(go);
 		go = new Picogram();
@@ -591,6 +609,7 @@ OnItemClickListener, OnItemLongClickListener {
 		go.setWidth("3");
 		go.setHeight("13");
 		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
+		go.setDiff("0");
 		go.nullsToValue(this.getActivity());
 		this.sql.addUserPicogram(go);
 		go = new Picogram();
@@ -599,6 +618,7 @@ OnItemClickListener, OnItemLongClickListener {
 		go.setWidth("5");
 		go.setHeight("9");
 		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
+		go.setDiff("0");
 		go.nullsToValue(this.getActivity());
 		this.sql.addUserPicogram(go);
 		go = new Picogram();
@@ -607,6 +627,7 @@ OnItemClickListener, OnItemLongClickListener {
 		go.setWidth("11");
 		go.setHeight("13");
 		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
+		go.setDiff("0");
 		go.nullsToValue(this.getActivity());
 		this.sql.addUserPicogram(go);
 		go = new Picogram();
@@ -623,6 +644,7 @@ OnItemClickListener, OnItemLongClickListener {
 		go.setWidth("13");
 		go.setHeight("14");
 		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
+		go.setDiff("1");
 		go.nullsToValue(this.getActivity());
 		this.sql.addUserPicogram(go);
 		go = new Picogram();
@@ -631,6 +653,7 @@ OnItemClickListener, OnItemLongClickListener {
 		go.setWidth("14");
 		go.setHeight("14");
 		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
+		go.setDiff("1");
 		go.nullsToValue(this.getActivity());
 		this.sql.addUserPicogram(go);
 		go = new Picogram();
@@ -639,6 +662,7 @@ OnItemClickListener, OnItemLongClickListener {
 		go.setWidth("25");
 		go.setHeight("25");
 		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
+		go.setDiff("1");
 		go.nullsToValue(this.getActivity());
 		this.sql.addUserPicogram(go);
 		go = new Picogram();
@@ -647,6 +671,7 @@ OnItemClickListener, OnItemLongClickListener {
 		go.setWidth("25");
 		go.setHeight("25");
 		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
+		go.setDiff("1");
 		go.nullsToValue(this.getActivity());
 		this.sql.addUserPicogram(go);
 		go = new Picogram();
@@ -655,6 +680,7 @@ OnItemClickListener, OnItemLongClickListener {
 		go.setWidth("20");
 		go.setHeight("20");
 		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
+		go.setDiff("1");
 		go.nullsToValue(this.getActivity());
 		this.sql.addUserPicogram(go);
 		go = new Picogram();
@@ -663,6 +689,7 @@ OnItemClickListener, OnItemLongClickListener {
 		go.setWidth("20");
 		go.setHeight("25");
 		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
+		go.setDiff("1");
 		go.nullsToValue(this.getActivity());
 		this.sql.addUserPicogram(go);
 		go = new Picogram();
@@ -671,6 +698,7 @@ OnItemClickListener, OnItemLongClickListener {
 		go.setWidth("25");
 		go.setHeight("25");
 		go.setColors(Color.TRANSPARENT + "," + Color.BLACK);
+		go.setDiff("1");
 		go.nullsToValue(this.getActivity());
 		this.sql.addUserPicogram(go);
 		this.sql.close();

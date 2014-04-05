@@ -209,19 +209,15 @@ public class PicogramListAdapter extends ArrayAdapter<Picogram> {
 			// Use difficulty and get the images to display rather than a blank screen.
 			if (picogram.getDiff().equals("0") || picogram.getDiff().equalsIgnoreCase("easy"))
 			{
-				bm = BitmapFactory.decodeResource(this.context.getResources(), R.drawable.one);
+				bm = BitmapFactory.decodeResource(this.context.getResources(), R.drawable.easy);
 			}
 			else if (picogram.getDiff().equals("1") || picogram.getDiff().equalsIgnoreCase("medium"))
 			{
-				bm = BitmapFactory.decodeResource(this.context.getResources(), R.drawable.two);
+				bm = BitmapFactory.decodeResource(this.context.getResources(), R.drawable.medium);
 			}
 			else if (picogram.getDiff().equals("2") || picogram.getDiff().equalsIgnoreCase("hard"))
 			{
-				bm = BitmapFactory.decodeResource(this.context.getResources(), R.drawable.three);
-			}
-			else if (picogram.getDiff().equals("3") || picogram.getDiff().equalsIgnoreCase("extreme"))
-			{
-				bm = BitmapFactory.decodeResource(this.context.getResources(), R.drawable.four);
+				bm = BitmapFactory.decodeResource(this.context.getResources(), R.drawable.hard);
 			}
 		}
 		holder.pic.setImageBitmap(bm);

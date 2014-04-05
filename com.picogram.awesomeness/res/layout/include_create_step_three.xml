@@ -3,17 +3,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent" >
 
-    <TextView
-        android:id="@+id/tvStepThree"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentTop="true"
-        android:gravity="center"
-        android:text="Change Width Height &amp; # Colors"
-        android:textAppearance="?android:attr/textAppearanceLarge" />
-
     <com.picogram.awesomeness.TouchImageView
         android:id="@+id/tivGameOne"
         android:layout_width="fill_parent"

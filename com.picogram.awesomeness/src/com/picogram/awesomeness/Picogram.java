@@ -167,7 +167,7 @@ public class Picogram implements Comparable {
 			this.name = "N/A";
 		}
 		if (this.diff == null) {
-			this.diff = "Easy";
+			this.diff = "1";
 		}
 		if (this.author == null) {
 			this.author = "N/A";

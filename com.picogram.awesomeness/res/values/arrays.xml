@@ -58,7 +58,6 @@
         <item>Easy</item>
         <item>Average</item>
         <item>Hard</item>
-        <item>eXtreme</item>
     </string-array>
     <string-array name="listDecorations">
         <item>None</item>

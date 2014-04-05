@@ -240,6 +240,7 @@ public class CreateActivity extends SherlockFragmentActivity implements ActionBa
 	protected void onCreate(final Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		this.setContentView(R.layout.activity_menu);// We use the same exact layout as the main menu. =)
+		this.getSupportActionBar().setTitle(Html.fromHtml("<font color='#000000'>Select a Source Image</font>"));
 		this.handler = new Handler();
 		this.tabs = (PagerSlidingTabStrip) this.findViewById(R.id.tabs);
 		this.pager = (ViewPager) this.findViewById(R.id.pager);
@@ -274,7 +275,6 @@ public class CreateActivity extends SherlockFragmentActivity implements ActionBa
 
 	@Override
 	public boolean onCreateOptionsMenu(final Menu menu) {
-		this.getSupportActionBar().setTitle(Html.fromHtml("<font color='#000000'>Create a Picogram</font>"));
 		this.getSupportActionBar().setBackgroundDrawable(new ColorDrawable(this.getResources().getColor(R.color.light_yellow)));
 		return super.onCreateOptionsMenu(menu);
 	}
@@ -370,15 +370,34 @@ public class CreateActivity extends SherlockFragmentActivity implements ActionBa
 		this.currentTab = tab; // currentTab = tab being switched to.
 		if (this.currentTab == 0)
 		{
+			this.getSupportActionBar().setTitle(Html.fromHtml("<font color='#000000'>Select a Source Image</font>"));
 			if (this.bmInitial != null) {
 				// ((ImageView) this.findViewById(R.id.ivPrimaryPreview)).setImageBitmap(this.bmInitial);
 			}
 		} else if (this.currentTab == 1)
 		{
+			this.getSupportActionBar().setTitle(Html.fromHtml("<font color='#000000'>Crop the Image</font>"));
 			if (this.bmInitial != null) {
 				((CropImageView) this.findViewById(R.id.cropImageView)).setImageBitmap(this.bmInitial);
 			}
 		}
+		else if (this.currentTab == 2)
+		{
+			this.getSupportActionBar().setTitle(Html.fromHtml("<font color='#000000'>Set Size of Puzzle</font>"));
+		}
+		else if (this.currentTab == 3)
+		{
+			this.getSupportActionBar().setTitle(Html.fromHtml("<font color='#000000'>Change the Colors</font>"));
+		}
+		else if (this.currentTab == 4)
+		{
+			this.getSupportActionBar().setTitle(Html.fromHtml("<font color='#000000'>Fine Tune the Puzzle</font>"));
+		}
+		else if (this.currentTab == 5)
+		{
+			this.getSupportActionBar().setTitle(Html.fromHtml("<font color='#000000'>Name, tag, and submit it.</font>"));
+		}
+
 		this.updateAllTouchImageViews();
 		this.invalidateOptionsMenu();
 	}
