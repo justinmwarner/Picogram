@@ -11,6 +11,7 @@ import android.content.res.AssetFileDescriptor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -20,12 +21,12 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.text.Editable;
+import android.text.Html;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.widget.ArrayAdapter;
 import android.widget.EditText;
-import android.widget.ImageView;
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.Menu;
@@ -33,6 +34,8 @@ import com.actionbarsherlock.view.MenuItem;
 import com.astuetz.viewpager.extensions.PagerSlidingTabStrip;
 import com.edmodo.cropper.CropImageView;
 import com.flurry.android.FlurryAgent;
+
+import fr.castorflex.android.smoothprogressbar.SmoothProgressBar;
 
 import de.keyboardsurfer.android.widget.crouton.Crouton;
 import de.keyboardsurfer.android.widget.crouton.Style;
@@ -77,11 +80,11 @@ public class CreateActivity extends SherlockFragmentActivity implements ActionBa
 			"Picture", "Crop", "Game", "Colors", "Fine Tune", "Name"
 	}));
 
-	private PagerSlidingTabStrip tabs;
+	PagerSlidingTabStrip tabs;
 
-	private ViewPager pager;
+	ViewPager pager;
 
-	private MyPagerAdapter adapter;
+	MyPagerAdapter adapter;
 	Handler handler;
 	Bitmap bmCropped, bmInitial;
 	int currentTab = 0;
@@ -93,85 +96,89 @@ public class CreateActivity extends SherlockFragmentActivity implements ActionBa
 			Color.DKGRAY, Color.LTGRAY, Color.WHITE
 	};
 	int newColors[] = this.originalColors;
+
+	SmoothProgressBar spb;
+
+	boolean hasFineTuned = false;
+
+	String fineTunedSolution = "";
+
 	protected Bundle alterPhoto() {
-		this.updateValuesFromFragments();
 		if (this.width == 0) {
 			this.width = 3;
 		}
 		if (this.height == 0) {
-			this.height = 3;
+			this.height = 2;
 		}
 		if (this.numColors == 0) {
 			this.numColors = 2;
 		}
-		if ((this.solution == null) || this.solution.equals("")) {
-			if (!((this.bmCropped == null) || (this.width == 0) || (this.height == 0) || (this.numColors == 0))) {
-				// Subarray with the number.
-				this.newColors = Arrays.copyOfRange(this.originalColors, 0, this.numColors);
-				// Touch this up. It's a bit messy.
-				this.solution = ""; // Change back to nothing.
-				Bitmap alter = this.bmCropped.copy(Bitmap.Config.ARGB_8888, true);
-				alter = Bitmap.createScaledBitmap(this.bmCropped, this.width, this.height, false);
-				// Set pixels = to each pixel in the scaled image (Easier to find
-				// values, and smaller!)
-				final int pixels[] = new int[this.width * this.height];
-				alter.getPixels(pixels, 0, alter.getWidth(), 0, 0,
-						alter.getWidth(), alter.getHeight());
-				for (int i = 0; i < pixels.length; i++) {
-					final int rgb[] = this.getRGB(pixels[i]);
-					// Greyscale and inverse.
-					pixels[i] = 255 - ((rgb[0] + rgb[1] + rgb[2]) / 3);
-				}
-				alter = alter.copy(Bitmap.Config.ARGB_8888, true);
-				alter.setPixels(pixels, 0, alter.getWidth(), 0, 0,
-						alter.getWidth(), alter.getHeight());
+		Log.d(TAG, "W: " + this.width + " H: " + this.height);
+		if (!((this.bmCropped == null) || (this.width == 0) || (this.height == 0) || (this.numColors == 0))) {
+			// Subarray with the number.
+			this.newColors = Arrays.copyOfRange(this.originalColors, 0, this.numColors);
+			// Touch this up. It's a bit messy.
+			this.solution = ""; // Change back to nothing.
+			Bitmap alter = this.bmCropped.copy(Bitmap.Config.ARGB_8888, true);
+			alter = Bitmap.createScaledBitmap(this.bmCropped, this.width, this.height, false);
+			// Set pixels = to each pixel in the scaled image (Easier to find
+			// values, and smaller!)
+			final int pixels[] = new int[this.width * this.height];
+			alter.getPixels(pixels, 0, alter.getWidth(), 0, 0,
+					alter.getWidth(), alter.getHeight());
+			for (int i = 0; i < pixels.length; i++) {
+				final int rgb[] = this.getRGB(pixels[i]);
+				// Greyscale and inverse.
+				pixels[i] = 255 - ((rgb[0] + rgb[1] + rgb[2]) / 3);
+			}
+			alter = alter.copy(Bitmap.Config.ARGB_8888, true);
+			alter.setPixels(pixels, 0, alter.getWidth(), 0, 0,
+					alter.getWidth(), alter.getHeight());
 
-				final int pix[][] = new int[this.height][this.width];
-				int run = 0;
-				for (int i = 0; i < pix.length; i++) {
-					for (int j = 0; j < pix[i].length; j++) {
-						pix[i][j] = pixels[run++];
-					}
+			final int pix[][] = new int[this.height][this.width];
+			int run = 0;
+			for (int i = 0; i < pix.length; i++) {
+				for (int j = 0; j < pix[i].length; j++) {
+					pix[i][j] = pixels[run++];
 				}
+			}
 
-				run = 0;
-				alter = alter.copy(Bitmap.Config.ARGB_8888, true);
-				final char[] sol = new char[alter.getWidth() * alter.getHeight()];
-				for (int i = 0; i != alter.getHeight(); ++i) {
-					for (int j = 0; j != alter.getWidth(); ++j) {
-						for (int k = 0; k <= this.numColors; ++k) {
-							if (pix[i][j] <= ((256 * (k + 1)) / (this.numColors))) {
-								// pix[i][j] = this.colors[k];
-								sol[(i * alter.getWidth()) + j] = (k + " ")
-										.charAt(0);
-								break;
-							}
+			run = 0;
+			alter = alter.copy(Bitmap.Config.ARGB_8888, true);
+			final char[] sol = new char[this.width * this.height];
+			for (int i = 0; i != this.height; ++i) {
+				for (int j = 0; j != this.width; ++j) {
+					for (int k = 0; k <= this.numColors; ++k) {
+						if (pix[i][j] <= ((256 * (k + 1)) / (this.numColors))) {
+							// pix[i][j] = this.colors[k];
+							sol[(i * alter.getWidth()) + j] = (k + " ")
+									.charAt(0);
+							break;
 						}
 					}
 				}
-				this.solution = new String(sol);
-				// TODO do we need this?
-				// this.bmCropped.setHasAlpha(true);
-
-				final Bundle bundle = new Bundle();
-				// current height width id solution colors(,)
-				bundle.putString("current", this.solution);
-				bundle.putString("height", this.height + "");
-				bundle.putString("width", this.width + "");
-				bundle.putString("id", this.solution.hashCode() + "");
-				bundle.putString("solution", this.solution);
-				String cols = "";
-				// TODO: Switch transparency to the end.
-				// this.newColors[0] = this.newColors[this.numColors - 1];
-				// this.newColors[this.numColors - 1] = Color.TRANSPARENT;
-				// Now build the string of colors.
-				for (final int i : this.newColors) {
-					cols += i + ",";
-				}
-				cols = cols.substring(0, cols.length() - 1);
-				bundle.putString("colors", cols);
-				return bundle;
 			}
+			this.solution = new String(sol);
+			// TODO do we need this?
+			// this.bmCropped.setHasAlpha(true);
+
+			final Bundle bundle = new Bundle();
+			bundle.putString("current", this.solution);
+			bundle.putString("height", this.height + "");
+			bundle.putString("width", this.width + "");
+			bundle.putString("id", this.solution.hashCode() + "");
+			bundle.putString("solution", this.solution);
+			String cols = "";
+			// TODO: Switch transparency to the end.
+			// this.newColors[0] = this.newColors[this.numColors - 1];
+			// this.newColors[this.numColors - 1] = Color.TRANSPARENT;
+			// Now build the string of colors.
+			for (final int i : this.newColors) {
+				cols += i + ",";
+			}
+			cols = cols.substring(0, cols.length() - 1);
+			bundle.putString("colors", cols);
+			return bundle;
 		}
 		else
 		{
@@ -190,7 +197,6 @@ public class CreateActivity extends SherlockFragmentActivity implements ActionBa
 			bundle.putString("colors", cols);
 			return bundle;
 		}
-		return null;
 	}
 
 	private int[] getRGB(final int i) {
@@ -208,14 +214,20 @@ public class CreateActivity extends SherlockFragmentActivity implements ActionBa
 
 		if ((requestCode == CAMERA_REQUEST) && (resultCode == RESULT_OK)) {
 			final Bitmap photo = (Bitmap) data.getExtras().get("data");
-			((CreateFragment) this.adapter.getItem(0)).setOriginalImage(photo, this);
+			this.bmInitial = photo;
 		} else if (requestCode == FILE_SELECT_CODE) {
 			FlurryAgent.logEvent("CreateFromFile");
 			if (resultCode == Activity.RESULT_OK) {
 				final Uri uri = data.getData();
 				final Bitmap bi = this.readBitmap(uri);
-				((CreateFragment) CreateActivity.this.adapter.getItem(0)).setOriginalImage(bi, this);
+				this.bmInitial = bi;
 			}
+		}
+		if (this.bmInitial != null) {
+			if (CreateActivity.this.pager == null) {
+				this.pager = (ViewPager) this.findViewById(R.id.pager);
+			}
+			this.pager.setCurrentItem(1, true);
 		}
 	}
 
@@ -235,14 +247,14 @@ public class CreateActivity extends SherlockFragmentActivity implements ActionBa
 		this.pager.setPageTransformer(true, new DepthPageTransformer());
 		this.pager.setAdapter(this.adapter);
 		this.tabs.setOnPageChangeListener(this);
+		this.spb = (SmoothProgressBar) this.findViewById(R.id.spbLoad);
+		this.spb.setVisibility(View.INVISIBLE);
 		final int pageMargin = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 4, this
 				.getResources()
 				.getDisplayMetrics());
 		this.pager.setPageMargin(pageMargin);
 
 		this.tabs.setViewPager(this.pager);
-		final ActionBar actionBar = this.getSupportActionBar();
-		actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
 		final Intent intent = this.getIntent();
 		final String action = intent.getAction();
 		final String type = intent.getType();
@@ -251,7 +263,6 @@ public class CreateActivity extends SherlockFragmentActivity implements ActionBa
 				final Uri uri = (Uri) intent
 						.getParcelableExtra(Intent.EXTRA_STREAM);
 				final Bitmap bi = this.readBitmap(uri);
-				((CreateFragment) CreateActivity.this.adapter.getItem(0)).setOriginalImage(bi, this);
 			} else if (type.startsWith("text/")) {
 				final String sharedText = intent.getStringExtra(Intent.EXTRA_TEXT);
 				if (sharedText != null) {
@@ -263,93 +274,14 @@ public class CreateActivity extends SherlockFragmentActivity implements ActionBa
 
 	@Override
 	public boolean onCreateOptionsMenu(final Menu menu) {
-		final ActionBar ab = this.getSupportActionBar();
-		ArrayAdapter<CharSequence> list = null;
-		if (this.currentTab == this.TITLES.indexOf("Picture")) {
-			list = ArrayAdapter.createFromResource(this, R.array.listCreatePicture,
-					R.layout.sherlock_spinner_item);
-		}
-
-		if (list != null) {
-			ab.setDisplayShowTitleEnabled(false);
-			ab.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
-			list.setDropDownViewResource(R.layout.sherlock_spinner_dropdown_item);
-			ab.setListNavigationCallbacks(list, this);
-		} else
-		{
-			ab.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
-			ab.setTitle("Create a Picogram");
-		}
-
-		ab.setDisplayHomeAsUpEnabled(this.currentTab != this.TITLES.indexOf("Picture"));
-		ab.setDisplayShowTitleEnabled(false);
-		ab.setDisplayUseLogoEnabled(false);
-
-		this.invalidateOptionsMenu();
+		this.getSupportActionBar().setTitle(Html.fromHtml("<font color='#000000'>Create a Picogram</font>"));
+		this.getSupportActionBar().setBackgroundDrawable(new ColorDrawable(this.getResources().getColor(R.color.light_yellow)));
 		return super.onCreateOptionsMenu(menu);
 	}
 
-	@SuppressLint("NewApi")
 	public boolean onNavigationItemSelected(final int itemPosition, final long itemId) {
-		if (itemPosition == 0) {
-			// Custom, just go with it brah.
-		}
-		else if (itemPosition == 1) {
-			// File
-			final Intent fileIntent = new Intent(Intent.ACTION_GET_CONTENT);
-			fileIntent.setType("image/*");
-			fileIntent.addCategory(Intent.CATEGORY_OPENABLE);
-			if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-				final ActivityOptions opts = ActivityOptions.makeCustomAnimation(
-						this, R.anim.fadein, R.anim.fadeout);
-				this.startActivityForResult(fileIntent, FILE_SELECT_CODE, opts.toBundle());
-			} else {
-				this.startActivityForResult(fileIntent, FILE_SELECT_CODE);
-			}
-		} else if (itemPosition == 2) {
-			// Website
-			final EditText input = new EditText(this);
-			input.setText("http://upload.wikimedia.org/wikipedia/commons/a/ab/Monarch_Butterfly_Showy_Male_3000px.jpg");
-			new AlertDialog.Builder(this)
-			.setTitle("URL Sumittion")
-			.setMessage("Url Link to Image File...")
-			.setView(input)
-			.setPositiveButton("Ok",
-					new DialogInterface.OnClickListener() {
-				public void onClick(final DialogInterface dialog,
-						final int whichButton) {
-					final Editable value = input.getText();
-					CreateActivity.this.handler.post(new Runnable() {
-
-						public void run() {
-							CreateActivity.this.processURL(value.toString());
-						}
-					});
-
-				}
-			})
-			.setNegativeButton("Cancel",
-					new DialogInterface.OnClickListener() {
-				public void onClick(final DialogInterface dialog,
-						final int whichButton) {
-					// Do nothing.
-				}
-			}).show();
-		} else if (itemPosition == 3)
-		{
-			final Intent cameraIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
-			if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-
-				final ActivityOptions opts = ActivityOptions.makeCustomAnimation(
-						this, R.anim.fadein, R.anim.fadeout);
-				this.startActivityForResult(cameraIntent, CAMERA_REQUEST, opts.toBundle());
-			}
-			else
-			{
-				this.startActivityForResult(cameraIntent, CAMERA_REQUEST);
-			}
-		}
-		return true;
+		// TODO Auto-generated method stub
+		return false;
 	}
 
 	@Override
@@ -376,23 +308,26 @@ public class CreateActivity extends SherlockFragmentActivity implements ActionBa
 	}
 
 	public void onPageSelected(final int tab) {
+		// currentTab = previous tab
 		if (this.currentTab == 0)
 		{
 			// Store the initial image.
-			final ImageView iv = ((ImageView) this.findViewById(R.id.ivPrimaryPreview));
-			if (iv != null) {
-				iv.buildDrawingCache();
-				this.bmInitial = Bitmap.createBitmap(iv.getDrawingCache());
-			}
+			// final ImageView iv = ((ImageView) this.findViewById(R.id.ivPrimaryPreview));
+			// if (iv != null) {
+			// iv.buildDrawingCache();
+			// this.bmInitial = Bitmap.createBitmap(iv.getDrawingCache());
+			// }
 			if ((this.bmInitial == null) || ((this.bmInitial.getWidth() + this.bmInitial.getHeight()) <= 0))
 			{
 				// Make sure we've received an image.
 				this.pager.setCurrentItem(0);
 				return;
 			}
+			this.bmCropped = this.bmInitial;
 		}
 		else if (this.currentTab == 1)
 		{
+			Log.d(TAG, "LEAVING CROP");
 			// Store the cropped image.
 			this.bmCropped = ((CropImageView) this.findViewById(R.id.cropImageView)).getCroppedImage();
 			this.solution = "";
@@ -420,11 +355,23 @@ public class CreateActivity extends SherlockFragmentActivity implements ActionBa
 				this.solution = ((TouchImageView) this.findViewById(R.id.tivGameThree)).gCurrent;
 			}
 		}
-		this.currentTab = tab;
+		else
+		{
+			// We're back at cropping or getting new image, so remove fine tune settings.
+			this.hasFineTuned = false;
+			this.fineTunedSolution = "";
+		}
+		if (this.currentTab == 4)
+		{
+			// Leaving fine tune, so it must be "special"
+
+			this.fineTunedSolution = ((TouchImageView) this.findViewById(R.id.tivGameThree)).gCurrent;
+		}
+		this.currentTab = tab; // currentTab = tab being switched to.
 		if (this.currentTab == 0)
 		{
 			if (this.bmInitial != null) {
-				((ImageView) this.findViewById(R.id.ivPrimaryPreview)).setImageBitmap(this.bmInitial);
+				// ((ImageView) this.findViewById(R.id.ivPrimaryPreview)).setImageBitmap(this.bmInitial);
 			}
 		} else if (this.currentTab == 1)
 		{
@@ -432,7 +379,7 @@ public class CreateActivity extends SherlockFragmentActivity implements ActionBa
 				((CropImageView) this.findViewById(R.id.cropImageView)).setImageBitmap(this.bmInitial);
 			}
 		}
-		((CreateFragment) CreateActivity.this.adapter.getItem(this.pager.getCurrentItem())).updateAllTouchImageViews(this);
+		this.updateAllTouchImageViews();
 		this.invalidateOptionsMenu();
 	}
 
@@ -463,12 +410,27 @@ public class CreateActivity extends SherlockFragmentActivity implements ActionBa
 					InputStream in;
 					in = conn.getInputStream();
 					final Bitmap bm = BitmapFactory.decodeStream(in);
-					((CreateFragment) CreateActivity.this.adapter.getItem(0)).setOriginalImage(bm, a);
-					// TODO Stop the progress bar.
+					CreateActivity.this.bmInitial = bm;
+					a.runOnUiThread(new Runnable() {
+
+						public void run() {
+							if (CreateActivity.this.bmInitial != null)
+							{
+								if (CreateActivity.this.pager == null) {
+									CreateActivity.this.pager = (ViewPager) CreateActivity.this.findViewById(R.id.pager);
+								}
+								CreateActivity.this.pager.setCurrentItem(1, true);
+								// TODO Stop the progress bar.
+							}
+							CreateActivity.this.spb.setVisibility(View.INVISIBLE);
+						}
+
+					});
 				} catch (final IOException e) {
 					Crouton.makeText(a, "Failed to get image.", Style.ALERT)
 					.show();
 					e.printStackTrace();
+					CreateActivity.this.spb.setVisibility(View.INVISIBLE);
 				}
 			}
 
@@ -489,13 +451,147 @@ public class CreateActivity extends SherlockFragmentActivity implements ActionBa
 			try {
 				bm = BitmapFactory.decodeFileDescriptor(
 						fileDescriptor.getFileDescriptor(), null, options);
-				((CreateFragment) this.adapter.getItem(0)).setOriginalImage(bm, this);
 				fileDescriptor.close();
 			} catch (final IOException e) {
 				e.printStackTrace();
 			}
 		}
 		return bm;
+	}
+
+	@SuppressLint("NewApi")
+	public void runCamera() {
+		final Intent cameraIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
+		if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+
+			final ActivityOptions opts = ActivityOptions.makeCustomAnimation(
+					this, R.anim.fadein, R.anim.fadeout);
+			this.startActivityForResult(cameraIntent, CAMERA_REQUEST, opts.toBundle());
+		}
+		else
+		{
+			this.startActivityForResult(cameraIntent, CAMERA_REQUEST);
+		}
+	}
+
+	@SuppressLint("NewApi")
+	public void runFile() {
+		// File
+		final Intent fileIntent = new Intent(Intent.ACTION_GET_CONTENT);
+		fileIntent.setType("image/*");
+		fileIntent.addCategory(Intent.CATEGORY_OPENABLE);
+		if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+			final ActivityOptions opts = ActivityOptions.makeCustomAnimation(
+					this, R.anim.fadein, R.anim.fadeout);
+			this.startActivityForResult(fileIntent, FILE_SELECT_CODE, opts.toBundle());
+		} else {
+			this.startActivityForResult(fileIntent, FILE_SELECT_CODE);
+		}
+	}
+
+	public void runURL() {
+		// Website
+		this.spb.setVisibility(View.VISIBLE);
+		final EditText input = new EditText(this);
+		input.setText("http://upload.wikimedia.org/wikipedia/commons/a/ab/Monarch_Butterfly_Showy_Male_3000px.jpg");
+		new AlertDialog.Builder(this)
+		.setTitle("URL Sumittion")
+		.setMessage("Url Link to Image File...")
+		.setView(input)
+		.setPositiveButton("Ok",
+				new DialogInterface.OnClickListener() {
+			public void onClick(final DialogInterface dialog,
+					final int whichButton) {
+				final Editable value = input.getText();
+				CreateActivity.this.handler.post(new Runnable() {
+
+					public void run() {
+						CreateActivity.this.processURL(value.toString());
+					}
+				});
+
+			}
+		})
+		.setNegativeButton("Cancel",
+				new DialogInterface.OnClickListener() {
+			public void onClick(final DialogInterface dialog,
+					final int whichButton) {
+				// Do nothing.
+			}
+		}).show();
+	}
+
+	public void updateAllTouchImageViews() {
+		this.spb.setVisibility(View.VISIBLE);
+		Bundle b = null;
+		try {
+			b = this.alterPhoto();
+		} catch (final Exception e) {
+			Log.d(TAG, "Error: " + e);
+		}
+		if (b != null) {
+			TouchImageView tivGameFour = null, tivGameThree = null, tivGameTwo = null, tivGameOne = null;
+			b.putString("current", b.getString("solution"));
+			b.putString("solution", b.getString("solution"));
+			String cols = "";
+			for (final int col : this.newColors) {
+				cols += col + ",";
+			}
+			b.putString("colors", cols);
+			b.putBoolean("refresh", true);
+			if (tivGameOne == null) {
+				tivGameOne = (TouchImageView) this.findViewById(R.id.tivGameOne);
+			}
+			if (tivGameOne != null) {
+				if (this.hasFineTuned && (!this.fineTunedSolution.isEmpty())) {
+					b.putString("solution", this.fineTunedSolution);
+					b.putString("current", this.fineTunedSolution);
+				}
+				tivGameOne.setPicogramInfo(b);
+			}
+			if (tivGameTwo == null) {
+				tivGameTwo = (TouchImageView) this.findViewById(R.id.tivGameTwo);
+			}
+			if (tivGameTwo != null) {
+				if (this.hasFineTuned && (!this.fineTunedSolution.isEmpty())) {
+					b.putString("solution", this.fineTunedSolution);
+					b.putString("current", this.fineTunedSolution);
+				}
+				tivGameTwo.setPicogramInfo(b);
+			}
+			if (tivGameThree == null) {
+				tivGameThree = (TouchImageView) this.findViewById(R.id.tivGameThree);
+				// Save new "solution".
+				if (tivGameThree != null) {
+					if (!this.solution.equals(tivGameThree.gCurrent))
+					{
+						Log.d(TAG, "New new new!");
+						this.solution = tivGameThree.gCurrent;
+						this.hasFineTuned = true;
+					}
+				}
+			}
+			if (tivGameThree != null) {
+				b.putBoolean("refresh", false);
+				if (this.hasFineTuned && (!this.fineTunedSolution.isEmpty())) {
+					b.putString("solution", this.fineTunedSolution);
+					b.putString("current", this.fineTunedSolution);
+				}
+				tivGameThree.setPicogramInfo(b);
+			}
+			if (tivGameFour == null) {
+				tivGameFour = (TouchImageView) this.findViewById(R.id.tivGameFour);
+			}
+			if (tivGameFour != null) {
+				if (this.hasFineTuned && (!this.fineTunedSolution.isEmpty())) {
+					b.putString("solution", this.fineTunedSolution);
+					b.putString("current", this.fineTunedSolution);
+				}
+
+				tivGameFour.setPicogramInfo(b);
+			}
+		}
+		this.spb.setVisibility(View.INVISIBLE);
 	}
 
 	private void updateValuesFromFragments() {

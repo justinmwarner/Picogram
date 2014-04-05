@@ -433,6 +433,7 @@ OnSeekBarChangeListener {
 			sql.updateScore(this.tiv.gId, newScore);
 		}
 		sql.close();
+		ShakeDetector.stop();
 	}
 
 	public void onProgressChanged(final SeekBar seekBar, final int progress,
@@ -462,6 +463,7 @@ OnSeekBarChangeListener {
 	@Override
 	public void onResume() {
 		super.onResume();
+		ShakeDetector.start();
 		Util.updateFullScreen(this);
 		sql = new SQLitePicogramAdapter(this.getApplicationContext(),
 				"Picograms", null, 1);

@@ -23,19 +23,11 @@
         android:hint="Type Tags Here"
         android:singleLine="true" />
 
-    <Spinner
-        android:id="@+id/spinDifficulty"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_above="@+id/cmactv"
-        android:layout_alignParentLeft="true"
-        android:entries="@array/listDifficulties" />
-
     <EditText
         android:id="@+id/etName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/spinDifficulty"
+        android:layout_above="@+id/cmactv"
         android:layout_alignParentLeft="true"
         android:ems="10"
         android:hint="Picogram Name"
@@ -53,5 +45,15 @@
         android:layout_alignParentRight="true"
         android:layout_below="@+id/spinDifficulty"
         android:text="Submit" />
+
+    <Spinner
+        android:id="@+id/spinDifficulty"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/cmactv"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/tivGameFour"
+        android:layout_toRightOf="@+id/etName"
+        android:entries="@array/listDifficulties" />
 
 </RelativeLayout>

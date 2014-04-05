@@ -191,6 +191,7 @@ FlurryAdListener, OnPageChangeListener, OnClickListener, OnRMMUserChoiceListener
 			sra.close();
 			// Update current tab.
 			this.currentTab = 0;
+			this.updateCurrentTab();
 		} else if ((resultCode == Activity.RESULT_OK)
 				&& (requestCode == GAME_CODE)) {
 			// Back button pushed or won.
@@ -319,7 +320,10 @@ FlurryAdListener, OnPageChangeListener, OnClickListener, OnRMMUserChoiceListener
 
 				final AlertDialog.Builder builder = new AlertDialog.Builder(MenuActivity.this);
 				builder.setMessage("Send us feedback?").setPositiveButton("Yes", dialogClickListener)
-				.setNegativeButton("No", dialogClickListener).show();
+				.setNegativeButton("No", dialogClickListener);
+				if (MenuActivity.this.dialog != null) {
+					MenuActivity.this.dialog = builder.show();
+				}
 			}
 		});
 	}
@@ -481,6 +485,7 @@ FlurryAdListener, OnPageChangeListener, OnClickListener, OnRMMUserChoiceListener
 		if (!this.continueMusic) {
 			MusicManager.pause();
 		}
+		ShakeDetector.stop();
 	}
 
 	public void onRenderFailed(final String arg0) {
@@ -491,6 +496,7 @@ FlurryAdListener, OnPageChangeListener, OnClickListener, OnRMMUserChoiceListener
 		super.onResume();
 		this.continueMusic = false;
 		MusicManager.start(this);
+		ShakeDetector.start();
 
 		this.updateCurrentTab();
 	}

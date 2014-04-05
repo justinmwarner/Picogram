@@ -36,6 +36,7 @@ public class PicogramListAdapter extends ArrayAdapter<Picogram> {
 			final int textViewResourceId) {
 		super(context, textViewResourceId);
 	}
+
 	public PicogramListAdapter(final Context context, final int resource,
 			final ArrayList<Picogram> items) {
 		super(context, resource, items);
@@ -201,7 +202,28 @@ public class PicogramListAdapter extends ArrayAdapter<Picogram> {
 		}
 		picogram.nullsToValue(this.context);// Just reset all nulls to a value.
 		final String curr = picogram.getCurrent();
-		final Bitmap bm = this.getBitmapFromCurrent(picogram, position);
+		Bitmap bm = this.getBitmapFromCurrent(picogram, position);
+		// Check if no progress has been made
+		if (curr.matches("[0]*"))
+		{
+			// Use difficulty and get the images to display rather than a blank screen.
+			if (picogram.getDiff().equals("0") || picogram.getDiff().equalsIgnoreCase("easy"))
+			{
+				bm = BitmapFactory.decodeResource(this.context.getResources(), R.drawable.one);
+			}
+			else if (picogram.getDiff().equals("1") || picogram.getDiff().equalsIgnoreCase("medium"))
+			{
+				bm = BitmapFactory.decodeResource(this.context.getResources(), R.drawable.two);
+			}
+			else if (picogram.getDiff().equals("2") || picogram.getDiff().equalsIgnoreCase("hard"))
+			{
+				bm = BitmapFactory.decodeResource(this.context.getResources(), R.drawable.three);
+			}
+			else if (picogram.getDiff().equals("3") || picogram.getDiff().equalsIgnoreCase("extreme"))
+			{
+				bm = BitmapFactory.decodeResource(this.context.getResources(), R.drawable.four);
+			}
+		}
 		holder.pic.setImageBitmap(bm);
 		holder.pic.setVisibility(View.VISIBLE);
 		// Change color if user has beaten level.

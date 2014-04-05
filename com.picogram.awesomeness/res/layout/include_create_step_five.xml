@@ -13,14 +13,14 @@
         android:layout_alignParentTop="true" />
 
     <TextView
-        android:id="@+id/temp"
+        android:id="@+id/tvStepFive"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
         android:layout_toRightOf="@+id/bToolbox"
         android:gravity="center"
-        android:text="Fine tune your image, select a color and fix up the game before finishing." />
+        android:text="Fine tune your image, select a color and draw on the game." />
 
     <Button
         android:id="@+id/bToolbox"

@@ -2,7 +2,17 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent" >
-    
+
+    <TextView
+        android:id="@+id/tvStepFour"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        android:gravity="center"
+        android:text="Change Colors"
+        android:textAppearance="?android:attr/textAppearanceLarge" />
 
     <com.picogram.awesomeness.TouchImageView
         android:id="@+id/tivGameTwo"
@@ -11,13 +21,13 @@
         android:layout_above="@+id/bColorSelector"
         android:layout_alignParentLeft="true"
         android:layout_alignParentRight="true"
-        android:layout_alignParentTop="true" />
+        android:layout_below="@+id/tvStepFour" />
 
     <Button
         android:id="@+id/bColorSelector"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:gravity="center"
-        android:layout_alignParentBottom="true"/>
+        android:layout_alignParentBottom="true"
+        android:gravity="center" />
 
 </RelativeLayout>

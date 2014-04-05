@@ -4,23 +4,47 @@
     android:layout_height="match_parent" >
 
     <TextView
-        android:id="@+id/tvInstructions"
+        android:id="@+id/tvStepOne"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentTop="true"
         android:gravity="center"
-        android:text="Select Image Option Above"
+        android:text="Select Image Source"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
-    <ImageView
-        android:id="@+id/ivPrimaryPreview"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentRight="true"
-        android:layout_below="@+id/tvInstructions" />
+
+    <Button
+        android:id="@+id/bCustom"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/tvStepOne"
+        android:layout_centerHorizontal="true"
+        android:text="Custom" />
+
+    <Button
+        android:id="@+id/bURL"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@+id/bCustom"
+        android:text="URL" />
+
+    <Button
+        android:id="@+id/bFile"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@+id/bURL"
+        android:text="File" />
+
+    <Button
+        android:id="@+id/bCamera"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@+id/bFile"
+        android:text="Camera" />
 
 </RelativeLayout>

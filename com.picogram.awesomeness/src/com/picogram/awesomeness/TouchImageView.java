@@ -1117,6 +1117,10 @@ OnDoubleTapListener {
 		this.gHeight = Integer.parseInt(savedInstanceState.getString("height", "0"));
 		this.gWidth = Integer.parseInt(savedInstanceState.getString("width", "0"));
 
+		while (this.gCurrent.length() <= (this.gHeight * this.gWidth))
+		{
+			this.gCurrent += "0";
+		}
 		this.gSolution = savedInstanceState.getString("solution");
 		this.gId = savedInstanceState.getString("id", (this.gSolution + "").hashCode() + "");
 		final String[] cols = savedInstanceState.getString("colors").split(",");
