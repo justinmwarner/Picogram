@@ -30,8 +30,6 @@ import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
 
 import com.flurry.android.FlurryAgent;
-import com.github.tbouron.shakedetector.library.ShakeDetector;
-import com.github.tbouron.shakedetector.library.ShakeDetector.OnShakeListener;
 import com.picogram.awesomeness.DialogMaker.OnDialogResultListener;
 import com.picogram.awesomeness.TouchImageView.HistoryListener;
 import com.picogram.awesomeness.TouchImageView.WinnerListener;
@@ -396,14 +394,6 @@ OnSeekBarChangeListener {
 		tools.setBackgroundColor(Color.WHITE);
 		tools.setOnClickListener(this);
 
-		ShakeDetector.create(this, new OnShakeListener() {
-
-			public void OnShake() {
-				// Prompt dialog.
-				tools.performClick();
-			}
-		});
-
 		// TODO Check for multiple solutions. If they exist tell the user as a
 		// heads up.
 	}
@@ -433,7 +423,6 @@ OnSeekBarChangeListener {
 			sql.updateScore(this.tiv.gId, newScore);
 		}
 		sql.close();
-		ShakeDetector.stop();
 	}
 
 	public void onProgressChanged(final SeekBar seekBar, final int progress,
@@ -463,7 +452,6 @@ OnSeekBarChangeListener {
 	@Override
 	public void onResume() {
 		super.onResume();
-		ShakeDetector.start();
 		Util.updateFullScreen(this);
 		sql = new SQLitePicogramAdapter(this.getApplicationContext(),
 				"Picograms", null, 1);

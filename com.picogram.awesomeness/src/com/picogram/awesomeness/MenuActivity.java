@@ -47,8 +47,6 @@ import com.flurry.android.FlurryAdSize;
 import com.flurry.android.FlurryAdType;
 import com.flurry.android.FlurryAds;
 import com.flurry.android.FlurryAgent;
-import com.github.tbouron.shakedetector.library.ShakeDetector;
-import com.github.tbouron.shakedetector.library.ShakeDetector.OnShakeListener;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient.ConnectionCallbacks;
 import com.google.android.gms.common.GooglePlayServicesClient.OnConnectionFailedListener;
@@ -297,35 +295,6 @@ FlurryAdListener, OnPageChangeListener, OnClickListener, OnRMMUserChoiceListener
 		this.showBetaDialog();
 
 		this.updateCurrentTab(); // Update current tab ;).
-
-		ShakeDetector.create(this, new OnShakeListener() {
-
-			public void OnShake() {
-				final DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
-
-					public void onClick(final DialogInterface dialog, final int which) {
-						switch (which) {
-							case DialogInterface.BUTTON_POSITIVE:
-								// Yes button clicked
-								MenuActivity.this.startFeedbackActivity();
-								break;
-
-							case DialogInterface.BUTTON_NEGATIVE:
-								// No button clicked
-								dialog.dismiss();
-								break;
-						}
-					}
-				};
-
-				final AlertDialog.Builder builder = new AlertDialog.Builder(MenuActivity.this);
-				builder.setMessage("Send us feedback?").setPositiveButton("Yes", dialogClickListener)
-				.setNegativeButton("No", dialogClickListener);
-				if (MenuActivity.this.dialog != null) {
-					MenuActivity.this.dialog = builder.show();
-				}
-			}
-		});
 	}
 
 	@Override
@@ -340,41 +309,6 @@ FlurryAdListener, OnPageChangeListener, OnClickListener, OnRMMUserChoiceListener
 		if (this.currentTab == TITLES.indexOf("Search"))
 		{
 			this.searchItem.setVisible(true);
-			// getSupportMenuInflater().inflate(R.menu.activity_menu, menu);
-			//
-			// final SearchManager searchManager = (SearchManager) this.getSystemService(Context.SEARCH_SERVICE);
-			//
-			// final AutoCompleteTextView abSearch = (AutoCompleteTextView) menu.findItem(R.id.menu_search).getActionView();
-			// final String[] COUNTRIES = new String[] {
-			// "Test", "Animal", "Pet", "Shape", "Share", "Person"
-			// };
-			// if (null != abSearch)
-			// {
-			// final ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
-			// android.R.layout.simple_dropdown_item_1line, COUNTRIES);
-			// abSearch.setAdapter(adapter);
-			// // abSearch.setSearchableInfo(searchManager.getSearchableInfo(this.getComponentName()));
-			// // abSearch.setIconifiedByDefault(true);
-			// }
-			//
-			// final AdapterView.OnItemSelectedListener queryTextListener = new AdapterView.OnItemSelectedListener()
-			// {
-			//
-			// public void onItemSelected(final AdapterView<?> parent, final View view, final int pos, final long id) {
-			// // this is your adapter that will be filtered
-			// MenuActivity.this.adapter.frag[MenuActivity.this.currentTab].getTagPuzzles(
-			// MenuActivity.this.adapter.frag[MenuActivity.this.currentTab].getActivity(), COUNTRIES[pos]);
-			// abSearch.clearFocus();
-			// (menu.findItem(R.id.menu_search)).collapseActionView();
-			// }
-			//
-			// public void onNothingSelected(final AdapterView<?> parent) {
-			// // TODO Auto-generated method stub
-			//
-			// }
-			// };
-			// abSearch.setOnItemSelectedListener(queryTextListener);
-
 		}
 		return super.onCreateOptionsMenu(menu);
 	}
@@ -485,7 +419,6 @@ FlurryAdListener, OnPageChangeListener, OnClickListener, OnRMMUserChoiceListener
 		if (!this.continueMusic) {
 			MusicManager.pause();
 		}
-		ShakeDetector.stop();
 	}
 
 	public void onRenderFailed(final String arg0) {
@@ -496,8 +429,6 @@ FlurryAdListener, OnPageChangeListener, OnClickListener, OnRMMUserChoiceListener
 		super.onResume();
 		this.continueMusic = false;
 		MusicManager.start(this);
-		ShakeDetector.start();
-
 		this.updateCurrentTab();
 	}
 
