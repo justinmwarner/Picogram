@@ -19,7 +19,6 @@ import android.os.Handler;
 import android.os.Vibrator;
 import android.support.v4.view.GestureDetectorCompat;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.GestureDetector.OnDoubleTapListener;
 import android.view.GestureDetector.OnGestureListener;
 import android.view.MotionEvent;
@@ -821,17 +820,32 @@ OnDoubleTapListener {
 		return result;
 	}
 
-	public boolean onDoubleTap(final MotionEvent e) {
-		final Vibrator v = (Vibrator) this.context
-				.getSystemService(Context.VIBRATOR_SERVICE);
-		if (((View) this.getParent()).findViewById(R.id.ibTools) != null) {
-			v.vibrate(100);
-			((View) this.getParent()).findViewById(R.id.ibTools).performClick();
-		} else if (((View) this.getParent()).findViewById(R.id.bToolbox) != null) {
-			v.vibrate(100);
-			((View) this.getParent()).findViewById(R.id.bToolbox).performClick();
+	public boolean onDoubleTap(final MotionEvent event) {
+		// Make sure we're outside of the game.
+		this.matrix.getValues(this.m);
+		final float transX = this.m[Matrix.MTRANS_X] * -1;
+		final float transY = this.m[Matrix.MTRANS_Y] * -1;
+		final float scaleX = this.m[Matrix.MSCALE_X];
+		final float scaleY = this.m[Matrix.MSCALE_Y];
+		this.lastTouchX = (int) ((event.getX() + transX) / scaleX);
+		this.lastTouchY = (int) ((event.getY() + transY) / scaleY);
+		this.lastTouchX = Math.abs(this.lastTouchX);
+		this.lastTouchY = Math.abs(this.lastTouchY);
+		if (((this.lastTouchX) < (this.canvasBitmap.getWidth() - (this.gWidth * this.cellWidth))) ||
+				((this.lastTouchY) < (this.canvasBitmap.getHeight() - (this.gHeight * this.cellHeight))))
+		{
+			final Vibrator v = (Vibrator) this.context
+					.getSystemService(Context.VIBRATOR_SERVICE);
+			if (((View) this.getParent()).findViewById(R.id.ibTools) != null) {
+				v.vibrate(100);
+				((View) this.getParent()).findViewById(R.id.ibTools).performClick();
+			} else if (((View) this.getParent()).findViewById(R.id.bToolbox) != null) {
+				v.vibrate(100);
+				((View) this.getParent()).findViewById(R.id.bToolbox).performClick();
+			}
+			return true;
 		}
-		return true;
+		return false;
 	}
 
 	public boolean onDoubleTapEvent(final MotionEvent e) {
@@ -839,17 +853,29 @@ OnDoubleTapListener {
 	}
 
 	public boolean onDown(final MotionEvent event) {
+		this.matrix.getValues(this.m);
+		final float transX = this.m[Matrix.MTRANS_X] * -1;
+		final float transY = this.m[Matrix.MTRANS_Y] * -1;
+		final float scaleX = this.m[Matrix.MSCALE_X];
+		final float scaleY = this.m[Matrix.MSCALE_Y];
+		this.lastTouchX = (int) ((event.getX() + transX) / scaleX);
+		this.lastTouchY = (int) ((event.getY() + transY) / scaleY);
+		this.lastTouchX = Math.abs(this.lastTouchX);
+		this.lastTouchY = Math.abs(this.lastTouchY);
+		if (((this.lastTouchX) < (this.canvasBitmap.getWidth() - (this.gWidth * this.cellWidth))) ||
+				((this.lastTouchY) < (this.canvasBitmap.getHeight() - (this.gHeight * this.cellHeight))))
+		{
+			if (event.getPointerCount() > 2)
+			{
+				// Go to movement.
+				this.isGameplay = false;
+				((View) this.getParent()).findViewById(R.id.ibTools).setBackgroundResource(R.drawable.move);
+				return true;
+			}
+			return true;
+		}
 		try {
 			if (this.isGameplay) {
-				this.matrix.getValues(this.m);
-				final float transX = this.m[Matrix.MTRANS_X] * -1;
-				final float transY = this.m[Matrix.MTRANS_Y] * -1;
-				final float scaleX = this.m[Matrix.MSCALE_X];
-				final float scaleY = this.m[Matrix.MSCALE_Y];
-				this.lastTouchX = (int) ((event.getX() + transX) / scaleX);
-				this.lastTouchY = (int) ((event.getY() + transY) / scaleY);
-				this.lastTouchX = Math.abs(this.lastTouchX);
-				this.lastTouchY = Math.abs(this.lastTouchY);
 
 				int indexX = (int) Math.floor((this.lastTouchX - (this.cellWidth * this.lSide))
 						/ this.cellWidth);
@@ -911,15 +937,29 @@ OnDoubleTapListener {
 		return false;
 	}
 
-	public void onLongPress(final MotionEvent e) {
-		final Vibrator v = (Vibrator) this.context
-				.getSystemService(Context.VIBRATOR_SERVICE);
-		if (((View) this.getParent()).findViewById(R.id.ibTools) != null) {
-			v.vibrate(100);
-			((View) this.getParent()).findViewById(R.id.ibTools).performClick();
-		} else if (((View) this.getParent()).findViewById(R.id.bToolbox) != null) {
-			v.vibrate(100);
-			((View) this.getParent()).findViewById(R.id.bToolbox).performClick();
+	public void onLongPress(final MotionEvent event) {
+		// Make sure we're outside of the game.
+		this.matrix.getValues(this.m);
+		final float transX = this.m[Matrix.MTRANS_X] * -1;
+		final float transY = this.m[Matrix.MTRANS_Y] * -1;
+		final float scaleX = this.m[Matrix.MSCALE_X];
+		final float scaleY = this.m[Matrix.MSCALE_Y];
+		this.lastTouchX = (int) ((event.getX() + transX) / scaleX);
+		this.lastTouchY = (int) ((event.getY() + transY) / scaleY);
+		this.lastTouchX = Math.abs(this.lastTouchX);
+		this.lastTouchY = Math.abs(this.lastTouchY);
+		if (((this.lastTouchX) < (this.canvasBitmap.getWidth() - (this.gWidth * this.cellWidth))) ||
+				((this.lastTouchY) < (this.canvasBitmap.getHeight() - (this.gHeight * this.cellHeight))))
+		{
+			final Vibrator v = (Vibrator) this.context
+					.getSystemService(Context.VIBRATOR_SERVICE);
+			if (((View) this.getParent()).findViewById(R.id.ibTools) != null) {
+				v.vibrate(100);
+				((View) this.getParent()).findViewById(R.id.ibTools).performClick();
+			} else if (((View) this.getParent()).findViewById(R.id.bToolbox) != null) {
+				v.vibrate(100);
+				((View) this.getParent()).findViewById(R.id.bToolbox).performClick();
+			}
 		}
 	}
 
@@ -974,23 +1014,27 @@ OnDoubleTapListener {
 
 	public boolean onScroll(final MotionEvent e1, final MotionEvent event, final float distanceX,
 			final float distanceY) {
-		Log.d(TAG, "COUNT: " + event.getPointerCount());
 		if (event.getPointerCount() > 2)
 		{
 			// Go to movement.
 			this.isGameplay = false;
+			((View) this.getParent()).findViewById(R.id.ibTools).setBackgroundResource(R.drawable.move);
+		}
+		this.matrix.getValues(this.m);
+		final float transX = this.m[Matrix.MTRANS_X] * -1;
+		final float transY = this.m[Matrix.MTRANS_Y] * -1;
+		final float scaleX = this.m[Matrix.MSCALE_X];
+		final float scaleY = this.m[Matrix.MSCALE_Y];
+		this.lastTouchX = (int) ((event.getX() + transX) / scaleX);
+		this.lastTouchY = (int) ((event.getY() + transY) / scaleY);
+		this.lastTouchX = Math.abs(this.lastTouchX);
+		this.lastTouchY = Math.abs(this.lastTouchY);
+		if (((this.lastTouchX) < (this.canvasBitmap.getWidth() - (this.gWidth * this.cellWidth))) ||
+				((this.lastTouchY) < (this.canvasBitmap.getHeight() - (this.gHeight * this.cellHeight))))
+		{
+			return false;
 		}
 		if (this.isGameplay) {
-			this.matrix.getValues(this.m);
-			final float transX = this.m[Matrix.MTRANS_X] * -1;
-			final float transY = this.m[Matrix.MTRANS_Y] * -1;
-			final float scaleX = this.m[Matrix.MSCALE_X];
-			final float scaleY = this.m[Matrix.MSCALE_Y];
-			this.lastTouchX = (int) ((event.getX() + transX) / scaleX);
-			this.lastTouchY = (int) ((event.getY() + transY) / scaleY);
-			this.lastTouchX = Math.abs(this.lastTouchX);
-			this.lastTouchY = Math.abs(this.lastTouchY);
-
 			int indexX = (int) Math.floor((this.lastTouchX - (this.cellWidth * this.lSide))
 					/ this.cellWidth);
 			int indexY = (int) Math.floor((this.lastTouchY - (this.cellHeight * this.lTop))
