@@ -3,6 +3,8 @@ package com.picogram.awesomeness;
 
 import android.annotation.SuppressLint;
 import android.app.ActivityOptions;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
@@ -12,6 +14,10 @@ import android.preference.Preference;
 import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.Preference.OnPreferenceClickListener;
 import android.util.Log;
+import android.widget.LinearLayout;
+import android.widget.LinearLayout.LayoutParams;
+import android.widget.TableLayout;
+import android.widget.TextView;
 
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockPreferenceActivity;
@@ -63,6 +69,7 @@ OnPreferenceChangeListener, OnPreferenceClickListener, GooglePlayServicesClient.
 		this.findPreference("licenses").setOnPreferenceClickListener(this);
 		this.findPreference("rateapp").setOnPreferenceClickListener(this);
 		this.findPreference("logout").setOnPreferenceClickListener(this);
+		this.findPreference("statistics").setOnPreferenceClickListener(this);
 
 		FlurryAgent.logEvent("PreferencesOpened");
 		final ActionBar ab = this.getSupportActionBar();
@@ -112,7 +119,45 @@ OnPreferenceChangeListener, OnPreferenceClickListener, GooglePlayServicesClient.
 
 	@SuppressLint("NewApi")
 	public boolean onPreferenceClick(final Preference preference) {
-		if (preference.getKey().equals("changelog")) {
+		if (preference.getKey().equals("statistics")) {
+			Crouton.makeText(this, "This is not yet implemented", Style.INFO).show();
+			final AlertDialog dialog = new AlertDialog.Builder(this).create();
+			final String[] scoresTitles = new String[] {
+					"Games Played", "Games Won", "Taps", "Taps per Puzzle", "Tapes per Minute", "Times Played"
+			};
+			final int gamesPlayed = 0, gamesWon = 0, taps = 0, tapsPerPuzzle = 0, tapsPerMinute = 0, timePlayed = 0;
+			final int[] scores = {
+					gamesPlayed, gamesWon, taps, tapsPerPuzzle, tapsPerMinute, timePlayed
+			};
+			// TODO: Implement the preferences and what not.
+			final LinearLayout ll = new LinearLayout(this);
+			ll.setOrientation(LinearLayout.VERTICAL);
+			for (int i = 0; i != scores.length; ++i)
+			{
+				final LinearLayout sub = new LinearLayout(this);
+				sub.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+				sub.setOrientation(LinearLayout.HORIZONTAL);
+				TextView tv = new TextView(this);
+				tv.setLayoutParams(new TableLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, 1f));
+				tv.setText(scoresTitles[i]);
+				sub.addView(tv);
+				tv = new TextView(this);
+				tv.setLayoutParams(new TableLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, 1f));
+				tv.setText(scores[i] + "");
+				sub.addView(tv);
+				ll.addView(sub);
+			}
+			dialog.setView(ll);
+			dialog.setButton("OK", new DialogInterface.OnClickListener() {
+				public void onClick(final DialogInterface dialog, final int which) {
+					dialog.dismiss();
+				}
+			});
+			dialog.show();
+			dialog.dismiss();
+
+			return true;
+		} else if (preference.getKey().equals("changelog")) {
 			// Launch change log dialog
 			Log.d(TAG, "Changelog");
 			final ChangeLogDialog _ChangelogDialog = new ChangeLogDialog(this);

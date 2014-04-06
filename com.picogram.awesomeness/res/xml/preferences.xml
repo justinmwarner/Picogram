@@ -31,7 +31,10 @@
             android:key="music"
             android:summary="Have some short semi-annoying background music ;)"
             android:title="Music" />
-        
+        <Preference
+            android:key="statistics"
+            android:summary="Game statistics, just some fun stuff =)."
+            android:title="Statistics" />        
     </PreferenceCategory>
     <!-- Privacy, let the user control anything we can/will collect. -->
     <PreferenceCategory android:title="Privacy Preferences" >
