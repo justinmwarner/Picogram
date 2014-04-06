@@ -14,7 +14,6 @@ import android.database.MatrixCursor;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Debug;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -43,19 +42,16 @@ import com.actionbarsherlock.widget.SearchView.OnQueryTextListener;
 import com.actionbarsherlock.widget.SearchView.OnSuggestionListener;
 import com.astuetz.viewpager.extensions.PagerSlidingTabStrip;
 import com.crittercism.app.Crittercism;
-import com.flurry.android.FlurryAdListener;
-import com.flurry.android.FlurryAdSize;
-import com.flurry.android.FlurryAdType;
-import com.flurry.android.FlurryAds;
-import com.flurry.android.FlurryAgent;
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GooglePlayServicesClient.ConnectionCallbacks;
-import com.google.android.gms.common.GooglePlayServicesClient.OnConnectionFailedListener;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
 import com.google.example.games.basegameutils.BaseGameActivity;
 import com.kopfgeldjaeger.ratememaybe.RateMeMaybe;
 import com.kopfgeldjaeger.ratememaybe.RateMeMaybe.OnRMMUserChoiceListener;
 import com.parse.Parse;
 import com.picogram.awesomeness.DialogMaker.OnDialogResultListener;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesClient.ConnectionCallbacks;
+import com.google.android.gms.common.GooglePlayServicesClient.OnConnectionFailedListener;
 
 import de.keyboardsurfer.android.widget.crouton.Configuration;
 import de.keyboardsurfer.android.widget.crouton.Crouton;
@@ -65,7 +61,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 public class MenuActivity extends BaseGameActivity implements
-FlurryAdListener, OnPageChangeListener, OnClickListener, OnRMMUserChoiceListener, ActionBar.OnNavigationListener, ConnectionCallbacks, OnConnectionFailedListener {
+OnPageChangeListener, OnClickListener, OnRMMUserChoiceListener, ActionBar.OnNavigationListener, ConnectionCallbacks, OnConnectionFailedListener {
 
 	public class MyPagerAdapter extends FragmentPagerAdapter {
 
@@ -123,6 +119,8 @@ FlurryAdListener, OnPageChangeListener, OnClickListener, OnRMMUserChoiceListener
 
 	SearchView mSearchView;
 	MenuItem searchItem;
+
+	AdView adView;
 
 	public void handleNegative() {
 		// Don't do it again.
@@ -205,15 +203,6 @@ FlurryAdListener, OnPageChangeListener, OnClickListener, OnRMMUserChoiceListener
 		this.updateCurrentTab();
 	}
 
-	public void onAdClicked(final String arg0) {
-	}
-
-	public void onAdClosed(final String arg0) {
-	}
-
-	public void onAdOpened(final String arg0) {
-	}
-
 	public void onApplicationExit(final String arg0) {
 	}
 
@@ -221,13 +210,9 @@ FlurryAdListener, OnPageChangeListener, OnClickListener, OnRMMUserChoiceListener
 	}
 
 	public void onConnected(final Bundle arg0) {
-		// TODO Auto-generated method stub
-
 	}
 
 	public void onConnectionFailed(final ConnectionResult arg0) {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
@@ -262,9 +247,7 @@ FlurryAdListener, OnPageChangeListener, OnClickListener, OnRMMUserChoiceListener
 		this.tabs.setViewPager(this.pager);
 		this.tabs.setOnPageChangeListener(this);
 		this.toolbar = (LinearLayout) this.findViewById(R.id.bottomToolbar);
-		if (!Debug.isDebuggerConnected()) {
-			this.setUpAds();
-		}
+		this.setUpAds();
 		this.setUpRater();
 		if (!Util.isOnline()) {
 			// Remove ads bar if offline.
@@ -421,6 +404,9 @@ FlurryAdListener, OnPageChangeListener, OnClickListener, OnRMMUserChoiceListener
 		if (!this.continueMusic) {
 			MusicManager.pause();
 		}
+		if (this.adView != null) {
+			this.adView.pause();
+		}
 	}
 
 	public void onRenderFailed(final String arg0) {
@@ -432,6 +418,9 @@ FlurryAdListener, OnPageChangeListener, OnClickListener, OnRMMUserChoiceListener
 		this.continueMusic = false;
 		MusicManager.start(this);
 		this.updateCurrentTab();
+		if (this.adView != null) {
+			this.adView.resume();
+		}
 	}
 
 	public void onSignInFailed() {
@@ -450,26 +439,17 @@ FlurryAdListener, OnPageChangeListener, OnClickListener, OnRMMUserChoiceListener
 	public void onStart() {
 		super.onStart();
 		Util.updateFullScreen(this);
-		if (!Debug.isDebuggerConnected()) {
-			FlurryAgent.onStartSession(this,
-					this.getResources().getString(R.string.flurry));
-		}
 		// fetch and prepare ad for this ad space. won’t render one yet
 		this.toolbar.setVisibility(!this.prefs.getBoolean("advertisements",
 				false) ? View.VISIBLE : View.GONE);
-		if (!this.prefs.getBoolean("advertisements", false)) {
-			if (!Debug.isDebuggerConnected()) {
-				FlurryAds.fetchAd(this, "MainScreen", this.toolbar,
-						FlurryAdSize.BANNER_BOTTOM);
-			}
-		}
 	}
 
 	@Override
 	public void onStop() {
 		super.onStop();
-		if (!Debug.isDebuggerConnected()) {
-			FlurryAgent.onEndSession(this);
+		// Destroy the AdView.
+		if (this.adView != null) {
+			this.adView.destroy();
 		}
 	}
 
@@ -477,16 +457,17 @@ FlurryAdListener, OnPageChangeListener, OnClickListener, OnRMMUserChoiceListener
 	}
 
 	private void setUpAds() {
-		FlurryAgent.onStartSession(this,
-				this.getResources().getString(R.string.flurry));
-		FlurryAgent.setCaptureUncaughtExceptions(true);
-		FlurryAgent.setLogEnabled(!this.prefs.getBoolean("analytics", false));
-		FlurryAgent.setLogEvents(!this.prefs.getBoolean("logging", false));
+		// Create an ad.
+		this.adView = (AdView) this.findViewById(R.id.ads);
+		// Create an ad request. Check logcat output for the hashed device ID to
+		// get test ads on a physical device.
+		final AdRequest adRequest = new AdRequest.Builder()
+		.addTestDevice(AdRequest.DEVICE_ID_EMULATOR)
+		.addTestDevice("F798720E1DD0025EA428774AFBE8D924")
+		.build();
 
-		FlurryAgent.logEvent("App Started");
-		// allow us to get callbacks for ad events
-		FlurryAds.setAdListener(this);
-		FlurryAds.enableTestAds(true);
+		// Start loading the ad in the background.
+		this.adView.loadAd(adRequest);
 
 	}
 
@@ -566,10 +547,6 @@ FlurryAdListener, OnPageChangeListener, OnClickListener, OnRMMUserChoiceListener
 		});
 	}
 
-	public boolean shouldDisplayAd(final String arg0, final FlurryAdType arg1) {
-		return true;
-	}
-
 	private void showBetaDialog() {
 		final Activity a = this;
 		AlertDialog dialog;
@@ -633,13 +610,6 @@ FlurryAdListener, OnPageChangeListener, OnClickListener, OnRMMUserChoiceListener
 			// Only show if we've never logged in successfully yet.
 			this.dialog.show();
 		}
-	}
-
-	public void spaceDidFailToReceiveAd(final String arg0) {
-	}
-
-	public void spaceDidReceiveAd(final String adSpace) {
-		FlurryAds.displayAd(this, adSpace, this.toolbar);
 	}
 
 	@SuppressLint("NewApi")

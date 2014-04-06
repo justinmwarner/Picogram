@@ -131,6 +131,21 @@ public class CreateActivity extends SherlockFragmentActivity implements ActionBa
 				// Greyscale and inverse.
 				pixels[i] = 255 - ((rgb[0] + rgb[1] + rgb[2]) / 3);
 			}
+
+			double lowerBounds = pixels[0];
+			double upperBounds = pixels[0];
+			String out = "";
+			for (int i = 1; i < pixels.length; i++)
+			{
+				out += pixels[i] + ",";
+				if (pixels[i] > upperBounds) {
+					upperBounds = pixels[i];
+				} else if (pixels[i] < lowerBounds) {
+					lowerBounds = pixels[i];
+				}
+			}
+			Log.d(TAG, out);
+			final double diff = upperBounds - lowerBounds;
 			alter = alter.copy(Bitmap.Config.ARGB_8888, true);
 			alter.setPixels(pixels, 0, alter.getWidth(), 0, 0,
 					alter.getWidth(), alter.getHeight());
@@ -148,17 +163,25 @@ public class CreateActivity extends SherlockFragmentActivity implements ActionBa
 			final char[] sol = new char[this.width * this.height];
 			for (int i = 0; i != this.height; ++i) {
 				for (int j = 0; j != this.width; ++j) {
-					for (int k = 0; k <= this.numColors; ++k) {
-						if (pix[i][j] <= ((256 * (k + 1)) / (this.numColors))) {
-							// pix[i][j] = this.colors[k];
-							sol[(i * alter.getWidth()) + j] = (k + " ")
-									.charAt(0);
+					for (int k = 0; k != this.numColors; ++k)
+					{
+						Log.d(TAG, pix[i][j] + " " + lowerBounds + " " + Math.ceil(diff / this.numColors) + " " + (Math.ceil(diff / this.numColors) * (k + 1)));
+						Log.d(TAG, pix[i][j] + " <= " + (lowerBounds + (Math.ceil((diff / this.numColors)) * (k + 1))) + " = " + (pix[i][j] <= (lowerBounds + (Math.ceil((diff / this.numColors)) * (k + 1)))));
+						if (pix[i][j] <= (lowerBounds + (Math.ceil((diff / this.numColors)) * (k + 1))))
+						{
+							Log.d(TAG, "adding: " + k + " for " + pix[i][j]);
+							sol[(i * alter.getWidth()) + j] = (k + "").charAt(0);
 							break;
+						}
+						else
+						{
+							Log.d(TAG, "AHhhhhh");
 						}
 					}
 				}
 			}
 			this.solution = new String(sol);
+			Log.d(TAG, "Total: " + this.solution);
 			// TODO do we need this?
 			// this.bmCropped.setHasAlpha(true);
 

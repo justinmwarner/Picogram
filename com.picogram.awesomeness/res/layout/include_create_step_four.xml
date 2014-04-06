@@ -9,8 +9,7 @@
         android:layout_height="fill_parent"
         android:layout_above="@+id/bColorSelector"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentRight="true"
-        android:layout_below="@+id/tvStepFour" />
+        android:layout_alignParentRight="true" />
 
     <Button
         android:id="@+id/bColorSelector"
