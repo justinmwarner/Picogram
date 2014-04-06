@@ -9,7 +9,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Rect;
-import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.DialogFragment;
@@ -17,7 +16,6 @@ import android.view.ContextThemeWrapper;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -259,6 +257,7 @@ public class DialogMaker extends DialogFragment implements View.OnClickListener 
 		return (bitmap);
 	}
 
+
 	private void generateRandom() {
 		this.randomPuzzle = "";
 		for (int i = 0; i != this.randomHeight; ++i) {
@@ -401,20 +400,42 @@ public class DialogMaker extends DialogFragment implements View.OnClickListener 
 			this.setupTutorial(v);
 		}
 		final Dialog result = builder.create();
+		result.getWindow().getAttributes().windowAnimations = R.style.FadeDialogAnimation;
 		if (isBlur) {
-			result.getWindow().getAttributes().windowAnimations = R.style.FadeDialogAnimation;
-			Activity a = this.getActivity();
-			while (a.getParent() != null) {
-				a = a.getParent();
-			}
-			final Activity aa = a;
 
-			final Bitmap ss = this.takeScreenShot(a);
+			/*
+			 * Activity a = this.getActivity();
+			 * while (a.getParent() != null) {
+			 * a = a.getParent();
+			 * }
+			 * final Bitmap ss = this.takeScreenShot(a);
+			 * final Activity aa = a;
+			 * // Bitmap draw = Bitmap.createScaledBitmap(ss, ss.getWidth() / 3, ss.getHeight() / 3, true);
+			 * // draw = Bitmap.createScaledBitmap(draw, ss.getWidth(), ss.getHeight(), true);
+			 * // result.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+			 * new Thread(new Runnable() {
+			 * 
+			 * public void run() {
+			 * final Bitmap blur =
+			 * DialogMaker.this.fastblur(ss, 7);
+			 * aa.runOnUiThread(new Runnable() {
+			 * 
+			 * public void run() {
+			 * // TODO Auto-generated method stub
+			 * final WindowManager.LayoutParams WMLP = result.getWindow().getAttributes();
+			 * 
+			 * WMLP.gravity = Gravity.RIGHT;
+			 * 
+			 * 
+			 * result.getWindow().setBackgroundDrawable(new BitmapDrawable(DialogMaker.this.getResources(), blur));
+			 * result.getWindow().setAttributes(WMLP);
+			 * }
+			 * });
+			 * 
+			 * }
+			 * }).start();
+			 */
 
-			Bitmap draw = Bitmap.createScaledBitmap(ss, ss.getWidth() / 10, ss.getHeight() / 10, true);
-			draw = Bitmap.createScaledBitmap(draw, ss.getWidth(), ss.getHeight(), true);
-			result.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
-			result.getWindow().setBackgroundDrawable(new BitmapDrawable(DialogMaker.this.getResources(), draw));
 		}
 		// result.getWindow().addFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
 		return result;
@@ -741,7 +762,7 @@ public class DialogMaker extends DialogFragment implements View.OnClickListener 
 		final int width = activity.getWindowManager().getDefaultDisplay().getWidth();
 		final int height = activity.getWindowManager().getDefaultDisplay().getHeight();
 
-		final Bitmap b = Bitmap.createBitmap(b1, 0, statusBarHeight, width, height - statusBarHeight);
+		final Bitmap b = Bitmap.createBitmap(b1, 0, 0, b1.getWidth(), b1.getHeight());
 		view.destroyDrawingCache();
 		return b;
 	}
