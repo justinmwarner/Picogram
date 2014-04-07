@@ -165,23 +165,15 @@ public class CreateActivity extends SherlockFragmentActivity implements ActionBa
 				for (int j = 0; j != this.width; ++j) {
 					for (int k = 0; k != this.numColors; ++k)
 					{
-						Log.d(TAG, pix[i][j] + " " + lowerBounds + " " + Math.ceil(diff / this.numColors) + " " + (Math.ceil(diff / this.numColors) * (k + 1)));
-						Log.d(TAG, pix[i][j] + " <= " + (lowerBounds + (Math.ceil((diff / this.numColors)) * (k + 1))) + " = " + (pix[i][j] <= (lowerBounds + (Math.ceil((diff / this.numColors)) * (k + 1)))));
 						if (pix[i][j] <= (lowerBounds + (Math.ceil((diff / this.numColors)) * (k + 1))))
 						{
-							Log.d(TAG, "adding: " + k + " for " + pix[i][j]);
 							sol[(i * alter.getWidth()) + j] = (k + "").charAt(0);
 							break;
-						}
-						else
-						{
-							Log.d(TAG, "AHhhhhh");
 						}
 					}
 				}
 			}
 			this.solution = new String(sol);
-			Log.d(TAG, "Total: " + this.solution);
 			// TODO do we need this?
 			// this.bmCropped.setHasAlpha(true);
 

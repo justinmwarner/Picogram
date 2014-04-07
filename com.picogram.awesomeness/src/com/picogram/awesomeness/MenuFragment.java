@@ -764,6 +764,7 @@ OnItemClickListener, OnItemLongClickListener {
 		fl.setBackgroundColor(Color.TRANSPARENT);
 		v.setBackgroundDrawable(this.getActivity().getResources().getDrawable(R.drawable.item_selector_bad));
 		v.setDivider(new ColorDrawable(Color.parseColor("#00000000")));
+		v.setDivider(this.getActivity().getResources().getDrawable(R.drawable.item_square));
 		v.setSelector(this.getActivity().getResources().getDrawable(R.drawable.item_selector_bad));
 		v.setDividerHeight(20);
 		v.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);

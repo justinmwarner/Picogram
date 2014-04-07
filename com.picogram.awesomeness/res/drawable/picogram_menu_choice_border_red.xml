@@ -1,14 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<shape xmlns:android="http://schemas.android.com/apk/res/android"
-    android:shape="rectangle" >
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android" >
 
-    <solid android:color="@color/light_red" />
-
-
-    <corners
-        android:bottomLeftRadius="25dp"
-        android:bottomRightRadius="25dp"
-        android:topLeftRadius="25dp"
-        android:topRightRadius="25dp" />
-
-</shape>
+    <item android:drawable="@drawable/item_square">
+    </item>
+    <item android:drawable="@drawable/item_red">
+    </item>
+</layer-list>
