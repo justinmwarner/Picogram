@@ -7,6 +7,7 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -34,6 +35,7 @@ import yuku.ambilwarna.AmbilWarnaDialog;
 import yuku.ambilwarna.AmbilWarnaDialog.OnAmbilWarnaListener;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Vector;
 
 public class CreateFragment extends Fragment implements OnClickListener, OnRangeBarChangeListener {
@@ -167,6 +169,7 @@ public class CreateFragment extends Fragment implements OnClickListener, OnRange
 				ll.setOrientation(LinearLayout.VERTICAL);
 				final ArrayList<Button> buttons = new ArrayList();
 				final ArrayList<RangeBar> bars = new ArrayList();
+				final int []pc = Arrays.copyOfRange(msca.newColors, 0, msca.newColors.length);
 				for (int i = 0; i != msca.numColors; ++i)
 				{
 					final Button b = new Button(this.getActivity());
@@ -176,14 +179,14 @@ public class CreateFragment extends Fragment implements OnClickListener, OnRange
 					buttons.add(b);
 					bars.add(rb);
 					int color = msca.newColors[i];
-					final int tempColor = color;
 					final int j = i;
 					b.setOnClickListener(new View.OnClickListener() {
 
 						public void onClick(final View v) {
+							int tempColor = msca.newColors[j];
 							// TODO: This should let you change the color.
 							final AmbilWarnaDialog dialog = new AmbilWarnaDialog(CreateFragment.this.getActivity(),
-									tempColor,
+									pc[j],
 									new OnAmbilWarnaListener() {
 
 								public void onCancel(
@@ -195,10 +198,15 @@ public class CreateFragment extends Fragment implements OnClickListener, OnRange
 										final AmbilWarnaDialog dialog,
 										final int color) {
 									msca.originalColors[j] = color;
+									msca.newColors[j] = color;
+									pc[j] = color;
 									((CreateActivity) CreateFragment.this.getActivity()).updateAllTouchImageViews();
 									buttons.get(j).setBackgroundColor(color);
+									b.setBackgroundColor(color);
+									Log.d(TAG, "New Color: " + color + " " + j);
 								}
 							});
+							Log.d(TAG, "Changing color: " + tempColor + " " + j);
 							dialog.show();
 						}
 					});

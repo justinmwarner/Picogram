@@ -254,6 +254,7 @@ public class CreateActivity extends SherlockFragmentActivity implements ActionBa
 	@Override
 	protected void onCreate(final Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		Util.updateFullScreen(this);
 		this.setContentView(R.layout.activity_menu);// We use the same exact layout as the main menu. =)
 		this.getSupportActionBar().setTitle(Html.fromHtml("<font color='#000000'>Select a Source Image</font>"));
 		this.handler = new Handler();
@@ -580,7 +581,7 @@ public class CreateActivity extends SherlockFragmentActivity implements ActionBa
 				if (this.hasFineTuned && (!this.fineTunedSolution.isEmpty())) {
 					b.putString("solution", this.fineTunedSolution);
 					b.putString("current", this.fineTunedSolution);
-				}
+				}tivGameOne.gridlinesColor = Color.BLACK;
 				tivGameOne.setPicogramInfo(b);
 			}
 			if (tivGameTwo == null) {
@@ -590,7 +591,7 @@ public class CreateActivity extends SherlockFragmentActivity implements ActionBa
 				if (this.hasFineTuned && (!this.fineTunedSolution.isEmpty())) {
 					b.putString("solution", this.fineTunedSolution);
 					b.putString("current", this.fineTunedSolution);
-				}
+				}tivGameTwo.gridlinesColor = Color.BLACK;
 				tivGameTwo.setPicogramInfo(b);
 			}
 			if (tivGameThree == null) {
@@ -610,7 +611,7 @@ public class CreateActivity extends SherlockFragmentActivity implements ActionBa
 				if (this.hasFineTuned && (!this.fineTunedSolution.isEmpty())) {
 					b.putString("solution", this.fineTunedSolution);
 					b.putString("current", this.fineTunedSolution);
-				}
+				}tivGameThree.gridlinesColor = Color.BLACK;
 				tivGameThree.setPicogramInfo(b);
 			}
 			if (tivGameFour == null) {
@@ -621,7 +622,7 @@ public class CreateActivity extends SherlockFragmentActivity implements ActionBa
 					b.putString("solution", this.fineTunedSolution);
 					b.putString("current", this.fineTunedSolution);
 				}
-
+tivGameFour.gridlinesColor = Color.BLACK;
 				tivGameFour.setPicogramInfo(b);
 			}
 		}

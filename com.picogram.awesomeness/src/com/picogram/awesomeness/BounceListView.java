@@ -18,7 +18,6 @@ public class BounceListView extends ListView
 	private static final String TAG = "BounceListView";
 
 	private final Context mContext;
-	private int mMaxYOverscrollDistance;
 
 	public BounceListView(final Context context)
 	{
@@ -43,13 +42,6 @@ public class BounceListView extends ListView
 
 	private void initBounceListView()
 	{
-		// get the density of the screen and do some maths with it on the max overscroll distance
-		// variable so that you get similar behaviors no matter what the screen size
-
-		final DisplayMetrics metrics = this.mContext.getResources().getDisplayMetrics();
-		final float density = metrics.density;
-
-		this.mMaxYOverscrollDistance = (int) (density * MAX_Y_OVERSCROLL_DISTANCE);
 	}
 
 	// TODO: Make a better over scroll.

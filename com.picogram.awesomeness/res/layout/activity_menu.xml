@@ -40,11 +40,8 @@
     <LinearLayout
         android:id="@+id/bottomToolbar"
         android:layout_width="match_parent"
-        android:layout_height="48dip"
+        android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:layout_marginBottom="8dip"
-        android:layout_marginLeft="4dip"
-        android:layout_marginRight="4dip"
         android:isScrollContainer="false"
         android:orientation="horizontal"
         android:windowSoftInputMode="adjustPan" >

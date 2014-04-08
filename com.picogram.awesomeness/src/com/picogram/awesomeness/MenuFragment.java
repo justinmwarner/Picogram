@@ -762,16 +762,17 @@ OnItemClickListener, OnItemLongClickListener {
 		this.pbLoad.setVisibility(View.INVISIBLE);
 		final BounceListView v = new BounceListView(this.getActivity());
 		fl.setBackgroundColor(Color.TRANSPARENT);
-		v.setBackgroundDrawable(this.getActivity().getResources().getDrawable(R.drawable.item_selector_bad));
+		v.setBackgroundDrawable(this.getActivity().getResources().getDrawable(R.drawable.item_square));
+		v.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#00000000")));
 		v.setDivider(new ColorDrawable(Color.parseColor("#00000000")));
 		v.setDivider(this.getActivity().getResources().getDrawable(R.drawable.item_square));
+		v.setCacheColorHint(Color.TRANSPARENT);
 		v.setSelector(this.getActivity().getResources().getDrawable(R.drawable.item_selector_bad));
 		v.setDividerHeight(20);
 		v.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
 		v.setItemsCanFocus(true);
 		v.setVerticalScrollBarEnabled(false);
 		params.setMargins(margin, margin, margin, margin);
-		v.setLayoutParams(params);
 		v.setLayoutParams(params);
 		v.setBackgroundResource(R.drawable.background_card);
 		if (this.position == MenuActivity.TITLES.indexOf("My")) {
@@ -801,7 +802,7 @@ OnItemClickListener, OnItemLongClickListener {
 		v.setOnItemClickListener(this);
 		v.setLongClickable(true);
 		v.setOnItemLongClickListener(this);
-
+		fl.setBackgroundDrawable(this.getActivity().getResources().getDrawable(R.drawable.item_square));
 		fl.addView(v);
 		return fl;
 	}
