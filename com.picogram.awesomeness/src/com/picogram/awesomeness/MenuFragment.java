@@ -763,7 +763,6 @@ OnItemClickListener, OnItemLongClickListener {
 		final BounceListView v = new BounceListView(this.getActivity());
 		fl.setBackgroundColor(Color.TRANSPARENT);
 		v.setBackgroundDrawable(this.getActivity().getResources().getDrawable(R.drawable.item_square));
-		v.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#00000000")));
 		v.setDivider(new ColorDrawable(Color.parseColor("#00000000")));
 		v.setDivider(this.getActivity().getResources().getDrawable(R.drawable.item_square));
 		v.setCacheColorHint(Color.TRANSPARENT);
@@ -802,7 +801,8 @@ OnItemClickListener, OnItemLongClickListener {
 		v.setOnItemClickListener(this);
 		v.setLongClickable(true);
 		v.setOnItemLongClickListener(this);
-		fl.setBackgroundDrawable(this.getActivity().getResources().getDrawable(R.drawable.item_square));
+
+		v.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
 		fl.addView(v);
 		return fl;
 	}
