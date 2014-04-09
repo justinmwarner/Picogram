@@ -23,18 +23,19 @@
             android:layout_margin="5dp"
             android:layout_weight="1" />
     </LinearLayout>
+
     <LinearLayout
-        android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
+        android:layout_height="wrap_content"
+        android:orientation="vertical" >
 
         <com.facebook.widget.LoginButton
             android:id="@+id/authButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:layout_weight="1"
-            android:layout_marginTop="30dp" />
+            android:layout_marginTop="30dp"
+            android:layout_weight="1" />
 
         <Button
             android:id="@+id/publishButton"
@@ -48,13 +49,12 @@
 
         <Button
             android:id="@+id/bGoogle"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="5dp"
-            android:layout_weight="1"
-            android:background="@drawable/google_plus_share"
-            android:text="\nShare" />
-
+            android:background="#d34836"
+            android:text="Share to Google Plus"
+            android:textColor="#d2d2d2" />
     </LinearLayout>
 
 </LinearLayout>

@@ -115,6 +115,7 @@ public class LoginActivity extends BaseGameActivity implements OnClickListener {
 	protected void onCreate(final Bundle savedInstanceState) {
 		// TODO Auto-generated method stub
 		super.onCreate(savedInstanceState);
+		Util.updateFullScreen(this);
 		this.setContentView(R.layout.activity_login);
 
 		this.facebook = (Button) this.findViewById(R.id.bFacebookLogin);

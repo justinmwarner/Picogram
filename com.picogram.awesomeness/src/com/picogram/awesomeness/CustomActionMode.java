@@ -28,7 +28,6 @@ final class CustomActionMode implements Callback {
 		if (item.getTitle().equals("Delete"))
 		{
 			this.sql.deletePicogram(this.selectedPuzzle.getID());
-			mode.finish();
 		}
 		else if (item.getTitle().equals("Clear"))
 		{
@@ -41,6 +40,7 @@ final class CustomActionMode implements Callback {
 		this.adapter.notifyDataSetChanged();
 		this.sql.close();
 		this.frag.getMyPuzzles(this.frag.getActivity());
+		mode.finish();
 		return false;
 	}
 

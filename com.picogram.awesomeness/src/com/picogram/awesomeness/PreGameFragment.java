@@ -516,9 +516,6 @@ public class PreGameFragment extends Fragment implements OnClickListener, OnItem
 					(ViewGroup) this.getActivity().findViewById(R.layout.include_pregame_action));
 			final Button bPlay = (Button) childLayout.findViewById(R.id.bPlay);
 			final Button bGoogle = (Button) childLayout.findViewById(R.id.bGoogle);
-			if (!Util.getPreferences(this.getActivity()).getBoolean("hasLoggedInGoogle", false)) {
-				bGoogle.setText("Log in with Google Plus");
-			}
 			this.partSpinner = (Spinner) childLayout.findViewById(R.id.spinParts);
 
 			bPlay.setOnClickListener(this);

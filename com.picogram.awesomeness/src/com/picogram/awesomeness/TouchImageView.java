@@ -28,7 +28,8 @@ import android.widget.ImageView;
 
 import java.util.ArrayList;
 
-public class TouchImageView extends ImageView implements OnGestureListener,
+
+public class TouchImageView extends ImageView  implements OnGestureListener,
 OnDoubleTapListener {
 
 	public interface HistoryListener {
