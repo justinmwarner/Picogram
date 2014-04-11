@@ -41,7 +41,6 @@ import com.facebook.UiLifecycleHelper;
 import com.facebook.widget.LoginButton;
 import com.facebook.widget.WebDialog;
 import com.facebook.widget.WebDialog.OnCompleteListener;
-import com.flurry.android.FlurryAgent;
 import com.google.android.gms.plus.PlusShare;
 import com.parse.DeleteCallback;
 import com.parse.FindCallback;
@@ -289,7 +288,7 @@ public class PreGameFragment extends Fragment implements OnClickListener, OnItem
 					final PicogramHighscore mine = new PicogramHighscore(Util
 							.id(PreGameFragment.this.getActivity()),
 							PreGameFragment.this.current.getID(), sql
-							.getHighscore(PreGameFragment.this.current.getID()));
+									.getHighscore(PreGameFragment.this.current.getID()));
 					sql.close();
 					boolean shouldSave = true;
 					long worstScore = Long.MAX_VALUE;
@@ -399,15 +398,15 @@ public class PreGameFragment extends Fragment implements OnClickListener, OnItem
 		{
 			// TODO Make it use an interactive post.
 			final Intent shareIntent = new PlusShare.Builder(this.getActivity())
-			.setText("Check out: " + this.current.getName())
-			.setType("text/plain")
-			.setContentUrl(Uri.parse("http://i.imgur.com/JDSNKkp.png"))
-			.setContentDeepLinkId(this.current.getID())
-			.getIntent();
+					.setText("Check out: " + this.current.getName())
+					.setType("text/plain")
+					.setContentUrl(Uri.parse("http://i.imgur.com/JDSNKkp.png"))
+					.setContentDeepLinkId(this.current.getID())
+					.getIntent();
 			this.startActivityForResult(shareIntent, 0);
-		}else if (v.getId() == R.id.bComment){
+		} else if (v.getId() == R.id.bComment) {
 
-			if (!Util.getPreferences(this.getActivity()).getBoolean("hasLoggedInSuccessfully", false))
+			if (!Util.getPreferences(this.getActivity()).getBoolean("hasLoggedInUsername", false))
 			{
 				// Have not logged in. Start Log in Activity.
 				final Intent loginIntent = new Intent(this.getActivity(), LoginActivity.class);
@@ -423,7 +422,6 @@ public class PreGameFragment extends Fragment implements OnClickListener, OnItem
 				}
 			} else {
 				// Making a comment to server based on ID.
-				Log.d(TAG, "Commenting");
 				final PicogramComment pc = new PicogramComment();
 				final EditText etComment = ((EditText) this.getActivity().findViewById(
 						R.id.etComment));
@@ -480,7 +478,7 @@ public class PreGameFragment extends Fragment implements OnClickListener, OnItem
 
 			final int margin = (int) TypedValue.applyDimension(
 					TypedValue.COMPLEX_UNIT_DIP, 8, this.getResources()
-					.getDisplayMetrics());
+							.getDisplayMetrics());
 			final TextView v = new TextView(this.getActivity());
 			params.setMargins(margin, margin, margin, margin);
 			v.setLayoutParams(params);
@@ -501,7 +499,7 @@ public class PreGameFragment extends Fragment implements OnClickListener, OnItem
 
 		final int margin = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 8,
 				this.getResources()
-				.getDisplayMetrics());
+						.getDisplayMetrics());
 
 		params = new LayoutParams(android.view.ViewGroup.LayoutParams.MATCH_PARENT,
 				android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -743,7 +741,6 @@ public class PreGameFragment extends Fragment implements OnClickListener, OnItem
 
 	@SuppressLint("NewApi")
 	protected void startGame() {
-		FlurryAgent.logEvent("UserPlayGame");
 		final Intent gameIntent = new Intent(this.getActivity(),
 				AdvancedGameActivity.class);
 		gameIntent.putExtra("name", this.current.getName());
@@ -768,7 +765,6 @@ public class PreGameFragment extends Fragment implements OnClickListener, OnItem
 
 	@SuppressLint("NewApi")
 	protected void startGame(final Picogram go) {
-		FlurryAgent.logEvent("UserPlayGame");
 		final Intent gameIntent = new Intent(this.getActivity(),
 				AdvancedGameActivity.class);
 		gameIntent.putExtra("name", go.getName());
@@ -793,7 +789,6 @@ public class PreGameFragment extends Fragment implements OnClickListener, OnItem
 
 	@SuppressLint("NewApi")
 	protected void startGame(final PicogramPart part, final int partNumber) {
-		FlurryAgent.logEvent("UserPlayGame");
 		// This is used when we're playing a part, so some things will be different.
 		final PreGameActivity pga = (PreGameActivity) this.getActivity();
 		final Intent gameIntent = new Intent(this.getActivity(),

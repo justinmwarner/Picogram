@@ -1,5 +1,10 @@
 
 package com.picogram.awesomeness;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesClient.ConnectionCallbacks;
+import com.google.android.gms.common.GooglePlayServicesClient.OnConnectionFailedListener;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -42,17 +47,11 @@ import com.actionbarsherlock.widget.SearchView.OnQueryTextListener;
 import com.actionbarsherlock.widget.SearchView.OnSuggestionListener;
 import com.astuetz.viewpager.extensions.PagerSlidingTabStrip;
 import com.crittercism.app.Crittercism;
-import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.AdView;
 import com.google.example.games.basegameutils.BaseGameActivity;
 import com.kopfgeldjaeger.ratememaybe.RateMeMaybe;
 import com.kopfgeldjaeger.ratememaybe.RateMeMaybe.OnRMMUserChoiceListener;
 import com.parse.Parse;
 import com.picogram.awesomeness.DialogMaker.OnDialogResultListener;
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GooglePlayServicesClient.ConnectionCallbacks;
-import com.google.android.gms.common.GooglePlayServicesClient.OnConnectionFailedListener;
-
 import de.keyboardsurfer.android.widget.crouton.Configuration;
 import de.keyboardsurfer.android.widget.crouton.Crouton;
 import de.keyboardsurfer.android.widget.crouton.Style;
@@ -61,7 +60,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 public class MenuActivity extends BaseGameActivity implements
-OnPageChangeListener, OnClickListener, OnRMMUserChoiceListener, ActionBar.OnNavigationListener, ConnectionCallbacks, OnConnectionFailedListener {
+		OnPageChangeListener, OnClickListener, OnRMMUserChoiceListener, ActionBar.OnNavigationListener, ConnectionCallbacks, OnConnectionFailedListener {
 
 	public class MyPagerAdapter extends FragmentPagerAdapter {
 
@@ -241,7 +240,7 @@ OnPageChangeListener, OnClickListener, OnRMMUserChoiceListener, ActionBar.OnNavi
 		this.pager.setAdapter(this.adapter);
 		final int pageMargin = (int) TypedValue.applyDimension(
 				TypedValue.COMPLEX_UNIT_DIP, 4, this.getResources()
-				.getDisplayMetrics());
+						.getDisplayMetrics());
 		this.pager.setPageMargin(pageMargin);
 
 		this.tabs.setViewPager(this.pager);
@@ -462,9 +461,9 @@ OnPageChangeListener, OnClickListener, OnRMMUserChoiceListener, ActionBar.OnNavi
 		// Create an ad request. Check logcat output for the hashed device ID to
 		// get test ads on a physical device.
 		final AdRequest adRequest = new AdRequest.Builder()
-		.addTestDevice(AdRequest.DEVICE_ID_EMULATOR)
-		.addTestDevice("F798720E1DD0025EA428774AFBE8D924")
-		.build();
+				.addTestDevice(AdRequest.DEVICE_ID_EMULATOR)
+				.addTestDevice("F798720E1DD0025EA428774AFBE8D924")
+				.build();
 
 		// Start loading the ad in the background.
 		this.adView.loadAd(adRequest);

@@ -226,7 +226,7 @@ public class SQLitePicogramAdapter extends SQLiteOpenHelper {
 		final Cursor c = db.rawQuery(query, null);
 		if (c.moveToFirst()) {
 			final String[][] result = new String[c.getCount()][c
-			                                                   .getColumnCount()];
+					.getColumnCount()];
 			Log.d("SQL", "Up: " + c.getCount());
 			for (int i = 0; i < result.length; i++) {
 				for (int j = 0; j < c.getColumnCount(); j++) {
@@ -310,7 +310,6 @@ public class SQLitePicogramAdapter extends SQLiteOpenHelper {
 		cv.put(SQLitePicogramAdapter.pRank, 0);
 		db.insert(PicogramTable, null, cv);
 	}
-
 
 	@Override
 	public void onCreate(final SQLiteDatabase db) {

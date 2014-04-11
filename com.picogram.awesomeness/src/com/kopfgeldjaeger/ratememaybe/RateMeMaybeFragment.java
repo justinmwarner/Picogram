@@ -1,3 +1,4 @@
+
 package com.kopfgeldjaeger.ratememaybe;
 
 import android.app.AlertDialog;
@@ -76,15 +77,15 @@ public class RateMeMaybeFragment extends DialogFragment implements
 
 	public void onClick(DialogInterface dialog, int choice) {
 		switch (choice) {
-		case DialogInterface.BUTTON_POSITIVE:
-			mInterface._handlePositiveChoice();
-			break;
-		case DialogInterface.BUTTON_NEUTRAL:
-			mInterface._handleNeutralChoice();
-			break;
-		case DialogInterface.BUTTON_NEGATIVE:
-			mInterface._handleNegativeChoice();
-			break;
+			case DialogInterface.BUTTON_POSITIVE:
+				mInterface._handlePositiveChoice();
+				break;
+			case DialogInterface.BUTTON_NEUTRAL:
+				mInterface._handleNeutralChoice();
+				break;
+			case DialogInterface.BUTTON_NEGATIVE:
+				mInterface._handleNegativeChoice();
+				break;
 		}
 	}
 

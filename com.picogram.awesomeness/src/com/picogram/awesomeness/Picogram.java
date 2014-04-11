@@ -8,7 +8,7 @@ import com.parse.ParseObject;
 
 public class Picogram implements Comparable {
 	private String status, name, diff, author, width, height, solution,
-	current, numberOfColors, colors, id;
+			current, numberOfColors, colors, id;
 	private int numberOfRatings, rate;
 	private long highscore = 0;
 
@@ -184,7 +184,7 @@ public class Picogram implements Comparable {
 		if (this.current == null) {
 			this.current = "";
 			for (int i = 0; i != (Integer.parseInt(this.width)
-					* Integer.parseInt(this.height)); ++i) {
+			* Integer.parseInt(this.height)); ++i) {
 				this.current += "0";
 			}
 		}
@@ -222,7 +222,6 @@ public class Picogram implements Comparable {
 		this.author = author;
 	}
 
-
 	public void setColors(final String colors) {
 		this.colors = colors;
 	}
@@ -234,6 +233,7 @@ public class Picogram implements Comparable {
 	public void setDiff(final String diff) {
 		this.diff = diff;
 	}
+
 	public void setHeight(final String height) {
 		this.height = height;
 	}

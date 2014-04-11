@@ -33,7 +33,6 @@ import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 import com.astuetz.viewpager.extensions.PagerSlidingTabStrip;
 import com.edmodo.cropper.CropImageView;
-import com.flurry.android.FlurryAgent;
 
 import fr.castorflex.android.smoothprogressbar.SmoothProgressBar;
 
@@ -231,7 +230,6 @@ public class CreateActivity extends SherlockFragmentActivity implements ActionBa
 			final Bitmap photo = (Bitmap) data.getExtras().get("data");
 			this.bmInitial = photo;
 		} else if (requestCode == FILE_SELECT_CODE) {
-			FlurryAgent.logEvent("CreateFromFile");
 			if (resultCode == Activity.RESULT_OK) {
 				final Uri uri = data.getData();
 				final Bitmap bi = this.readBitmap(uri);
@@ -432,7 +430,6 @@ public class CreateActivity extends SherlockFragmentActivity implements ActionBa
 	// http://tutorials-android.blogspot.co.il/2011/11/outofmemory-exception-when-decoding.html
 	private void processURL(final String url) {
 		// TODO Start the progress bar.
-		FlurryAgent.logEvent("CreateURLProcess");
 		final Activity a = this;
 		new Thread(new Runnable() {
 			public void run() {
@@ -463,7 +460,7 @@ public class CreateActivity extends SherlockFragmentActivity implements ActionBa
 					});
 				} catch (final IOException e) {
 					Crouton.makeText(a, "Failed to get image.", Style.ALERT)
-					.show();
+							.show();
 					e.printStackTrace();
 					CreateActivity.this.spb.setVisibility(View.INVISIBLE);
 				}
@@ -530,30 +527,30 @@ public class CreateActivity extends SherlockFragmentActivity implements ActionBa
 		final EditText input = new EditText(this);
 		input.setText("http://upload.wikimedia.org/wikipedia/commons/a/ab/Monarch_Butterfly_Showy_Male_3000px.jpg");
 		new AlertDialog.Builder(this)
-		.setTitle("URL Sumittion")
-		.setMessage("Url Link to Image File...")
-		.setView(input)
-		.setPositiveButton("Ok",
-				new DialogInterface.OnClickListener() {
-			public void onClick(final DialogInterface dialog,
-					final int whichButton) {
-				final Editable value = input.getText();
-				CreateActivity.this.handler.post(new Runnable() {
+				.setTitle("URL Sumittion")
+				.setMessage("Url Link to Image File...")
+				.setView(input)
+				.setPositiveButton("Ok",
+						new DialogInterface.OnClickListener() {
+							public void onClick(final DialogInterface dialog,
+									final int whichButton) {
+								final Editable value = input.getText();
+								CreateActivity.this.handler.post(new Runnable() {
 
-					public void run() {
-						CreateActivity.this.processURL(value.toString());
-					}
-				});
+									public void run() {
+										CreateActivity.this.processURL(value.toString());
+									}
+								});
 
-			}
-		})
-		.setNegativeButton("Cancel",
-				new DialogInterface.OnClickListener() {
-			public void onClick(final DialogInterface dialog,
-					final int whichButton) {
-				// Do nothing.
-			}
-		}).show();
+							}
+						})
+				.setNegativeButton("Cancel",
+						new DialogInterface.OnClickListener() {
+							public void onClick(final DialogInterface dialog,
+									final int whichButton) {
+								// Do nothing.
+							}
+						}).show();
 	}
 
 	public void updateAllTouchImageViews() {
@@ -581,7 +578,8 @@ public class CreateActivity extends SherlockFragmentActivity implements ActionBa
 				if (this.hasFineTuned && (!this.fineTunedSolution.isEmpty())) {
 					b.putString("solution", this.fineTunedSolution);
 					b.putString("current", this.fineTunedSolution);
-				}tivGameOne.gridlinesColor = Color.BLACK;
+				}
+				tivGameOne.gridlinesColor = Color.BLACK;
 				tivGameOne.setPicogramInfo(b);
 			}
 			if (tivGameTwo == null) {
@@ -591,7 +589,8 @@ public class CreateActivity extends SherlockFragmentActivity implements ActionBa
 				if (this.hasFineTuned && (!this.fineTunedSolution.isEmpty())) {
 					b.putString("solution", this.fineTunedSolution);
 					b.putString("current", this.fineTunedSolution);
-				}tivGameTwo.gridlinesColor = Color.BLACK;
+				}
+				tivGameTwo.gridlinesColor = Color.BLACK;
 				tivGameTwo.setPicogramInfo(b);
 			}
 			if (tivGameThree == null) {
@@ -611,7 +610,8 @@ public class CreateActivity extends SherlockFragmentActivity implements ActionBa
 				if (this.hasFineTuned && (!this.fineTunedSolution.isEmpty())) {
 					b.putString("solution", this.fineTunedSolution);
 					b.putString("current", this.fineTunedSolution);
-				}tivGameThree.gridlinesColor = Color.BLACK;
+				}
+				tivGameThree.gridlinesColor = Color.BLACK;
 				tivGameThree.setPicogramInfo(b);
 			}
 			if (tivGameFour == null) {
@@ -622,7 +622,7 @@ public class CreateActivity extends SherlockFragmentActivity implements ActionBa
 					b.putString("solution", this.fineTunedSolution);
 					b.putString("current", this.fineTunedSolution);
 				}
-tivGameFour.gridlinesColor = Color.BLACK;
+				tivGameFour.gridlinesColor = Color.BLACK;
 				tivGameFour.setPicogramInfo(b);
 			}
 		}

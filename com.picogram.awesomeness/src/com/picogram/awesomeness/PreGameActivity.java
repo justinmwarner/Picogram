@@ -33,7 +33,6 @@ import android.widget.RelativeLayout;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 import com.astuetz.viewpager.extensions.PagerSlidingTabStrip;
-import com.flurry.android.FlurryAgent;
 import com.google.android.gms.plus.PlusShare;
 import com.google.example.games.basegameutils.BaseGameActivity;
 import com.parse.ParseException;
@@ -71,7 +70,6 @@ public class PreGameActivity extends BaseGameActivity implements OnPageChangeLis
 		}
 
 	}
-
 
 	final ArrayList<String> TITLES = new ArrayList<String>(Arrays.asList(new String[] {
 			"Actions", "Comments", "High Scores"
@@ -315,10 +313,10 @@ public class PreGameActivity extends BaseGameActivity implements OnPageChangeLis
 		int foreground, background;
 		if (this.current.replaceAll("x|X", "0").equals(this.solution)) {
 			foreground = this.getResources().getColor(R.color.bad);
-			background = this.getResources().getColor(R.color.good);
+			background = this.getResources().getColor(R.color.light_green);
 		} else {
 			foreground = this.getResources().getColor(R.color.good);
-			background = this.getResources().getColor(R.color.bad);
+			background = this.getResources().getColor(R.color.light_red);
 		}
 		cd = new ColorDrawable(background);
 		this.getSupportActionBar().setTitle(Html.fromHtml("<font color='" + foreground + "'>App Name</font>"));
@@ -332,7 +330,9 @@ public class PreGameActivity extends BaseGameActivity implements OnPageChangeLis
 		}
 		this.getSupportActionBar().setBackgroundDrawable(cd);
 		return true;
-	}@Override
+	}
+
+	@Override
 	public boolean onOptionsItemSelected(final MenuItem item) {
 		super.onOptionsItemSelected(item);
 
@@ -366,6 +366,7 @@ public class PreGameActivity extends BaseGameActivity implements OnPageChangeLis
 		sql.close();
 		return true;
 	}
+
 	public void onPageScrolled(final int arg0, final float arg1, final int arg2) {
 	}
 
@@ -438,7 +439,6 @@ public class PreGameActivity extends BaseGameActivity implements OnPageChangeLis
 		return null;
 	}
 
-
 	public void showRatingDialog(final SQLitePicogramAdapter sql)
 	{
 		// Check if user needs to rate puzzle.
@@ -492,7 +492,6 @@ public class PreGameActivity extends BaseGameActivity implements OnPageChangeLis
 
 	@SuppressLint("NewApi")
 	protected void startGame(final Picogram go, final int row, final int col, final int cw, final int ch) {
-		FlurryAgent.logEvent("UserPlayGame");
 		final Intent gameIntent = new Intent(this, AdvancedGameActivity.class);
 		gameIntent.putExtra("name", go.getName());
 		gameIntent.putExtra("solution", go.getSolution());

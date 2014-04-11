@@ -39,5 +39,9 @@
     <string name="app_id">1043629120155</string>
     <string name="fb_app_id">168035366694115</string>
     <string name="title_activity_login">LoginActivity</string>
+    <string name="gamehelper_unknown_error">Unknown errors</string>
+    <string name="gamehelper_sign_in_failed">Sign in failled</string>
+    <string name="gamehelper_app_misconfigured">App misconfigured</string>
+    <string name="gamehelper_license_failed">License Failed</string>
 
 </resources>

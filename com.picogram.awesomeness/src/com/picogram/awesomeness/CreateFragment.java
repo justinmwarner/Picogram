@@ -169,7 +169,7 @@ public class CreateFragment extends Fragment implements OnClickListener, OnRange
 				ll.setOrientation(LinearLayout.VERTICAL);
 				final ArrayList<Button> buttons = new ArrayList();
 				final ArrayList<RangeBar> bars = new ArrayList();
-				final int []pc = Arrays.copyOfRange(msca.newColors, 0, msca.newColors.length);
+				final int[] pc = Arrays.copyOfRange(msca.newColors, 0, msca.newColors.length);
 				for (int i = 0; i != msca.numColors; ++i)
 				{
 					final Button b = new Button(this.getActivity());
@@ -189,23 +189,23 @@ public class CreateFragment extends Fragment implements OnClickListener, OnRange
 									pc[j],
 									new OnAmbilWarnaListener() {
 
-								public void onCancel(
-										final AmbilWarnaDialog dialog) {
-									// Do nothing.
-								}
+										public void onCancel(
+												final AmbilWarnaDialog dialog) {
+											// Do nothing.
+										}
 
-								public void onOk(
-										final AmbilWarnaDialog dialog,
-										final int color) {
-									msca.originalColors[j] = color;
-									msca.newColors[j] = color;
-									pc[j] = color;
-									((CreateActivity) CreateFragment.this.getActivity()).updateAllTouchImageViews();
-									buttons.get(j).setBackgroundColor(color);
-									b.setBackgroundColor(color);
-									Log.d(TAG, "New Color: " + color + " " + j);
-								}
-							});
+										public void onOk(
+												final AmbilWarnaDialog dialog,
+												final int color) {
+											msca.originalColors[j] = color;
+											msca.newColors[j] = color;
+											pc[j] = color;
+											((CreateActivity) CreateFragment.this.getActivity()).updateAllTouchImageViews();
+											buttons.get(j).setBackgroundColor(color);
+											b.setBackgroundColor(color);
+											Log.d(TAG, "New Color: " + color + " " + j);
+										}
+									});
 							Log.d(TAG, "Changing color: " + tempColor + " " + j);
 							dialog.show();
 						}
@@ -371,10 +371,10 @@ public class CreateFragment extends Fragment implements OnClickListener, OnRange
 
 	private void showNumberDialog(final int id) {
 		final NumberPickerBuilder npb = new NumberPickerBuilder()
-		.setStyleResId(R.style.MyCustomBetterPickerTheme)
-		.setFragmentManager(this.getActivity().getSupportFragmentManager())
-		.setPlusMinusVisibility(View.INVISIBLE)
-		.setDecimalVisibility(View.INVISIBLE);
+				.setStyleResId(R.style.MyCustomBetterPickerTheme)
+				.setFragmentManager(this.getActivity().getSupportFragmentManager())
+				.setPlusMinusVisibility(View.INVISIBLE)
+				.setDecimalVisibility(View.INVISIBLE);
 		if (id == R.id.bColorChange) {
 			npb.setMinNumber(2);
 			npb.setMaxNumber(10);

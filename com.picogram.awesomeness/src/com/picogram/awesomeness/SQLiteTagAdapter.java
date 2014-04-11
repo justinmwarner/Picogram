@@ -27,7 +27,7 @@ public class SQLiteTagAdapter extends SQLiteOpenHelper {
 		final Cursor c = db.rawQuery(query, null);
 		if (c.moveToFirst()) {
 			final String[][] result = new String[c.getCount()][c
-			                                                   .getColumnCount()];
+					.getColumnCount()];
 			for (int i = 0; i < result.length; i++) {
 				for (int j = 0; j < c.getColumnCount(); j++) {
 					result[i][j] = c.getString(j);

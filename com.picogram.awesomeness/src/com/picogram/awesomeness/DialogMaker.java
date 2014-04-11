@@ -104,21 +104,21 @@ public class DialogMaker extends DialogFragment implements View.OnClickListener 
 				p = pix[yi + Math.min(wm, Math.max(i, 0))];
 				sir = stack[i + radius];
 				sir[0] = (p & 0xff0000) >> 16;
-			sir[1] = (p & 0x00ff00) >> 8;
-		sir[2] = (p & 0x0000ff);
-		rbs = r1 - Math.abs(i);
-		rsum += sir[0] * rbs;
-		gsum += sir[1] * rbs;
-		bsum += sir[2] * rbs;
-		if (i > 0) {
-			rinsum += sir[0];
-			ginsum += sir[1];
-			binsum += sir[2];
-		} else {
-			routsum += sir[0];
-			goutsum += sir[1];
-			boutsum += sir[2];
-		}
+				sir[1] = (p & 0x00ff00) >> 8;
+				sir[2] = (p & 0x0000ff);
+				rbs = r1 - Math.abs(i);
+				rsum += sir[0] * rbs;
+				gsum += sir[1] * rbs;
+				bsum += sir[2] * rbs;
+				if (i > 0) {
+					rinsum += sir[0];
+					ginsum += sir[1];
+					binsum += sir[2];
+				} else {
+					routsum += sir[0];
+					goutsum += sir[1];
+					boutsum += sir[2];
+				}
 			}
 			stackpointer = radius;
 
@@ -145,29 +145,29 @@ public class DialogMaker extends DialogFragment implements View.OnClickListener 
 				p = pix[yw + vmin[x]];
 
 				sir[0] = (p & 0xff0000) >> 16;
-			sir[1] = (p & 0x00ff00) >> 8;
-			sir[2] = (p & 0x0000ff);
+				sir[1] = (p & 0x00ff00) >> 8;
+				sir[2] = (p & 0x0000ff);
 
-			rinsum += sir[0];
-			ginsum += sir[1];
-			binsum += sir[2];
+				rinsum += sir[0];
+				ginsum += sir[1];
+				binsum += sir[2];
 
-			rsum += rinsum;
-			gsum += ginsum;
-			bsum += binsum;
+				rsum += rinsum;
+				gsum += ginsum;
+				bsum += binsum;
 
-			stackpointer = (stackpointer + 1) % div;
-			sir = stack[(stackpointer) % div];
+				stackpointer = (stackpointer + 1) % div;
+				sir = stack[(stackpointer) % div];
 
-			routsum += sir[0];
-			goutsum += sir[1];
-			boutsum += sir[2];
+				routsum += sir[0];
+				goutsum += sir[1];
+				boutsum += sir[2];
 
-			rinsum -= sir[0];
-			ginsum -= sir[1];
-			binsum -= sir[2];
+				rinsum -= sir[0];
+				ginsum -= sir[1];
+				binsum -= sir[2];
 
-			yi++;
+				yi++;
 			}
 			yw += w;
 		}
@@ -256,7 +256,6 @@ public class DialogMaker extends DialogFragment implements View.OnClickListener 
 
 		return (bitmap);
 	}
-
 
 	private void generateRandom() {
 		this.randomPuzzle = "";
@@ -366,27 +365,27 @@ public class DialogMaker extends DialogFragment implements View.OnClickListener 
 			this.setupLongClick(v);
 		} else if (layoutId == R.layout.dialog_random_picogram) {
 			builder
-			// Add positive button for random. Others don't need this.
-			.setPositiveButton("Done", new DialogInterface.OnClickListener() {
-				public void onClick(final DialogInterface dialog, final int id) {
-					final Bundle bundle = new Bundle();
-					if (layoutId == R.layout.dialog_random_picogram) {
-						bundle.putInt("width", DialogMaker.this.randomWidth);
-						bundle.putInt("height", DialogMaker.this.randomHeight);
-						bundle.putInt("numColors", DialogMaker.this.randomColors);
-						bundle.putString("solution", DialogMaker.this.randomPuzzle);
-						bundle.putString("name",
-								"Random #" + DialogMaker.this.randomPuzzle.hashCode());
-						bundle.putString("tags", "random");
-					}
-					DialogMaker.this.listener.onDialogResult(bundle);
-				}
-			}).setNegativeButton("Cancel",
-					new DialogInterface.OnClickListener() {
-				public void onClick(final DialogInterface dialog, final int id) {
-					dialog.dismiss();
-				}
-			});
+					// Add positive button for random. Others don't need this.
+					.setPositiveButton("Done", new DialogInterface.OnClickListener() {
+						public void onClick(final DialogInterface dialog, final int id) {
+							final Bundle bundle = new Bundle();
+							if (layoutId == R.layout.dialog_random_picogram) {
+								bundle.putInt("width", DialogMaker.this.randomWidth);
+								bundle.putInt("height", DialogMaker.this.randomHeight);
+								bundle.putInt("numColors", DialogMaker.this.randomColors);
+								bundle.putString("solution", DialogMaker.this.randomPuzzle);
+								bundle.putString("name",
+										"Random #" + DialogMaker.this.randomPuzzle.hashCode());
+								bundle.putString("tags", "random");
+							}
+							DialogMaker.this.listener.onDialogResult(bundle);
+						}
+					}).setNegativeButton("Cancel",
+							new DialogInterface.OnClickListener() {
+								public void onClick(final DialogInterface dialog, final int id) {
+									dialog.dismiss();
+								}
+							});
 			this.setupRandom(v);
 		} else if (layoutId == R.layout.dialog_ranking) {
 			// Don't need action buttons.
@@ -508,29 +507,29 @@ public class DialogMaker extends DialogFragment implements View.OnClickListener 
 						final AmbilWarnaDialog dialog = new AmbilWarnaDialog(a,
 								Integer.parseInt(colors[ivs.indexOf(v
 										.getParent()) - 2]),
-										new OnAmbilWarnaListener() {
+								new OnAmbilWarnaListener() {
 
-							public void onCancel(
-									final AmbilWarnaDialog dialog) {
-								// Do nothing.
-							}
+									public void onCancel(
+											final AmbilWarnaDialog dialog) {
+										// Do nothing.
+									}
 
-							public void onOk(
-									final AmbilWarnaDialog dialog,
-									final int color) {
-								final Bundle bundle = new Bundle();
-								final int[] cols = new int[colors.length];
-								for (int i = 0; i != cols.length; ++i) {
-									cols[i] = Integer
-											.parseInt(colors[i]);
-								}
-								cols[ivs.indexOf(v.getParent()) - 2] = color;
-								bundle.putIntArray("colors", cols);
-								bundle.putInt("color",
-										ivs.indexOf(v.getParent()) - 2);
-								DialogMaker.this.listener.onDialogResult(bundle);
-							}
-						});
+									public void onOk(
+											final AmbilWarnaDialog dialog,
+											final int color) {
+										final Bundle bundle = new Bundle();
+										final int[] cols = new int[colors.length];
+										for (int i = 0; i != cols.length; ++i) {
+											cols[i] = Integer
+													.parseInt(colors[i]);
+										}
+										cols[ivs.indexOf(v.getParent()) - 2] = color;
+										bundle.putIntArray("colors", cols);
+										bundle.putInt("color",
+												ivs.indexOf(v.getParent()) - 2);
+										DialogMaker.this.listener.onDialogResult(bundle);
+									}
+								});
 						dialog.show();
 						return true;
 					}
@@ -624,97 +623,97 @@ public class DialogMaker extends DialogFragment implements View.OnClickListener 
 
 		// Add action buttons
 		((Button) v.findViewById(R.id.bNext))
-		.setOnClickListener(new View.OnClickListener() {
-			public void onClick(final View view) {
-				if (((Button) view).getText().toString()
-						.equals("Done")) {
-					Crouton.makeText(
-							DialogMaker.this.getActivity(),
-							"You can view this again in the Prefs tab.  Good luck!",
-							Style.INFO).show();
-					DialogMaker.this.getDialog().dismiss();
-					Util.getPreferences(DialogMaker.this.getActivity()).edit()
-					.putBoolean("isFirst", false).commit();
-					return;
-				}
-				int currentStep = -1;
-				for (int i = 0; i != prompts.length; ++i) {
-					if (prompts[i].equals(tv.getText().toString())) {
-						currentStep = i + 1;
-					}
-				}
-				if (currentStep == -1) {
-					currentStep = 0;
-				}
-				iv.setImageBitmap(BitmapFactory.decodeResource(
-						DialogMaker.this.getResources(), resources[currentStep]));
-				tv.setText(prompts[currentStep]);
-				currentStep++;
-				if (currentStep == prompts.length) {
-					((Button) view).setText("Done");
+				.setOnClickListener(new View.OnClickListener() {
+					public void onClick(final View view) {
+						if (((Button) view).getText().toString()
+								.equals("Done")) {
+							Crouton.makeText(
+									DialogMaker.this.getActivity(),
+									"You can view this again in the Prefs tab.  Good luck!",
+									Style.INFO).show();
+							DialogMaker.this.getDialog().dismiss();
+							Util.getPreferences(DialogMaker.this.getActivity()).edit()
+									.putBoolean("isFirst", false).commit();
+							return;
+						}
+						int currentStep = -1;
+						for (int i = 0; i != prompts.length; ++i) {
+							if (prompts[i].equals(tv.getText().toString())) {
+								currentStep = i + 1;
+							}
+						}
+						if (currentStep == -1) {
+							currentStep = 0;
+						}
+						iv.setImageBitmap(BitmapFactory.decodeResource(
+								DialogMaker.this.getResources(), resources[currentStep]));
+						tv.setText(prompts[currentStep]);
+						currentStep++;
+						if (currentStep == prompts.length) {
+							((Button) view).setText("Done");
 
-				}
-				((Button) v.findViewById(R.id.bLater))
-				.setText("Previous");
-			}
-		});
+						}
+						((Button) v.findViewById(R.id.bLater))
+								.setText("Previous");
+					}
+				});
 
 		((Button) v.findViewById(R.id.bNever))
-		.setOnClickListener(new View.OnClickListener() {
-			public void onClick(final View view) {
+				.setOnClickListener(new View.OnClickListener() {
+					public void onClick(final View view) {
 
-				Crouton.makeText(
-						DialogMaker.this.getActivity(),
-						"You can view this in the Prefs tab.  Good luck!",
-						Style.INFO).show();
-				Util.getPreferences(DialogMaker.this.getActivity()).edit()
-				.putBoolean("isFirst", false).commit();
-				DialogMaker.this.getDialog().dismiss();
-			}
-		});
+						Crouton.makeText(
+								DialogMaker.this.getActivity(),
+								"You can view this in the Prefs tab.  Good luck!",
+								Style.INFO).show();
+						Util.getPreferences(DialogMaker.this.getActivity()).edit()
+								.putBoolean("isFirst", false).commit();
+						DialogMaker.this.getDialog().dismiss();
+					}
+				});
 
 		((Button) v.findViewById(R.id.bLater))
-		.setOnClickListener(new View.OnClickListener() {
+				.setOnClickListener(new View.OnClickListener() {
 
-			public void onClick(final View view) {
-				if (((Button) view).getText().toString()
-						.equals("Previous")) {
-					((Button) v.findViewById(R.id.bNext))
-					.setText("Next");
-					int currentStep = -1;
-					for (int i = 0; i != prompts.length; ++i) {
-						if (prompts[i].equals(tv.getText()
-								.toString())) {
-							currentStep = i - 1;
+					public void onClick(final View view) {
+						if (((Button) view).getText().toString()
+								.equals("Previous")) {
+							((Button) v.findViewById(R.id.bNext))
+									.setText("Next");
+							int currentStep = -1;
+							for (int i = 0; i != prompts.length; ++i) {
+								if (prompts[i].equals(tv.getText()
+										.toString())) {
+									currentStep = i - 1;
+								}
+							}
+							tv.setText(prompts[currentStep]);
+							iv.setImageBitmap(BitmapFactory.decodeResource(
+									DialogMaker.this.getResources(), resources[currentStep]));
+							if (currentStep == 0) {
+								((Button) v.findViewById(R.id.bLater))
+										.setText("Later");
+							}
+
+						} else {
+							Crouton.makeText(
+									DialogMaker.this.getActivity(),
+									"We'll show this next app start. You can also view this in Prefs",
+									Style.INFO).show();
+							Util.getPreferences(DialogMaker.this.getActivity()).edit()
+									.putBoolean("isFirst", true).commit();
+							DialogMaker.this.getDialog().dismiss();
 						}
 					}
-					tv.setText(prompts[currentStep]);
-					iv.setImageBitmap(BitmapFactory.decodeResource(
-							DialogMaker.this.getResources(), resources[currentStep]));
-					if (currentStep == 0) {
-						((Button) v.findViewById(R.id.bLater))
-						.setText("Later");
-					}
-
-				} else {
-					Crouton.makeText(
-							DialogMaker.this.getActivity(),
-							"We'll show this next app start. You can also view this in Prefs",
-							Style.INFO).show();
-					Util.getPreferences(DialogMaker.this.getActivity()).edit()
-					.putBoolean("isFirst", true).commit();
-					DialogMaker.this.getDialog().dismiss();
-				}
-			}
-		});
+				});
 	}
 
 	private void showNumberDialog(final int id) {
 		final NumberPickerBuilder npb = new NumberPickerBuilder()
-		.setStyleResId(R.style.MyCustomBetterPickerTheme)
-		.setFragmentManager(this.getFragmentManager())
-		.setPlusMinusVisibility(View.INVISIBLE)
-		.setDecimalVisibility(View.INVISIBLE);
+				.setStyleResId(R.style.MyCustomBetterPickerTheme)
+				.setFragmentManager(this.getFragmentManager())
+				.setPlusMinusVisibility(View.INVISIBLE)
+				.setDecimalVisibility(View.INVISIBLE);
 		if (id == R.id.bRandomNumColors) {
 			npb.setMinNumber(2);
 			npb.setMaxNumber(10);

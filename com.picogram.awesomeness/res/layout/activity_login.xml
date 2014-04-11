@@ -30,6 +30,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
+        android:visibility="gone"
         android:layout_margin="20dp"
         android:text="-    -    or    -    -" />
 
@@ -38,6 +39,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="#3B5998"
+        android:visibility="gone"
         android:text="Log in with Facebook"
         android:textColor="#FFF" />
 
@@ -47,11 +49,25 @@
         android:layout_height="wrap_content"
         android:background="#d34836"
         android:text="Log in with Google Plus"
+        android:visibility="gone"
         android:textColor="#d2d2d2" />
+
+    <com.viewpagerindicator.CirclePageIndicator
+        android:id="@+id/indicatorLogin"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:padding="10dip" />
+
+    <android.support.v4.view.ViewPager
+        android:id="@+id/pagerLogin"
+        android:layout_width="fill_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:visibility="gone"
         android:orientation="horizontal" >
 
         <RelativeLayout

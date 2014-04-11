@@ -1,3 +1,4 @@
+
 package com.picogram.awesomeness;
 
 import com.parse.ParseObject;
@@ -49,7 +50,6 @@ public class FlagObject {
 	public void setPuzzleId(final String puzzleId) {
 		this.puzzleId = puzzleId;
 	}
-
 
 	public void setReason(final String reason) {
 		this.reason = reason;

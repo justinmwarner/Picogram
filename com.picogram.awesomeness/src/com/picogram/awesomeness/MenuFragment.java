@@ -28,7 +28,6 @@ import android.widget.FrameLayout;
 import android.widget.FrameLayout.LayoutParams;
 import android.widget.TextView;
 
-import com.flurry.android.FlurryAgent;
 import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseObject;
@@ -46,7 +45,7 @@ import java.util.GregorianCalendar;
 import java.util.List;
 
 public class MenuFragment extends Fragment implements
-OnItemClickListener, OnItemLongClickListener {
+		OnItemClickListener, OnItemLongClickListener {
 
 	private static final String ARG_POSITION = "position";
 	private static final String TAG = "SuperAwesomeCardFragment";
@@ -134,7 +133,7 @@ OnItemClickListener, OnItemLongClickListener {
 						"solution").hashCode()
 						+ "", "0", result.getString("name"),
 						((w * h) / 1400) + "", "3", 1, "computer", w
-						+ "", h + "", result.getString("solution"),
+								+ "", h + "", result.getString("solution"),
 						current, nc, cols);
 				MenuFragment.this.myAdapter.add(go);
 				MenuFragment.this.myAdapter.notifyDataSetChanged();
@@ -201,7 +200,7 @@ OnItemClickListener, OnItemLongClickListener {
 
 					public void run() {
 						MenuFragment.this.myAdapter.myPicograms
-						.add(tempPicogram);
+								.add(tempPicogram);
 					}
 
 				});
@@ -720,11 +719,13 @@ OnItemClickListener, OnItemLongClickListener {
 			this.startGame(p);
 		}
 	}
+
 	@Override
 	public void onCreate(final Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		this.position = this.getArguments().getInt(ARG_POSITION);
 	}
+
 	@Override
 	public View onCreateView(final LayoutInflater inflater,
 			final ViewGroup container, final Bundle savedInstanceState) {
@@ -741,7 +742,7 @@ OnItemClickListener, OnItemLongClickListener {
 
 		final int margin = (int) TypedValue.applyDimension(
 				TypedValue.COMPLEX_UNIT_DIP, 8, this.getResources()
-				.getDisplayMetrics());
+						.getDisplayMetrics());
 		if (!Util.isOnline())
 		{
 			if (this.position != 0) {
@@ -802,7 +803,7 @@ OnItemClickListener, OnItemLongClickListener {
 		v.setLongClickable(true);
 		v.setOnItemLongClickListener(this);
 
-		v.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
+		v.setLayoutParams(new LayoutParams(android.view.ViewGroup.LayoutParams.MATCH_PARENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT));
 		fl.addView(v);
 		return fl;
 	}
@@ -826,21 +827,21 @@ OnItemClickListener, OnItemLongClickListener {
 				if (picogram.getName().contains("Easy Pack 1")) {
 					this.loadEasyPackOne();
 					Util.getPreferences(this.getActivity()).edit()
-					.putBoolean("hasDownloadedEasyOne", true).commit();
+							.putBoolean("hasDownloadedEasyOne", true).commit();
 				} else if (picogram.getName().contains("Easy Pack 2")) {
 					this.loadEasyPackTwo();
 					Util.getPreferences(this.getActivity()).edit()
-					.putBoolean("hasDownloadedEasyTwo", true).commit();
+							.putBoolean("hasDownloadedEasyTwo", true).commit();
 				} else if (picogram.getName().contains("Medium Pack 1")) {
 					this.loadMediumPackOne();
 					Util.getPreferences(this.getActivity()).edit()
-					.putBoolean("hasDownloadedMediumOne", true)
-					.commit();
+							.putBoolean("hasDownloadedMediumOne", true)
+							.commit();
 				} else {
 					Crouton.makeText(
 							this.getActivity(),
 							picogram.getName()
-							+ " is not currently supported.  Report a bug.",
+									+ " is not currently supported.  Report a bug.",
 							Style.INFO).show();
 					return;
 				}
@@ -912,7 +913,6 @@ OnItemClickListener, OnItemLongClickListener {
 
 	@SuppressLint("NewApi")
 	private void startGame(final Picogram go) {
-		FlurryAgent.logEvent("UserPlayGame");
 		// Intent gameIntent = new Intent(this, AdvancedGameActivity.class);
 		final Intent gameIntent = new Intent(this.getActivity(),
 				PreGameActivity.class);

@@ -1,3 +1,4 @@
+
 package com.picogram.awesomeness;
 
 import android.content.Context;
@@ -25,6 +26,7 @@ public class ActionBarAdapter extends BaseAdapter {
 		this.mSubTitle = subtitle;
 		this.mIcon = icon;
 	}
+
 	public int getCount() {
 		return this.mTitle.length;
 	}

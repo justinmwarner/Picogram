@@ -1,3 +1,4 @@
+
 package com.kopfgeldjaeger.ratememaybe;
 
 import android.content.ActivityNotFoundException;

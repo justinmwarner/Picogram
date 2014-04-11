@@ -1,0 +1,45 @@
+apply plugin: 'android'
+
+dependencies {
+    compile fileTree(dir: 'libs', include: '*.jar')
+    compile project(':Downloads:facebook-android-sdk-3.7:facebook')
+    compile project(':Documents:AndroidLibs:wheel')
+    compile project(':Documents:AndroidLibs:SmoothBar:src:main')
+    compile project(':Documents:AndroidLibs:pager-sliding')
+    compile project(':Documents:AndroidLibs:NIAlibrary')
+    compile project(':Documents:AndroidLibs:actionbarsherlock')
+    compile project(':Documents:AndroidLibs:betterpickerslibrary')
+    compile project(':Documents:AndroidLibs:cropper')
+    compile project(':Documents:AndroidLibs:CroutonLib')
+    compile project(':Documents:AndroidLibs:licensesdialog')
+    compile project(':Documents:AndroidLibs:rangebar')
+    compile project(':Documents:AndroidLibs:google-play-services_lib')
+    compile project(':bodyid-yuku-android-util:AmbilWarna')
+    compile project(':Documents:AndroidLibs:Android-ViewPagerIndicator-master:library')
+}
+
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath 'com.android.tools.build:gradle:0.9.0'
+    }
+}
+
+android {
+    compileSdkVersion 19
+    buildToolsVersion "18.0.1"
+
+    sourceSets {
+        main {
+            manifest.srcFile 'AndroidManifest.xml'
+            java.srcDirs = ['src']
+            aidl.srcDirs = ['src']
+            renderscript.srcDirs = ['src']
+            res.srcDirs = ['res']
+            assets.srcDirs = ['assets']
+        }
+    }
+}

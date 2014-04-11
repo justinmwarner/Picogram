@@ -244,7 +244,7 @@ public class PicogramListAdapter extends ArrayAdapter<Picogram> {
 			rate = "Rating";
 		} else if ((status == 1)
 				|| this.picograms.get(position).getSolution().replaceAll("x", "0")
-				.equals(picogram.getCurrent().replaceAll("x", "0"))) {
+						.equals(picogram.getCurrent().replaceAll("x", "0"))) {
 			// Won.
 			holder.rl.setBackgroundDrawable(this.context.getResources().getDrawable(R.drawable.item_selector_good));
 		} else {

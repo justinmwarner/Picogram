@@ -23,7 +23,6 @@ final class CustomActionMode implements Callback {
 		this.me = view;
 	}
 
-
 	public boolean onActionItemClicked(final ActionMode mode, final MenuItem item) {
 		if (item.getTitle().equals("Delete"))
 		{
@@ -48,12 +47,12 @@ final class CustomActionMode implements Callback {
 		// Used to put dark icons on light action bar
 
 		menu.add("Delete")
-		.setIcon(R.drawable.ic_xs)
-		.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+				.setIcon(R.drawable.ic_xs)
+				.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
 
 		menu.add("Clear")
-		.setIcon(R.drawable.ic_transparent)
-		.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+				.setIcon(R.drawable.ic_transparent)
+				.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
 
 		return true;
 	}

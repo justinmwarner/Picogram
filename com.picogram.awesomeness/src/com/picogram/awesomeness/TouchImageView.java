@@ -19,6 +19,7 @@ import android.os.Handler;
 import android.os.Vibrator;
 import android.support.v4.view.GestureDetectorCompat;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.GestureDetector.OnDoubleTapListener;
 import android.view.GestureDetector.OnGestureListener;
 import android.view.MotionEvent;
@@ -28,16 +29,15 @@ import android.widget.ImageView;
 
 import java.util.ArrayList;
 
-
-public class TouchImageView extends ImageView  implements OnGestureListener,
-OnDoubleTapListener {
+public class TouchImageView extends ImageView implements OnGestureListener,
+		OnDoubleTapListener {
 
 	public interface HistoryListener {
 		public void action(String curr);
 	}
 
 	private class ScaleListener extends
-	ScaleGestureDetector.SimpleOnScaleGestureListener {
+			ScaleGestureDetector.SimpleOnScaleGestureListener {
 		@Override
 		public boolean onScale(final ScaleGestureDetector detector) {
 			float mScaleFactor = detector.getScaleFactor();
@@ -156,11 +156,11 @@ OnDoubleTapListener {
 							final float fixTransX = TouchImageView.this
 									.getFixDragTrans(deltaX, TouchImageView.this.viewWidth,
 											TouchImageView.this.origWidth
-											* TouchImageView.this.saveScale);
+													* TouchImageView.this.saveScale);
 							final float fixTransY = TouchImageView.this
 									.getFixDragTrans(deltaY, TouchImageView.this.viewHeight,
 											TouchImageView.this.origHeight
-											* TouchImageView.this.saveScale);
+													* TouchImageView.this.saveScale);
 							TouchImageView.this.matrix.postTranslate(fixTransX, fixTransY);
 							TouchImageView.this.fixTrans();
 							TouchImageView.this.last.set(curr.x, curr.y);
@@ -262,7 +262,7 @@ OnDoubleTapListener {
 
 			for (int i = 0; i != this.sideHints.size(); ++i) {
 				this.sideHints.set(i, new StringBuilder(this.sideHints.get(i))
-				.reverse().toString());
+						.reverse().toString());
 			}
 
 		}
@@ -278,10 +278,12 @@ OnDoubleTapListener {
 	}
 
 	public void checkWin() {
-		if (this.gCurrent.replaceAll("x", "0").equals(this.gSolution)) {
+		Log.d(TAG, "CHECKING WIN - " + this.gCurrent.replaceAll("x|X", "0").equals(this.gSolution));
+		if (this.gCurrent.replaceAll("x|X", "0").equals(this.gSolution)) {
 			if (this.winListener != null) {
 				this.winListener.win();
 			} else {
+				Log.d(TAG, "CHECKING WIN - ERROR");
 				try {
 					throw new Exception("No WinListener!");
 				} catch (final Exception e) {
@@ -290,6 +292,9 @@ OnDoubleTapListener {
 				}
 			}
 		}
+		Log.d(TAG, "CHECKING WIN -  No go " + gCurrent);
+		Log.d(TAG, "CHECKING WIN -  No go " + gCurrent.replaceAll("x|X", "0"));
+		Log.d(TAG, "CHECKING WIN -  No go " + gSolution);
 	}
 
 	public void clearGame() {
@@ -330,14 +335,14 @@ OnDoubleTapListener {
 
 		this.paintBitmap.setColor(this.gridlinesColor);
 		this.paintBitmap
-		.setTextSize(this.determineMaxTextSize(this.gName, this.lSide * this.cellWidth));
+				.setTextSize(this.determineMaxTextSize(this.gName, this.lSide * this.cellWidth));
 
 		this.canvasBitmap.drawText(this.gName, 0, this.paintBitmap.getTextSize(),
 				this.paintBitmap);
 
 		final float oldSize = this.paintBitmap.getTextSize();
 		this.paintBitmap
-		.setTextSize(this.determineMaxTextSize(size, this.lSide * this.cellWidth));
+				.setTextSize(this.determineMaxTextSize(size, this.lSide * this.cellWidth));
 
 		this.canvasBitmap.drawText(size, 0,
 				this.paintBitmap.getTextSize() + oldSize, this.paintBitmap);
@@ -371,8 +376,8 @@ OnDoubleTapListener {
 			}
 			final Rect r = new Rect(widthOffset * (this.longestSide + column),
 					heightOffset * (this.longestTop + row), widthOffset
-					* (this.longestSide + column + 1), heightOffset
-					* (this.longestTop + row + 1));
+							* (this.longestSide + column + 1), heightOffset
+							* (this.longestTop + row + 1));
 
 			final Xfermode old = this.paintBitmap.getXfermode();
 			if (this.gCurrent.charAt(i) == 'x') {
@@ -392,7 +397,7 @@ OnDoubleTapListener {
 				this.paintBitmap.setTextAlign(first);
 			} else {
 				this.paintBitmap.setColor(this.gColors[Integer
-				                                       .parseInt(this.gCurrent.charAt(i) + "")]);
+						.parseInt(this.gCurrent.charAt(i) + "")]);
 				if (this.gColors[Integer.parseInt(this.gCurrent.charAt(i) + "")] == Color.TRANSPARENT) {
 					// Draw white ontop for transparency.
 					this.paintBitmap.setXfermode(new PorterDuffXfermode(
@@ -467,7 +472,7 @@ OnDoubleTapListener {
 			for (int j = 0; j != this.topHints.get(i).length; ++j) {
 				if (Character.isDigit(this.topHints.get(i)[j].charAt(0))) {
 					this.paintBitmap.setColor(this.gColors[this.topColors
-					                                       .get(colorRun)]);
+							.get(colorRun)]);
 					colorRun++;
 				}
 				if (this.topHints.get(i)[j].equals("0")) {
@@ -475,15 +480,15 @@ OnDoubleTapListener {
 				}
 
 				this.canvasBitmap
-				.drawRect(
-						new Rect(
-								((this.longestSide * widthOffset) + (j * widthOffset)),
-								((this.longestTop * heightOffset)
-										- (heightOffset * i) - heightOffset),
+						.drawRect(
+								new Rect(
+										((this.longestSide * widthOffset) + (j * widthOffset)),
+										((this.longestTop * heightOffset)
+												- (heightOffset * i) - heightOffset),
 										((this.longestSide * widthOffset) + (j * widthOffset))
-										+ (widthOffset),
+												+ (widthOffset),
 										((this.longestTop * heightOffset) - (heightOffset * i))),
-										this.paintBitmap);
+								this.paintBitmap);
 				final int[] rgbOriginal = this.getRGB(this.paintBitmap.getColor());
 				if (this.paintBitmap.getColor() == Color.TRANSPARENT) {
 					this.paintBitmap.setColor(this.gridlinesColor);
@@ -492,12 +497,12 @@ OnDoubleTapListener {
 							255 - rgbOriginal[1], 255 - rgbOriginal[2]));
 				}
 				this.canvasBitmap
-				.drawText(
-						this.topHints.get(i)[j],
-						((this.longestSide * widthOffset)
-								+ (widthOffset / 2) + (j * widthOffset)) - 5,
+						.drawText(
+								this.topHints.get(i)[j],
+								((this.longestSide * widthOffset)
+										+ (widthOffset / 2) + (j * widthOffset)) - 5,
 								(this.longestTop * heightOffset)
-								- (heightOffset * i) - 5,
+										- (heightOffset * i) - 5,
 								this.paintBitmap);
 				this.paintBitmap.setColor(Color.TRANSPARENT);
 			}
@@ -511,7 +516,7 @@ OnDoubleTapListener {
 			// The 2 * heightOffset/3 is for balance issues.
 			for (int j = 0; j != this.sideHints.get(i).split(" ").length; ++j) {
 				this.paintBitmap.setColor(this.gColors[this.sideColors
-				                                       .get(colorRun)]);
+						.get(colorRun)]);
 
 				colorRun++;
 
@@ -528,7 +533,7 @@ OnDoubleTapListener {
 						+ (i * heightOffset), (this.longestSide * widthOffset)
 						- (j * widthOffset) - (widthOffset),
 						(this.longestTop * heightOffset) + (i * heightOffset)
-						+ heightOffset), this.paintBitmap);
+								+ heightOffset), this.paintBitmap);
 
 				final int[] rgbOriginal = this.getRGB(this.paintBitmap.getColor());
 				if (this.paintBitmap.getColor() == Color.TRANSPARENT) {
@@ -539,9 +544,9 @@ OnDoubleTapListener {
 				}
 				this.canvasBitmap.drawText(side + "  ",
 						(this.longestSide * widthOffset) - 5
-						- (j * widthOffset),
+								- (j * widthOffset),
 						(this.longestTop * heightOffset) + (i * heightOffset)
-						+ ((2 * heightOffset) / 3), this.paintBitmap);
+								+ ((2 * heightOffset) / 3), this.paintBitmap);
 			}
 		}
 		this.paintBitmap.setTextAlign(oldAlign);
@@ -913,7 +918,7 @@ OnDoubleTapListener {
 								public void run() {
 									if (TouchImageView.this.historyListener != null) {
 										TouchImageView.this.historyListener
-										.action(TouchImageView.this.oldCurrent);
+												.action(TouchImageView.this.oldCurrent);
 									}
 									TouchImageView.this.bitmapFromCurrent();
 								}
@@ -923,6 +928,7 @@ OnDoubleTapListener {
 
 					}).start();
 				}
+				Log.d(TAG, "CHECKING WIN");
 				this.checkWin();
 				return true;
 			}
@@ -1080,7 +1086,7 @@ OnDoubleTapListener {
 							public void run() {
 								if (TouchImageView.this.historyListener != null) {
 									TouchImageView.this.historyListener
-									.action(TouchImageView.this.oldCurrent);
+											.action(TouchImageView.this.oldCurrent);
 								}
 								TouchImageView.this.bitmapFromCurrent();
 							}
@@ -1090,6 +1096,7 @@ OnDoubleTapListener {
 
 				}).start();
 			}
+			Log.d(TAG, "CHECKING WIN");
 			this.checkWin();
 			return true;
 		}
@@ -1162,7 +1169,7 @@ OnDoubleTapListener {
 		this.gHeight = Integer.parseInt(savedInstanceState.getString("height", "0"));
 		this.gWidth = Integer.parseInt(savedInstanceState.getString("width", "0"));
 
-		while (this.gCurrent.length() <= (this.gHeight * this.gWidth))
+		while (this.gCurrent.length() < (this.gHeight * this.gWidth))
 		{
 			this.gCurrent += "0";
 		}

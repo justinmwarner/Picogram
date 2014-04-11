@@ -23,10 +23,8 @@ import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockPreferenceActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
-import com.flurry.android.FlurryAgent;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient;
-import com.google.android.gms.games.GamesClient;
 import com.kopfgeldjaeger.ratememaybe.RateMeMaybe;
 
 import de.keyboardsurfer.android.widget.crouton.Crouton;
@@ -34,21 +32,10 @@ import de.keyboardsurfer.android.widget.crouton.Style;
 import de.psdev.licensesdialog.LicensesDialog;
 
 public class SettingsActivity extends SherlockPreferenceActivity implements
-OnPreferenceChangeListener, OnPreferenceClickListener, GooglePlayServicesClient.ConnectionCallbacks, GooglePlayServicesClient.OnConnectionFailedListener {
+		OnPreferenceChangeListener, OnPreferenceClickListener{
 	private static final String TAG = "SettingsActivity";
 	SharedPreferences prefs;
 	boolean continueMusic = true;
-
-	GamesClient gc;
-
-	public void onConnected(final Bundle arg0) {
-		this.gc.signOut();
-		Crouton.makeText(this, "Logout successful.", Style.INFO).show();
-	}
-
-	public void onConnectionFailed(final ConnectionResult cr) {
-		Crouton.makeText(this, "Logout failed " + cr.getErrorCode() + ".", Style.INFO).show();
-	}
 
 	@Override
 	public void onCreate(final Bundle savedInstanceState) {
@@ -71,7 +58,6 @@ OnPreferenceChangeListener, OnPreferenceClickListener, GooglePlayServicesClient.
 		this.findPreference("logout").setOnPreferenceClickListener(this);
 		this.findPreference("statistics").setOnPreferenceClickListener(this);
 
-		FlurryAgent.logEvent("PreferencesOpened");
 		final ActionBar ab = this.getSupportActionBar();
 		if (ab != null) {
 			ab.show();
@@ -135,14 +121,14 @@ OnPreferenceChangeListener, OnPreferenceClickListener, GooglePlayServicesClient.
 			for (int i = 0; i != scores.length; ++i)
 			{
 				final LinearLayout sub = new LinearLayout(this);
-				sub.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+				sub.setLayoutParams(new LinearLayout.LayoutParams(android.view.ViewGroup.LayoutParams.FILL_PARENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT));
 				sub.setOrientation(LinearLayout.HORIZONTAL);
 				TextView tv = new TextView(this);
-				tv.setLayoutParams(new TableLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, 1f));
+				tv.setLayoutParams(new TableLayout.LayoutParams(android.view.ViewGroup.LayoutParams.WRAP_CONTENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
 				tv.setText(scoresTitles[i]);
 				sub.addView(tv);
 				tv = new TextView(this);
-				tv.setLayoutParams(new TableLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, 1f));
+				tv.setLayoutParams(new TableLayout.LayoutParams(android.view.ViewGroup.LayoutParams.WRAP_CONTENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
 				tv.setText(scores[i] + "");
 				sub.addView(tv);
 				ll.addView(sub);
@@ -227,7 +213,5 @@ OnPreferenceChangeListener, OnPreferenceClickListener, GooglePlayServicesClient.
 	}
 
 	public void optOut() {
-		FlurryAgent.logEvent("UserOptOut");
 	}
-
 }

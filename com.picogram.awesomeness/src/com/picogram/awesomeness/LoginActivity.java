@@ -6,12 +6,14 @@ import android.accounts.AccountManager;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
+import android.widget.TextView;
 
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.view.MenuItem;
@@ -22,8 +24,10 @@ import com.facebook.Session;
 import com.facebook.SessionState;
 import com.facebook.Settings;
 import com.facebook.model.GraphUser;
+import com.google.android.gms.games.Games;
 import com.google.android.gms.games.Player;
 import com.google.example.games.basegameutils.BaseGameActivity;
+import com.viewpagerindicator.CirclePageIndicator;
 
 import de.keyboardsurfer.android.widget.crouton.Crouton;
 import de.keyboardsurfer.android.widget.crouton.Style;
@@ -42,6 +46,7 @@ public class LoginActivity extends BaseGameActivity implements OnClickListener {
 			}
 		}
 	}
+
 	final Activity a = this;
 
 	private static final String TAG = "LoginActivity";
@@ -49,7 +54,7 @@ public class LoginActivity extends BaseGameActivity implements OnClickListener {
 	boolean hasTriedGoogle = false;
 	private final Session.StatusCallback statusCallback = new SessionStatusCallback();
 
-	Button google, facebook;
+	Button google, facebook, login;
 
 	@Override
 	public void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
@@ -58,7 +63,13 @@ public class LoginActivity extends BaseGameActivity implements OnClickListener {
 	}
 
 	public void onClick(final View v) {
-		if (v.getId() == R.id.bFacebookLogin) {
+		if (v.getId() == R.id.bLogin) {
+			final String un = this.editTextLogin.getText().toString();
+			Util.getPreferences(this).edit().putString("username", un).commit();
+			Util.getPreferences(this).edit().putBoolean("hasLoggedInUsername", true).commit();
+			editTextLogin.setText("");
+			login.setText("Current username: " + un);
+		} else if (v.getId() == R.id.bFacebookLogin) {
 			Session session = Session.getActiveSession();
 			if (session == null) {
 				session = new Session(this);
@@ -85,12 +96,6 @@ public class LoginActivity extends BaseGameActivity implements OnClickListener {
 				this.hasTriedGoogle = true;
 				this.beginUserInitiatedSignIn();
 			}
-		}
-		else if (v.getId() == R.id.bLogin) {
-			final String un = this.editTextLogin.getText().toString();
-			Util.getPreferences(this).edit().putString("username", un).commit();
-			Util.getPreferences(this).edit().putBoolean("hasLoggedInUsername", true).commit();
-			// this.finish();
 		}
 	}
 
@@ -120,7 +125,8 @@ public class LoginActivity extends BaseGameActivity implements OnClickListener {
 
 		this.facebook = (Button) this.findViewById(R.id.bFacebookLogin);
 		this.google = (Button) this.findViewById(R.id.bGoogleLogin);
-		final Button login = (Button) this.findViewById(R.id.bLogin);
+		login = (Button) this.findViewById(R.id.bLogin);
+		tvSeparator = (TextView) findViewById(R.id.tvDisplay);
 		Settings.addLoggingBehavior(LoggingBehavior.INCLUDE_ACCESS_TOKENS);
 
 		Session session = Session.getActiveSession();
@@ -140,7 +146,6 @@ public class LoginActivity extends BaseGameActivity implements OnClickListener {
 		this.updateView();
 
 		this.facebook.setOnClickListener(this);
-		this.facebook.setOnClickListener(this);
 		this.google.setOnClickListener(this);
 		login.setOnClickListener(this);
 
@@ -157,13 +162,37 @@ public class LoginActivity extends BaseGameActivity implements OnClickListener {
 		}
 		this.editTextLogin.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_dropdown_item_1line, new ArrayList<String>(emailSet)));
 
-		Crouton.makeText(this, "Your username is: " + Util.id(this), Style.INFO).show();
-
 		final ActionBar ab = this.getSupportActionBar();
 		if (ab != null) {
 			ab.show();
 			ab.setDisplayHomeAsUpEnabled(true);
 		}
+		// Hide everything but the login with username.
+		// This may be changed, so keep the code.
+		// As for now, we're not interested in the users logging in with social networks.
+		// The sharing works without this implementation.
+		google.setVisibility(View.GONE);
+		facebook.setVisibility(View.GONE);
+		tvSeparator.setVisibility(View.GONE);
+		if (Util.getPreferences(this).getBoolean("hasLoggedInUsername", false))
+		{
+			login.setText("Current username: " + Util.getPreferences(this).getString("username", ""));
+		}
+		TestFragmentAdapter mAdapter = new TestFragmentAdapter(getSupportFragmentManager());
+
+		ViewPager pager = (ViewPager) findViewById(R.id.pagerLogin);
+		pager.setAdapter(mAdapter);
+
+		CirclePageIndicator indicator = (CirclePageIndicator) findViewById(R.id.indicatorLogin);
+		indicator.setViewPager(pager);
+		final float density = getResources().getDisplayMetrics().density;
+		indicator.setBackgroundColor(0x00000000);
+		indicator.setRadius(10 * density);
+		indicator.setPageColor(getResources().getColor(R.color.bad));
+		indicator.setFillColor(getResources().getColor(R.color.good));
+		indicator.setStrokeColor(0xFF000000);
+		indicator.setStrokeWidth(2 * density);
+
 	}
 
 	@Override
@@ -195,19 +224,22 @@ public class LoginActivity extends BaseGameActivity implements OnClickListener {
 	}
 
 	public void onSignInSucceeded() {
-		final Player p = this.getGamesClient().getCurrentPlayer();
-		Crouton.makeText(this, "Logged in with Google " + p.getDisplayName() + ".", Style.ALERT).show();
+		final Player p = Games.Players.getCurrentPlayer(this.getApiClient());
 		Util.getPreferences(this).edit().putBoolean("hasLoggedInGoogle", true).commit();
-		Log.d(TAG, p.getDisplayName());
 		String un = "";
 		final String[] names = p.getDisplayName().split(" ");
 		for (int i = 0; i != names.length; ++i)
 		{
 			un += names[i].substring(0, names[i].length() / 2);
 		}
-		this.google.setText("Log out of Google Plus");
+		this.google.setText("Log out as " + Util.getPreferences(this).getString("username", "G+ ERROR"));
 		Util.getPreferences(this).edit().putString("username", un).commit();
+		facebook.setVisibility(View.INVISIBLE);
+		editTextLogin.setVisibility(View.INVISIBLE);
+		login.setVisibility(View.INVISIBLE);
+		tvSeparator.setVisibility(View.INVISIBLE);
 	}
+
 	@Override
 	public void onStart() {
 		super.onStart();
@@ -220,6 +252,7 @@ public class LoginActivity extends BaseGameActivity implements OnClickListener {
 		Session.getActiveSession().removeCallback(this.statusCallback);
 	}
 
+	@SuppressWarnings("deprecation")
 	private void updateView() {
 		final Session session = Session.getActiveSession();
 		if (session.isOpened()) {
@@ -233,20 +266,39 @@ public class LoginActivity extends BaseGameActivity implements OnClickListener {
 						un += names[i].substring(0, names[i].length() / 2);
 					}
 					Util.getPreferences(LoginActivity.this).edit().putString("username", un).commit();
-					Log.d(TAG, "LOGIN : FB : " + un);
+					String username = Util.getPreferences(LoginActivity.this).getString("username", "");
+					if (username.isEmpty())
+					{
+						facebook.setText("Log out of Facebook");
+					}
+					else
+					{
+						facebook.setText("Log out as " + username);
+					}
+					google.setVisibility(View.INVISIBLE);
+					editTextLogin.setVisibility(View.INVISIBLE);
+					login.setVisibility(View.INVISIBLE);
+					tvSeparator.setVisibility(View.INVISIBLE);
+
 				}
 			});
 			Util.getPreferences(this).edit().putBoolean("hasLoggedInFacebook", true).commit();
-			this.facebook.setText("Log out of Facebook");
 			this.facebook.setOnClickListener(new OnClickListener() {
-				public void onClick(final View view) { LoginActivity.this.onClickLogout(); }
+				public void onClick(final View view) {
+					LoginActivity.this.onClickLogout();
+				}
 			});
 		} else {
 			Util.getPreferences(this).edit().putBoolean("hasLoggedInFacebook", false).commit();
 			this.facebook.setText("Log in with Facebook");
 			this.facebook.setOnClickListener(new OnClickListener() {
-				public void onClick(final View view) { LoginActivity.this.onClickLogin(); }
+				public void onClick(final View view) {
+					LoginActivity.this.onClickLogin();
+				}
 			});
 		}
 	}
+
+	TextView tvSeparator;
+
 }

@@ -1,3 +1,4 @@
+
 package com.picogram.awesomeness;
 
 import java.util.ArrayList;
@@ -52,6 +53,7 @@ public class PicogramHighscoreAdapter extends ArrayAdapter<PicogramHighscore> {
 	public PicogramHighscore get(final int pos) {
 		return this.scores.get(pos);
 	}
+
 	@Override
 	public int getCount() {
 		return this.scores.size();
@@ -67,7 +69,7 @@ public class PicogramHighscoreAdapter extends ArrayAdapter<PicogramHighscore> {
 		final PicogramHighscore ph = this.scores.get(position);
 		final LayoutInflater inflater = (LayoutInflater) this.context
 				.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		//We're reusing the comment layout. Same thing, just score instead of comment. =).
+		// We're reusing the comment layout. Same thing, just score instead of comment. =).
 		final View item = inflater.inflate(R.layout.comment_menu_choice_item,
 				parent, false);
 		final TextView tvName = (TextView) item.findViewById(R.id.tvCommentAuthor);

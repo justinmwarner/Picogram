@@ -29,7 +29,6 @@ import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
 
-import com.flurry.android.FlurryAgent;
 import com.picogram.awesomeness.DialogMaker.OnDialogResultListener;
 import com.picogram.awesomeness.TouchImageView.HistoryListener;
 import com.picogram.awesomeness.TouchImageView.WinnerListener;
@@ -40,8 +39,8 @@ import java.util.ArrayList;
 import java.util.Calendar;
 
 public class AdvancedGameActivity extends FragmentActivity implements
-OnTouchListener, WinnerListener, View.OnClickListener,
-OnSeekBarChangeListener {
+		OnTouchListener, WinnerListener, View.OnClickListener,
+		OnSeekBarChangeListener {
 	class RefreshHandler extends Handler {
 		Activity activity;
 
@@ -51,7 +50,7 @@ OnSeekBarChangeListener {
 			final DateFormat df = new SimpleDateFormat("hh:mm:ss");
 			final String curDateTime = df.format(Calendar.getInstance().getTime());
 			((TextView) this.activity.findViewById(R.id.tvTime))
-			.setText(curDateTime);
+					.setText(curDateTime);
 			// Do the battery.
 			AdvancedGameActivity.this.registerReceiver(AdvancedGameActivity.this.mBatInfoReceiver,
 					new IntentFilter(
@@ -119,9 +118,9 @@ OnSeekBarChangeListener {
 				} else if (level >= 5) {
 					if (AdvancedGameActivity.this.isLight) {
 						ivBattery
-						.setImageBitmap(BitmapFactory.decodeResource(
-								AdvancedGameActivity.this.getResources(),
-								R.drawable.batterylowdark));
+								.setImageBitmap(BitmapFactory.decodeResource(
+										AdvancedGameActivity.this.getResources(),
+										R.drawable.batterylowdark));
 					} else {
 						ivBattery.setImageBitmap(BitmapFactory.decodeResource(
 								AdvancedGameActivity.this.getResources(),
@@ -231,9 +230,9 @@ OnSeekBarChangeListener {
 								.getChar("colorCharacter");
 						if (Character.isDigit(AdvancedGameActivity.this.tiv.colorCharacter)) {
 							((ImageButton) v)
-							.setBackgroundColor(AdvancedGameActivity.this.tiv.gColors[Integer
-							                                                          .parseInt(""
-							                                                        		  + AdvancedGameActivity.this.tiv.colorCharacter)]);
+									.setBackgroundColor(AdvancedGameActivity.this.tiv.gColors[Integer
+											.parseInt(""
+													+ AdvancedGameActivity.this.tiv.colorCharacter)]);
 
 						} else {
 							((ImageButton) v).setBackgroundColor(Color.WHITE);
@@ -347,7 +346,6 @@ OnSeekBarChangeListener {
 		this.tiv.setWinListener(this);
 		this.tiv.setPicogramInfo(this.getIntent().getExtras());
 
-		FlurryAgent.logEvent("UserPlayingGame");
 		// Create colors for pallet.
 		this.strColors = this.getIntent().getExtras().getString("colors").split(",");
 		this.colors = new int[this.strColors.length];
@@ -375,7 +373,7 @@ OnSeekBarChangeListener {
 					for (int i = AdvancedGameActivity.this.sbHistory.getProgress(); i != AdvancedGameActivity.this.sbHistory
 							.getMax(); ++i) {
 						AdvancedGameActivity.this.tiv.history
-						.remove(AdvancedGameActivity.this.tiv.history.size() - 1);
+								.remove(AdvancedGameActivity.this.tiv.history.size() - 1);
 					}
 					AdvancedGameActivity.this.sbHistory.setMax(AdvancedGameActivity.this.sbHistory
 							.getProgress());

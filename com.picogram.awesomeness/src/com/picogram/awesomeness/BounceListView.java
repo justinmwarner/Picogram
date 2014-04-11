@@ -5,7 +5,6 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
-import android.util.DisplayMetrics;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
@@ -90,7 +89,7 @@ public class BounceListView extends ListView
 		}
 		for (final View v : views)
 		{
-			if(deg < 0) {
+			if (deg < 0) {
 				deg = deg * 2;
 			}
 			deg = (int) (deg * (Math.random() * 2)) + 2;

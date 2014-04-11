@@ -15,13 +15,13 @@
  */
 
 package com.google.example.games.basegameutils;
-
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
+import android.util.Log;
+
 import com.actionbarsherlock.app.SherlockFragmentActivity;
-import com.google.android.gms.appstate.AppStateClient;
-import com.google.android.gms.games.GamesClient;
-import com.google.android.gms.plus.PlusClient;
+import com.google.android.gms.common.api.GoogleApiClient;
 
 /**
  * Example base class for games. This implementation takes care of setting up
@@ -41,148 +41,139 @@ import com.google.android.gms.plus.PlusClient;
  * @author Bruno Oliveira (Google)
  */
 public abstract class BaseGameActivity extends SherlockFragmentActivity implements
-GameHelper.GameHelperListener {
+        GameHelper.GameHelperListener {
 
-	// The game helper object. This class is mainly a wrapper around this object.
-	protected GameHelper mHelper;
+    // The game helper object. This class is mainly a wrapper around this object.
+    protected GameHelper mHelper;
 
-	// We expose these constants here because we don't want users of this class
-	// to have to know about GameHelper at all.
-	public static final int CLIENT_GAMES = GameHelper.CLIENT_GAMES;
-	public static final int CLIENT_APPSTATE = GameHelper.CLIENT_APPSTATE;
-	public static final int CLIENT_PLUS = GameHelper.CLIENT_PLUS;
-	public static final int CLIENT_ALL = GameHelper.CLIENT_ALL;
+    // We expose these constants here because we don't want users of this class
+    // to have to know about GameHelper at all.
+    public static final int CLIENT_GAMES = GameHelper.CLIENT_GAMES;
+    public static final int CLIENT_APPSTATE = GameHelper.CLIENT_APPSTATE;
+    public static final int CLIENT_PLUS = GameHelper.CLIENT_PLUS;
+    public static final int CLIENT_ALL = GameHelper.CLIENT_ALL;
 
-	// Requested clients. By default, that's just the games client.
-	protected int mRequestedClients = CLIENT_GAMES;
+    // Requested clients. By default, that's just the games client.
+    protected int mRequestedClients = CLIENT_GAMES;
 
-	// stores any additional scopes.
-	private String[] mAdditionalScopes;
+    private final static String TAG = "BaseGameActivity";
+    protected boolean mDebugLog = false;
 
-	protected String mDebugTag = "BaseGameActivity";
-	protected boolean mDebugLog = false;
+    /** Constructs a BaseGameActivity with default client (GamesClient). */
+    protected BaseGameActivity() {
+        super();
+    }
 
-	/** Constructs a BaseGameActivity with default client (GamesClient). */
-	protected BaseGameActivity() {
-		super();
-		this.mHelper = new GameHelper(this);
-	}
+    /**
+     * Constructs a BaseGameActivity with the requested clients.
+     * @param requestedClients The requested clients (a combination of CLIENT_GAMES,
+     *         CLIENT_PLUS and CLIENT_APPSTATE).
+     */
+    protected BaseGameActivity(int requestedClients) {
+        super();
+        setRequestedClients(requestedClients);
+    }
 
-	/**
-	 * Constructs a BaseGameActivity with the requested clients.
-	 * @param requestedClients The requested clients (a combination of CLIENT_GAMES,
-	 *         CLIENT_PLUS and CLIENT_APPSTATE).
-	 */
-	protected BaseGameActivity(final int requestedClients) {
-		super();
-		this.setRequestedClients(requestedClients);
-	}
+    /**
+     * Sets the requested clients. The preferred way to set the requested clients is
+     * via the constructor, but this method is available if for some reason your code
+     * cannot do this in the constructor. This must be called before onCreate or getGameHelper()
+     * in order to have any effect. If called after onCreate()/getGameHelper(), this method
+     * is a no-op.
+     *
+     * @param requestedClients A combination of the flags CLIENT_GAMES, CLIENT_PLUS
+     *         and CLIENT_APPSTATE, or CLIENT_ALL to request all available clients.
+     */
+    protected void setRequestedClients(int requestedClients) {
+        mRequestedClients = requestedClients;
+    }
 
-	protected void beginUserInitiatedSignIn() {
-		this.mHelper.beginUserInitiatedSignIn();
-	}
+    public GameHelper getGameHelper() {
+        if (mHelper == null) {
+            mHelper = new GameHelper(this, mRequestedClients);
+            mHelper.enableDebugLog(mDebugLog);
+        }
+        return mHelper;
+    }
 
-	protected void enableDebugLog(final boolean enabled, final String tag) {
-		this.mDebugLog = true;
-		this.mDebugTag = tag;
-		if (this.mHelper != null) {
-			this.mHelper.enableDebugLog(enabled, tag);
-		}
-	}
+    @Override
+    protected void onCreate(Bundle b) {
+        super.onCreate(b);
+        if (mHelper == null) {
+            getGameHelper();
+        }
+        mHelper.setup(this);
+    }
 
-	protected AppStateClient getAppStateClient() {
-		return this.mHelper.getAppStateClient();
-	}
+    @Override
+    protected void onStart() {
+        super.onStart();
+        mHelper.onStart(this);
+    }
 
-	protected GamesClient getGamesClient() {
-		return this.mHelper.getGamesClient();
-	}
+    @Override
+    protected void onStop() {
+        super.onStop();
+        mHelper.onStop();
+    }
 
-	protected String getInvitationId() {
-		return this.mHelper.getInvitationId();
-	}
+    @Override
+    protected void onActivityResult(int request, int response, Intent data) {
+        super.onActivityResult(request, response, data);
+        mHelper.onActivityResult(request, response, data);
+    }
 
-	protected PlusClient getPlusClient() {
-		return this.mHelper.getPlusClient();
-	}
+    protected GoogleApiClient getApiClient() {
+        return mHelper.getApiClient();
+    }
 
-	protected String getScopes() {
-		return this.mHelper.getScopes();
-	}
+    protected boolean isSignedIn() {
+        return mHelper.isSignedIn();
+    }
 
-	protected String[] getScopesArray() {
-		return this.mHelper.getScopesArray();
-	}
+    protected void beginUserInitiatedSignIn() {
+        mHelper.beginUserInitiatedSignIn();
+    }
 
-	protected GameHelper.SignInFailureReason getSignInError() {
-		return this.mHelper.getSignInError();
-	}
+    protected void signOut() {
+        mHelper.signOut();
+    }
 
-	protected boolean hasSignInError() {
-		return this.mHelper.hasSignInError();
-	}
+    protected void showAlert(String message) {
+        mHelper.makeSimpleDialog(message).show();
+    }
 
-	protected boolean isSignedIn() {
-		return this.mHelper.isSignedIn();
-	}
+    protected void showAlert(String title, String message) {
+        mHelper.makeSimpleDialog(title, message).show();
+    }
 
-	@Override
-	protected void onActivityResult(final int request, final int response, final Intent data) {
-		super.onActivityResult(request, response, data);
-		this.mHelper.onActivityResult(request, response, data);
-	}
+    protected void enableDebugLog(boolean enabled) {
+        mDebugLog = true;
+        if (mHelper != null) {
+            mHelper.enableDebugLog(enabled);
+        }
+    }
 
-	@Override
-	protected void onCreate(final Bundle b) {
-		super.onCreate(b);
-		this.mHelper = new GameHelper(this);
-		if (this.mDebugLog) {
-			this.mHelper.enableDebugLog(this.mDebugLog, this.mDebugTag);
-		}
-		this.mHelper.setup(this, this.mRequestedClients, this.mAdditionalScopes);
-	}
+    @Deprecated
+    protected void enableDebugLog(boolean enabled, String tag) {
+        Log.w(TAG, "BaseGameActivity.enabledDebugLog(bool,String) is " +
+                "deprecated. Use enableDebugLog(boolean)");
+        enableDebugLog(enabled);
+    }
 
-	@Override
-	protected void onStart() {
-		super.onStart();
-		this.mHelper.onStart(this);
-	}
+    protected String getInvitationId() {
+        return mHelper.getInvitationId();
+    }
 
-	@Override
-	protected void onStop() {
-		super.onStop();
-		this.mHelper.onStop();
-	}
+    protected void reconnectClient() {
+        mHelper.reconnectClient();
+    }
 
-	protected void reconnectClients(final int whichClients) {
-		this.mHelper.reconnectClients(whichClients);
-	}
+    protected boolean hasSignInError() {
+        return mHelper.hasSignInError();
+    }
 
-	/**
-	 * Sets the requested clients. The preferred way to set the requested clients is
-	 * via the constructor, but this method is available if for some reason your code
-	 * cannot do this in the constructor. This must be called before onCreate in order to
-	 * have any effect. If called after onCreate, this method is a no-op.
-	 *
-	 * @param requestedClients A combination of the flags CLIENT_GAMES, CLIENT_PLUS
-	 *         and CLIENT_APPSTATE, or CLIENT_ALL to request all available clients.
-	 * @param additionalScopes.  Scopes that should also be requested when the auth
-	 *         request is made.
-	 */
-	protected void setRequestedClients(final int requestedClients, final String... additionalScopes) {
-		this.mRequestedClients = requestedClients;
-		this.mAdditionalScopes = additionalScopes;
-	}
-
-	protected void showAlert(final String message) {
-		this.mHelper.showAlert(message);
-	}
-
-	protected void showAlert(final String title, final String message) {
-		this.mHelper.showAlert(title, message);
-	}
-
-	protected void signOut() {
-		this.mHelper.signOut();
-	}
+    protected GameHelper.SignInFailureReason getSignInError() {
+        return mHelper.getSignInError();
+    }
 }

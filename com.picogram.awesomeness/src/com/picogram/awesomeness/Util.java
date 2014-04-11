@@ -132,7 +132,7 @@ public class Util {
 			a.getWindow().addFlags(
 					WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
 			a.getWindow()
-			.clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+					.clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
 		}
 
 		(a.findViewById(android.R.id.content)).requestLayout();
