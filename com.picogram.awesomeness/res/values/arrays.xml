@@ -69,4 +69,23 @@
         <item>System</item>
         <item>Custom</item>
     </string-array>
-</resources>
+    <string-array name="picogramFacts">
+        <item>The mass measurement, picogram, is the weight of only the DNA in a hummingbird cell.</item>
+        <item>A pico of a number is one trillionth.  Compared to a nano of a number, only a billionth.</item>
+        <item>Pico, the measurement, was created in 1960.</item>
+        <item>The origin of pico in spanish means peak, beak, bit.</item>
+        <item>The radius of a hydrogen atom is 25 picometers.</item>
+        <item>A picolight-year is about 9 kilometers, or 6 miles.</item>
+        <item>The symbol for picogram is pg.</item>
+        <item>Pico de Gallo is a mexican dish, that\'s an uncooked salsa (It\'s delicious).</item>
+        <item>Count Giovanni Pico della Mirandola was an Italian philosopher.</item>
+        <item>Pico Iyer was a British writer.</item>
+        <item>Anderson Pico is a football (Soccer) player for Brazil.</item>
+        <item>Andres Pico is a rancher and a military commander.</item>
+        <item>Jeff Pico played for the Cincinnati Reds as a pitcher.</item>
+        <item>Pio Pico is the last governer of Alta California.</item>
+        <item>Pico is the dog on Chocapic, a cereal sold in Europe.</item>
+        <item>Pico is the man riding the tank in Newgrounds\'s logo.</item>
+    </string-array>
+
+</resources>

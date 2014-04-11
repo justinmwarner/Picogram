@@ -747,13 +747,14 @@ public class MenuFragment extends Fragment implements
 		{
 			if (this.position != 0) {
 				if (this.position != 1) {
+					String randomFacts[] = this.getActivity().getResources().getStringArray(R.array.picogramFacts);
 					final TextView v = new TextView(this.getActivity());
 					params.setMargins(margin, margin, margin, margin);
 					v.setLayoutParams(params);
 					v.setLayoutParams(params);
 					v.setGravity(Gravity.CENTER);
 					v.setBackgroundResource(R.drawable.background_card);
-					v.setText("You're currently offline, and this functionality is online only.  We apologize.\nIf you think this is a mistake, please email us.");
+					v.setText(randomFacts[(int) (Math.random() * randomFacts.length)] + "\n\nYou're currently offline, and this functionality is online only.  We apologize.\nIf you think this is a mistake, please email us.");
 
 					fl.addView(v);
 					return fl;
