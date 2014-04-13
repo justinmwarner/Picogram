@@ -491,7 +491,7 @@ public class PreGameFragment extends Fragment implements OnClickListener, OnItem
 			return fl;
 		}
 		LayoutParams params = new LayoutParams(android.view.ViewGroup.LayoutParams.MATCH_PARENT,
-				android.view.ViewGroup.LayoutParams.MATCH_PARENT, 1f);
+				android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
 
 		final LinearLayout ll = new LinearLayout(this.getActivity());
 		ll.setOrientation(LinearLayout.VERTICAL);
@@ -546,14 +546,7 @@ public class PreGameFragment extends Fragment implements OnClickListener, OnItem
 			this.lvHighscores.setAdapter(this.highscores);
 			ll.addView(this.lvHighscores);
 			// this.loadHighScores(); Don't need to call.
-		}
-		else if (this.position == 3)
-		{
-		}
-
-		else if (this.position == 4)
-		{
-		} else
+		}else
 		{
 			// Default.
 			final TextView v = new TextView(this.getActivity());

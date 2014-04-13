@@ -536,7 +536,7 @@ public class PreGameActivity extends BaseGameActivity implements OnPageChangeLis
 					col = Integer.parseInt(this.colors[0]);
 				}
 				pix[run] = col;
-				// pix[(i * this.width) + j] = col;
+				// pix[(i * this.width) + j] =  col;
 				run++;
 			}
 		}
@@ -609,11 +609,11 @@ public class PreGameActivity extends BaseGameActivity implements OnPageChangeLis
 		// Check if bm is smaller than 150 height, the default height so it isn't huge.
 		if (bm.getHeight() < 150)
 		{
-			final RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, bm.getHeight());
-			params.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
-			params.addRule(RelativeLayout.ALIGN_PARENT_TOP);
-			params.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
-			iv.setLayoutParams(params);
+			//final RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, bm.getHeight());
+			//params.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
+			//params.addRule(RelativeLayout.ALIGN_PARENT_TOP);
+			//params.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+			//iv.setLayoutParams(params);
 		}
 		iv.setImageBitmap(bm);
 		return bm;

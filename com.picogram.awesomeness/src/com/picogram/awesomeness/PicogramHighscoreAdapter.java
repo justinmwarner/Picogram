@@ -74,12 +74,13 @@ public class PicogramHighscoreAdapter extends ArrayAdapter<PicogramHighscore> {
 				parent, false);
 		final TextView tvName = (TextView) item.findViewById(R.id.tvCommentAuthor);
 		final TextView tvScore = (TextView) item.findViewById(R.id.tvComment);
+		tvName.setTextColor(Color.LTGRAY);
 		tvName.setText(ph.getName());
 		tvScore.setText("" + ph.getScore());
 		if (Util.id(this.context) == ph.getName())
 		{
 			// This is the person, so change background.
-			item.setBackgroundColor(Color.YELLOW);
+			item.setBackgroundColor(context.getResources().getColor(R.color.light_yellow));
 		}
 		return item;
 	}

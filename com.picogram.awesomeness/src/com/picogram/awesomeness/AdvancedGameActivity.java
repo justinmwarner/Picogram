@@ -10,6 +10,7 @@ import android.content.IntentFilter;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.AnimationDrawable;
+import android.graphics.drawable.ColorDrawable;
 import android.os.BatteryManager;
 import android.os.Bundle;
 import android.os.Handler;
@@ -26,6 +27,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
+import android.widget.Toast;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
 
@@ -391,6 +393,9 @@ public class AdvancedGameActivity extends FragmentActivity implements
 		final ImageButton tools = (ImageButton) this.findViewById(R.id.ibTools);
 		tools.setBackgroundColor(Color.WHITE);
 		tools.setOnClickListener(this);
+
+		// Set up color selector.
+		
 
 		// TODO Check for multiple solutions. If they exist tell the user as a
 		// heads up.

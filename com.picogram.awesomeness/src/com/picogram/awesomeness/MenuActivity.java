@@ -361,7 +361,7 @@ public class MenuActivity extends BaseGameActivity implements
 				final Intent i = new Intent(this, SettingsActivity.class);
 				if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
 					final ActivityOptions opts = ActivityOptions.makeCustomAnimation(
-							this, R.anim.fadein, R.anim.fadeout);
+							this, android.R.anim.slide_in_left, android.R.anim.slide_out_right);
 					this.startActivityForResult(i, PREFERENCES_CODE, opts.toBundle());
 				}
 				else
@@ -640,7 +640,7 @@ public class MenuActivity extends BaseGameActivity implements
 		final Intent loginIntent = new Intent(this, LoginActivity.class);
 		if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
 			final ActivityOptions opts = ActivityOptions.makeCustomAnimation(
-					this, R.anim.fadein, R.anim.fadeout);
+					this, android.R.anim.slide_in_left, android.R.anim.slide_out_right);
 			this.startActivityForResult(loginIntent, PREFERENCES_CODE, opts.toBundle());
 		}
 		else
