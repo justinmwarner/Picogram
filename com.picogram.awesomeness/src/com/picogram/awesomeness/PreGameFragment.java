@@ -688,8 +688,9 @@ public class PreGameFragment extends Fragment implements OnClickListener, OnItem
 			public void onClick(final DialogInterface dialog, final int whichButton) {
 			}
 		});
-
-		alert.show();
+		AlertDialog ad = alert.create();
+		ad.getWindow().getAttributes().windowAnimations = R.style.DialogTheme;
+		ad.show();
 	}
 
 	void showReportDialog(final String type, final String pid, final String aid) {

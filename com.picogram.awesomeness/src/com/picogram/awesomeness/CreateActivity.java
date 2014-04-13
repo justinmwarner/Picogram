@@ -511,7 +511,7 @@ public class CreateActivity extends SherlockFragmentActivity implements ActionBa
 		this.spb.setVisibility(View.VISIBLE);
 		final EditText input = new EditText(this);
 		input.setText("http://upload.wikimedia.org/wikipedia/commons/a/ab/Monarch_Butterfly_Showy_Male_3000px.jpg");
-		new AlertDialog.Builder(this)
+		AlertDialog.Builder builder =  new AlertDialog.Builder(this)
 				.setTitle("URL Sumittion")
 				.setMessage("Url Link to Image File...")
 				.setView(input)
@@ -535,7 +535,11 @@ public class CreateActivity extends SherlockFragmentActivity implements ActionBa
 									final int whichButton) {
 								// Do nothing.
 							}
-						}).show();
+						});
+		
+		AlertDialog ad = builder.create();
+		ad.getWindow().getAttributes().windowAnimations = R.style.DialogTheme;
+		ad.show();
 	}
 
 	public void updateAllTouchImageViews() {

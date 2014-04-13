@@ -455,6 +455,7 @@ public class PreGameActivity extends BaseGameActivity implements OnPageChangeLis
 			final Dialog dialog = new Dialog(this);
 			dialog.setTitle("Rate " + this.puzzle.getName());
 			dialog.setContentView(R.layout.dialog_ranking);
+			dialog.getWindow().getAttributes().windowAnimations = R.style.DialogTheme;
 			final View.OnClickListener ocl = new OnClickListener() {
 
 				public void onClick(final View v) {

@@ -159,7 +159,9 @@ public class ChangeLogDialog {
 						dialogInterface.dismiss();
 					}
 				});
-		builder.create().show();
+		Dialog d = builder.create();
+		d.getWindow().getAttributes().windowAnimations = R.style.DialogTheme;
+		d.show();
 	}
 
 }

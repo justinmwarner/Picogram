@@ -399,7 +399,7 @@ public class DialogMaker extends DialogFragment implements View.OnClickListener 
 			this.setupTutorial(v);
 		}
 		final Dialog result = builder.create();
-		result.getWindow().getAttributes().windowAnimations = R.style.FadeDialogAnimation;
+		result.getWindow().getAttributes().windowAnimations = R.style.DialogTheme;
 		if (isBlur) {
 
 			/*

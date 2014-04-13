@@ -4,6 +4,7 @@ package com.picogram.awesomeness;
 import android.annotation.SuppressLint;
 import android.app.ActivityOptions;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -138,6 +139,7 @@ public class SettingsActivity extends SherlockPreferenceActivity implements
 					dialog.dismiss();
 				}
 			});
+			dialog.getWindow().getAttributes().windowAnimations = R.style.DialogTheme;
 			dialog.show();
 			dialog.dismiss();
 
@@ -149,7 +151,9 @@ public class SettingsActivity extends SherlockPreferenceActivity implements
 			_ChangelogDialog.show();
 		} else if (preference.getKey().equals("licenses")) {
 			// Launch the licenses stuff.
-			new LicensesDialog(this, R.raw.licenses, false, false).show();
+			Dialog ld = new LicensesDialog(this, R.raw.licenses, false, false).create();
+			ld.getWindow().getAttributes().windowAnimations = R.style.DialogTheme;
+			ld.show();
 		} else if (preference.getKey().equals("email")) {
 			final String email = "warner.73+Picogram@wright.edu";
 			final String subject = "Picogram - <SUBJECT>";

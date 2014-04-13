@@ -552,6 +552,7 @@ public class MenuActivity extends BaseGameActivity implements
 		if (!isLoggedInBefore) {
 			// Only show if we've never logged in successfully yet.
 			dialog.setCancelable(false);
+			dialog.getWindow().getAttributes().windowAnimations = R.style.DialogTheme;
 			dialog.show();
 			final Button b = dialog.getButton(DialogInterface.BUTTON_POSITIVE);
 			b.setEnabled(false);
@@ -593,6 +594,7 @@ public class MenuActivity extends BaseGameActivity implements
 		final boolean isLoggedInBefore = Util.getPreferences(this).getBoolean("hasLoggedInSuccessfully", false);
 		if (!isLoggedInBefore) {
 			// Only show if we've never logged in successfully yet.
+			dialog.getWindow().getAttributes().windowAnimations = R.style.DialogTheme;
 			this.dialog.show();
 		}
 	}
