@@ -1,5 +1,6 @@
 
 package com.picogram.awesomeness;
+
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.common.ConnectionResult;
@@ -133,19 +134,12 @@ public class MenuActivity extends BaseGameActivity implements
 		Crouton.makeText(this, "We'll remind you later on.", Style.INFO).show();
 	}
 
-	@SuppressLint("NewApi")
 	public void handlePositive() {
 		// Goto app store.
 		// TODO fix this when we publish.
-		if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-			final ActivityOptions opts = ActivityOptions.makeCustomAnimation(
-					this, R.anim.fadein, R.anim.fadeout);
-			this.startActivity(new Intent(Intent.ACTION_VIEW,
-					Uri.parse("market://details?id=Picogram")), opts.toBundle());
-		} else {
-			this.startActivity(new Intent(Intent.ACTION_VIEW,
-					Uri.parse("market://details?id=Picogram")));
-		}
+		this.startActivity(new Intent(Intent.ACTION_VIEW,
+				Uri.parse("market://details?id=Picogram")));
+		overridePendingTransition(R.anim.in_from_left, R.anim.out_to_right);
 		this.prefs.edit().putBoolean("apprate", true).commit();
 	}
 
@@ -327,7 +321,6 @@ public class MenuActivity extends BaseGameActivity implements
 		return true;
 	}
 
-	@SuppressLint("NewApi")
 	@Override
 	public boolean onOptionsItemSelected(final MenuItem item) {
 
@@ -359,15 +352,8 @@ public class MenuActivity extends BaseGameActivity implements
 
 			case R.id.menuPrefs:
 				final Intent i = new Intent(this, SettingsActivity.class);
-				if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-					final ActivityOptions opts = ActivityOptions.makeCustomAnimation(
-							this, android.R.anim.slide_in_left, android.R.anim.slide_out_right);
-					this.startActivityForResult(i, PREFERENCES_CODE, opts.toBundle());
-				}
-				else
-				{
-					this.startActivityForResult(i, PREFERENCES_CODE);
-				}
+				this.startActivityForResult(i, PREFERENCES_CODE);
+				overridePendingTransition(R.anim.in_from_left, R.anim.out_to_right);
 				break;
 			case R.id.menuFeedback:
 				this.startFeedbackActivity();
@@ -611,7 +597,6 @@ public class MenuActivity extends BaseGameActivity implements
 		}
 	}
 
-	@SuppressLint("NewApi")
 	private void startFeedbackActivity() {
 		final String email = "warner.73+Picogram@wright.edu";
 		final String subject = "Picogram - <SUBJECT>";
@@ -624,29 +609,15 @@ public class MenuActivity extends BaseGameActivity implements
 		emailIntent.putExtra(Intent.EXTRA_SUBJECT, subject);
 		emailIntent.putExtra(Intent.EXTRA_TEXT, message);
 		emailIntent.setType("message/rfc822");
-		if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-			final ActivityOptions opts = ActivityOptions.makeCustomAnimation(
-					this, R.anim.fadein, R.anim.fadeout);
-			this.startActivity(Intent.createChooser(emailIntent,
-					"Send Mail Using :"), opts.toBundle());
-		} else {
-			this.startActivity(Intent.createChooser(emailIntent,
-					"Send Mail Using :"));
-		}
+		this.startActivity(Intent.createChooser(emailIntent,
+				"Send Mail Using :"));
+		overridePendingTransition(R.anim.in_from_left, R.anim.out_to_right);
 	}
 
-	@SuppressLint("NewApi")
 	private void startLoginActivity() {
 		final Intent loginIntent = new Intent(this, LoginActivity.class);
-		if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-			final ActivityOptions opts = ActivityOptions.makeCustomAnimation(
-					this, android.R.anim.slide_in_left, android.R.anim.slide_out_right);
-			this.startActivityForResult(loginIntent, PREFERENCES_CODE, opts.toBundle());
-		}
-		else
-		{
-			this.startActivityForResult(loginIntent, PREFERENCES_CODE);
-		}
+		this.startActivityForResult(loginIntent, PREFERENCES_CODE);
+		this.overridePendingTransition(R.anim.in_from_left, R.anim.out_to_right);
 	}
 
 	private void updateActionBar(final int tab) {

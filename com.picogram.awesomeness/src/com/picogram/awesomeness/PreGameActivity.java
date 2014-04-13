@@ -91,6 +91,11 @@ public class PreGameActivity extends BaseGameActivity implements OnPageChangeLis
 
 	boolean hasLoadedComments = false, hasLoadedHighscores = false;
 
+	public void onBackPressed() {
+		super.onBackPressed();
+		overridePendingTransition(R.anim.in_from_left, R.anim.out_to_right);
+	}
+
 	/**
 	 * For fixed "column" height. "Blank cells" will be left, if the two arrays have different "width"
 	 */
@@ -358,6 +363,7 @@ public class PreGameActivity extends BaseGameActivity implements OnPageChangeLis
 				if (this.pager.getCurrentItem() == this.TITLES.indexOf("Actions"))
 				{
 					this.finish();
+					overridePendingTransition(R.anim.in_from_left, R.anim.out_to_right);
 				} else {
 					this.pager.setCurrentItem(this.TITLES.indexOf("Actions"));
 				}
@@ -490,7 +496,6 @@ public class PreGameActivity extends BaseGameActivity implements OnPageChangeLis
 		}
 	}
 
-	@SuppressLint("NewApi")
 	protected void startGame(final Picogram go, final int row, final int col, final int cw, final int ch) {
 		final Intent gameIntent = new Intent(this, AdvancedGameActivity.class);
 		gameIntent.putExtra("name", go.getName());
@@ -503,15 +508,8 @@ public class PreGameActivity extends BaseGameActivity implements OnPageChangeLis
 		gameIntent.putExtra("colors", go.getColors());
 		gameIntent.putExtra("row", row);
 		gameIntent.putExtra("column", col);
-		if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-			final ActivityOptions opts = ActivityOptions.makeCustomAnimation(
-					this, R.anim.fadein, R.anim.fadeout);
-			this.startActivityForResult(gameIntent, MenuActivity.GAME_CODE, opts.toBundle());
-		}
-		else
-		{
-			this.startActivityForResult(gameIntent, MenuActivity.GAME_CODE);
-		}
+		this.startActivityForResult(gameIntent, MenuActivity.GAME_CODE);
+		overridePendingTransition(R.anim.in_from_left, R.anim.out_to_right);
 	}
 
 	protected Bitmap updateAndGetImageView() {
@@ -536,7 +534,7 @@ public class PreGameActivity extends BaseGameActivity implements OnPageChangeLis
 					col = Integer.parseInt(this.colors[0]);
 				}
 				pix[run] = col;
-				// pix[(i * this.width) + j] =  col;
+				// pix[(i * this.width) + j] = col;
 				run++;
 			}
 		}
@@ -609,11 +607,11 @@ public class PreGameActivity extends BaseGameActivity implements OnPageChangeLis
 		// Check if bm is smaller than 150 height, the default height so it isn't huge.
 		if (bm.getHeight() < 150)
 		{
-			//final RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, bm.getHeight());
-			//params.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
-			//params.addRule(RelativeLayout.ALIGN_PARENT_TOP);
-			//params.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
-			//iv.setLayoutParams(params);
+			// final RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, bm.getHeight());
+			// params.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
+			// params.addRule(RelativeLayout.ALIGN_PARENT_TOP);
+			// params.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+			// iv.setLayoutParams(params);
 		}
 		iv.setImageBitmap(bm);
 		return bm;

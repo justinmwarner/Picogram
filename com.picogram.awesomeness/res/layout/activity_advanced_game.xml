@@ -68,6 +68,4 @@
         android:gravity="center"
         android:padding="15dp"
         android:text="12:00" />
-
-
 </RelativeLayout>

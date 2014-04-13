@@ -491,34 +491,19 @@ public class CreateActivity extends SherlockFragmentActivity implements ActionBa
 		return bm;
 	}
 
-	@SuppressLint("NewApi")
 	public void runCamera() {
 		final Intent cameraIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
-		if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-
-			final ActivityOptions opts = ActivityOptions.makeCustomAnimation(
-					this, R.anim.fadein, R.anim.fadeout);
-			this.startActivityForResult(cameraIntent, CAMERA_REQUEST, opts.toBundle());
-		}
-		else
-		{
-			this.startActivityForResult(cameraIntent, CAMERA_REQUEST);
-		}
+		this.startActivityForResult(cameraIntent, CAMERA_REQUEST);
+		overridePendingTransition(R.anim.in_from_left, R.anim.out_to_right);
 	}
 
-	@SuppressLint("NewApi")
 	public void runFile() {
 		// File
 		final Intent fileIntent = new Intent(Intent.ACTION_GET_CONTENT);
 		fileIntent.setType("image/*");
 		fileIntent.addCategory(Intent.CATEGORY_OPENABLE);
-		if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-			final ActivityOptions opts = ActivityOptions.makeCustomAnimation(
-					this, R.anim.fadein, R.anim.fadeout);
-			this.startActivityForResult(fileIntent, FILE_SELECT_CODE, opts.toBundle());
-		} else {
 			this.startActivityForResult(fileIntent, FILE_SELECT_CODE);
-		}
+			overridePendingTransition(R.anim.in_from_left, R.anim.out_to_right);
 	}
 
 	public void runURL() {

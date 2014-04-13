@@ -32,7 +32,7 @@ import de.keyboardsurfer.android.widget.crouton.Style;
 import de.psdev.licensesdialog.LicensesDialog;
 
 public class SettingsActivity extends SherlockPreferenceActivity implements
-		OnPreferenceChangeListener, OnPreferenceClickListener{
+		OnPreferenceChangeListener, OnPreferenceClickListener {
 	private static final String TAG = "SettingsActivity";
 	SharedPreferences prefs;
 	boolean continueMusic = true;
@@ -103,7 +103,6 @@ public class SettingsActivity extends SherlockPreferenceActivity implements
 		return true;
 	}
 
-	@SuppressLint("NewApi")
 	public boolean onPreferenceClick(final Preference preference) {
 		if (preference.getKey().equals("statistics")) {
 			Crouton.makeText(this, "This is not yet implemented", Style.INFO).show();
@@ -163,28 +162,14 @@ public class SettingsActivity extends SherlockPreferenceActivity implements
 			emailIntent.putExtra(Intent.EXTRA_SUBJECT, subject);
 			emailIntent.putExtra(Intent.EXTRA_TEXT, message);
 			emailIntent.setType("message/rfc822");
-			if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-				final ActivityOptions opts = ActivityOptions.makeCustomAnimation(
-						this, R.anim.fadein, R.anim.fadeout);
-				this.startActivity(Intent.createChooser(emailIntent,
-						"Send Mail Using :"), opts.toBundle());
-			} else {
-				this.startActivity(Intent.createChooser(emailIntent,
-						"Send Mail Using :"));
-			}
+			this.startActivity(Intent.createChooser(emailIntent,
+					"Send Mail Using :"));
+			overridePendingTransition(R.anim.in_from_left, R.anim.out_to_right);
 		} else if (preference.getKey().equals("rateapp")) {
 			// TODO fix this when we publish.
-			if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-				final ActivityOptions opts = ActivityOptions.makeCustomAnimation(
-						this, R.anim.fadein, R.anim.fadeout);
-				this.startActivity(new Intent(Intent.ACTION_VIEW,
-						Uri.parse("market://details?id=Picogram")), opts.toBundle());
-			}
-			else {
-				this.startActivity(new Intent(Intent.ACTION_VIEW,
-						Uri.parse("market://details?id=Picogram")));
-			}
-
+			this.startActivity(new Intent(Intent.ACTION_VIEW,
+					Uri.parse("market://details?id=Picogram")));
+			overridePendingTransition(R.anim.in_from_left, R.anim.out_to_right);
 			final Editor editor = this.prefs.edit();
 			editor.putBoolean(RateMeMaybe.PREF.DONT_SHOW_AGAIN, true);
 			editor.commit();
@@ -192,13 +177,8 @@ public class SettingsActivity extends SherlockPreferenceActivity implements
 		else if (preference.getKey().equals("logout"))
 		{
 			final Intent loginIntent = new Intent(this, LoginActivity.class);
-			if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-				final ActivityOptions opts = ActivityOptions.makeCustomAnimation(
-						this, R.anim.fadein, R.anim.fadeout);
-				this.startActivity(loginIntent, opts.toBundle());
-			} else {
-				this.startActivity(loginIntent);
-			}
+			this.startActivity(loginIntent);
+			overridePendingTransition(R.anim.in_from_left, R.anim.out_to_right);
 		}
 		return false;
 	}

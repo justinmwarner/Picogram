@@ -370,7 +370,6 @@ public class PreGameFragment extends Fragment implements OnClickListener, OnItem
 		this.uiHelper.onActivityResult(requestCode, resultCode, data);
 	}
 
-	@SuppressLint("NewApi")
 	public void onClick(final View v) {
 		final SQLitePicogramAdapter sql = new SQLitePicogramAdapter(
 				PreGameFragment.this.getActivity(), "Picograms", null, 1);
@@ -410,16 +409,8 @@ public class PreGameFragment extends Fragment implements OnClickListener, OnItem
 			{
 				// Have not logged in. Start Log in Activity.
 				final Intent loginIntent = new Intent(this.getActivity(), LoginActivity.class);
-
-				if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-					final ActivityOptions opts = ActivityOptions.makeCustomAnimation(
-							this.getActivity(), R.anim.fadein, R.anim.fadeout);
-					this.getActivity().startActivity(loginIntent, opts.toBundle());
-				}
-				else
-				{
-					this.getActivity().startActivity(loginIntent);
-				}
+				this.getActivity().startActivity(loginIntent);
+				this.getActivity().overridePendingTransition(R.anim.in_from_left, R.anim.out_to_right);
 			} else {
 				// Making a comment to server based on ID.
 				final PicogramComment pc = new PicogramComment();
@@ -546,7 +537,7 @@ public class PreGameFragment extends Fragment implements OnClickListener, OnItem
 			this.lvHighscores.setAdapter(this.highscores);
 			ll.addView(this.lvHighscores);
 			// this.loadHighScores(); Don't need to call.
-		}else
+		} else
 		{
 			// Default.
 			final TextView v = new TextView(this.getActivity());
@@ -732,7 +723,6 @@ public class PreGameFragment extends Fragment implements OnClickListener, OnItem
 		alert.show();
 	}
 
-	@SuppressLint("NewApi")
 	protected void startGame() {
 		final Intent gameIntent = new Intent(this.getActivity(),
 				AdvancedGameActivity.class);
@@ -745,18 +735,11 @@ public class PreGameFragment extends Fragment implements OnClickListener, OnItem
 		gameIntent.putExtra("status", this.current.getStatus());
 		gameIntent.putExtra("colors", this.current.getColors());
 		gameIntent.putExtra("part", -1);
-		if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-			final ActivityOptions opts = ActivityOptions.makeCustomAnimation(
-					this.getActivity(), R.anim.fadein, R.anim.fadeout);
-			this.getActivity().startActivityForResult(gameIntent,
-					MenuActivity.GAME_CODE, opts.toBundle());
-		} else {
-			this.getActivity().startActivityForResult(gameIntent,
-					MenuActivity.GAME_CODE);
-		}
+		this.getActivity().startActivityForResult(gameIntent,
+				MenuActivity.GAME_CODE);
+		getActivity().overridePendingTransition(R.anim.in_from_left, R.anim.out_to_right);
 	}
 
-	@SuppressLint("NewApi")
 	protected void startGame(final Picogram go) {
 		final Intent gameIntent = new Intent(this.getActivity(),
 				AdvancedGameActivity.class);
@@ -769,18 +752,11 @@ public class PreGameFragment extends Fragment implements OnClickListener, OnItem
 		gameIntent.putExtra("status", go.getStatus());
 		gameIntent.putExtra("colors", go.getColors());
 		gameIntent.putExtra("part", -1);
-		if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-			final ActivityOptions opts = ActivityOptions.makeCustomAnimation(
-					this.getActivity(), R.anim.fadein, R.anim.fadeout);
-			this.getActivity().startActivityForResult(gameIntent,
-					MenuActivity.GAME_CODE, opts.toBundle());
-		} else {
-			this.getActivity().startActivityForResult(gameIntent,
-					MenuActivity.GAME_CODE);
-		}
+		this.getActivity().startActivityForResult(gameIntent,
+				MenuActivity.GAME_CODE);
+		getActivity().overridePendingTransition(R.anim.in_from_left, R.anim.out_to_right);
 	}
 
-	@SuppressLint("NewApi")
 	protected void startGame(final PicogramPart part, final int partNumber) {
 		// This is used when we're playing a part, so some things will be different.
 		final PreGameActivity pga = (PreGameActivity) this.getActivity();
@@ -795,15 +771,9 @@ public class PreGameFragment extends Fragment implements OnClickListener, OnItem
 		gameIntent.putExtra("status", this.current.getStatus());
 		gameIntent.putExtra("colors", this.current.getColors());
 		gameIntent.putExtra("part", partNumber);
-		if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-			final ActivityOptions opts = ActivityOptions.makeCustomAnimation(
-					this.getActivity(), R.anim.fadein, R.anim.fadeout);
-			this.getActivity().startActivityForResult(gameIntent,
-					MenuActivity.GAME_CODE, opts.toBundle());
-		} else {
-			this.getActivity().startActivityForResult(gameIntent,
-					MenuActivity.GAME_CODE);
-		}
+		this.getActivity().startActivityForResult(gameIntent,
+				MenuActivity.GAME_CODE);
+		getActivity().overridePendingTransition(R.anim.in_from_left, R.anim.out_to_right);
 	}
 
 }

@@ -64,6 +64,11 @@ public class LoginActivity extends SherlockFragmentActivity implements OnClickLi
 		Session.getActiveSession().onActivityResult(this, requestCode, resultCode, data);
 	}
 
+	public void onBackPressed() {
+	    super.onBackPressed();
+	    overridePendingTransition(R.anim.in_from_left, R.anim.out_to_right);
+	}
+	
 	public void onClick(final View v) {
 		if (v.getId() == R.id.bLogin) {
 			final String un = this.editTextLogin.getText().toString();

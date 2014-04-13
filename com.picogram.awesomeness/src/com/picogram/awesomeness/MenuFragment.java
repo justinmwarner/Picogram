@@ -817,7 +817,6 @@ public class MenuFragment extends Fragment implements
 		super.onDestroy();
 	}
 
-	@SuppressLint("NewApi")
 	public void onItemClick(final AdapterView<?> parent, final View v,
 			final int pos, final long id) {
 		if (pos >= 0) // If valid position to select.
@@ -860,16 +859,9 @@ public class MenuFragment extends Fragment implements
 						final Intent createIntent = new Intent(
 								this.getActivity(),
 								CreateActivity.class);
-						if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-							final ActivityOptions opts = ActivityOptions.makeCustomAnimation(
-									this.getActivity(), R.anim.fadein, R.anim.fadeout);
-							this.getActivity().startActivityForResult(createIntent,
-									MenuActivity.CREATE_CODE, opts.toBundle());
-						} else
-						{
 							this.getActivity().startActivityForResult(createIntent,
 									MenuActivity.CREATE_CODE);
-						}
+							this.getActivity().overridePendingTransition(R.anim.in_from_left, R.anim.out_to_right);
 					} else if (pos == 1) {
 						this.generateRandomGame();
 					}
@@ -912,7 +904,6 @@ public class MenuFragment extends Fragment implements
 
 	}
 
-	@SuppressLint("NewApi")
 	private void startGame(final Picogram go) {
 		// Intent gameIntent = new Intent(this, AdvancedGameActivity.class);
 		final Intent gameIntent = new Intent(this.getActivity(),
@@ -925,14 +916,8 @@ public class MenuFragment extends Fragment implements
 		gameIntent.putExtra("id", go.getID());
 		gameIntent.putExtra("name", go.getName());
 		gameIntent.putExtra("colors", go.getColors());
-		if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-			final ActivityOptions opts = ActivityOptions.makeCustomAnimation(
-					this.getActivity(), R.anim.fadein, R.anim.fadeout);
-			this.getActivity().startActivityForResult(gameIntent,
-					MenuActivity.GAME_CODE, opts.toBundle());
-		} else {
 			this.getActivity().startActivityForResult(gameIntent,
 					MenuActivity.GAME_CODE);
-		}
+		getActivity().overridePendingTransition(R.anim.in_from_left, R.anim.out_to_right);
 	}
 }
