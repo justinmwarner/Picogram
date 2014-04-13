@@ -16,6 +16,8 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.actionbarsherlock.app.ActionBar;
+import com.actionbarsherlock.app.SherlockActivity;
+import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.MenuItem;
 import com.facebook.LoggingBehavior;
 import com.facebook.Request;
@@ -36,7 +38,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
-public class LoginActivity extends BaseGameActivity implements OnClickListener {
+public class LoginActivity extends SherlockFragmentActivity implements OnClickListener {
 	private class SessionStatusCallback implements Session.StatusCallback {
 		public void call(final Session session, final SessionState state, final Exception exception) {
 			Log.d("LoginUsingLoginFragmentActivity", String.format("New session state: %s", state.toString()));
@@ -89,12 +91,12 @@ public class LoginActivity extends BaseGameActivity implements OnClickListener {
 			if (this.google.getText().toString().startsWith("Log out"))
 			{
 				// Logging out.
-				this.signOut();
+				//this.signOut();
 				Util.getPreferences(this).edit().putBoolean("hasLoggedInGoogle", false).commit();
 				this.google.setText("Log in with Google Plus");
 			} else {
 				this.hasTriedGoogle = true;
-				this.beginUserInitiatedSignIn();
+				//this.beginUserInitiatedSignIn();
 			}
 		}
 	}
@@ -129,7 +131,7 @@ public class LoginActivity extends BaseGameActivity implements OnClickListener {
 		tvSeparator = (TextView) findViewById(R.id.tvDisplay);
 		Settings.addLoggingBehavior(LoggingBehavior.INCLUDE_ACCESS_TOKENS);
 
-		Session session = Session.getActiveSession();
+		/*Session session = Session.getActiveSession();
 		if (session == null) {
 			if (savedInstanceState != null) {
 				session = Session.restoreSession(this, null, this.statusCallback, savedInstanceState);
@@ -142,7 +144,7 @@ public class LoginActivity extends BaseGameActivity implements OnClickListener {
 				session.openForRead(new Session.OpenRequest(this).setCallback(this.statusCallback));
 			}
 		}
-
+*/
 		this.updateView();
 
 		this.facebook.setOnClickListener(this);
@@ -224,7 +226,7 @@ public class LoginActivity extends BaseGameActivity implements OnClickListener {
 	}
 
 	public void onSignInSucceeded() {
-		final Player p = Games.Players.getCurrentPlayer(this.getApiClient());
+		/*final Player p = Games.Players.getCurrentPlayer(this.getApiClient());
 		Util.getPreferences(this).edit().putBoolean("hasLoggedInGoogle", true).commit();
 		String un = "";
 		final String[] names = p.getDisplayName().split(" ");
@@ -238,22 +240,25 @@ public class LoginActivity extends BaseGameActivity implements OnClickListener {
 		editTextLogin.setVisibility(View.INVISIBLE);
 		login.setVisibility(View.INVISIBLE);
 		tvSeparator.setVisibility(View.INVISIBLE);
+		*/
 	}
 
 	@Override
 	public void onStart() {
 		super.onStart();
-		Session.getActiveSession().addCallback(this.statusCallback);
+		//Session.getActiveSession().addCallback(this.statusCallback);
 	}
 
 	@Override
 	public void onStop() {
 		super.onStop();
-		Session.getActiveSession().removeCallback(this.statusCallback);
+		//Session.getActiveSession().removeCallback(this.statusCallback);
 	}
 
 	@SuppressWarnings("deprecation")
 	private void updateView() {
+		/*	
+	}
 		final Session session = Session.getActiveSession();
 		if (session.isOpened()) {
 			Request.executeMeRequestAsync(session, new Request.GraphUserCallback() {
@@ -289,6 +294,7 @@ public class LoginActivity extends BaseGameActivity implements OnClickListener {
 				}
 			});
 		} else {
+			*/
 			Util.getPreferences(this).edit().putBoolean("hasLoggedInFacebook", false).commit();
 			this.facebook.setText("Log in with Facebook");
 			this.facebook.setOnClickListener(new OnClickListener() {
@@ -296,7 +302,7 @@ public class LoginActivity extends BaseGameActivity implements OnClickListener {
 					LoginActivity.this.onClickLogin();
 				}
 			});
-		}
+		//}
 	}
 
 	TextView tvSeparator;
