@@ -10,7 +10,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/bCustom"
         android:layout_centerHorizontal="true"
-        android:background="@color/light_green"
+        android:background="@color/light_yellow"
         android:layout_marginTop="15dp"
         android:text="URL" />
 
@@ -20,7 +20,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/bURL"
         android:layout_centerHorizontal="true"
-        android:background="@color/light_green"
+        android:background="@color/light_yellow"
         android:layout_marginTop="15dp"
         android:text="File" />
 
@@ -30,7 +30,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/bFile"
         android:layout_centerHorizontal="true"
-        android:background="@color/light_green"
+        android:background="@color/light_yellow"
         android:layout_marginTop="15dp"
         android:text="Camera" />
 
@@ -76,7 +76,7 @@
         android:layout_height="wrap_content"
         android:layout_alignLeft="@+id/bURL"
         android:layout_marginTop="15dp"
-        android:background="@color/light_green"
+        android:background="@color/light_yellow"
         android:padding="5dp"
         android:text="Custom" />
 

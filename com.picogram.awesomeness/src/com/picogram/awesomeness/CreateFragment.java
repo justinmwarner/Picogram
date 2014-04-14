@@ -59,7 +59,7 @@ public class CreateFragment extends Fragment implements OnClickListener, OnRange
 	EditText etName;
 	Spinner spinDifficulty;
 	ChipsMultiAutoCompleteTextview autoTags;
-	int selectedColor, width = 3, height = 3, numColor = 2;
+	int selectedColor, width = 20, height = 20, numColor = 2;
 	RangeBar rangeColor;
 	Bitmap original;
 
@@ -397,12 +397,15 @@ public class CreateFragment extends Fragment implements OnClickListener, OnRange
 						if (id == R.id.bColorChange) {
 							CreateFragment.this.numColor = number;
 							a.numColors = number;
+							bColorChange.setText("Color: " + numColor);
 						} else if (id == R.id.bWidthChange) {
 							CreateFragment.this.width = number;
+							bWidthChange.setText("Width: " + width);
 							a.width = number;
 						} else if (id == R.id.bHeightChange) {
 							CreateFragment.this.height = number;
 							a.height = number;
+							bHeightChange.setText("Height: " + height);
 						}
 						a.updateAllTouchImageViews();
 					}

@@ -39,12 +39,13 @@
 
         <Button
             android:id="@+id/publishButton"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="10dp"
             android:layout_weight="1"
-            android:background="@drawable/facebook_share"
-            android:text="\nShare"
+            android:background="#3B5998"
+            android:text="Share to Facebook"
+            android:textColor="#FFF"
             android:visibility="gone" />
 
         <Button

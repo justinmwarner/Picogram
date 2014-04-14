@@ -104,10 +104,10 @@ public class CreateActivity extends SherlockFragmentActivity implements ActionBa
 
 	protected Bundle alterPhoto() {
 		if (this.width == 0) {
-			this.width = 3;
+			this.width = 20;
 		}
 		if (this.height == 0) {
-			this.height = 2;
+			this.height = 20;
 		}
 		if (this.numColors == 0) {
 			this.numColors = 2;
@@ -289,7 +289,9 @@ public class CreateActivity extends SherlockFragmentActivity implements ActionBa
 
 	@Override
 	public boolean onCreateOptionsMenu(final Menu menu) {
-		this.getSupportActionBar().setBackgroundDrawable(new ColorDrawable(this.getResources().getColor(R.color.light_yellow)));
+		int bg = this.getResources().getColor(R.color.light_yellow);
+		this.getSupportActionBar().setBackgroundDrawable(new ColorDrawable(bg));
+		tabs.setIndicatorColor(bg);
 		return super.onCreateOptionsMenu(menu);
 	}
 

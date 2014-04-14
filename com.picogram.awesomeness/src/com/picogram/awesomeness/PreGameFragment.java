@@ -504,6 +504,10 @@ public class PreGameFragment extends Fragment implements OnClickListener, OnItem
 			final View childLayout = inflater.inflate(R.layout.include_pregame_action,
 					(ViewGroup) this.getActivity().findViewById(R.layout.include_pregame_action));
 			final Button bPlay = (Button) childLayout.findViewById(R.id.bPlay);
+			if (current.getSolution().equals(current.getCurrent().replaceAll("x|X", "0")))
+				bPlay.setBackgroundColor(this.getActivity().getResources().getColor(R.color.light_green));
+			else
+				bPlay.setBackgroundColor(this.getActivity().getResources().getColor(R.color.light_red));
 			final Button bGoogle = (Button) childLayout.findViewById(R.id.bGoogle);
 			this.partSpinner = (Spinner) childLayout.findViewById(R.id.spinParts);
 

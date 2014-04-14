@@ -333,6 +333,7 @@ public class PreGameActivity extends BaseGameActivity implements OnPageChangeLis
 			// s.setSpan(new BackgroundColorSpan(background), 0, s.length(), 0);
 			item.setTitle(s);
 		}
+		tabs.setIndicatorColor(background);
 		this.getSupportActionBar().setBackgroundDrawable(cd);
 		return true;
 	}
