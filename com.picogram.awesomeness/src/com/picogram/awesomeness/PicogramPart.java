@@ -30,10 +30,6 @@ public class PicogramPart {
 
 	public char[][] get2D() {
 		final char[][] result = new char[this.height][this.width];
-		if ((this.height * this.width) != this.current.length())
-		{
-			Log.d(TAG, "ERROR");
-		}
 		int run = 0;
 		for (int i = 0; i != result.length; ++i) {
 			for (int j = 0; j != result[i].length; ++j)

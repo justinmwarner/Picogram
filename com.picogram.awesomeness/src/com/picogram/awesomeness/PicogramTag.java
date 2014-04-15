@@ -33,7 +33,6 @@ public class PicogramTag {
 				throw new Exception("ID or TAG is null " + (this.id == null) + " " + (this.tag == null));
 			} catch (final Exception e)
 			{
-				Log.d(TAG, "Error saving tag: " + e);
 			}
 			return;
 		}

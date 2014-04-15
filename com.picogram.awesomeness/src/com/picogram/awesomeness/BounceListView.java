@@ -62,7 +62,6 @@ public class BounceListView extends ListView
 			for (int i = last - (2 * first), j = 1; i <= (last - first); i++, j++) {
 				final View item = this.getChildAt(i);
 				if (item != null) {
-					// Log.d(TAG, "Trans Bottom Item:  " + i + " Val: " + (deltaY * j * factor));
 					this.tilt(item, deltaY * j * factor, 1 == (i % 2));
 				}
 			}
@@ -71,7 +70,6 @@ public class BounceListView extends ListView
 			for (int i = first, j = 1; i <= (last); i++, j++) {
 				final View item = this.getChildAt(i);
 				if (item != null) {
-					// Log.d(TAG, "Trans Top Item:  " + i + " Val: " + (deltaY * (1 - (j * factor))));
 					this.tilt(item, deltaY * (1 - (j * factor)), 1 == (i % 2));
 				}
 			}

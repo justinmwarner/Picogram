@@ -278,12 +278,10 @@ public class TouchImageView extends ImageView implements OnGestureListener,
 	}
 
 	public void checkWin() {
-		Log.d(TAG, "CHECKING WIN - " + this.gCurrent.replaceAll("x|X", "0").equals(this.gSolution));
 		if (this.gCurrent.replaceAll("x|X", "0").equals(this.gSolution)) {
 			if (this.winListener != null) {
 				this.winListener.win();
 			} else {
-				Log.d(TAG, "CHECKING WIN - ERROR");
 				try {
 					throw new Exception("No WinListener!");
 				} catch (final Exception e) {
@@ -292,9 +290,6 @@ public class TouchImageView extends ImageView implements OnGestureListener,
 				}
 			}
 		}
-		Log.d(TAG, "CHECKING WIN -  No go " + gCurrent);
-		Log.d(TAG, "CHECKING WIN -  No go " + gCurrent.replaceAll("x|X", "0"));
-		Log.d(TAG, "CHECKING WIN -  No go " + gSolution);
 	}
 
 	public void clearGame() {
@@ -928,7 +923,6 @@ public class TouchImageView extends ImageView implements OnGestureListener,
 
 					}).start();
 				}
-				Log.d(TAG, "CHECKING WIN");
 				this.checkWin();
 				return true;
 			}
@@ -1096,7 +1090,6 @@ public class TouchImageView extends ImageView implements OnGestureListener,
 
 				}).start();
 			}
-			Log.d(TAG, "CHECKING WIN");
 			this.checkWin();
 			return true;
 		}
@@ -1168,7 +1161,6 @@ public class TouchImageView extends ImageView implements OnGestureListener,
 		this.gCurrent = savedInstanceState.getString("current");
 		this.gHeight = Integer.parseInt(savedInstanceState.getString("height", "0"));
 		this.gWidth = Integer.parseInt(savedInstanceState.getString("width", "0"));
-
 		while (this.gCurrent.length() < (this.gHeight * this.gWidth))
 		{
 			this.gCurrent += "0";

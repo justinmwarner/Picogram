@@ -74,7 +74,6 @@ public class PicogramCommentAdapter extends ArrayAdapter<PicogramComment> {
 		}
 		final PicogramComment comment = this.comments.get(position);
 
-		Log.d(TAG, "Creating list item: " + position + " " + comment.getComment());
 		final LayoutInflater inflater = (LayoutInflater) this.context
 				.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		final View item = inflater.inflate(R.layout.comment_menu_choice_item,
@@ -84,7 +83,6 @@ public class PicogramCommentAdapter extends ArrayAdapter<PicogramComment> {
 		tvAuthor.setText(comment.getAuthor());
 		tvAuthor.setTextColor(Color.LTGRAY);
 		tvPicogramComment.setText(comment.getComment());
-		Log.d(TAG, "A: " + comment.getAuthor() + " " + Util.id(this.context));
 		if (Util.id(this.context).equals(comment.getAuthor()))
 		{
 			// This is the person, so change background.

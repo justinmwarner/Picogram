@@ -94,8 +94,6 @@ public class MenuFragment extends Fragment implements
 				MenuFragment.this.myAdapter.updateRateById(po.getString("puzzleId"), po.getInt("rate"));
 				MenuFragment.this.myAdapter.notifyDataSetChanged();
 			}
-		} else {
-			Log.d(TAG, "Error updating ratings on my puzzles: " + e.getMessage());
 		}
 		MenuFragment.this.pbLoad.setVisibility(View.INVISIBLE);
 	}
@@ -161,7 +159,6 @@ public class MenuFragment extends Fragment implements
 		final String[][] picogramsArray = this.sql.getPicograms();
 		final String[] ids = new String[picogramsArray.length];
 		final SharedPreferences prefs = Util.getPreferences(a);
-		Log.d(TAG, "PREF: " + (prefs.getInt("mySetting", 0)));
 		for (int i = 0; i < picogramsArray.length; i++) {
 			final String temp[] = picogramsArray[i];
 			final String id = temp[0];
@@ -186,7 +183,6 @@ public class MenuFragment extends Fragment implements
 			if (prefs != null) {
 				if (prefs.getBoolean("wonvisible", false)
 						|| (prefs.getInt("mySetting", 0) == 1)) {
-					Log.d(TAG, name + " - " + status);
 					if (status.equals("1") || solution.equals(current.replaceAll("x|X", "0"))) {
 						isAdd = false;
 					}
@@ -230,8 +226,6 @@ public class MenuFragment extends Fragment implements
 						MenuFragment.this.myAdapter.updateRateById(po.getString("puzzleId"), po.getInt("rate"));
 						MenuFragment.this.myAdapter.notifyDataSetChanged();
 					}
-				} else {
-					Log.d(TAG, "Error updating ratings on my puzzles: " + e.getMessage());
 				}
 				MenuFragment.this.pbLoad.setVisibility(View.INVISIBLE);
 			}
@@ -308,14 +302,9 @@ public class MenuFragment extends Fragment implements
 						}
 						MenuFragment.this.myAdapter.picograms = MenuFragment.this.myAdapter.recentPicograms;
 						MenuFragment.this.myAdapter.notifyDataSetChanged();
-						MenuFragment.this.pbLoad.setVisibility(View.INVISIBLE);
 					}
 				}
-				else
-				{
-					Log.d(TAG, "ERROR in Recent Puzzles: " + e.getMessage());
-					MenuFragment.this.pbLoad.setVisibility(View.INVISIBLE);
-				}
+				MenuFragment.this.pbLoad.setVisibility(View.INVISIBLE);
 			}
 		});
 	}
@@ -325,16 +314,12 @@ public class MenuFragment extends Fragment implements
 		this.myAdapter.clear();
 		ParseQuery<ParseObject> query = ParseQuery.getQuery("PicogramTag");
 		query.whereEqualTo("tag", tag.trim().toLowerCase());
-		Log.d(TAG, "puzzles   : " + tag);
 		List<ParseObject> queryResult = null;
 		try {
 			queryResult = query.find();
 		} catch (final ParseException e) {
-			Log.d(TAG, "Error with tags 1: " + e.getMessage());
 		}
-		Log.d(TAG, "PuzzleIds here");
 		if (queryResult != null) {
-			Log.d(TAG, "puzzles : " + queryResult.size());
 			final String ids[] = new String[queryResult.size()];
 			for (int i = 0; i != queryResult.size(); ++i) {
 				ids[i] = queryResult.get(i).getString("puzzleId");
@@ -367,19 +352,13 @@ public class MenuFragment extends Fragment implements
 				public void done(final List<ParseObject> result, final ParseException e) {
 					if (e == null)
 					{
-						Log.d(TAG, "Got puzzles : " + result.size());
 						for (final ParseObject po : result)
 						{
 							MenuFragment.this.myAdapter.add(new Picogram(po));
 							MenuFragment.this.myAdapter.notifyDataSetChanged();
 						}
-						MenuFragment.this.pbLoad.setVisibility(View.INVISIBLE);
 					}
-					else
-					{
-						Log.d(TAG, "Error with tags 2: " + e.getMessage());
-						MenuFragment.this.pbLoad.setVisibility(View.INVISIBLE);
-					}
+					MenuFragment.this.pbLoad.setVisibility(View.INVISIBLE);
 				}
 
 			});
@@ -420,14 +399,9 @@ public class MenuFragment extends Fragment implements
 						}
 						MenuFragment.this.myAdapter.picograms = MenuFragment.this.myAdapter.topPicograms;
 						MenuFragment.this.myAdapter.notifyDataSetChanged();
-						MenuFragment.this.pbLoad.setVisibility(View.INVISIBLE);
 					}
 				}
-				else
-				{
-					Log.d(TAG, "Error getting Top: " + e.getMessage());
-					MenuFragment.this.pbLoad.setVisibility(View.INVISIBLE);
-				}
+				MenuFragment.this.pbLoad.setVisibility(View.INVISIBLE);
 			}
 		});
 	}
@@ -859,9 +833,9 @@ public class MenuFragment extends Fragment implements
 						final Intent createIntent = new Intent(
 								this.getActivity(),
 								CreateActivity.class);
-							this.getActivity().startActivityForResult(createIntent,
-									MenuActivity.CREATE_CODE);
-							this.getActivity().overridePendingTransition(R.anim.in_from_left, R.anim.out_to_right);
+						this.getActivity().startActivityForResult(createIntent,
+								MenuActivity.CREATE_CODE);
+						this.getActivity().overridePendingTransition(R.anim.fadein, R.anim.exit_left);
 					} else if (pos == 1) {
 						this.generateRandomGame();
 					}
@@ -916,8 +890,8 @@ public class MenuFragment extends Fragment implements
 		gameIntent.putExtra("id", go.getID());
 		gameIntent.putExtra("name", go.getName());
 		gameIntent.putExtra("colors", go.getColors());
-			this.getActivity().startActivityForResult(gameIntent,
-					MenuActivity.GAME_CODE);
-		getActivity().overridePendingTransition(R.anim.in_from_left, R.anim.out_to_right);
+		this.getActivity().startActivityForResult(gameIntent,
+				MenuActivity.GAME_CODE);
+		getActivity().overridePendingTransition(R.anim.fadein, R.anim.exit_left);
 	}
 }

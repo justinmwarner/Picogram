@@ -146,7 +146,6 @@ public class SettingsActivity extends SherlockPreferenceActivity implements
 			return true;
 		} else if (preference.getKey().equals("changelog")) {
 			// Launch change log dialog
-			Log.d(TAG, "Changelog");
 			final ChangeLogDialog _ChangelogDialog = new ChangeLogDialog(this);
 			_ChangelogDialog.show();
 		} else if (preference.getKey().equals("licenses")) {
@@ -168,12 +167,12 @@ public class SettingsActivity extends SherlockPreferenceActivity implements
 			emailIntent.setType("message/rfc822");
 			this.startActivity(Intent.createChooser(emailIntent,
 					"Send Mail Using :"));
-			overridePendingTransition(R.anim.in_from_left, R.anim.out_to_right);
+			overridePendingTransition(R.anim.fadein, R.anim.exit_left);
 		} else if (preference.getKey().equals("rateapp")) {
 			// TODO fix this when we publish.
 			this.startActivity(new Intent(Intent.ACTION_VIEW,
 					Uri.parse("market://details?id=Picogram")));
-			overridePendingTransition(R.anim.in_from_left, R.anim.out_to_right);
+			overridePendingTransition(R.anim.fadein, R.anim.exit_left);
 			final Editor editor = this.prefs.edit();
 			editor.putBoolean(RateMeMaybe.PREF.DONT_SHOW_AGAIN, true);
 			editor.commit();
@@ -182,7 +181,7 @@ public class SettingsActivity extends SherlockPreferenceActivity implements
 		{
 			final Intent loginIntent = new Intent(this, LoginActivity.class);
 			this.startActivity(loginIntent);
-			overridePendingTransition(R.anim.in_from_left, R.anim.out_to_right);
+			overridePendingTransition(R.anim.fadein, R.anim.exit_left);
 		}
 		return false;
 	}
@@ -192,7 +191,6 @@ public class SettingsActivity extends SherlockPreferenceActivity implements
 		super.onResume();
 		Util.updateFullScreen(this);
 		this.continueMusic = false;
-		Log.d(TAG, "Change resume 3");
 		MusicManager.start(this);
 	}
 

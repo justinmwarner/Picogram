@@ -41,7 +41,6 @@ import java.util.Set;
 public class LoginActivity extends SherlockFragmentActivity implements OnClickListener {
 	private class SessionStatusCallback implements Session.StatusCallback {
 		public void call(final Session session, final SessionState state, final Exception exception) {
-			Log.d("LoginUsingLoginFragmentActivity", String.format("New session state: %s", state.toString()));
 			LoginActivity.this.updateView();
 			if (state == SessionState.OPENED) {
 				Util.getPreferences(LoginActivity.this.a).edit().putBoolean("hasLoggedInSuccessfully", true).commit();
@@ -66,7 +65,7 @@ public class LoginActivity extends SherlockFragmentActivity implements OnClickLi
 
 	public void onBackPressed() {
 	    super.onBackPressed();
-	    overridePendingTransition(R.anim.in_from_left, R.anim.out_to_right);
+	    overridePendingTransition(R.anim.fadein, R.anim.exit_left);
 	}
 	
 	public void onClick(final View v) {

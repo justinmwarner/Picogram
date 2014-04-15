@@ -106,11 +106,6 @@ public class Util {
 		return (isScreenLarge || isScreenXlarge);
 	}
 
-	public static void log(final String msg) {
-		final StackTraceElement[] ste = Thread.currentThread().getStackTrace();
-		Log.d(ste[3].getClassName(), msg);
-	}
-
 	public static void setTheme(final Activity a) {
 
 		final SharedPreferences prefs = a.getSharedPreferences(

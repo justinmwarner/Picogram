@@ -85,7 +85,6 @@ public class PreGameFragment extends Fragment implements OnClickListener, OnItem
 	private final Session.StatusCallback callback = new Session.StatusCallback() {
 		public void call(final Session session, final SessionState state, final Exception exception) {
 			if (exception != null) {
-				Log.d(TAG, "Facebook Error: " + exception);
 			}
 			PreGameFragment.this.onSessionStateChange(session, state, exception);
 		}
@@ -265,7 +264,6 @@ public class PreGameFragment extends Fragment implements OnClickListener, OnItem
 					PreGameFragment.this.comments.add(temp);
 					PreGameFragment.this.comments.notifyDataSetChanged();
 					PreGameFragment.this.lvComments.invalidate();
-					Log.d(TAG, "ERROR LOADING COMMENTS: " + e.getMessage());
 				}
 			}
 		});
@@ -312,8 +310,6 @@ public class PreGameFragment extends Fragment implements OnClickListener, OnItem
 							}
 						}
 					}
-					Log.d(TAG, "ph ShouldSave :  " + shouldSave + " Score: " + mine.getScore() + " Worst: " + worstScore + " Extra: " + (mine.getScore() < worstScore));
-
 					if (PreGameFragment.this.current.getCurrent().replaceAll("x", "0").equals(PreGameFragment.this.current.getSolution()))
 					{
 						// Only add users if they've beaten it.
@@ -321,7 +317,6 @@ public class PreGameFragment extends Fragment implements OnClickListener, OnItem
 
 							// Check if user should have his score uploaded.
 							if (shouldSave && (mine.getScore() < worstScore)) {
-								Log.d(TAG, "ph saving.");
 								mine.save();
 							}
 							PreGameFragment.this.highscores.add(mine);
@@ -346,7 +341,6 @@ public class PreGameFragment extends Fragment implements OnClickListener, OnItem
 					PreGameFragment.this.highscores.add(ph);
 					PreGameFragment.this.highscores.notifyDataSetChanged();
 					PreGameFragment.this.lvHighscores.invalidate();
-					Log.d(TAG, "ERROR LOADING COMMENTS: " + e.getMessage());
 				}
 			}
 		});
@@ -386,9 +380,7 @@ public class PreGameFragment extends Fragment implements OnClickListener, OnItem
 				else
 				{
 					final int part = this.partSpinner.getSelectedItemPosition();
-					Log.d(TAG, "PART: " + part);
 					final PicogramPart[] parts = this.getParts();
-					Log.d(TAG, "Part: " + parts[part]);
 					this.startGame(parts[part], part);
 				}
 			}
@@ -410,7 +402,7 @@ public class PreGameFragment extends Fragment implements OnClickListener, OnItem
 				// Have not logged in. Start Log in Activity.
 				final Intent loginIntent = new Intent(this.getActivity(), LoginActivity.class);
 				this.getActivity().startActivity(loginIntent);
-				this.getActivity().overridePendingTransition(R.anim.in_from_left, R.anim.out_to_right);
+				this.getActivity().overridePendingTransition(R.anim.fadein, R.anim.exit_left);
 			} else {
 				// Making a comment to server based on ID.
 				final PicogramComment pc = new PicogramComment();
@@ -532,6 +524,10 @@ public class PreGameFragment extends Fragment implements OnClickListener, OnItem
 			this.lvComments.setOnItemClickListener(this);
 			final Button b = (Button) childLayout.findViewById(R.id.bComment);
 			b.setOnClickListener(this);
+			if (current.getSolution().equals(current.getCurrent().replaceAll("x|X", "0")))
+				b.setBackgroundColor(this.getActivity().getResources().getColor(R.color.light_green));
+			else
+				b.setBackgroundColor(this.getActivity().getResources().getColor(R.color.light_red));
 			// this.loadComments(); Don't need to call.
 		}
 		else if (this.position == 2)
@@ -589,7 +585,6 @@ public class PreGameFragment extends Fragment implements OnClickListener, OnItem
 		{
 			if (this.partSpinner == null) {
 				this.partSpinner = (Spinner) this.getActivity().findViewById(R.id.spinParts);
-				Log.d(TAG, "Spinner? " + this.partSpinner.toString());
 			}
 			this.partSpinner.setAdapter(new PartSpinnerAdapter(this.getActivity(), 0, this.getParts()));
 		}
@@ -624,7 +619,6 @@ public class PreGameFragment extends Fragment implements OnClickListener, OnItem
 		// Check if the user is authenticated and
 		// a deep link needs to be handled.
 		if (exception != null) {
-			Log.d(TAG, "Facebook - Error: " + exception);
 		}
 		try {
 			final PackageInfo info = this.getActivity().getPackageManager().getPackageInfo("com.picogram.awesomeness", PackageManager.GET_SIGNATURES);
@@ -660,7 +654,6 @@ public class PreGameFragment extends Fragment implements OnClickListener, OnItem
 		alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
 			public void onClick(final DialogInterface dialog, final int whichButton) {
 				final ParseQuery<ParseObject> query = ParseQuery.getQuery("PicogramComment");
-				Log.d(TAG, "DELETING " + pc.getComment());
 				query.whereEqualTo("author", pc.getAuthor());
 				query.whereEqualTo("comment", pc.getComment());
 				query.whereEqualTo("puzzleId", pc.getPuzzleId());
@@ -673,17 +666,14 @@ public class PreGameFragment extends Fragment implements OnClickListener, OnItem
 						public void done(final ParseException e) {
 							if (e == null)
 							{
-								Log.d(TAG, "DELETE SUCCESS!");
 								// PreGameFragment.this.loadComments();
 								PreGameFragment.this.comments.delete(pc.getAuthor(), pc.getComment());
 							} else {
-								Log.d(TAG, "COULDN'T DELETE: " + e.getMessage());
 							}
 						}
 
 					});
 				} catch (final ParseException e) {
-					Log.d(TAG, "COULDN'T DELETE: " + e.getMessage());
 				}
 			}
 		});
@@ -742,7 +732,7 @@ public class PreGameFragment extends Fragment implements OnClickListener, OnItem
 		gameIntent.putExtra("part", -1);
 		this.getActivity().startActivityForResult(gameIntent,
 				MenuActivity.GAME_CODE);
-		getActivity().overridePendingTransition(R.anim.in_from_left, R.anim.out_to_right);
+		getActivity().overridePendingTransition(R.anim.fadein, R.anim.exit_left);
 	}
 
 	protected void startGame(final Picogram go) {
@@ -759,7 +749,7 @@ public class PreGameFragment extends Fragment implements OnClickListener, OnItem
 		gameIntent.putExtra("part", -1);
 		this.getActivity().startActivityForResult(gameIntent,
 				MenuActivity.GAME_CODE);
-		getActivity().overridePendingTransition(R.anim.in_from_left, R.anim.out_to_right);
+		getActivity().overridePendingTransition(R.anim.fadein, R.anim.exit_left);
 	}
 
 	protected void startGame(final PicogramPart part, final int partNumber) {
@@ -778,7 +768,7 @@ public class PreGameFragment extends Fragment implements OnClickListener, OnItem
 		gameIntent.putExtra("part", partNumber);
 		this.getActivity().startActivityForResult(gameIntent,
 				MenuActivity.GAME_CODE);
-		getActivity().overridePendingTransition(R.anim.in_from_left, R.anim.out_to_right);
+		getActivity().overridePendingTransition(R.anim.fadein, R.anim.exit_left);
 	}
 
 }

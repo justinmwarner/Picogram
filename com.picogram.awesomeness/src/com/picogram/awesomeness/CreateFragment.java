@@ -203,10 +203,8 @@ public class CreateFragment extends Fragment implements OnClickListener, OnRange
 											((CreateActivity) CreateFragment.this.getActivity()).updateAllTouchImageViews();
 											buttons.get(j).setBackgroundColor(color);
 											b.setBackgroundColor(color);
-											Log.d(TAG, "New Color: " + color + " " + j);
 										}
 									});
-							Log.d(TAG, "Changing color: " + tempColor + " " + j);
 							dialog.show();
 						}
 					});
@@ -386,9 +384,6 @@ public class CreateFragment extends Fragment implements OnClickListener, OnRange
 
 			public void onDialogNumberSet(final int reference, final int number,
 					final double decimal, final boolean isNegative, final double fullNumber) {
-				Util.log("Reference:  " + reference + " Number: " + number
-						+ " Decimal: " + decimal + " Neg: " + isNegative
-						+ " FullNum: " + fullNumber);
 				CreateFragment.this.handler.post(new Runnable() {
 					public void run() {
 						final CreateActivity a = (CreateActivity) CreateFragment.this.getActivity();

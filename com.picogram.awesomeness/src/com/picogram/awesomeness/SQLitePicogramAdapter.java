@@ -227,7 +227,6 @@ public class SQLitePicogramAdapter extends SQLiteOpenHelper {
 		if (c.moveToFirst()) {
 			final String[][] result = new String[c.getCount()][c
 					.getColumnCount()];
-			Log.d("SQL", "Up: " + c.getCount());
 			for (int i = 0; i < result.length; i++) {
 				for (int j = 0; j < c.getColumnCount(); j++) {
 					result[i][j] = c.getString(j);

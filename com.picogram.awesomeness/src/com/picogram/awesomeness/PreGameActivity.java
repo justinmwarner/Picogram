@@ -93,7 +93,7 @@ public class PreGameActivity extends BaseGameActivity implements OnPageChangeLis
 
 	public void onBackPressed() {
 		super.onBackPressed();
-		overridePendingTransition(R.anim.in_from_left, R.anim.out_to_right);
+		overridePendingTransition(R.anim.fadein, R.anim.exit_left);
 	}
 
 	/**
@@ -201,8 +201,6 @@ public class PreGameActivity extends BaseGameActivity implements OnPageChangeLis
 					{
 						if (row2D == null)
 						{
-							Log.d(TAG, row[j - 1].toString());
-							Log.d(TAG, row[j].toString());
 							row2D = this.appendArrayHorizontal(row[j - 1].get2D(), row[j].get2D());
 						} else {
 							row2D = this.appendArrayHorizontal(row2D, row[j].get2D());
@@ -222,7 +220,6 @@ public class PreGameActivity extends BaseGameActivity implements OnPageChangeLis
 				for (int i = 0; i != full2D.length; ++i) {
 					newCurrent += new String(full2D[i]);
 				}
-				Log.d(TAG, "NEWCUR " + newCurrent);
 				this.current = newCurrent;
 			}
 			else
@@ -281,7 +278,6 @@ public class PreGameActivity extends BaseGameActivity implements OnPageChangeLis
 			this.width = Integer.parseInt(b.getString("width"));
 			this.height = Integer.parseInt(b.getString("height"));
 			this.colors = b.getString("colors").split(",");
-			Log.d(TAG, "Current: " + this.current);
 		}
 		this.puzzle.nullsToValue(this);
 
@@ -302,7 +298,6 @@ public class PreGameActivity extends BaseGameActivity implements OnPageChangeLis
 		final ImageView iv = (ImageView) this.findViewById(R.id.ivPreGame);
 		iv.setOnTouchListener(this);
 		// Draw the ImageView with current.
-		Log.d(TAG, "Init curr: " + this.current);
 		this.updateAndGetImageView();
 		this.showRatingDialog(sql);
 		sql.close();
@@ -364,7 +359,7 @@ public class PreGameActivity extends BaseGameActivity implements OnPageChangeLis
 				if (this.pager.getCurrentItem() == this.TITLES.indexOf("Actions"))
 				{
 					this.finish();
-					overridePendingTransition(R.anim.in_from_left, R.anim.out_to_right);
+					overridePendingTransition(R.anim.fadein, R.anim.exit_left);
 				} else {
 					this.pager.setCurrentItem(this.TITLES.indexOf("Actions"));
 				}
@@ -399,22 +394,16 @@ public class PreGameActivity extends BaseGameActivity implements OnPageChangeLis
 	}
 
 	public void onSignInFailed() {
-		// TODO Auto-generated method stub
-
 	}
 
 	public void onSignInSucceeded() {
-		// TODO Auto-generated method stub
-
 	}
 
 	public boolean onTouch(final View v, final MotionEvent event) {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
 	private Bundle parseDeepLinkId(final String deepLinkId) {
-		final Intent route = new Intent();
 		if (deepLinkId != null) {
 			// deepLinkId is the Picogram ID. So get it via Parse.
 			final ParseQuery<ParseObject> query = ParseQuery.getQuery("Picogram");
@@ -423,7 +412,6 @@ public class PreGameActivity extends BaseGameActivity implements OnPageChangeLis
 				final SQLitePicogramAdapter sql = new SQLitePicogramAdapter(this, "Picograms", null, 1);
 				final ParseObject po = query.getFirst();
 				final Picogram p = new Picogram(po);
-				Log.d(TAG, "Picogram Curr: " + p.toString());
 				p.nullsToValue(this); // Reset if not set.
 				sql.addUserPicogram(p);
 				sql.close();
@@ -438,7 +426,6 @@ public class PreGameActivity extends BaseGameActivity implements OnPageChangeLis
 				this.puzzle = p;
 				return result;
 			} catch (final ParseException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 
@@ -511,7 +498,7 @@ public class PreGameActivity extends BaseGameActivity implements OnPageChangeLis
 		gameIntent.putExtra("row", row);
 		gameIntent.putExtra("column", col);
 		this.startActivityForResult(gameIntent, MenuActivity.GAME_CODE);
-		overridePendingTransition(R.anim.in_from_left, R.anim.out_to_right);
+		overridePendingTransition(R.anim.fadein, R.anim.exit_left);
 	}
 
 	protected Bitmap updateAndGetImageView() {
@@ -525,7 +512,6 @@ public class PreGameActivity extends BaseGameActivity implements OnPageChangeLis
 			for (int j = 0; j != this.height; ++j)
 			{
 				int col, colNumber;
-				Log.d(TAG, "Curr: " + this.current);
 				if (this.current.charAt(run) != 'x')
 				{
 					colNumber = Integer.parseInt("" + this.current.charAt(run));

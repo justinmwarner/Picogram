@@ -139,7 +139,7 @@ public class MenuActivity extends BaseGameActivity implements
 		// TODO fix this when we publish.
 		this.startActivity(new Intent(Intent.ACTION_VIEW,
 				Uri.parse("market://details?id=Picogram")));
-		overridePendingTransition(R.anim.in_from_left, R.anim.out_to_right);
+		overridePendingTransition(R.anim.fadein, R.anim.exit_left);
 		this.prefs.edit().putBoolean("apprate", true).commit();
 	}
 
@@ -353,7 +353,7 @@ public class MenuActivity extends BaseGameActivity implements
 			case R.id.menuPrefs:
 				final Intent i = new Intent(this, SettingsActivity.class);
 				this.startActivityForResult(i, PREFERENCES_CODE);
-				overridePendingTransition(R.anim.in_from_left, R.anim.out_to_right);
+				overridePendingTransition(R.anim.fadein, R.anim.exit_left);
 				break;
 			case R.id.menuFeedback:
 				this.startFeedbackActivity();
@@ -486,7 +486,6 @@ public class MenuActivity extends BaseGameActivity implements
 				final String[] temp = new String[2];
 				int id = 0;
 				for (final String item : array) {
-					Log.d(TAG, "Adding " + item);
 					temp[0] = Integer.toString(id++);
 					temp[1] = item.toLowerCase();
 					if (item.toLowerCase().startsWith(newText.toLowerCase())) {
@@ -522,7 +521,6 @@ public class MenuActivity extends BaseGameActivity implements
 				final SQLiteTagAdapter tagSql = new SQLiteTagAdapter(MenuActivity.this, "Tags", null, 1);
 				tagSql.insertCreate(query);
 				tagSql.close();
-				Log.d(TAG, "puzzles query : " + query);
 				MenuActivity.this.adapter.frag[MenuActivity.this.currentTab].getTagPuzzles(
 						MenuActivity.this.adapter.frag[MenuActivity.this.currentTab].getActivity(), query);
 				MenuActivity.this.mSearchView.clearFocus();
@@ -613,13 +611,13 @@ public class MenuActivity extends BaseGameActivity implements
 		emailIntent.setType("message/rfc822");
 		this.startActivity(Intent.createChooser(emailIntent,
 				"Send Mail Using :"));
-		overridePendingTransition(R.anim.in_from_left, R.anim.out_to_right);
+		overridePendingTransition(R.anim.fadein, R.anim.exit_left);
 	}
 
 	private void startLoginActivity() {
 		final Intent loginIntent = new Intent(this, LoginActivity.class);
 		this.startActivityForResult(loginIntent, PREFERENCES_CODE);
-		this.overridePendingTransition(R.anim.in_from_left, R.anim.out_to_right);
+		this.overridePendingTransition(R.anim.fadein, R.anim.exit_left);
 	}
 
 	private void updateActionBar(final int tab) {

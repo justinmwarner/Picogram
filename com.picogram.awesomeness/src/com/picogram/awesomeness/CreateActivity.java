@@ -112,7 +112,6 @@ public class CreateActivity extends SherlockFragmentActivity implements ActionBa
 		if (this.numColors == 0) {
 			this.numColors = 2;
 		}
-		Log.d(TAG, "W: " + this.width + " H: " + this.height);
 		if (!((this.bmCropped == null) || (this.width == 0) || (this.height == 0) || (this.numColors == 0))) {
 			// Subarray with the number.
 			this.newColors = Arrays.copyOfRange(this.originalColors, 0, this.numColors);
@@ -133,17 +132,14 @@ public class CreateActivity extends SherlockFragmentActivity implements ActionBa
 
 			double lowerBounds = pixels[0];
 			double upperBounds = pixels[0];
-			String out = "";
 			for (int i = 1; i < pixels.length; i++)
 			{
-				out += pixels[i] + ",";
 				if (pixels[i] > upperBounds) {
 					upperBounds = pixels[i];
 				} else if (pixels[i] < lowerBounds) {
 					lowerBounds = pixels[i];
 				}
 			}
-			Log.d(TAG, out);
 			final double diff = upperBounds - lowerBounds;
 			alter = alter.copy(Bitmap.Config.ARGB_8888, true);
 			alter.setPixels(pixels, 0, alter.getWidth(), 0, 0,
@@ -343,7 +339,6 @@ public class CreateActivity extends SherlockFragmentActivity implements ActionBa
 		}
 		else if (this.currentTab == 1)
 		{
-			Log.d(TAG, "LEAVING CROP");
 			// Store the cropped image.
 			this.bmCropped = ((CropImageView) this.findViewById(R.id.cropImageView)).getCroppedImage();
 			this.solution = "";
@@ -496,7 +491,7 @@ public class CreateActivity extends SherlockFragmentActivity implements ActionBa
 	public void runCamera() {
 		final Intent cameraIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
 		this.startActivityForResult(cameraIntent, CAMERA_REQUEST);
-		overridePendingTransition(R.anim.in_from_left, R.anim.out_to_right);
+		overridePendingTransition(R.anim.fadein, R.anim.exit_left);
 	}
 
 	public void runFile() {
@@ -505,7 +500,7 @@ public class CreateActivity extends SherlockFragmentActivity implements ActionBa
 		fileIntent.setType("image/*");
 		fileIntent.addCategory(Intent.CATEGORY_OPENABLE);
 			this.startActivityForResult(fileIntent, FILE_SELECT_CODE);
-			overridePendingTransition(R.anim.in_from_left, R.anim.out_to_right);
+			overridePendingTransition(R.anim.fadein, R.anim.exit_left);
 	}
 
 	public void runURL() {
@@ -550,7 +545,6 @@ public class CreateActivity extends SherlockFragmentActivity implements ActionBa
 		try {
 			b = this.alterPhoto();
 		} catch (final Exception e) {
-			Log.d(TAG, "Error: " + e);
 		}
 		if (b != null) {
 			TouchImageView tivGameFour = null, tivGameThree = null, tivGameTwo = null, tivGameOne = null;
@@ -590,7 +584,6 @@ public class CreateActivity extends SherlockFragmentActivity implements ActionBa
 				if (tivGameThree != null) {
 					if (!this.solution.equals(tivGameThree.gCurrent))
 					{
-						Log.d(TAG, "New new new!");
 						this.solution = tivGameThree.gCurrent;
 						this.hasFineTuned = true;
 					}
