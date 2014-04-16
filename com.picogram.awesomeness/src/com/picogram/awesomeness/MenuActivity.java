@@ -1,6 +1,7 @@
 
 package com.picogram.awesomeness;
 
+import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.common.ConnectionResult;
@@ -107,9 +108,9 @@ public class MenuActivity extends BaseGameActivity implements
 	Handler h = new Handler();
 	LinearLayout toolbar;
 	SharedPreferences prefs = null;
-	private PagerSlidingTabStrip tabs;
-	private ViewPager pager;
-	private MyPagerAdapter adapter;
+	PagerSlidingTabStrip tabs;
+	ViewPager pager;
+	MyPagerAdapter adapter;
 	int currentTab = 0;
 	static ListView lv;
 	static PicogramListAdapter lvAdapter;
@@ -450,10 +451,17 @@ public class MenuActivity extends BaseGameActivity implements
 				.addTestDevice(AdRequest.DEVICE_ID_EMULATOR)
 				.addTestDevice("F798720E1DD0025EA428774AFBE8D924")
 				.build();
-
+		adView.setAdListener(new AdListener() {
+			  public void onAdLoaded() {
+				  //Make view visible.
+				  adView.setVisibility(View.VISIBLE);
+			  }
+			  public void onAdFailedToLoad(int errorcode) {
+				  adView.setVisibility(View.GONE);
+			  }
+		});
 		// Start loading the ad in the background.
 		this.adView.loadAd(adRequest);
-
 	}
 
 	private void setUpRater() {
@@ -666,6 +674,16 @@ public class MenuActivity extends BaseGameActivity implements
 		ab.setDisplayHomeAsUpEnabled(tab != TITLES.indexOf("My"));
 		ab.setDisplayShowTitleEnabled(false);
 		ab.setDisplayUseLogoEnabled(false);
+		if (tab == TITLES.indexOf("My")) {
+			ab.setSelectedNavigationItem(Util.getPreferences(this).getInt("mySetting", 0));
+		} else if (tab == TITLES.indexOf("Packs")) {
+			ab.setSelectedNavigationItem(Util.getPreferences(this).getInt("packsSetting", 0));
+		} else if (tab == TITLES.indexOf("Top")) {
+			ab.setSelectedNavigationItem(Util.getPreferences(this).getInt("topSetting", 0));
+		} else if (tab == TITLES.indexOf("Recent")) {
+		} else if (tab == TITLES.indexOf("Search")) {
+			ab.setSelectedNavigationItem(Util.getPreferences(this).getInt("searchSetting", 0));
+		}
 		this.invalidateOptionsMenu();
 	}
 

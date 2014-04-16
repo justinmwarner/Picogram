@@ -2,7 +2,7 @@
 <selector xmlns:android="http://schemas.android.com/apk/res/android" android:enterFadeDuration="@android:integer/config_mediumAnimTime" android:exitFadeDuration="@android:integer/config_mediumAnimTime">
 
     <item android:drawable="@drawable/picogram_menu_choice_border_green" android:state_enabled="false" android:state_focused="true"/>
-    <item android:drawable="@drawable/picogram_menu_choice_border_green" android:state_pressed="true"/>
+    <item android:drawable="@drawable/gradient_green" android:state_pressed="true"/>
     <item android:drawable="@drawable/picogram_menu_choice_border_green" android:state_focused="true"/>
     <item android:drawable="@drawable/picogram_menu_choice_border_green" android:state_hovered="true"/>
     <item android:drawable="@drawable/gradient_green" android:state_selected="true"/>

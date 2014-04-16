@@ -240,6 +240,7 @@ public class MenuFragment extends Fragment implements
 				.getInt("packsSetting", 0) == 0;
 		Picogram go = new Picogram();
 		go.setName("Easy Pack 1 (10 puzzles)");
+		go.setDiff("0");
 		go.setStatus("2");
 		if (isHideDownloaded
 				|| !Util.getPreferences(this.getActivity()).getBoolean(
@@ -250,6 +251,7 @@ public class MenuFragment extends Fragment implements
 		go = new Picogram();
 		go.setName("Easy Pack 2 (10 puzzles)");
 		go.setStatus("2");
+		go.setDiff("0");
 		if (isHideDownloaded
 				|| !Util.getPreferences(this.getActivity()).getBoolean(
 						"hasDownloadedEasyTwo", false)) {
@@ -259,6 +261,7 @@ public class MenuFragment extends Fragment implements
 		go = new Picogram();
 		go.setName("Medium Pack 1 (10 puzzles)");
 		go.setStatus("2");
+		go.setDiff("1");
 		if (isHideDownloaded
 				|| !Util.getPreferences(this.getActivity()).getBoolean(
 						"hasDownloadedMediumOne", false)) {
@@ -820,6 +823,8 @@ public class MenuFragment extends Fragment implements
 					return;
 				}
 				this.sql.close();
+				this.getMyPuzzles(this.getActivity());
+				((MenuActivity) getActivity()).pager.setCurrentItem(0);
 				Crouton.makeText(this.getActivity(),
 						picogram.getName() + " loaded, go back to My tab.",
 						Style.INFO).show();

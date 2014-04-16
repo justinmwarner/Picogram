@@ -278,6 +278,10 @@ public class TouchImageView extends ImageView implements OnGestureListener,
 	}
 
 	public void checkWin() {
+		Log.d(TAG, "Checking win");
+		Log.d(TAG, "win: sol: " + gSolution);
+		Log.d(TAG, "win: cur: " + gCurrent);
+		Log.d(TAG, "win: t/f: " + (this.gCurrent.replaceAll("x|X", "0").equals(this.gSolution)));
 		if (this.gCurrent.replaceAll("x|X", "0").equals(this.gSolution)) {
 			if (this.winListener != null) {
 				this.winListener.win();
@@ -1161,11 +1165,14 @@ public class TouchImageView extends ImageView implements OnGestureListener,
 		this.gCurrent = savedInstanceState.getString("current");
 		this.gHeight = Integer.parseInt(savedInstanceState.getString("height", "0"));
 		this.gWidth = Integer.parseInt(savedInstanceState.getString("width", "0"));
-		while (this.gCurrent.length() < (this.gHeight * this.gWidth))
+		Log.d(TAG, "Cur: " + gCurrent);
+		while (this.gCurrent.length() != (this.gHeight * this.gWidth))
 		{
+			Log.d(TAG, "Adding 0");
 			this.gCurrent += "0";
 		}
 		this.gSolution = savedInstanceState.getString("solution");
+		Log.d(TAG, "Cur: " + gSolution);
 		this.gId = savedInstanceState.getString("id", (this.gSolution + "").hashCode() + "");
 		final String[] cols = savedInstanceState.getString("colors").split(",");
 		this.gColors = new int[cols.length];
@@ -1186,6 +1193,8 @@ public class TouchImageView extends ImageView implements OnGestureListener,
 		{
 			this.gSolution = this.gCurrent; // Not a real game, so no win listener.
 		}
+		else if (gSolution.length() > gWidth * gHeight)
+			gSolution = gSolution.substring(0, gWidth * gHeight);// For mess ups early on, remove at a later date.
 		// Below is for optimization so it only draws all the squares once and
 		// only again after it's changed.
 		for (int i = 0; i != this.gSolution.length(); i++) {
