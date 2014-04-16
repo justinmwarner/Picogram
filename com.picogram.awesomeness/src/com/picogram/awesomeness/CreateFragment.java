@@ -373,6 +373,12 @@ public class CreateFragment extends Fragment implements OnClickListener, OnRange
 				.setFragmentManager(this.getActivity().getSupportFragmentManager())
 				.setPlusMinusVisibility(View.INVISIBLE)
 				.setDecimalVisibility(View.INVISIBLE);
+		if(id == R.id.bColorChange)
+			npb.setLabelText("# Colors");
+		else if(id == R.id.bWidthChange)
+			npb.setLabelText("Width");
+		else if(id == R.id.bHeightChange)
+			npb.setLabelText("Height");
 		if (id == R.id.bColorChange) {
 			npb.setMinNumber(2);
 			npb.setMaxNumber(10);

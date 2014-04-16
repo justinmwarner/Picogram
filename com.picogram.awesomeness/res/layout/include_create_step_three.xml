@@ -21,27 +21,27 @@
 
         <Button
             android:id="@+id/bWidthChange"
-            style="?android:attr/buttonStyleSmall"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_margin="15dp"
             android:layout_weight="1"
             android:background="@color/light_yellow"
             android:text="Width: 20" />
 
         <Button
             android:id="@+id/bHeightChange"
-            style="?android:attr/buttonStyleSmall"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_margin="15dp"
             android:layout_weight="1"
             android:background="@color/light_yellow"
             android:text="Height: 20" />
 
         <Button
             android:id="@+id/bColorChange"
-            style="?android:attr/buttonStyleSmall"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_margin="15dp"
             android:layout_weight="1"
             android:background="@color/light_yellow"
             android:text="Color: 2" />
