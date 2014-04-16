@@ -26,7 +26,7 @@
         android:cacheColorHint="@android:color/transparent"
         android:isScrollContainer="false"
         android:windowSoftInputMode="adjustPan"
-        tools:context=".MainActivity" />
+        tools:context=".FacebookLogoutActivity" />
 
     <fr.castorflex.android.smoothprogressbar.SmoothProgressBar
         android:id="@+id/spbLoad"

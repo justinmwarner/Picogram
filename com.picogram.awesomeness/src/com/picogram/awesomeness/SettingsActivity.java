@@ -14,6 +14,7 @@ import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.Preference.OnPreferenceClickListener;
+import android.support.v4.app.DialogFragment;
 import android.util.Log;
 import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
@@ -24,6 +25,8 @@ import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockPreferenceActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
+import com.facebook.Session;
+import com.facebook.widget.UserSettingsFragment;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient;
 import com.kopfgeldjaeger.ratememaybe.RateMeMaybe;
@@ -56,8 +59,10 @@ public class SettingsActivity extends SherlockPreferenceActivity implements
 		this.findPreference("crashes").setOnPreferenceClickListener(this);
 		this.findPreference("licenses").setOnPreferenceClickListener(this);
 		this.findPreference("rateapp").setOnPreferenceClickListener(this);
-		this.findPreference("logout").setOnPreferenceClickListener(this);
 		this.findPreference("statistics").setOnPreferenceClickListener(this);
+		this.findPreference("logoutgoogle").setOnPreferenceClickListener(this);
+		this.findPreference("logoutfacebook").setOnPreferenceClickListener(this);
+		this.findPreference("resetusername").setOnPreferenceClickListener(this);
 
 		final ActionBar ab = this.getSupportActionBar();
 		if (ab != null) {
@@ -106,6 +111,7 @@ public class SettingsActivity extends SherlockPreferenceActivity implements
 
 	public boolean onPreferenceClick(final Preference preference) {
 		if (preference.getKey().equals("statistics")) {
+			//TODO
 			Crouton.makeText(this, "This is not yet implemented", Style.INFO).show();
 			final AlertDialog dialog = new AlertDialog.Builder(this).create();
 			final String[] scoresTitles = new String[] {
@@ -177,11 +183,20 @@ public class SettingsActivity extends SherlockPreferenceActivity implements
 			editor.putBoolean(RateMeMaybe.PREF.DONT_SHOW_AGAIN, true);
 			editor.commit();
 		}
-		else if (preference.getKey().equals("logout"))
+		else if (preference.getKey().equals("logoutgoogle"))
 		{
-			final Intent loginIntent = new Intent(this, LoginActivity.class);
-			this.startActivity(loginIntent);
-			overridePendingTransition(R.anim.fadein, R.anim.exit_left);
+			//TODO
+			Crouton.makeText(this, "This is not currently supported.", Style.INFO).show();
+		}
+		else if (preference.getKey().equals("logoutfacebook"))
+		{
+			//TODO
+			Crouton.makeText(this, "This is not currently supported.", Style.INFO).show();
+		}
+		else if (preference.getKey().equals("resetusername"))
+		{
+			Util.getPreferences(this).edit().putString("username", "").commit();
+			Util.getPreferences(this).edit().putBoolean("hasLoggedInUsername", false).commit();
 		}
 		return false;
 	}

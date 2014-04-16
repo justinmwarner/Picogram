@@ -50,11 +50,7 @@ public class Util {
 		if (Util.getPreferences(context).getBoolean("hasLoggedInUsername", false))
 		{
 			return Util.getPreferences(context).getString("username", "AppleBanana");
-		} else if (Util.getPreferences(context).getBoolean("hasLoggedInFacebook", false)) {
-
-		} else if (Util.getPreferences(context).getBoolean("hasLoggedInGoogle", false)) {
-
-		}
+		} 
 		String uniqueID;
 		final SharedPreferences prefs = context.getSharedPreferences(
 				MenuActivity.PREFS_FILE, Context.MODE_PRIVATE);

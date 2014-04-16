@@ -9,10 +9,6 @@
             android:key="decorations"
             android:summary="Remove the bar at the top or the icon and timer in the app, or both!."
             android:title="Battery/Time Decorations" />
-        <Preference 
-            android:key="logout"
-            android:summary="Logout of your user profile. You will be prompted again when you start the app."
-            android:title="Logout?"/>
         <ListPreference
             android:entries="@array/listBackgroundName"
             android:entryValues="@array/listBackgroundValue"
@@ -37,6 +33,21 @@
             android:title="Statistics" />        
     </PreferenceCategory>
     <!-- Privacy, let the user control anything we can/will collect. -->
+    <PreferenceCategory android:title="User Preferences" >
+        <Preference
+            android:key="logoutfacebook"
+            android:summary="If you've logged in to Facebook, you may log out here."
+            android:title="Logout Facebook" />
+        <Preference
+            android:key="logoutgoogle"
+            android:summary="If you've logged in to Google Plus, you may log out here."
+            android:title="Logout Google" />
+        <Preference
+            android:key="resetusername"
+            android:summary="Reset your username.  You can always set it again."
+            android:title="Reset Username" />
+        
+        </PreferenceCategory>
     <PreferenceCategory android:title="Privacy Preferences" >
         <CheckBoxPreference
             android:key="advertisements"
