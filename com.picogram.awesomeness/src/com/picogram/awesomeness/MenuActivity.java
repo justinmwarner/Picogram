@@ -8,9 +8,9 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient.ConnectionCallbacks;
 import com.google.android.gms.common.GooglePlayServicesClient.OnConnectionFailedListener;
 
-import android.annotation.SuppressLint;
+
 import android.app.Activity;
-import android.app.ActivityOptions;
+
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
@@ -630,7 +630,7 @@ public class MenuActivity extends BaseGameActivity implements
 
 	private void updateActionBar(final int tab) {
 		// Drop down spinner update.
-		this.invalidateOptionsMenu();
+		this.supportInvalidateOptionsMenu();
 		final ActionBar ab = this.getSupportActionBar();
 		if (ab == null) {
 			return;
@@ -684,7 +684,7 @@ public class MenuActivity extends BaseGameActivity implements
 		} else if (tab == TITLES.indexOf("Search")) {
 			ab.setSelectedNavigationItem(Util.getPreferences(this).getInt("searchSetting", 0));
 		}
-		this.invalidateOptionsMenu();
+		this.supportInvalidateOptionsMenu();
 	}
 
 	public void updateCurrentTab() {

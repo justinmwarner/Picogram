@@ -1,8 +1,8 @@
 
 package com.picogram.awesomeness;
 
-import android.annotation.SuppressLint;
-import android.app.ActivityOptions;
+
+
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;

@@ -1,10 +1,11 @@
 
 package com.picogram.awesomeness;
 
-import android.annotation.SuppressLint;
+
 import android.app.Activity;
-import android.app.ActivityOptions;
+import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
@@ -21,15 +22,13 @@ import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.text.Html;
 import android.text.SpannableString;
 import android.text.style.ForegroundColorSpan;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
-import android.view.ViewGroup.LayoutParams;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.RelativeLayout;
+
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 import com.astuetz.viewpager.extensions.PagerSlidingTabStrip;
@@ -241,7 +240,8 @@ public class PreGameActivity extends BaseGameActivity implements OnPageChangeLis
 			this.showRatingDialog(sql);
 		}
 		sql.close();
-		this.invalidateOptionsMenu();
+		this.supportInvalidateOptionsMenu();
+		setupUIActions();
 	}
 
 	@Override
@@ -280,7 +280,11 @@ public class PreGameActivity extends BaseGameActivity implements OnPageChangeLis
 			this.colors = b.getString("colors").split(",");
 		}
 		this.puzzle.nullsToValue(this);
-
+		setupUIActions();
+	}
+	
+	public void setupUIActions()
+	{
 		final SQLitePicogramAdapter sql = new SQLitePicogramAdapter(this, "Picograms", null, 1);
 		this.puzzle.setHighscore(sql.getHighscore(this.puzzle.getID()));
 
@@ -301,7 +305,6 @@ public class PreGameActivity extends BaseGameActivity implements OnPageChangeLis
 		this.updateAndGetImageView();
 		this.showRatingDialog(sql);
 		sql.close();
-
 	}
 
 	@Override
@@ -330,6 +333,9 @@ public class PreGameActivity extends BaseGameActivity implements OnPageChangeLis
 		}
 		tabs.setIndicatorColor(background);
 		this.getSupportActionBar().setBackgroundDrawable(cd);
+
+		((Button)findViewById(R.id.bPlay)).setBackgroundColor(background);
+		((Button)findViewById(R.id.bComment)).setBackgroundColor(background);
 		return true;
 	}
 
@@ -348,12 +354,30 @@ public class PreGameActivity extends BaseGameActivity implements OnPageChangeLis
 				sql.updateCurrentPicogram(this.id, "0", newCurrent);
 				this.current = (newCurrent);
 				this.updateAndGetImageView();
-				this.invalidateOptionsMenu();
+				this.supportInvalidateOptionsMenu();
 				break;
 			case R.id.menuDelete:
-				sql.deletePicogram(this.id);
-				sql.close();
-				this.finish();
+				DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+				    
+				    public void onClick(DialogInterface dialog, int which) {
+				        switch (which){
+				        case DialogInterface.BUTTON_POSITIVE:
+							sql.deletePicogram(id);
+							sql.close();
+							finish();
+				            break;
+
+				        case DialogInterface.BUTTON_NEGATIVE:
+				            break;
+				        }
+				    }
+				};
+
+				AlertDialog.Builder builder = new AlertDialog.Builder(this);
+				Dialog d = builder.setMessage("Are you sure?").setPositiveButton("Yes, delete", dialogClickListener)
+				    .setNegativeButton("No", dialogClickListener).create();
+				d.getWindow().getAttributes().windowAnimations = R.style.DialogTheme;
+				d.show();
 				break;
 			case android.R.id.home:
 				if (this.pager.getCurrentItem() == this.TITLES.indexOf("Actions"))
@@ -390,6 +414,8 @@ public class PreGameActivity extends BaseGameActivity implements OnPageChangeLis
 				this.adapter.frag[currentTab].loadHighScores();
 				this.hasLoadedHighscores = true;
 			}
+		}else if (currentTab == TITLES.indexOf("Actions"))
+		{
 		}
 	}
 

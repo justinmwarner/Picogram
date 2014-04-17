@@ -31,6 +31,9 @@ import com.edmodo.cropper.CropImageView;
 import com.edmodo.rangebar.RangeBar;
 import com.edmodo.rangebar.RangeBar.OnRangeBarChangeListener;
 
+import de.keyboardsurfer.android.widget.crouton.Crouton;
+import de.keyboardsurfer.android.widget.crouton.Style;
+
 import yuku.ambilwarna.AmbilWarnaDialog;
 import yuku.ambilwarna.AmbilWarnaDialog.OnAmbilWarnaListener;
 
@@ -105,9 +108,19 @@ public class CreateFragment extends Fragment implements OnClickListener, OnRange
 				p.setNumberOfColors(msca.numColors + "");
 				p.setNumberOfRatings(1);
 				p.setRating(1 + "");
-				p.setSolution(msca.fineTunedSolution);
+				p.setSolution(msca.fineTunedSolution.replaceAll("x|X", "0"));
 				p.setStatus(0 + "");
 				p.setWidth(tiv.gWidth + "");
+				if(autoTags.getText().toString().length() == 0)
+				{
+					Crouton.makeText(this.getActivity(), "You must give us one tag.", Style.ALERT).show();
+					return;
+				}
+				else if(p.getName().length() == 0)
+				{
+					Crouton.makeText(this.getActivity(), "You must have a name.", Style.ALERT).show();
+					return;	
+				}
 				p.nullsToValue(this.getActivity());
 				p.save();
 				final SQLitePicogramAdapter sql = new SQLitePicogramAdapter(this.getActivity(), "Picograms", null, 1);

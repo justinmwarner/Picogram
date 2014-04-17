@@ -1,9 +1,7 @@
 
 package com.picogram.awesomeness;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.app.ActivityOptions;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -375,8 +373,8 @@ public class CreateActivity extends SherlockFragmentActivity implements ActionBa
 		if (this.currentTab == 4)
 		{
 			// Leaving fine tune, so it must be "special"
-
 			this.fineTunedSolution = ((TouchImageView) this.findViewById(R.id.tivGameThree)).gCurrent;
+			//updateBundle();
 		}
 		this.currentTab = tab; // currentTab = tab being switched to.
 		if (this.currentTab == 0)
@@ -410,7 +408,7 @@ public class CreateActivity extends SherlockFragmentActivity implements ActionBa
 		}
 
 		this.updateAllTouchImageViews();
-		this.invalidateOptionsMenu();
+		this.supportInvalidateOptionsMenu();
 	}
 
 	@Override
@@ -499,8 +497,8 @@ public class CreateActivity extends SherlockFragmentActivity implements ActionBa
 		final Intent fileIntent = new Intent(Intent.ACTION_GET_CONTENT);
 		fileIntent.setType("image/*");
 		fileIntent.addCategory(Intent.CATEGORY_OPENABLE);
-			this.startActivityForResult(fileIntent, FILE_SELECT_CODE);
-			overridePendingTransition(R.anim.fadein, R.anim.exit_left);
+		this.startActivityForResult(fileIntent, FILE_SELECT_CODE);
+		overridePendingTransition(R.anim.fadein, R.anim.exit_left);
 	}
 
 	public void runURL() {
@@ -508,7 +506,7 @@ public class CreateActivity extends SherlockFragmentActivity implements ActionBa
 		this.spb.setVisibility(View.VISIBLE);
 		final EditText input = new EditText(this);
 		input.setText("http://upload.wikimedia.org/wikipedia/commons/a/ab/Monarch_Butterfly_Showy_Male_3000px.jpg");
-		AlertDialog.Builder builder =  new AlertDialog.Builder(this)
+		AlertDialog.Builder builder = new AlertDialog.Builder(this)
 				.setTitle("URL Sumittion")
 				.setMessage("Url Link to Image File...")
 				.setView(input)
@@ -533,50 +531,53 @@ public class CreateActivity extends SherlockFragmentActivity implements ActionBa
 								// Do nothing.
 							}
 						});
-		
+
 		AlertDialog ad = builder.create();
 		ad.getWindow().getAttributes().windowAnimations = R.style.DialogTheme;
 		ad.show();
 	}
 
+	Bundle bundle = new Bundle();
+
+
 	public void updateAllTouchImageViews() {
 		this.spb.setVisibility(View.VISIBLE);
-		Bundle b = null;
+		Bundle bundle = null;
 		try {
-			b = this.alterPhoto();
+			bundle = this.alterPhoto();
 		} catch (final Exception e) {
 		}
-		if (b != null) {
+		if (bundle != null) {
 			TouchImageView tivGameFour = null, tivGameThree = null, tivGameTwo = null, tivGameOne = null;
-			b.putString("current", b.getString("solution"));
-			b.putString("solution", b.getString("solution"));
+			bundle.putString("current", bundle.getString("solution"));
+			bundle.putString("solution", bundle.getString("solution"));
 			String cols = "";
 			for (final int col : this.newColors) {
 				cols += col + ",";
 			}
-			b.putString("colors", cols);
-			b.putBoolean("refresh", true);
+			bundle.putString("colors", cols);
+			bundle.putBoolean("refresh", true);
 			if (tivGameOne == null) {
 				tivGameOne = (TouchImageView) this.findViewById(R.id.tivGameOne);
 			}
 			if (tivGameOne != null) {
 				if (this.hasFineTuned && (!this.fineTunedSolution.isEmpty())) {
-					b.putString("solution", this.fineTunedSolution);
-					b.putString("current", this.fineTunedSolution);
+					bundle.putString("solution", this.fineTunedSolution);
+					bundle.putString("current", this.fineTunedSolution);
 				}
 				tivGameOne.gridlinesColor = Color.BLACK;
-				tivGameOne.setPicogramInfo(b);
+				tivGameOne.setPicogramInfo(bundle);
 			}
 			if (tivGameTwo == null) {
 				tivGameTwo = (TouchImageView) this.findViewById(R.id.tivGameTwo);
 			}
 			if (tivGameTwo != null) {
 				if (this.hasFineTuned && (!this.fineTunedSolution.isEmpty())) {
-					b.putString("solution", this.fineTunedSolution);
-					b.putString("current", this.fineTunedSolution);
+					bundle.putString("solution", this.fineTunedSolution);
+					bundle.putString("current", this.fineTunedSolution);
 				}
 				tivGameTwo.gridlinesColor = Color.BLACK;
-				tivGameTwo.setPicogramInfo(b);
+				tivGameTwo.setPicogramInfo(bundle);
 			}
 			if (tivGameThree == null) {
 				tivGameThree = (TouchImageView) this.findViewById(R.id.tivGameThree);
@@ -590,24 +591,24 @@ public class CreateActivity extends SherlockFragmentActivity implements ActionBa
 				}
 			}
 			if (tivGameThree != null) {
-				b.putBoolean("refresh", false);
+				bundle.putBoolean("refresh", false);
 				if (this.hasFineTuned && (!this.fineTunedSolution.isEmpty())) {
-					b.putString("solution", this.fineTunedSolution);
-					b.putString("current", this.fineTunedSolution);
+					bundle.putString("solution", this.fineTunedSolution);
+					bundle.putString("current", this.fineTunedSolution);
 				}
 				tivGameThree.gridlinesColor = Color.BLACK;
-				tivGameThree.setPicogramInfo(b);
+				tivGameThree.setPicogramInfo(bundle);
 			}
 			if (tivGameFour == null) {
 				tivGameFour = (TouchImageView) this.findViewById(R.id.tivGameFour);
 			}
 			if (tivGameFour != null) {
 				if (this.hasFineTuned && (!this.fineTunedSolution.isEmpty())) {
-					b.putString("solution", this.fineTunedSolution);
-					b.putString("current", this.fineTunedSolution);
+					bundle.putString("solution", this.fineTunedSolution);
+					bundle.putString("current", this.fineTunedSolution);
 				}
 				tivGameFour.gridlinesColor = Color.BLACK;
-				tivGameFour.setPicogramInfo(b);
+				tivGameFour.setPicogramInfo(bundle);
 			}
 		}
 		this.spb.setVisibility(View.INVISIBLE);

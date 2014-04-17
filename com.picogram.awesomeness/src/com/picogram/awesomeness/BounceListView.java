@@ -1,7 +1,6 @@
 
 package com.picogram.awesomeness;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
@@ -12,10 +11,7 @@ import java.util.ArrayList;
 
 public class BounceListView extends ListView
 {
-	private static final int MAX_Y_OVERSCROLL_DISTANCE = 200;
-
 	private static final String TAG = "BounceListView";
-
 	private final Context mContext;
 
 	public BounceListView(final Context context)
@@ -77,7 +73,6 @@ public class BounceListView extends ListView
 		return true;
 	}
 
-	@SuppressLint("NewApi")
 	public void tilt(final View view, float deg, final boolean isEven) {
 		final ViewGroup vg = (ViewGroup) view;
 		final ArrayList<View> views = new ArrayList();
@@ -100,7 +95,7 @@ public class BounceListView extends ListView
 		view.postDelayed(new Runnable() {
 			public void run() {
 				back.setAlpha(255);
-				vg.setBackground(back);
+				vg.setBackgroundDrawable(back);
 				for (final View v : views) {
 					v.setRotationX(0);
 				}

@@ -1,8 +1,6 @@
 
 package com.picogram.awesomeness;
 
-import android.annotation.SuppressLint;
-import android.app.ActivityOptions;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -367,9 +365,11 @@ public class PreGameFragment extends Fragment implements OnClickListener, OnItem
 	public void onClick(final View v) {
 		final SQLitePicogramAdapter sql = new SQLitePicogramAdapter(
 				PreGameFragment.this.getActivity(), "Picograms", null, 1);
+		
+		current = sql.getPicogram(current.getID());
 		if (v.getId() == R.id.bPlay)
 		{
-			if (this.current.getStatus().equals("1")) {
+			if (this.current.getSolution().equals(current.getCurrent().replaceAll("x|X", "0"))) {
 				Crouton.makeText(this.getActivity(),
 						"You must clear the game first to play again.", Style.INFO);
 			} else {
@@ -412,7 +412,7 @@ public class PreGameFragment extends Fragment implements OnClickListener, OnItem
 				pc.setAuthor(Util.id(this.getActivity()));
 				pc.setComment(etComment
 						.getText().toString());
-				if (pc.getComment().isEmpty())
+				if (pc.getComment().length() == 0)
 				{
 					return;
 				}
@@ -440,11 +440,14 @@ public class PreGameFragment extends Fragment implements OnClickListener, OnItem
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
 			this.getActivity().getActionBar().setDisplayHomeAsUpEnabled(true);
 		}
+		
+		Log.d(TAG, "Frag onCreate");
 	}
 
 	@Override
 	public View onCreateView(final LayoutInflater inflater, final ViewGroup container,
 			final Bundle savedInstanceState) {
+		Log.d(TAG, "Frag onCreateView " + position);
 		if (this.current == null)
 		{
 			this.current = new Picogram();
