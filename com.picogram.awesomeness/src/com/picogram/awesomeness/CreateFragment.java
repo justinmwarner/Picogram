@@ -111,15 +111,15 @@ public class CreateFragment extends Fragment implements OnClickListener, OnRange
 				p.setSolution(msca.fineTunedSolution.replaceAll("x|X", "0"));
 				p.setStatus(0 + "");
 				p.setWidth(tiv.gWidth + "");
-				if(autoTags.getText().toString().length() == 0)
+				if (autoTags.getText().toString().length() == 0)
 				{
 					Crouton.makeText(this.getActivity(), "You must give us one tag.", Style.ALERT).show();
 					return;
 				}
-				else if(p.getName().length() == 0)
+				else if (p.getName().length() == 0)
 				{
 					Crouton.makeText(this.getActivity(), "You must have a name.", Style.ALERT).show();
-					return;	
+					return;
 				}
 				p.nullsToValue(this.getActivity());
 				p.save();
@@ -297,6 +297,9 @@ public class CreateFragment extends Fragment implements OnClickListener, OnRange
 			this.bSubmit = (Button) view.findViewById(R.id.bSubmit);
 			this.bSubmit.setOnClickListener(this);
 			this.setupAutoTags();
+			spinDifficulty.setAdapter(new DifficultySpinnerAdapter(this.getActivity(), R.id.tvSpinDifficulty, new String[] {
+					"Easy", "Average", "Hard"
+			}));
 
 		} else if (this.position == 4)
 		{
@@ -309,7 +312,6 @@ public class CreateFragment extends Fragment implements OnClickListener, OnRange
 			view = inflater.inflate(R.layout.include_create_step_four, null);
 			this.bColorSelector = (Button) view.findViewById(R.id.bColorSelector);
 			this.bColorSelector.setOnClickListener(this);
-			this.bColorSelector.setText("Click me");
 
 			this.tivGameTwo = (TouchImageView) view.findViewById(R.id.tivGameTwo);
 
@@ -386,11 +388,11 @@ public class CreateFragment extends Fragment implements OnClickListener, OnRange
 				.setFragmentManager(this.getActivity().getSupportFragmentManager())
 				.setPlusMinusVisibility(View.INVISIBLE)
 				.setDecimalVisibility(View.INVISIBLE);
-		if(id == R.id.bColorChange)
+		if (id == R.id.bColorChange)
 			npb.setLabelText("# Colors");
-		else if(id == R.id.bWidthChange)
+		else if (id == R.id.bWidthChange)
 			npb.setLabelText("Width");
-		else if(id == R.id.bHeightChange)
+		else if (id == R.id.bHeightChange)
 			npb.setLabelText("Height");
 		if (id == R.id.bColorChange) {
 			npb.setMinNumber(2);

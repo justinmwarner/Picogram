@@ -30,8 +30,7 @@
         android:layout_height="wrap_content"
         android:layout_alignBottom="@+id/sbHistory"
         android:layout_alignParentLeft="true"
-        android:text="Undo"
-        android:textSize="10dp" />
+        android:background="@drawable/undo" />
 
     <Button
         android:id="@+id/bRedo"
@@ -39,8 +38,7 @@
         android:layout_height="wrap_content"
         android:layout_alignBottom="@+id/sbHistory"
         android:layout_alignParentRight="true"
-        android:text="Redo"
-        android:textSize="10dp" />
+        android:background="@drawable/redo" />
 
     <ImageButton
         android:id="@+id/ibTools"

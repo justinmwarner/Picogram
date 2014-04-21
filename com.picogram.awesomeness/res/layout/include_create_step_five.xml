@@ -17,8 +17,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:layout_alignParentLeft="true"
-        android:background="@color/light_yellow"
-        android:text="Color" />
+        android:background="@drawable/fine" />
 
 </RelativeLayout>
