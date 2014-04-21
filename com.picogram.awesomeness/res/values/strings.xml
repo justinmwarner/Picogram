@@ -43,5 +43,5 @@
     <string name="gamehelper_sign_in_failed">Sign in failled</string>
     <string name="gamehelper_app_misconfigured">App misconfigured</string>
     <string name="gamehelper_license_failed">License Failed</string>
-
+    
 </resources>

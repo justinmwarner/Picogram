@@ -326,25 +326,15 @@ public class MenuActivity extends BaseGameActivity implements
 	public boolean onOptionsItemSelected(final MenuItem item) {
 
 		super.onOptionsItemSelected(item);
-
+		Intent i;
 		switch (item.getItemId()) {
 			case android.R.id.home:
 				this.pager.setCurrentItem(TITLES.indexOf("My"));
 				break;
 			case R.id.menuTutorial:
-				final Bundle bundle = new Bundle();
-				final FragmentTransaction ft = this.getSupportFragmentManager()
-						.beginTransaction();
-				bundle.putInt("layoutId", R.layout.dialog_tutorial);
-				final DialogMaker newFragment = new DialogMaker();
-				newFragment.setArguments(bundle);
-				newFragment.setOnDialogResultListner(new OnDialogResultListener() {
-
-					public void onDialogResult(final Bundle result) {
-						// No results needed.
-					}
-				});
-				newFragment.show(ft, "dialog");
+				 i  = new Intent(this, TutorialActivity.class);
+				this.startActivity(i);
+				overridePendingTransition(R.anim.fadein, R.anim.exit_left);
 				break;
 
 			case R.id.menuLogin:
@@ -352,7 +342,7 @@ public class MenuActivity extends BaseGameActivity implements
 				break;
 
 			case R.id.menuPrefs:
-				final Intent i = new Intent(this, SettingsActivity.class);
+				  i = new Intent(this, SettingsActivity.class);
 				this.startActivityForResult(i, PREFERENCES_CODE);
 				overridePendingTransition(R.anim.fadein, R.anim.exit_left);
 				break;

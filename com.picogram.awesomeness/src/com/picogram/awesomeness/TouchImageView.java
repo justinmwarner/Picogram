@@ -136,7 +136,7 @@ public class TouchImageView extends ImageView implements OnGestureListener,
 
 		public boolean onTouch(final View v, final MotionEvent event) {
 			TouchImageView.this.mDetector.onTouchEvent(event);
-
+			
 			// Normal touch instance between gameplay and non.
 			if (!TouchImageView.this.isGameplay) {
 				TouchImageView.this.mScaleDetector.onTouchEvent(event);
@@ -278,10 +278,6 @@ public class TouchImageView extends ImageView implements OnGestureListener,
 	}
 
 	public void checkWin() {
-		Log.d(TAG, "Checking win");
-		Log.d(TAG, "win: sol: " + gSolution);
-		Log.d(TAG, "win: cur: " + gCurrent);
-		Log.d(TAG, "win: t/f: " + (this.gCurrent.replaceAll("x|X", "0").equals(this.gSolution)));
 		if (this.gCurrent.replaceAll("x|X", "0").equals(this.gSolution)) {
 			if (this.winListener != null) {
 				this.winListener.win();
@@ -858,6 +854,7 @@ public class TouchImageView extends ImageView implements OnGestureListener,
 	}
 
 	public boolean onDown(final MotionEvent event) {
+		Log.d(TAG, "1");
 		this.matrix.getValues(this.m);
 		final float transX = this.m[Matrix.MTRANS_X] * -1;
 		final float transY = this.m[Matrix.MTRANS_Y] * -1;
@@ -870,6 +867,7 @@ public class TouchImageView extends ImageView implements OnGestureListener,
 		if (((this.lastTouchX) < (this.canvasBitmap.getWidth() - (this.gWidth * this.cellWidth))) ||
 				((this.lastTouchY) < (this.canvasBitmap.getHeight() - (this.gHeight * this.cellHeight))))
 		{
+			Log.d(TAG, "2");
 			if (event.getPointerCount() > 2)
 			{
 				// Go to movement.
@@ -880,7 +878,9 @@ public class TouchImageView extends ImageView implements OnGestureListener,
 			return true;
 		}
 		try {
+			Log.d(TAG, "3 " + isGameplay);
 			if (this.isGameplay) {
+				Log.d(TAG, "4");
 
 				int indexX = (int) Math.floor((this.lastTouchX - (this.cellWidth * this.lSide))
 						/ this.cellWidth);
@@ -906,6 +906,7 @@ public class TouchImageView extends ImageView implements OnGestureListener,
 				}
 				this.gCurrent = String.valueOf(temp);
 				if (!past.equals(this.gCurrent)) {
+					Log.d(TAG, "5");
 
 					this.previousX = indexX;
 					this.previousY = indexY;
@@ -916,7 +917,8 @@ public class TouchImageView extends ImageView implements OnGestureListener,
 
 								public void run() {
 									if (TouchImageView.this.historyListener != null) {
-										TouchImageView.this.historyListener
+
+										Log.d(TAG, "6");TouchImageView.this.historyListener
 												.action(TouchImageView.this.oldCurrent);
 									}
 									TouchImageView.this.bitmapFromCurrent();

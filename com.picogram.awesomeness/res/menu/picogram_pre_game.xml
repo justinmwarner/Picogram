@@ -3,11 +3,11 @@
     <item
         android:id="@+id/menuClear"
         android:showAsAction="never"
-        android:title="Clear Progress"/>
+        android:title="Clear Picogram"/>
     <item
         android:id="@+id/menuDelete"
         android:showAsAction="never"
-        android:title="Delete From List"/>
+        android:title="Delete Picogram"/>
     <item
         android:id="@+id/menuReport"
         android:showAsAction="never"

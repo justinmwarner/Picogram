@@ -308,7 +308,7 @@ public class PreGameFragment extends Fragment implements OnClickListener, OnItem
 							}
 						}
 					}
-					if (PreGameFragment.this.current.getCurrent().replaceAll("x", "0").equals(PreGameFragment.this.current.getSolution()))
+					if (PreGameFragment.this.current.getCurrent().replaceAll("x|X", "0").equals(PreGameFragment.this.current.getSolution()))
 					{
 						// Only add users if they've beaten it.
 						if (!PreGameFragment.this.highscores.doesHighscoreExist(mine.getName(), mine.getScore())) {

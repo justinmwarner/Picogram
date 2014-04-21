@@ -8,4 +8,11 @@
         android:toXDelta="0%"
         android:toYDelta="0%" />
 
+
+    <rotate
+        android:duration="500"
+        android:fromDegrees="40"
+        android:pivotX="40%"
+        android:toDegrees="0" >
+    </rotate>
 </set>
