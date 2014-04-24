@@ -22,7 +22,6 @@ public class ChipsMultiAutoCompleteTextview extends MultiAutoCompleteTextView im
 
 	private final String TAG = "ChipsMultiAutoCompleteTextview";
 
-	// TextWatcher, If user type any country name and press comma then following code will regenerate chips
 	private final TextWatcher textWather = new TextWatcher() {
 
 		public void afterTextChanged(final Editable s) {
@@ -72,7 +71,7 @@ public class ChipsMultiAutoCompleteTextview extends MultiAutoCompleteTextView im
 
 	// This function has whole logic for chips generate
 	public void setChips() {
-		if (this.getText().toString().contains(",")) // check comman in string
+		if (this.getText().toString().contains(" ")) // check comman in string
 		{
 
 			final SpannableStringBuilder ssb = new SpannableStringBuilder(this.getText());

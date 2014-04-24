@@ -136,7 +136,7 @@ public class TouchImageView extends ImageView implements OnGestureListener,
 
 		public boolean onTouch(final View v, final MotionEvent event) {
 			TouchImageView.this.mDetector.onTouchEvent(event);
-			
+
 			// Normal touch instance between gameplay and non.
 			if (!TouchImageView.this.isGameplay) {
 				TouchImageView.this.mScaleDetector.onTouchEvent(event);
@@ -572,7 +572,7 @@ public class TouchImageView extends ImageView implements OnGestureListener,
 		final char[][] solution2D = this.puzzleTo2DArray(this.gSolution);
 		final ArrayList<String> solutionRows = this.getRows(solution2D);
 		final ArrayList<String> solutionColumns = this.getColumns(solution2D);
-
+		int numSolves = 0;
 		final char[][] current2D = this.puzzleTo2DArray(this.gCurrent);
 		final ArrayList<String> currentRows = this.getRows(current2D);
 		final ArrayList<String> currentColumns = this.getColumns(current2D);
@@ -588,6 +588,9 @@ public class TouchImageView extends ImageView implements OnGestureListener,
 						+ (i * this.cellHeight), (this.lSide * this.cellWidth) + 1,
 						(this.cellHeight * this.lTop) + (i * this.cellHeight) + this.cellHeight);
 				this.canvasBitmap.drawRect(r, this.paintBitmap);
+			} else if (sr.replaceAll("^0*|0*$", "").equals(cr.replaceAll("^0*|0*$", "")))
+			{
+				numSolves++;
 			}
 		}
 
@@ -603,7 +606,15 @@ public class TouchImageView extends ImageView implements OnGestureListener,
 						- 1, (i * this.cellWidth) + (this.lSide * this.cellWidth) + this.cellWidth,
 						(this.lTop * this.cellHeight) + 1);
 				this.canvasBitmap.drawRect(r, this.paintBitmap);
+			} else if (sr.replaceAll("^0*|0*$", "").equals(cr.replaceAll("^0*|0*$", "")))
+			{
+				numSolves++;
 			}
+		}
+		if (numSolves == gWidth * gHeight)
+		{
+			//TODO: Handle a false win, update online data and inform the player.
+			Log.d(TAG, "FALSE WIN!!!!");
 		}
 	}
 
@@ -918,7 +929,8 @@ public class TouchImageView extends ImageView implements OnGestureListener,
 								public void run() {
 									if (TouchImageView.this.historyListener != null) {
 
-										Log.d(TAG, "6");TouchImageView.this.historyListener
+										Log.d(TAG, "6");
+										TouchImageView.this.historyListener
 												.action(TouchImageView.this.oldCurrent);
 									}
 									TouchImageView.this.bitmapFromCurrent();

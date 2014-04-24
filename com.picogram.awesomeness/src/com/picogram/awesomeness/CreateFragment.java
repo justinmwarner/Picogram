@@ -127,7 +127,7 @@ public class CreateFragment extends Fragment implements OnClickListener, OnRange
 				sql.addUserPicogram(p);
 				sql.close();
 				final SQLiteTagAdapter tagSql = new SQLiteTagAdapter(this.getActivity(), "Tags", null, 1);
-				for (final String tag : this.autoTags.getText().toString().split(",")) {
+				for (final String tag : this.autoTags.getText().toString().split(" ")) {
 					if (tag.trim().length() != 0)
 					{
 						tagSql.insertCreate(tag.trim());
@@ -326,7 +326,9 @@ public class CreateFragment extends Fragment implements OnClickListener, OnRange
 			this.bHeightChange.setOnClickListener(this);
 			this.bColorChange.setOnClickListener(this);
 			this.tivGameOne = (TouchImageView) view.findViewById(R.id.tivGameOne);
-			// this.updateAllTouchImageViews((CreateActivity) this.getActivity());
+			bWidthChange.setText("Width: " + width);
+			bHeightChange.setText("Height: " + height);
+			bColorChange.setText("Color: " + numColor);
 
 		} else if (this.position == 1)
 		{
@@ -379,7 +381,7 @@ public class CreateFragment extends Fragment implements OnClickListener, OnRange
 
 		this.autoTags.setAdapter(new ArrayAdapter<String>(this.getActivity(),
 				android.R.layout.simple_dropdown_item_1line, array));
-		this.autoTags.setTokenizer(new MultiAutoCompleteTextView.CommaTokenizer());
+		this.autoTags.setTokenizer(new SpaceTokenizer());
 	}
 
 	private void showNumberDialog(final int id) {

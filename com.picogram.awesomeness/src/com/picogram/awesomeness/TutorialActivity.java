@@ -6,6 +6,7 @@ import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
@@ -15,6 +16,8 @@ import android.widget.TextView;
 import android.widget.VideoView;
 
 import com.actionbarsherlock.app.SherlockFragmentActivity;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuItem;
 import com.picogram.awesomeness.TouchImageView.WinnerListener;
 
 public class TutorialActivity extends SherlockFragmentActivity {
@@ -23,6 +26,32 @@ public class TutorialActivity extends SherlockFragmentActivity {
 	TouchImageView tiv;
 	TextView tv;
 	int currentStep = 0;
+	String tutorials[] = new String[] {
+			"Fill your game below with the video to the side.  Please click the bottom game to draw.  Fill in a square by tapping once, make it an X by tapping the same spot, and again to clear it.",
+			"Now look at this column here.  We can see it says 5 at the top, that means 5 filled in blocks in a row.  Because the height is 5, we can fill in all the squares.  Please do so below.",
+			"In this row, the same rule applies. 5 width with a 5 in the row hint, means the whole row is filled in.  Again, do so below.",
+			"If we look at this column, it says 1.  We already have 1 filled in square in this column, so we know the column is finished.  Fill the rest of the column up with X's by tapping each square twice.",
+			"Looking at this row, we see 1 1.  We know that two spots are filled, but they're not connecting.  So we have one of those spots, so we can put an X on the other side, because it's not connecting.",
+			"We can again fill the rest of this column up with X's.  But if we look, this leaves the first row with one spot left, so we know that that spot is filled, which makes the row finished.",
+			"A common strategy is overlapping.  If we see this column has a 3, we notice 4 spots.  Take the blue, it goes down 3 from the remaining top (Not including the X).  The yellow from the bottom to the top.  These overlap, green, and that spot can be filled in.",
+			"This column is similar to the 5 column.  We know that some amount of blank space is between the 1 and 3, the minimum amount being 1.  So if we add that spot to the filled in, 1 + 1 + 3 = 5.  The height is 5, so we knew this column from the start.",
+			"Looking at this column, we can conclude the final space is the top.  The last row is already fullfilled, but a X isn't necessary to win.  So fill in the last spot to finish!",
+			"CONGRATS!  You made a guy with an umbrella!"
+	};
+	int videos[] = new int[] {
+			R.raw.tutorial_one,
+			R.raw.tutorial_two,
+			R.raw.tutorial_three,
+			R.raw.tutorial_four,
+			R.raw.tutorial_five,
+			R.raw.tutorial_six,
+			R.raw.tutorial_seven,
+			R.raw.tutorial_eight,
+			R.raw.tutorial_nine,
+			R.raw.tutorial_ten,
+	};
+	boolean didX = false, didDraw = false, didClear = false;
+	Handler handle = new Handler();
 
 	@Override
 	protected void onCreate(final Bundle savedInstanceState) {
@@ -47,17 +76,22 @@ public class TutorialActivity extends SherlockFragmentActivity {
 		vv.start();
 		vv.requestFocus();
 		vv.setMediaController(null);
-		tv.setText("Fill your game below with the video to the side.  Please click the bottom game to draw.  Fill in a square by tapping once, make it an X by tapping the same spot");
+		tv.setText(tutorials[currentStep]);
 		tiv.colorCharacter = '1';
 		tiv.isGameplay = true;
 		new Thread(new Runnable() {
 
 			public void run() {
 				while (true) {
-					if (currentStep == 0 && tiv.gCurrent.contains("x") && tiv.gCurrent.contains("1"))
+					int initStep = currentStep;
+					if (currentStep == 0)
 					{
-						tiv.gCurrent = tiv.gCurrent.replaceAll("x|1", "0");
-						currentStep = 1;
+						if (tiv.gCurrent.contains("x"))
+							didX = true;
+						else if (tiv.gCurrent.contains("1"))
+							didDraw = true;
+						if (didX && didDraw && !tiv.gCurrent.contains("x|1"))
+							currentStep = 1;
 					}
 					if (tiv.gCurrent.equals("0010000100001000010000100"))
 					{
@@ -84,9 +118,37 @@ public class TutorialActivity extends SherlockFragmentActivity {
 					} else if (tiv.gCurrent.equals("xx1x1x11xx11111x11x1x01x1"))
 					{
 						currentStep = 9;
-					} else if (tiv.gCurrent.equals("00100001001111100100001000"))
+					} else if (tiv.gCurrent.equals("0x1000x100111110x1000x100"))
 					{
-						currentStep = 10;
+						// TODO: Track if the user ever gets here.
+						handle.post(new Runnable() {
+
+							public void run() {
+								tv.setText("Please note!  Your game board is different from the video's game!");
+							}
+						});
+					} else if (tiv.gCurrent.equals("xx1x1x01x011111x11x1x01x1"))
+					{
+						// TODO Track.
+						handle.post(new Runnable() {
+
+							public void run() {
+								tv.setText("Don't forget to put an X for this tutorial (This isn't necessary outside of the tutorial)");
+							}
+						});
+					}
+					if (initStep != currentStep)
+					{
+						handle.post(new Runnable() {
+
+							public void run() {
+								tv.setText(tutorials[currentStep]);
+								vv.setVideoURI(Uri.parse("android.resource://" + getPackageName() + "/" + videos[currentStep]));
+								vv.start();
+								if(currentStep == 9)
+									tiv.gCurrent.replaceAll("x|X", "0");
+							}
+						});
 					}
 				}
 			}
@@ -95,67 +157,35 @@ public class TutorialActivity extends SherlockFragmentActivity {
 
 			public void onCompletion(MediaPlayer mp) {
 				// When first video is done, go on to the second one.
-				if (currentStep == 1)
-				{
-					vv.setVideoURI(Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.tutorial_two));
-					tv.setText("Now look at this column here.  We can see it says 5 at the top, that means 5 filled in blocks in a row.  Because the height is 5, we can fill in all the squares.  Please do so below.");
-				}
-				else if (currentStep == 2)
-				{
-					vv.setVideoURI(Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.tutorial_three));
-					tv.setText("");
-				}
-				else if (currentStep == 3)
-				{
-					vv.setVideoURI(Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.tutorial_four));
-					tv.setText("");
-				}
-				else if (currentStep == 4)
-				{
-					vv.setVideoURI(Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.tutorial_five));
-					tv.setText("");
-				}
-				else if (currentStep == 5)
-				{
-					vv.setVideoURI(Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.tutorial_six));
-					tv.setText("");
-				}
-				else if (currentStep == 6)
-				{
-					vv.setVideoURI(Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.tutorial_seven));
-					tv.setText("");
-				}
-				else if (currentStep == 7)
-				{
-					vv.setVideoURI(Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.tutorial_eight));
-					tv.setText("");
-				}
-				else if (currentStep == 8)
-				{
-					vv.setVideoURI(Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.tutorial_nine));
-					tv.setText("");
-				}
-				else if (currentStep == 9)
-				{
-					vv.setVideoURI(Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.tutorial_ten));
-					tv.setText("");
-				}
+				tv.setText(tutorials[currentStep]);
+				vv.setVideoURI(Uri.parse("android.resource://" + getPackageName() + "/" + videos[currentStep]));
 				vv.start();
 			}
 		});
 		vv.setOnTouchListener(new OnTouchListener() {
 
 			public boolean onTouch(View v, MotionEvent event) {
-				if (event.getAction() == MotionEvent.ACTION_DOWN)
-					if (true)
-					{
-					}
-					else
-					{
-					}
+
 				return false;
 			}
 		});
 	}
 
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		this.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+		this.getSupportActionBar().setTitle("Tutorial");
+		return super.onCreateOptionsMenu(menu);
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		// TODO Auto-generated method stub
+		switch (item.getItemId()) {
+			case android.R.id.home:
+				this.finish();
+				break;
+		}
+		return super.onOptionsItemSelected(item);
+	}
 }

@@ -45,14 +45,8 @@ final class CustomActionMode implements Callback {
 
 	public boolean onCreateActionMode(final ActionMode mode, final Menu menu) {
 		// Used to put dark icons on light action bar
-
-		menu.add("Delete")
-				.setIcon(R.drawable.ic_xs)
-				.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
-
-		menu.add("Clear")
-				.setIcon(R.drawable.ic_transparent)
-				.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+		menu.add(0, 1, 2, "Delete");
+		menu.add(0, 1, 1, "Clear");
 
 		return true;
 	}

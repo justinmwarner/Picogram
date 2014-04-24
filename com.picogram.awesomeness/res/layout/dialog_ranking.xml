@@ -11,7 +11,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
-        android:text=":(" />
+        android:background="@drawable/sad" />
 
     <Button
         android:id="@+id/bHappy"
@@ -19,6 +19,6 @@
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
         android:layout_alignParentTop="true"
-        android:text="\u263A" />
+        android:background="@drawable/happy" />
 
 </RelativeLayout>
