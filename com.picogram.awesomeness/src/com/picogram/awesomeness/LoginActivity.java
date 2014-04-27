@@ -75,7 +75,6 @@ public class LoginActivity extends SherlockFragmentActivity implements OnClickLi
 			Util.getPreferences(this).edit().putBoolean("hasLoggedInUsername", true).commit();
 			editTextLogin.setText("");
 			login.setText("Current username: " + un);
-			Games.Achievements.unlock(getApiClient(), "CgkIm7WS6a8eEAIQBg ");
 		} else if (v.getId() == R.id.bFacebookLogin) {
 			Session session = Session.getActiveSession();
 			if (session == null) {

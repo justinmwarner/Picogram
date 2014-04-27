@@ -257,7 +257,7 @@ public class MenuActivity extends BaseGameActivity implements
 			// TODO fix, not big deal.
 		} else {
 			final Configuration croutonConfiguration = new Configuration.Builder().setDuration(5000).build();
-			final Crouton c = Crouton.makeText(this, "You're not logged in.  Click here to login.", Style.INFO);
+			final Crouton c = Crouton.makeText(this, "You still need a username! Click me to create one.", Style.INFO);
 			c.setConfiguration(croutonConfiguration);
 			c.setOnClickListener(new OnClickListener() {
 

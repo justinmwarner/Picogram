@@ -1,14 +1,21 @@
 
 package com.picogram.awesomeness;
 
+import android.util.Log;
 import android.view.View;
+import android.view.View.OnClickListener;
 
 import com.actionbarsherlock.view.ActionMode;
 import com.actionbarsherlock.view.ActionMode.Callback;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 
+import de.keyboardsurfer.android.widget.crouton.Configuration;
+import de.keyboardsurfer.android.widget.crouton.Crouton;
+import de.keyboardsurfer.android.widget.crouton.Style;
+
 final class CustomActionMode implements Callback {
+	protected static final String TAG = "CustomActionMode";
 	private final Picogram selectedPuzzle;
 	private final SQLitePicogramAdapter sql;
 	PicogramListAdapter adapter;
@@ -26,6 +33,27 @@ final class CustomActionMode implements Callback {
 	public boolean onActionItemClicked(final ActionMode mode, final MenuItem item) {
 		if (item.getTitle().equals("Delete"))
 		{
+			final Configuration croutonConfiguration = new Configuration.Builder().setDuration(5000).build();
+			Crouton c = Crouton.makeText(frag.getActivity(), "\nClick me to undo deletion.\n", Style.INFO);
+			c.setConfiguration(croutonConfiguration);
+			c.setOnClickListener(new OnClickListener() {
+
+				public void onClick(View v) {
+					sql.addUserPicogram(selectedPuzzle);
+					frag.myAdapter.addMy(selectedPuzzle);
+					frag.myAdapter.notifyDataSetChanged();
+					Crouton.cancelAllCroutons();
+					Log.d(TAG, "Size: " + frag.myAdapter.getCount());
+					frag.v.post(new Runnable() {
+
+						public void run() {
+							frag.v.setSelection(frag.v.getCount() - 1);
+						}
+					});
+
+				}
+			});
+			c.show();
 			this.sql.deletePicogram(this.selectedPuzzle.getID());
 		}
 		else if (item.getTitle().equals("Clear"))

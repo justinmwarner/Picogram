@@ -739,7 +739,7 @@ public class MenuFragment extends Fragment implements
 			}
 		}
 		this.pbLoad.setVisibility(View.INVISIBLE);
-		final BounceListView v = new BounceListView(this.getActivity());
+		v = new BounceListView(this.getActivity());
 		fl.setBackgroundColor(Color.TRANSPARENT);
 		v.setBackgroundDrawable(this.getActivity().getResources().getDrawable(R.drawable.item_square));
 		v.setDivider(new ColorDrawable(Color.parseColor("#00000000")));
@@ -784,7 +784,7 @@ public class MenuFragment extends Fragment implements
 		v.setLayoutParams(new LayoutParams(android.view.ViewGroup.LayoutParams.MATCH_PARENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT));
 		fl.addView(v);
 		return fl;
-	}
+	} BounceListView v;
 
 	@Override
 	public void onDestroy() {
